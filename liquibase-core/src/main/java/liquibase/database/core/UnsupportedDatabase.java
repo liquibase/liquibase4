@@ -13,7 +13,7 @@ public class UnsupportedDatabase extends AbstractJdbcDatabase {
 
     @Override
     public int getPriority(Scope scope) {
-        return -1;
+        return 0;
     }
 
     @Override

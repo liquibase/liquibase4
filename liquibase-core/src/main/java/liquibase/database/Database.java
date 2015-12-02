@@ -134,5 +134,7 @@ public interface Database extends Service {
     boolean supportsClustered(Class<? extends DatabaseObject> objectType);
 
     boolean supports(Class<? extends DatabaseObject> type);
+
+    boolean supportsAutoIncrement();
 }
 

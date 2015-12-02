@@ -1,5 +1,6 @@
 package liquibase.database;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.ObjectReference;
@@ -52,6 +53,11 @@ public abstract class AbstractJdbcDatabase implements Database {
     private Boolean storesUpperCaseIdentifiers;
     private Boolean storesUpperCaseQuotedIdentifiers;
     protected String currentDateTimeFunction;
+
+    @Override
+    public int getPriority(Scope scope) {
+        return PRIORITY_DEFAULT;
+    }
 
     public String getName() {
         return toString();
@@ -192,6 +198,11 @@ public abstract class AbstractJdbcDatabase implements Database {
 
     @Override
     public boolean supports(Class<? extends DatabaseObject> type) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAutoIncrement() {
         return true;
     }
 

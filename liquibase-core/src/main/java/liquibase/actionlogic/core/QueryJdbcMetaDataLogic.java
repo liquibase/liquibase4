@@ -56,7 +56,12 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
         try {
             if (method.equals("getTables")) {
                 Validate.isTrue(arguments.size() == 4, "getTables requires 4 arguments");
-                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))));
+                String tableName = (String) arguments.get(2);
+                if (tableName != null) {
+                    tableName = tableName.replace("\\", "\\\\\\\\");
+                    tableName = tableName.replace("'", "''");
+                }
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), tableName, (String[]) arguments.get(3))));
             } else if (method.equals("getColumns")) {
                 Validate.isTrue(arguments.size() == 4, "getColumns requires 4 arguments");
                 return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))));

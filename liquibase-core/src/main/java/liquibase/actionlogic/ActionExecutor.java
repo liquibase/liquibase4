@@ -74,7 +74,7 @@ public class ActionExecutor {
         ActionLogic actionLogic = getActionLogic(action, scope);
 
         if (actionLogic == null) {
-            throw new ActionPerformException("No supported ActionLogic implementation found for '"+action.describe()+"' against "+scope.describe());
+            throw new ActionPerformException("No supported ActionLogic implementation found for "+action.getClass().getName()+" '"+action.describe()+"' against "+scope.describe());
         }
 
         ValidationErrors validationErrors = actionLogic.validate(action, scope);

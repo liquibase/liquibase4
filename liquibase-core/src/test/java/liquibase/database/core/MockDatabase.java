@@ -22,6 +22,7 @@ public class MockDatabase implements Database, InternalDatabase {
 
     private boolean caseSensitive;
     private Map<Class<? extends DatabaseObject>, Boolean> supports = new HashMap<>();
+    private boolean supportsAutoIncrement = true;
 
 
     @Override
@@ -226,6 +227,15 @@ public class MockDatabase implements Database, InternalDatabase {
     public MockDatabase setSupports(Class<? extends DatabaseObject> type, Boolean supports) {
         this.supports.put(type, supports);
         return this;
+    }
+
+    @Override
+    public boolean supportsAutoIncrement() {
+        return supportsAutoIncrement;
+    }
+
+    public void setSupportsAutoIncrement(boolean supportsAutoIncrement) {
+        this.supportsAutoIncrement = supportsAutoIncrement;
     }
 
     @Override

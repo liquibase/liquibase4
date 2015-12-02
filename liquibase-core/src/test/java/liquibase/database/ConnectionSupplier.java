@@ -4,6 +4,7 @@ import liquibase.JUnitScope;
 import liquibase.Scope;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.exception.DatabaseException;
+import liquibase.servicelocator.Service;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
@@ -18,7 +19,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.*;
 
-public abstract class ConnectionSupplier implements Cloneable {
+public abstract class ConnectionSupplier implements Cloneable, Service {
 
     public static final String CONFIG_NAME_STANDARD = "standard";
 

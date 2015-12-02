@@ -8,6 +8,7 @@ import liquibase.resource.ResourceAccessor;
 import liquibase.servicelocator.AbstractServiceFactory;
 import liquibase.servicelocator.Service;
 import liquibase.servicelocator.ServiceLocator;
+import liquibase.snapshot.Snapshot;
 import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,5 +239,24 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
     public Database getDatabase(String shortName) {
         return getService(getRootScope(), shortName);
 
+    }
+
+    /**
+     * Creates a new Database instance with an offline connection pointing to the given snapshot
+     */
+    public Database fromSnapshot(Snapshot snapshot) {
+        Database database = snapshot.getScope().getDatabase();
+
+        DatabaseConnection conn = new OfflineConnection("offline:" + database.getShortName(), snapshot, snapshot.getScope().getResourceAccessor());
+
+        Database returnDatabase = null;
+        try {
+            returnDatabase = findCorrectDatabaseImplementation(conn);
+        } catch (DatabaseException e) {
+            throw new UnexpectedLiquibaseException(e);
+        }
+        returnDatabase.setConnection(conn);
+
+        return returnDatabase;
     }
 }
