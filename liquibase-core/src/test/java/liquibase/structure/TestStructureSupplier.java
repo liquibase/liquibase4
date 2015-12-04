@@ -13,9 +13,9 @@ import liquibase.util.ObjectUtil;
 
 import java.util.*;
 
-public abstract class TestStructureSupplier<T extends DatabaseObject> implements Service {
+public abstract class TestStructureSupplier<T extends LiquibaseObject> implements Service {
 
-    abstract int getPriority(Class<? extends DatabaseObject> type, Scope scope);
+    abstract int getPriority(Class<? extends LiquibaseObject> type, Scope scope);
 
     abstract List<T> getTestObjects(Class<T> type, Snapshot snapshot, Scope scope);
 
@@ -105,5 +105,5 @@ public abstract class TestStructureSupplier<T extends DatabaseObject> implements
         return scope.get(JUnitScope.Attr.connectionSupplier, ConnectionSupplier.class).getAllContainers();
     }
 
-    abstract Set<Class<? extends DatabaseObject>> requires(Scope scope);
+    abstract Set<Class<? extends LiquibaseObject>> requires(Scope scope);
 }

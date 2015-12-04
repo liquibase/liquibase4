@@ -19,12 +19,12 @@ import spock.lang.Unroll
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.containsInAnyOrder
 
-class SnapshotDatabaseObjectsActionTablesTest extends AbstractActionTest {
+class SnapshotObjectsActionTablesTest extends AbstractActionTest {
 
     @Unroll("#featureName: #tableRef on #conn")
     def "can snapshot fully qualified table"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Table, tableRef)
+        def action = new SnapshotObjectsAction(Table, tableRef)
 
         runStandardTest([tableName_asTable: tableRef], action, conn, scope, { plan, result ->
             assert result.asList(Table).size() == 1
@@ -46,7 +46,7 @@ class SnapshotDatabaseObjectsActionTablesTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaRef on #conn")
     def "can snapshot all tables in schema"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Table, schemaRef)
+        def action = new SnapshotObjectsAction(Table, schemaRef)
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
@@ -70,7 +70,7 @@ class SnapshotDatabaseObjectsActionTablesTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaRef on #conn")
     def "can snapshot all tables in schema using a null table name reference"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Table, new ObjectReference(Table, new ObjectReference(Table, schemaRef, null)))
+        def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, new ObjectReference(Table, schemaRef, null)))
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
@@ -94,7 +94,7 @@ class SnapshotDatabaseObjectsActionTablesTest extends AbstractActionTest {
     @Unroll("#featureName: #catalogRef on #conn")
     def "can snapshot all tables in catalog"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Table, new ObjectReference(Table, new ObjectReference(new ObjectReference(catalogRef, null), null)))
+        def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, new ObjectReference(new ObjectReference(catalogRef, null), null)))
 
         runStandardTest([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->

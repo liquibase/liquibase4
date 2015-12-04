@@ -1,7 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ObjectBasedQueryResult;
 import liquibase.database.Database;
@@ -9,13 +9,13 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.OfflineConnection;
 import liquibase.exception.ActionPerformException;
 import liquibase.snapshot.Snapshot;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.Set;
 
-public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<T extends SnapshotDatabaseObjectsAction> extends AbstractSnapshotDatabaseObjectsLogic<T> {
+public abstract class AbstractSnapshotObjectsLogicOffline<T extends SnapshotObjectsAction> extends AbstractSnapshotObjectsLogic<T> {
 
     @Override
     protected Class<? extends DatabaseConnection> getRequiredConnection() {
@@ -24,7 +24,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<T extends Snap
 
 
     @Override
-    public ActionResult execute(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         final Database database = scope.getDatabase();
         OfflineConnection connection = (OfflineConnection) database.getConnection();
         Snapshot snapshot = connection.getSnapshot();
@@ -39,7 +39,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<T extends Snap
         return new ObjectBasedQueryResult(CollectionUtil.select(new ArrayList(allObjectsOfType), getDatabaseObjectFilter(action, scope)));
     }
 
-    protected abstract CollectionUtil.CollectionFilter<? extends DatabaseObject> getDatabaseObjectFilter(SnapshotDatabaseObjectsAction action, Scope scope);
+    protected abstract CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(SnapshotObjectsAction action, Scope scope);
 
 
 }

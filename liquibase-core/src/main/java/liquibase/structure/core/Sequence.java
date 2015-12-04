@@ -1,11 +1,12 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractObject;
+import liquibase.structure.AbstractSchemaObject;
 import liquibase.structure.ObjectReference;
 
 import java.math.BigInteger;
 
-public class Sequence extends AbstractDatabaseObject {
+public class Sequence extends AbstractSchemaObject {
 
     public BigInteger startValue;
     public BigInteger incrementBy;
@@ -23,11 +24,11 @@ public class Sequence extends AbstractDatabaseObject {
         super(name);
     }
 
-    public Sequence(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public Sequence(ObjectReference reference) {
+        super(reference);
     }
 
-    public Sequence(ObjectReference container, String name) {
-        super(container, name);
+    public Sequence(ObjectReference schema, String name) {
+        super(schema, name);
     }
 }

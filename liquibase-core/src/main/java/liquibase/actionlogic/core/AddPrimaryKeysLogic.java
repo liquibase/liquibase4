@@ -57,7 +57,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
 
     protected Action execute(PrimaryKey pk, AddPrimaryKeysAction action, Scope scope) {
         return new AlterTableAction(
-                pk.columns.get(0).container,
+                pk.columns.get(0).table,
                 generateSql(pk, action, scope)
         );
     }

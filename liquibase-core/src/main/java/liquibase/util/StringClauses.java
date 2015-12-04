@@ -3,7 +3,7 @@ package liquibase.util;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.core.UnsupportedDatabase;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
 import java.util.*;
@@ -137,14 +137,14 @@ public class StringClauses {
         return this;
     }
 
-    public StringClauses append(List objects, Class<? extends DatabaseObject> type, Scope scope) {
+    public StringClauses append(List objects, Class<? extends LiquibaseObject> type, Scope scope) {
         Database database = scope.getDatabase();
         if (database == null) {
             database = new UnsupportedDatabase();
         }
         for (Object obj : objects) {
-            if (obj instanceof DatabaseObject) {
-                this.append(database.escapeObjectName(((DatabaseObject) obj).getName(), type));
+            if (obj instanceof LiquibaseObject) {
+                this.append(database.escapeObjectName(((LiquibaseObject) obj).getName(), type));
             } else if (obj instanceof ObjectReference) {
                 this.append(database.escapeObjectName(((ObjectReference) obj)));
             } else if (obj instanceof StringClauses) {

@@ -12,7 +12,7 @@ import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.servicelocator.AbstractServiceFactory
 import liquibase.servicelocator.Service
 import liquibase.snapshot.Snapshot
-import liquibase.structure.DatabaseObject
+import liquibase.structure.LiquibaseObject
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.TestStructureSupplierFactory
@@ -75,11 +75,11 @@ abstract class AbstractActionTest extends Specification {
         JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(type, defaultValues)
     }
 
-    protected List<ObjectReference> getObjectNames(Class<? extends DatabaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
+    protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
         return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
     }
 
-    protected String standardCaseObjectName(String name, Class<? extends DatabaseObject> type, Database database) {
+    protected String standardCaseObjectName(String name, Class<? extends LiquibaseObject> type, Database database) {
         if (database.canStoreObjectName("lowercase", false, type)) {
             return name.toLowerCase();
         } else {

@@ -1,13 +1,11 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractCatalogObject;
 import liquibase.structure.ObjectReference;
 
-public class Schema extends AbstractDatabaseObject {
+public class Schema extends AbstractCatalogObject {
 
-    public ObjectReference catalog;
     public Boolean isDefault;
-
 
     public Schema() {
     }

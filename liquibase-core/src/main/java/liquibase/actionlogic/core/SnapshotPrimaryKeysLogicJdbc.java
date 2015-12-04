@@ -2,12 +2,12 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ObjectBasedQueryResult;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
 import liquibase.structure.core.PrimaryKey;
@@ -16,15 +16,15 @@ import liquibase.structure.core.Schema;
 
 import java.util.*;
 
-public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotDatabaseObjectsLogicJdbc {
+public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
     @Override
-    protected Class<? extends DatabaseObject> getTypeToSnapshot() {
+    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
         return PrimaryKey.class;
     }
 
     @Override
-    protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
         return new Class[]{
                 PrimaryKey.class,
                 Relation.class,
@@ -34,7 +34,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotDatabaseObject
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
 //        DatabaseObject relatedTo = action.relatedTo;
 //        ObjectReference objectReference;
 //        if (relatedTo instanceof Catalog) {
@@ -64,7 +64,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotDatabaseObject
     }
 
     @Override
-    protected DatabaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotDatabaseObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         String pkName = row.get("PK_NAME", String.class);
         String columnName = row.get("COLUMN_NAME", String.class);
         Integer position = row.get("KEY_SEQ", Integer.class);
@@ -103,7 +103,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotDatabaseObject
 }
 
     @Override
-    protected ActionResult.Modifier createModifier(SnapshotDatabaseObjectsAction originalAction, Scope scope) {
+    protected ActionResult.Modifier createModifier(SnapshotObjectsAction originalAction, Scope scope) {
         return new SnapshotModifier(originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {

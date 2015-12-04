@@ -5,7 +5,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.InternalDatabase;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Schema;
 import liquibase.util.StringUtils;
@@ -21,7 +21,7 @@ public class MockDatabase implements Database, InternalDatabase {
     private DatabaseConnection connection;
 
     private boolean caseSensitive;
-    private Map<Class<? extends DatabaseObject>, Boolean> supports = new HashMap<>();
+    private Map<Class<? extends LiquibaseObject>, Boolean> supports = new HashMap<>();
     private boolean supportsAutoIncrement = true;
 
 
@@ -44,11 +44,11 @@ public class MockDatabase implements Database, InternalDatabase {
         return null;
     }
 
-    public DatabaseObject[] getContainingObjects() {
+    public LiquibaseObject[] getContainingObjects() {
         return null;
     }
 
-    public boolean equals(final DatabaseObject otherObject, final Database accordingTo) {
+    public boolean equals(final LiquibaseObject otherObject, final Database accordingTo) {
         return otherObject.getName().equalsIgnoreCase(this.getName());
     }
 
@@ -95,17 +95,17 @@ public class MockDatabase implements Database, InternalDatabase {
 
 
     @Override
-    public boolean isCaseSensitive(Class<? extends DatabaseObject> type) {
+    public boolean isCaseSensitive(Class<? extends LiquibaseObject> type) {
         return caseSensitive;
     }
 
     @Override
-    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends DatabaseObject> type) {
+    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type) {
         return true;
     }
 
     @Override
-    public boolean canStoreObjectName(String name, Class<? extends DatabaseObject> type) {
+    public boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type) {
         return true;
     }
 
@@ -217,14 +217,14 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public boolean supports(Class<? extends DatabaseObject> type) {
+    public boolean supports(Class<? extends LiquibaseObject> type) {
         if (supports.containsKey(type)) {
             return supports.get(type);
         }
         return true;
     }
 
-    public MockDatabase setSupports(Class<? extends DatabaseObject> type, Boolean supports) {
+    public MockDatabase setSupports(Class<? extends LiquibaseObject> type, Boolean supports) {
         this.supports.put(type, supports);
         return this;
     }
@@ -264,7 +264,7 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public String escapeObjectName(final String objectName, final Class<? extends DatabaseObject> objectType) {
+    public String escapeObjectName(final String objectName, final Class<? extends LiquibaseObject> objectType) {
         return "`" + objectName + "`";
     }
 
@@ -314,7 +314,7 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public boolean supportsClustered(Class<? extends DatabaseObject> objectType) {
+    public boolean supportsClustered(Class<? extends LiquibaseObject> objectType) {
         return true;
     }
 

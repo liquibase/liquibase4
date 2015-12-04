@@ -3,14 +3,11 @@ package liquibase.actionlogic
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.UpdateSqlAction
-import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.CreateSequenceAction
 import liquibase.action.core.DropSequenceAction
-import liquibase.action.core.SnapshotDatabaseObjectsAction
 import liquibase.database.core.MockDatabase
 import liquibase.servicelocator.MockServiceLocator
 import liquibase.servicelocator.ServiceLocator
-import liquibase.structure.core.Table
 import spock.lang.Specification
 
 class ActionLogicFactoryTest extends Specification {

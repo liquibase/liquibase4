@@ -3,11 +3,11 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
 import liquibase.structure.core.Schema;
@@ -20,15 +20,15 @@ import java.util.List;
 /**
  * Logic to snapshot database table(s). Delegates to {@link QueryJdbcMetaDataAction} getTables().
  */
-public class SnapshotTablesLogicJdbc extends AbstractSnapshotDatabaseObjectsLogicJdbc {
+public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
     @Override
-    protected Class<? extends DatabaseObject> getTypeToSnapshot() {
+    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
         return Table.class;
     }
 
     @Override
-    protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
         return new Class[]{
                 Schema.class,
                 Catalog.class,
@@ -37,7 +37,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotDatabaseObjectsLogi
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
 
         ObjectReference relatedTo = action.relatedTo;
         String catalogName = null;
@@ -73,7 +73,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotDatabaseObjectsLogi
     }
 
     @Override
-    protected DatabaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotDatabaseObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         String rawTableName = row.get("TABLE_NAME", String.class);
         String rawSchemaName = row.get("TABLE_SCHEM", String.class);
         String rawCatalogName = row.get("TABLE_CAT", String.class);

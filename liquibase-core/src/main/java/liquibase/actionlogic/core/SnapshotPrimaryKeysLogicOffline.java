@@ -2,10 +2,10 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionLogic;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
 import liquibase.structure.core.PrimaryKey;
@@ -13,15 +13,15 @@ import liquibase.structure.core.Relation;
 import liquibase.structure.core.Schema;
 import liquibase.util.CollectionUtil;
 
-public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObjectsLogicOffline implements ActionLogic.InteractsExternally {
+public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotObjectsLogicOffline implements ActionLogic.InteractsExternally {
 
     @Override
-    protected Class<? extends DatabaseObject> getTypeToSnapshot() {
+    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
         return PrimaryKey.class;
     }
 
     @Override
-    protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
         return new Class[]{
                 PrimaryKey.class,
                 Relation.class,
@@ -35,7 +35,7 @@ public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObj
         return true;
     }
 
-    protected CollectionUtil.CollectionFilter<? extends DatabaseObject> getDatabaseObjectFilter(SnapshotDatabaseObjectsAction action, Scope scope) {
+    protected CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(SnapshotObjectsAction action, Scope scope) {
         final ObjectReference relatedTo = action.relatedTo;
 
         return new CollectionUtil.CollectionFilter<PrimaryKey>() {
@@ -44,13 +44,13 @@ public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObj
                 if (relatedTo.instanceOf(PrimaryKey.class)) {
                     return primarykey.getName().equals(relatedTo.name);
                 } else if (relatedTo.instanceOf(Relation.class)) {
-                    ObjectReference tableName = primarykey.getTableName();
+                    ObjectReference tableName = primarykey.table;
                     return tableName != null && tableName.equals((relatedTo));
                 } else if (relatedTo.instanceOf(Schema.class)) {
-                    ObjectReference tableName = primarykey.container;
+                    ObjectReference tableName = primarykey.table;
                     return tableName != null && tableName.container != null && tableName.container.equals((relatedTo.container));
                 } else if (relatedTo.instanceOf(Catalog.class)) {
-                    ObjectReference tableName = primarykey.container;
+                    ObjectReference tableName = primarykey.table;
                     if (tableName == null || tableName.container == null) {
                         return false;
                     }

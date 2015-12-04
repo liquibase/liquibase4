@@ -5,16 +5,13 @@ import liquibase.Scope;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
 import liquibase.structure.core.Schema;
-import liquibase.util.CollectionUtil;
 import org.slf4j.LoggerFactory;
 import testmd.logic.SetupResult;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.*;
@@ -191,7 +188,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
     }
 
 
-    public List<String> getSimpleObjectNames(Class<? extends DatabaseObject> type) {
+    public List<String> getSimpleObjectNames(Class<? extends LiquibaseObject> type) {
         List<String> returnList = new ArrayList<>();
         returnList.add("test" + type.getSimpleName().toLowerCase());
         returnList.add("TEST" + type.getSimpleName().toUpperCase());

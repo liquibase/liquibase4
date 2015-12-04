@@ -13,11 +13,11 @@ public class Table extends Relation {
         super(name);
     }
 
-    public Table(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public Table(ObjectReference reference) {
+        super(reference);
     }
 
-    public Table(ObjectReference container, String name) {
-        super(container, name);
+    public Table(ObjectReference schema, String name) {
+        super(schema, name);
     }
 }

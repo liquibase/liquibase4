@@ -3,14 +3,14 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.structure.DatabaseFunction;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
 import liquibase.util.ObjectUtil;
@@ -24,15 +24,15 @@ import java.util.List;
 /**
  * Logic to snapshot database column(s). Delegates to {@link QueryJdbcMetaDataAction} getColumns().
  */
-public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLogicJdbc {
+public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
     @Override
-    protected Class<? extends DatabaseObject> getTypeToSnapshot() {
+    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
         return Column.class;
     }
 
     @Override
-    protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
         return new Class[]{
                 Column.class,
                 Relation.class,
@@ -45,7 +45,7 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
     /**
      * Creates an ObjectName with null values for "unknown" portions and calls {@link #createColumnSnapshotAction(ObjectReference)}.
      */
-    protected Action createSnapshotAction(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         ObjectReference relatedTo = action.relatedTo;
 
         ObjectReference columnName;
@@ -84,7 +84,7 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
 
 
     @Override
-    protected DatabaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotDatabaseObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
 
         String rawTableName = StringUtils.trimToNull(row.get("TABLE_NAME", String.class));
@@ -99,13 +99,13 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
 
         Column column = new Column();
         if (rawSchemaName == null) {
-            column.container = new ObjectReference(rawCatalogName, rawTableName);
+            column.table = new ObjectReference(rawCatalogName, rawTableName);
             column.name = rawColumnName;
         } else {
             if (database.supports(Catalog.class)) {
-                column.container = new ObjectReference(rawCatalogName, rawSchemaName, rawTableName);
+                column.table = new ObjectReference(rawCatalogName, rawSchemaName, rawTableName);
             } else {
-                column.container = new ObjectReference(rawSchemaName, rawTableName);
+                column.table = new ObjectReference(rawSchemaName, rawTableName);
             }
             column.name = rawColumnName;
 

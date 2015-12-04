@@ -3,7 +3,7 @@ package liquibase.database;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
 import java.util.Date;
@@ -84,7 +84,7 @@ public interface Database extends Service {
 
     String getDateLiteral(Date defaultDateValue);
 
-    String escapeObjectName(String objectName, Class<? extends DatabaseObject> objectType);
+    String escapeObjectName(String objectName, Class<? extends LiquibaseObject> objectType);
 
     String escapeObjectName(ObjectReference objectReference);
 
@@ -112,14 +112,14 @@ public interface Database extends Service {
 
     void enableForeignKeyChecks() throws DatabaseException;
 
-    boolean isCaseSensitive(Class<? extends DatabaseObject> type);
+    boolean isCaseSensitive(Class<? extends LiquibaseObject> type);
 
     /**
      * Return true if the database is able to store the given name as is.
      */
-    boolean canStoreObjectName(String name, Class<? extends DatabaseObject> type);
+    boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type);
 
-    boolean canStoreObjectName(String name, boolean quoted, Class<? extends DatabaseObject> type);
+    boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type);
 
     boolean isReservedWord(String string);
 
@@ -131,9 +131,9 @@ public interface Database extends Service {
 
     boolean requiresDefiningColumnsAsNull();
 
-    boolean supportsClustered(Class<? extends DatabaseObject> objectType);
+    boolean supportsClustered(Class<? extends LiquibaseObject> objectType);
 
-    boolean supports(Class<? extends DatabaseObject> type);
+    boolean supports(Class<? extends LiquibaseObject> type);
 
     boolean supportsAutoIncrement();
 }

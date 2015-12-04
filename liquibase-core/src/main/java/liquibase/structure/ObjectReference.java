@@ -10,7 +10,7 @@ import java.util.ListIterator;
 
 public class ObjectReference extends AbstractExtensibleObject implements Comparable<ObjectReference> {
 
-    public Class<? extends DatabaseObject> type;
+    public Class<? extends LiquibaseObject> type;
     public String name;
     public ObjectReference container;
     public boolean virtual;
@@ -33,7 +33,7 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
     public ObjectReference() {
     }
 
-    public ObjectReference(Class<? extends DatabaseObject> type, ObjectReference container, String... names) {
+    public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container, String... names) {
         this.type = type;
         if (names == null || names.length == 0) {
             this.container = container.container;
@@ -54,7 +54,7 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         this(null, container, names);
     }
 
-    public ObjectReference(Class<? extends DatabaseObject> type, String... names) {
+    public ObjectReference(Class<? extends LiquibaseObject> type, String... names) {
         this(type, null, names);
     }
 
@@ -241,7 +241,7 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         return new ObjectReference(type, names.subList(names.size() - length, names.size()).toArray(new String[length]));
     }
 
-    public boolean instanceOf(Class<? extends DatabaseObject> type) {
+    public boolean instanceOf(Class<? extends LiquibaseObject> type) {
         return type.isAssignableFrom(this.type);
     }
 }

@@ -1,8 +1,7 @@
 package liquibase.structure.core;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.structure.AbstractDatabaseObject;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 
 import java.math.BigInteger;
@@ -10,7 +9,7 @@ import java.math.BigInteger;
 /**
  * Container is assumed to be the table
  */
-public class Column extends AbstractDatabaseObject {
+public class Column extends AbstractTableObject {
 
     public DataType type;
     public AutoIncrementInformation autoIncrementInformation;
@@ -26,8 +25,8 @@ public class Column extends AbstractDatabaseObject {
         super(name);
     }
 
-    public Column(ObjectReference nameAndTable) {
-        super(nameAndTable);
+    public Column(ColumnReference reference) {
+        super(reference.getRelation(), reference.name);
     }
 
     public Column(ObjectReference table, String name) {

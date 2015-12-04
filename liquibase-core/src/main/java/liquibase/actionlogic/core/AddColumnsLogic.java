@@ -87,13 +87,13 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     @Override
     public ActionStatus checkStatus(AddColumnsAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
-        ObjectReference tableName = action.columns.get(0).container;
+        ObjectReference tableName = action.columns.get(0).table;
 
         try {
             PrimaryKey snapshotPK = null;
 
             if (action.primaryKey != null) {
-                snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotDatabaseObjectsAction(PrimaryKey.class, tableName), scope).asObject(PrimaryKey.class);
+                snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(PrimaryKey.class, tableName), scope).asObject(PrimaryKey.class);
             }
 
             for (Column actionColumn : action.columns) {
@@ -101,9 +101,9 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                 if (snapshotColumn == null) {
                     result.assertApplied(false, "Column '"+actionColumn.name+"' not found");
                 } else {
-                    Table table = scope.getSingleton(SnapshotFactory.class).snapshot(snapshotColumn.container, scope);
+                    Table table = scope.getSingleton(SnapshotFactory.class).snapshot(snapshotColumn.table, scope);
                     if (table == null) {
-                        result.unknown("Cannot find table " + snapshotColumn.container);
+                        result.unknown("Cannot find table " + snapshotColumn.table);
                     } else {
                         List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable"));
 
@@ -178,7 +178,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     protected Action[] execute(Column column, AddColumnsAction action, Scope scope) {
         List<Action> returnActions = new ArrayList<>();
         returnActions.add(new AlterTableAction(
-                column.container,
+                column.table,
                 getColumnClause(column, action, scope)
         ));
 

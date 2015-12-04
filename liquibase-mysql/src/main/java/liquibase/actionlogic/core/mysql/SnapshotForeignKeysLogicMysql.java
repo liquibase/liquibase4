@@ -3,13 +3,13 @@ package liquibase.actionlogic.core.mysql;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.actionlogic.core.SnapshotForeignKeysLogicJdbc;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MySQLDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Schema;
@@ -24,12 +24,12 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
     }
 
     @Override
-    public int getPriority(SnapshotDatabaseObjectsAction action, Scope scope) {
+    public int getPriority(SnapshotObjectsAction action, Scope scope) {
         return super.getPriority(action, scope);
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         StringClauses query = new StringClauses(" ").append("SELECT " +
                 "KEY_COL.CONSTRAINT_SCHEMA AS FKTABLE_CAT, " +
                 "KEY_COL.CONSTRAINT_NAME AS FK_NAME, " +
@@ -69,7 +69,7 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
     }
 
     @Override
-    protected DatabaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotDatabaseObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         ForeignKey fk = (ForeignKey) super.convertToObject(row, originalAction, scope);
 
         String updateRule = row.get("UPDATE_RULE_STRING", String.class);

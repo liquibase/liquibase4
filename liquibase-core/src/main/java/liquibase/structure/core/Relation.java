@@ -1,12 +1,13 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractObject;
+import liquibase.structure.AbstractSchemaObject;
 import liquibase.structure.ObjectReference;
 
 /**
  * A container of columns. Usually a table or view.
  */
-public abstract class Relation extends AbstractDatabaseObject {
+public abstract class Relation extends AbstractSchemaObject {
 
     public String remarks;
 
@@ -17,8 +18,8 @@ public abstract class Relation extends AbstractDatabaseObject {
         super(name);
     }
 
-    public Relation(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public Relation(ObjectReference reference) {
+        super(reference);
     }
 
     public Relation(ObjectReference container, String name) {

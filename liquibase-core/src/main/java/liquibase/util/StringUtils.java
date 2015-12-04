@@ -3,7 +3,7 @@ package liquibase.util;
 import liquibase.ExtensibleObject;
 import liquibase.database.Database;
 import liquibase.database.core.UnsupportedDatabase;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
 import java.util.*;
@@ -353,9 +353,9 @@ public class StringUtils {
     public static class ObjectNameFormatter implements StringUtilsFormatter<ObjectReference> {
 
         private Database database;
-        private Class<? extends DatabaseObject> objectType;
+        private Class<? extends LiquibaseObject> objectType;
 
-        public ObjectNameFormatter(Class<? extends DatabaseObject> objectType, Database database) {
+        public ObjectNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
             this.objectType = objectType;
             this.database = database;
 
@@ -373,9 +373,9 @@ public class StringUtils {
     public static class ObjectSimpleNameFormatter implements StringUtilsFormatter<ObjectReference> {
 
         private Database database;
-        private Class<? extends DatabaseObject> objectType;
+        private Class<? extends LiquibaseObject> objectType;
 
-        public ObjectSimpleNameFormatter(Class<? extends DatabaseObject> objectType, Database database) {
+        public ObjectSimpleNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
             this.objectType = objectType;
             this.database = database;
 
@@ -393,9 +393,9 @@ public class StringUtils {
     public static class ObjectStringNameFormatter implements StringUtilsFormatter<String> {
 
         private Database database;
-        private Class<? extends DatabaseObject> objectType;
+        private Class<? extends LiquibaseObject> objectType;
 
-        public ObjectStringNameFormatter(Class<? extends DatabaseObject> objectType, Database database) {
+        public ObjectStringNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
             this.objectType = objectType;
             this.database = database;
 

@@ -3,9 +3,8 @@ package liquibase.database.core.mysql;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Catalog;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.Sequence;
@@ -64,7 +63,7 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    protected boolean mustQuoteObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
+    protected boolean mustQuoteObjectName(String objectName, Class<? extends LiquibaseObject> objectType) {
         return super.mustQuoteObjectName(objectName, objectType) || (!objectName.contains("(") && !objectName.matches("\\w+"));
     }
 
@@ -116,16 +115,16 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public boolean supports(Class<? extends DatabaseObject> type) {
+    public boolean supports(Class<? extends LiquibaseObject> type) {
         return !type.isAssignableFrom(Sequence.class)
                 && super.supports(type);
     }
 
     @Override
     public String escapeObjectName(ObjectReference objectReference) {
-        Class<? extends DatabaseObject> objectType = objectReference.type;
+        Class<? extends LiquibaseObject> objectType = objectReference.type;
         if (objectType == null) {
-            objectType = DatabaseObject.class;
+            objectType = LiquibaseObject.class;
         }
 
         if (objectType.isAssignableFrom(Index.class) || objectType.isAssignableFrom(ForeignKey.class)) {

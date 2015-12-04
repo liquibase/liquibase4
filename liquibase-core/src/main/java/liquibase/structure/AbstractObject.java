@@ -3,10 +3,9 @@ package liquibase.structure;
 import liquibase.AbstractExtensibleObject;
 import liquibase.util.StringUtils;
 
-public abstract class AbstractDatabaseObject extends AbstractExtensibleObject implements DatabaseObject {
+public abstract class AbstractObject extends AbstractExtensibleObject implements LiquibaseObject {
 
     public String snapshotId;
-    public ObjectReference container;
     public String name;
 
     @Override
@@ -14,38 +13,18 @@ public abstract class AbstractDatabaseObject extends AbstractExtensibleObject im
         return StringUtils.lowerCaseFirst(getClass().getSimpleName());
     }
 
-    public AbstractDatabaseObject() {
+    public AbstractObject() {
     }
 
-    public AbstractDatabaseObject(String name) {
+    public AbstractObject(String name) {
         this.name = name;
     }
-
-    public AbstractDatabaseObject(ObjectReference nameAndContainer) {
-        this.name = nameAndContainer.name;
-        this.container = nameAndContainer.container;
-    }
-
-    public AbstractDatabaseObject(ObjectReference container, String name) {
-        this.container = container;
-        this.name = name;
-    }
-
-
 
     /**
      * Returns the name. Marked final so subclasses don't change business logic and make it not match get("name")
      */
     public final String getName() {
         return name;
-    }
-
-    /**
-     * Returns the schema. Marked final so subclasses don't change business logic and make it not match get("schema")
-     */
-    @Override
-    public final ObjectReference getContainer() {
-        return container;
     }
 
     /**
@@ -63,10 +42,10 @@ public abstract class AbstractDatabaseObject extends AbstractExtensibleObject im
 
     @Override
     public int compareTo(Object o) {
-        if (o == null || !(o instanceof DatabaseObject)) {
+        if (o == null || !(o instanceof LiquibaseObject)) {
             return 1;
         }
-        return this.toReference().compareTo(((DatabaseObject) o).toReference());
+        return this.toReference().compareTo(((LiquibaseObject) o).toReference());
     }
 
 
@@ -93,12 +72,12 @@ public abstract class AbstractDatabaseObject extends AbstractExtensibleObject im
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof DatabaseObject
-                && this.toReference().equals(((DatabaseObject) obj).toReference());
+        return obj instanceof LiquibaseObject
+                && this.toReference().equals(((LiquibaseObject) obj).toReference());
     }
 
     @Override
     public ObjectReference toReference() {
-        return new ObjectReference(getClass(), container, name);
+        return new ObjectReference(getClass(), name);
     }
 }

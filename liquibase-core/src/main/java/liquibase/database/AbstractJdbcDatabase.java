@@ -2,7 +2,7 @@ package liquibase.database;
 
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
 import liquibase.util.ISODateFormat;
@@ -73,7 +73,7 @@ public abstract class AbstractJdbcDatabase implements Database {
         return true;
     }
 
-    public DatabaseObject[] getContainingObjects() {
+    public LiquibaseObject[] getContainingObjects() {
         return null;
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractJdbcDatabase implements Database {
 
 
     @Override
-    public boolean supports(Class<? extends DatabaseObject> type) {
+    public boolean supports(Class<? extends LiquibaseObject> type) {
         if (type.isAssignableFrom(Catalog.class)) {
             return false;
         }
@@ -461,11 +461,11 @@ public abstract class AbstractJdbcDatabase implements Database {
         return storesUpperCaseQuotedIdentifiers;
     }
 
-    public boolean canStoreObjectName(String name, Class<? extends DatabaseObject> type) {
+    public boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type) {
         return canStoreObjectName(name, false, type) || canStoreObjectName(name, true, type);
     }
 
-    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends DatabaseObject> type) {
+    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type) {
         if (name.matches("[a-z_0-9]+")) {
             if (quoted) {
                 return storesLowerCaseQuotedIdentifiers();
@@ -490,7 +490,7 @@ public abstract class AbstractJdbcDatabase implements Database {
     }
 
     @Override
-    public boolean isCaseSensitive(Class<? extends DatabaseObject> type) {
+    public boolean isCaseSensitive(Class<? extends LiquibaseObject> type) {
         final boolean DEFAULT_CASE_SENSITIVE = true;
 
         if (caseSensitive == null) {
@@ -594,7 +594,7 @@ public abstract class AbstractJdbcDatabase implements Database {
 
 
     @Override
-    public String escapeObjectName(String objectName, final Class<? extends DatabaseObject> objectType) {
+    public String escapeObjectName(String objectName, final Class<? extends LiquibaseObject> objectType) {
         if (objectName == null) {
             return null;
         } else {
@@ -604,9 +604,9 @@ public abstract class AbstractJdbcDatabase implements Database {
 
     @Override
     public String escapeObjectName(ObjectReference objectReference) {
-        Class<? extends DatabaseObject> objectType = objectReference.type;
+        Class<? extends LiquibaseObject> objectType = objectReference.type;
         if (objectType == null) {
-            objectType = DatabaseObject.class;
+            objectType = LiquibaseObject.class;
         }
 
         if (objectType.isAssignableFrom(Column.class) || objectType.isAssignableFrom(PrimaryKey.class)  || objectType.isAssignableFrom(UniqueConstraint.class)) {
@@ -623,11 +623,11 @@ public abstract class AbstractJdbcDatabase implements Database {
         return StringUtils.join(objectReference.truncate(length).asList(), ".", new StringUtils.ObjectStringNameFormatter(objectType, this));
     }
 
-    protected boolean mustQuoteObjectName(String objectName, Class<? extends DatabaseObject> objectType) {
+    protected boolean mustQuoteObjectName(String objectName, Class<? extends LiquibaseObject> objectType) {
         return objectName.contains("-") || startsWithNumeric(objectName) || isReservedWord(objectName) || objectName.matches(".*\\W.*") || (!canStoreObjectName(objectName, false, objectType) && canStoreObjectName(objectName, true, objectType));
     }
 
-    public String quoteObject(final String objectName, final Class<? extends DatabaseObject> objectType) {
+    public String quoteObject(final String objectName, final Class<? extends LiquibaseObject> objectType) {
         if (objectName == null) {
             return null;
         }
@@ -773,7 +773,7 @@ public abstract class AbstractJdbcDatabase implements Database {
 
 
     @Override
-    public boolean supportsClustered(Class<? extends DatabaseObject> objectType) {
+    public boolean supportsClustered(Class<? extends LiquibaseObject> objectType) {
         return false;
     }
 

@@ -1,12 +1,14 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractObject;
+import liquibase.structure.AbstractSchemaObject;
+import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Index extends AbstractDatabaseObject {
+public class Index extends AbstractSchemaObject {
 
     public List<IndexedColumn> columns = new ArrayList<>();
     public String tablespace;
@@ -20,12 +22,12 @@ public class Index extends AbstractDatabaseObject {
         super(name);
     }
 
-    public Index(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public Index(ObjectReference reference) {
+        super(reference);
     }
 
-    public Index(ObjectReference container, String name) {
-        super(container, name);
+    public Index(ObjectReference schema, String name) {
+        super(schema, name);
     }
 
     public Index(String indexName, String... columns) {
@@ -80,7 +82,7 @@ public class Index extends AbstractDatabaseObject {
         public ObjectReference table;
     }
 
-    public static class IndexedColumn extends AbstractDatabaseObject {
+    public static class IndexedColumn extends AbstractTableObject {
         public Boolean computed;
         public Boolean descending;
 
@@ -91,12 +93,8 @@ public class Index extends AbstractDatabaseObject {
             super(name);
         }
 
-        public IndexedColumn(ObjectReference nameAndContainer) {
-            super(nameAndContainer);
-        }
-
-        public IndexedColumn(ObjectReference container, String name) {
-            super(container, name);
+        public IndexedColumn(ObjectReference table, String name) {
+            super(table, name);
         }
 
         public String toString(boolean includeRelation) {

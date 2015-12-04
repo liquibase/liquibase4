@@ -1,20 +1,20 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.AbstractActionLogic;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 
 /**
- * Convenience abstract base class for {@link liquibase.action.core.SnapshotDatabaseObjectsAction} related logic.
+ * Convenience abstract base class for {@link SnapshotObjectsAction} related logic.
  * Implementations should not directly execute the metadata read, but instead return a {@link liquibase.actionlogic.DelegateResult} that returns simple lower-level actions.
  * This pattern is built into this methods {@link #execute(liquibase.action.Action, liquibase.Scope)} method.
  */
-public abstract class AbstractSnapshotDatabaseObjectsLogic<T extends SnapshotDatabaseObjectsAction> extends AbstractActionLogic<T> {
+public abstract class AbstractSnapshotObjectsLogic<T extends SnapshotObjectsAction> extends AbstractActionLogic<T> {
 
     @Override
     protected Class<T> getSupportedAction() {
-        return (Class<T>) SnapshotDatabaseObjectsAction.class;
+        return (Class<T>) SnapshotObjectsAction.class;
     }
 
     @Override
@@ -43,12 +43,12 @@ public abstract class AbstractSnapshotDatabaseObjectsLogic<T extends SnapshotDat
      * Return the type of object this logic implementation supports.
      * Used in {@link #getPriority(liquibase.action.Action, liquibase.Scope)}.
      */
-    abstract protected Class <? extends DatabaseObject> getTypeToSnapshot();
+    abstract protected Class <? extends LiquibaseObject> getTypeToSnapshot();
 
     /**
-     * Return the type(s) of {@link liquibase.action.core.SnapshotDatabaseObjectsAction#relatedTo} objects this implementation supports.
+     * Return the type(s) of {@link SnapshotObjectsAction#relatedTo} objects this implementation supports.
      * Used in {@link #getPriority(liquibase.action.Action, liquibase.Scope)}.
      */
-    abstract protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes();
+    abstract protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes();
 
 }

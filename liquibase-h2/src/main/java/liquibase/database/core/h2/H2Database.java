@@ -1,13 +1,11 @@
 package liquibase.database.core.h2;
 
-import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Relation;
-import liquibase.structure.core.Table;
 import liquibase.util.ISODateFormat;
 
 import java.text.DateFormat;
@@ -155,7 +153,7 @@ public class H2Database extends AbstractJdbcDatabase {
     }
 
     @Override
-    public boolean isCaseSensitive(Class<? extends DatabaseObject> type) {
+    public boolean isCaseSensitive(Class<? extends LiquibaseObject> type) {
         return true;
     }
 }

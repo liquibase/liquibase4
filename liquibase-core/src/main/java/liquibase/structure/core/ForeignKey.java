@@ -1,10 +1,12 @@
 package liquibase.structure.core;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractObject;
+import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringUtils;
+import liquibase.util.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
 /**
  * Assumes no container for object, base table and referenced table are based on the ForeignKeyColumnChecks
  */
-public class ForeignKey extends AbstractDatabaseObject {
+public class ForeignKey extends AbstractTableObject {
 
     public List<ForeignKeyColumnCheck> columnChecks = new ArrayList<>();
     public Boolean deferrable;
@@ -27,7 +29,16 @@ public class ForeignKey extends AbstractDatabaseObject {
         super(name);
     }
 
-    public ForeignKey(String name, List<ObjectReference> foreignKeyColumns, List<ObjectReference> primaryKeyColumns) {
+    public ForeignKey(ObjectReference reference) {
+        super(reference);
+    }
+
+    public ForeignKey(ObjectReference table, String name) {
+        super(name);
+        this.table = table;
+    }
+
+    public ForeignKey(ObjectReference table, String name, List<Column.ColumnReference> foreignKeyColumns, List<Column.ColumnReference> primaryKeyColumns) {
         this(name);
         for (int i=0; i<CollectionUtil.createIfNull(foreignKeyColumns).size(); i++) {
             this.columnChecks.add(new ForeignKeyColumnCheck(foreignKeyColumns.get(i), primaryKeyColumns.get(i), i));

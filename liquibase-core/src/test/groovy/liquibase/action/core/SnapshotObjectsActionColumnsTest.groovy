@@ -16,12 +16,12 @@ import liquibase.util.CollectionUtil
 import org.junit.Assume
 import spock.lang.Unroll
 
-class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
+class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
     @Unroll("#featureName: #columnRef on #conn")
     def "can find fully qualified complex column names"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Column, columnRef)
+        def action = new SnapshotObjectsAction(Column, columnRef)
 
         runStandardTest([columnName_asTable: columnRef.toString()], action, conn, scope, {
             plan, result ->
@@ -45,7 +45,7 @@ class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
     @Unroll("#featureName: #tableRef on #conn")
     def "can find all columns in a fully qualified complex table name"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Column, tableRef)
+        def action = new SnapshotObjectsAction(Column, tableRef)
 
         runStandardTest([tableName_asTable: tableRef], action, conn, scope, {
             plan, result ->
@@ -71,7 +71,7 @@ class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaRef on #conn")
     def "can find all columns in a schema"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Column, schemaRef)
+        def action = new SnapshotObjectsAction(Column, schemaRef)
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, {
             plan, result ->
@@ -97,7 +97,7 @@ class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
     @Unroll("#featureName: #catalogRef on #conn")
     def "can find all columns in a catalog"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(Column, catalogRef)
+        def action = new SnapshotObjectsAction(Column, catalogRef)
 
         runStandardTest([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->
@@ -125,7 +125,7 @@ class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
     @Unroll("#featureName: #columnRef (autoIncrement: #autoIncrement) on #conn")
     def "autoIncrement information set correctly"() {
         expect:
-        def action = new SnapshotDatabaseObjectsAction(columnRef)
+        def action = new SnapshotObjectsAction(columnRef)
 
         runStandardTest([columnName_asTable: columnRef, autoIncrement_asTable: autoIncrement], action, conn, scope, {
             plan, result ->
@@ -180,7 +180,7 @@ class SnapshotDatabaseObjectsActionColumnsTest extends AbstractActionTest {
         snapshot.add(new Table(new ObjectReference(schema, tableName)))
 
         then:
-        def action = new SnapshotDatabaseObjectsAction(column.toReference())
+        def action = new SnapshotObjectsAction(column.toReference())
 
         runStandardTest([columnName_asTable: column.getName(), type_asTable: ((Column) column).type], snapshot, action, conn, scope, {
             plan, result ->

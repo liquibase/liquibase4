@@ -2,7 +2,7 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.ObjectBasedQueryResult;
@@ -10,14 +10,14 @@ import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractSnapshotDatabaseObjectsLogicJdbc<T extends SnapshotDatabaseObjectsAction> extends AbstractSnapshotDatabaseObjectsLogic<T> {
+public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjectsAction> extends AbstractSnapshotObjectsLogic<T> {
 
     @Override
     protected Class<? extends DatabaseConnection> getRequiredConnection() {
@@ -43,7 +43,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicJdbc<T extends Snapsho
     /**
      * Returns a {@link liquibase.actionlogic.ActionResult.Modifier} that will convert the raw results from the action returned by {@link #createSnapshotAction(T, liquibase.Scope)}
      * to a list of objects.
-     * Default implementation returns {@link liquibase.actionlogic.core.AbstractSnapshotDatabaseObjectsLogicJdbc.SnapshotModifier} which uses {@link #convertToObject(liquibase.actionlogic.RowBasedQueryResult.Row, T, liquibase.Scope)}
+     * Default implementation returns {@link AbstractSnapshotObjectsLogicJdbc.SnapshotModifier} which uses {@link #convertToObject(liquibase.actionlogic.RowBasedQueryResult.Row, T, liquibase.Scope)}
      * to convert the returned QueryResult to the correct DatabaseObject.
      *
      * The passed action is the original action, not the one returned by {@link #createSnapshotAction(T, liquibase.Scope)}
@@ -55,22 +55,16 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicJdbc<T extends Snapsho
     /**
      * Converts a row returned by the generated action into the final object type.
      */
-    protected abstract DatabaseObject convertToObject(RowBasedQueryResult.Row row, T originalAction, Scope scope) throws ActionPerformException;
+    protected abstract LiquibaseObject convertToObject(RowBasedQueryResult.Row row, T originalAction, Scope scope) throws ActionPerformException;
 
     /**
      * Called for each DatabaseObject in {@link SnapshotModifier#rewrite(liquibase.actionlogic.ActionResult)} to "fix" any raw data coming back from the database.
      * Default implementation trims object name to null.
      */
-    protected void correctObject(DatabaseObject object) {
+    protected void correctObject(LiquibaseObject object) {
         String name = object.getName();
         if (name != null) {
             object.set("name", StringUtils.trimToNull(name));
-        }
-
-        ObjectReference container = object.getContainer();
-        while (container != null) {
-            container.name = StringUtils.trimToNull(container.name);
-            container = container.container;
         }
     }
 
@@ -97,14 +91,14 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicJdbc<T extends Snapsho
 
         @Override
         public ActionResult rewrite(ActionResult result) throws ActionPerformException {
-            List<DatabaseObject> databaseObjects = new ArrayList<DatabaseObject>();
+            List<LiquibaseObject> liquibaseObjects = new ArrayList<LiquibaseObject>();
             for (RowBasedQueryResult.Row row : ((RowBasedQueryResult) result).getRows()) {
-                DatabaseObject object = convertToObject(row, getOriginalAction(), getScope());
+                LiquibaseObject object = convertToObject(row, getOriginalAction(), getScope());
                 correctObject(object);
-                databaseObjects.add(object);
+                liquibaseObjects.add(object);
             }
 
-            return new ObjectBasedQueryResult(databaseObjects);
+            return new ObjectBasedQueryResult(liquibaseObjects);
         }
 
     }

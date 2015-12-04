@@ -1,6 +1,7 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractDatabaseObject;
+import liquibase.structure.AbstractObject;
+import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringUtils;
@@ -8,7 +9,7 @@ import liquibase.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrimaryKey extends AbstractDatabaseObject {
+public class PrimaryKey extends AbstractTableObject {
 
     public List<PrimaryKeyColumn> columns = new ArrayList<>();
     public String tablespace;
@@ -18,12 +19,12 @@ public class PrimaryKey extends AbstractDatabaseObject {
     public PrimaryKey() {
     }
 
-    public PrimaryKey(String name) {
-        super(name);
+    public PrimaryKey(String pkName) {
+        super(pkName);
     }
 
-    public PrimaryKey(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public PrimaryKey(ObjectReference reference) {
+        super(reference);
     }
 
     public PrimaryKey(ObjectReference container, String name) {
@@ -37,14 +38,6 @@ public class PrimaryKey extends AbstractDatabaseObject {
             this.columns.add(new PrimaryKeyColumn(new ObjectReference(table, columnName)));
         }
     }
-
-    public ObjectReference getTableName() {
-        if (columns == null || columns.size() == 0) {
-            return null;
-        }
-        return columns.get(0).container;
-    }
-
 
     @Override
     public String toString() {
@@ -60,7 +53,7 @@ public class PrimaryKey extends AbstractDatabaseObject {
         return false;
     }
 
-    public static class PrimaryKeyColumn extends AbstractDatabaseObject {
+    public static class PrimaryKeyColumn extends AbstractTableObject {
         public Boolean descending;
 
         public PrimaryKeyColumn() {

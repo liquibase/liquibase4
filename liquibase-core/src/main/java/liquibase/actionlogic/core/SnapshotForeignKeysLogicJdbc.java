@@ -3,12 +3,12 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
+import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ObjectBasedQueryResult;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.DatabaseObject;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
 import liquibase.util.Validate;
@@ -16,15 +16,15 @@ import liquibase.util.Validate;
 import java.sql.DatabaseMetaData;
 import java.util.*;
 
-public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotDatabaseObjectsLogicJdbc {
+public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
     @Override
-    protected Class<? extends DatabaseObject> getTypeToSnapshot() {
+    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
         return ForeignKey.class;
     }
 
     @Override
-    protected Class<? extends DatabaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
         return new Class[]{
                 ForeignKey.class,
                 Relation.class,
@@ -34,7 +34,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotDatabaseObject
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotDatabaseObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         ObjectReference relatedTo = action.relatedTo;
         ObjectReference fkName = null;
         ObjectReference tableName = null;
@@ -64,7 +64,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotDatabaseObject
     }
 
     @Override
-    protected DatabaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotDatabaseObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         String pkTableCat = row.get("PKTABLE_CAT", String.class);
         String pkTableSchema = row.get("PKTABLE_SCHEM", String.class);
         String pkTableName = row.get("PKTABLE_NAME", String.class);
@@ -162,7 +162,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotDatabaseObject
 }
 
     @Override
-    protected ActionResult.Modifier createModifier(SnapshotDatabaseObjectsAction originalAction, Scope scope) {
+    protected ActionResult.Modifier createModifier(SnapshotObjectsAction originalAction, Scope scope) {
         return new SnapshotModifier(originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
