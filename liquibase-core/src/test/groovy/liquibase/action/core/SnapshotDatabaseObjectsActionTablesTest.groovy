@@ -123,7 +123,7 @@ class SnapshotDatabaseObjectsActionTablesTest extends AbstractActionTest {
         Snapshot snapshot = new Snapshot(scope)
         for (ObjectReference tableName : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
             snapshot.add(new Table(tableName))
-            snapshot.add(new Column(tableName, correctObjectName("id", Column, scope.getDatabase()), "int"))
+            snapshot.add(new Column(tableName, standardCaseObjectName("id", Column, scope.getDatabase()), "int"))
         }
         return snapshot
     }

@@ -117,8 +117,7 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
 
     @Override
     public boolean supports(Class<? extends DatabaseObject> type) {
-        return !type.isAssignableFrom(Catalog.class)
-                && !type.isAssignableFrom(Sequence.class)
+        return !type.isAssignableFrom(Sequence.class)
                 && super.supports(type);
     }
 
@@ -418,4 +417,20 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
     public boolean requiresDefiningColumnsAsNull() {
         return true;
     }
+
+    @Override
+    public boolean metaDataCallsSchemasCatalogs() {
+        return true;
+    }
+
+    @Override
+    public String escapeStringForLike(String string) {
+        if (string == null) {
+            return null;
+        }
+        string = string.replace("\\", "\\\\\\\\");
+        string = string.replace("'", "''");
+        return string;
+    }
+
 }

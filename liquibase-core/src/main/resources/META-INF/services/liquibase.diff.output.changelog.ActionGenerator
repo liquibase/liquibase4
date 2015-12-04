@@ -1,1 +1,2 @@
 liquibase.diff.output.changelog.core.MissingTableActionGenerator
+liquibase.diff.output.changelog.core.MissingPrimaryKeyActionGenerator

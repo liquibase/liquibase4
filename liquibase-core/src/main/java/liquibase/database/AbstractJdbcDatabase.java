@@ -198,6 +198,9 @@ public abstract class AbstractJdbcDatabase implements Database {
 
     @Override
     public boolean supports(Class<? extends DatabaseObject> type) {
+        if (type.isAssignableFrom(Catalog.class)) {
+            return false;
+        }
         return true;
     }
 
@@ -778,4 +781,14 @@ public abstract class AbstractJdbcDatabase implements Database {
         return value.startsWith("\"SYSIBM\"") || value.startsWith("to_date(") || value.equalsIgnoreCase(getCurrentDateTimeFunction());
     }
 
+    public boolean metaDataCallsSchemasCatalogs() {
+        return false;
+    }
+
+    public String escapeStringForLike(String string) {
+        if (string == null) {
+            return null;
+        }
+        return (string.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"));
+    }
 }

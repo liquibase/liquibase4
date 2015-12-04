@@ -6,14 +6,12 @@ import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
+import liquibase.structure.DataTypeTranslator
 import liquibase.structure.TestStructureSupplier
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.lang.reflect.Modifier
-
-import static org.hamcrest.Matchers.containsInAnyOrder
-import static spock.util.matcher.HamcrestSupport.that
 
 public class ServiceLocatorTest extends Specification {
 
@@ -57,6 +55,7 @@ public class ServiceLocatorTest extends Specification {
                 ActionLogic,
                 ConnectionSupplier,
                 Database,
+                DataTypeTranslator,
                 ActionGenerator,
                 TestStructureSupplier,
                 AbstractActionTest.TestDetails,

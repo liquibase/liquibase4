@@ -9,6 +9,9 @@ import liquibase.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Assumes no container for object, base table and referenced table are based on the ForeignKeyColumnChecks
+ */
 public class ForeignKey extends AbstractDatabaseObject {
 
     public List<ForeignKeyColumnCheck> columnChecks = new ArrayList<>();
@@ -16,21 +19,12 @@ public class ForeignKey extends AbstractDatabaseObject {
     public Boolean initiallyDeferred;
     public ForeignKey.ConstraintType updateRule;
     public ForeignKey.ConstraintType deleteRule;
-    public ObjectReference backingIndex;
 
     public ForeignKey() {
     }
 
     public ForeignKey(String name) {
         super(name);
-    }
-
-    public ForeignKey(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
-    }
-
-    public ForeignKey(ObjectReference container, String name) {
-        super(container, name);
     }
 
     public ForeignKey(String name, List<ObjectReference> foreignKeyColumns, List<ObjectReference> primaryKeyColumns) {

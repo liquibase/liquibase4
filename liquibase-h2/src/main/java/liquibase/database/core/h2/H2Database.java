@@ -5,6 +5,9 @@ import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.ObjectReference;
+import liquibase.structure.core.Relation;
+import liquibase.structure.core.Table;
 import liquibase.util.ISODateFormat;
 
 import java.text.DateFormat;
@@ -57,6 +60,14 @@ public class H2Database extends AbstractJdbcDatabase {
         return false;
     }
 
+    @Override
+    public String escapeObjectName(ObjectReference objectReference) {
+        if (objectReference.type != null && Relation.class.isAssignableFrom(objectReference.type) && objectReference.container != null && objectReference.container.container != null ) { //cannot reference catalog level
+            objectReference = (ObjectReference) objectReference.clone();
+            objectReference.container.container = null;
+        }
+        return super.escapeObjectName(objectReference);
+    }
 
     @Override
     public String getDateLiteral(String isoDate) {

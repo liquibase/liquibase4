@@ -7,9 +7,11 @@ import liquibase.structure.ObjectReference;
 
 import java.math.BigInteger;
 
+/**
+ * Container is assumed to be the table
+ */
 public class Column extends AbstractDatabaseObject {
 
-    public ObjectReference table;
     public DataType type;
     public AutoIncrementInformation autoIncrementInformation;
     public Boolean nullable;
@@ -24,12 +26,12 @@ public class Column extends AbstractDatabaseObject {
         super(name);
     }
 
-    public Column(ObjectReference nameAndContainer) {
-        super(nameAndContainer);
+    public Column(ObjectReference nameAndTable) {
+        super(nameAndTable);
     }
 
-    public Column(ObjectReference container, String name) {
-        super(container, name);
+    public Column(ObjectReference table, String name) {
+        super(table, name);
     }
 
     public Column(ObjectReference table, String columnName, DataType type, Boolean nullable) {
@@ -76,18 +78,16 @@ public class Column extends AbstractDatabaseObject {
     public static class ColumnReference extends ObjectReference {
 
         public ColumnReference() {
+            type = Column.class;
         }
 
-        public ColumnReference(Class<? extends DatabaseObject> type, ObjectReference container, String... names) {
-            super(type, container, names);
-        }
-
-        public ColumnReference(ObjectReference container, String... names) {
-            super(container, names);
+        public ColumnReference(ObjectReference table, String name) {
+            super(Column.class, table, name);
         }
 
         public ColumnReference(String... names) {
             super(names);
+            type = Column.class;
         }
 
         public ObjectReference getRelation() {

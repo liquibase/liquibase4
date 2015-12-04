@@ -21,7 +21,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     def "Can apply standard settings to complex names"() {
         when:
         def action = new AddAutoIncrementAction()
-        action.columnName = new ObjectReference(tableName, columnName.name)
+        action.columnName = new Column.ColumnReference((ObjectReference) tableName, columnName.name)
         action.columnDataType = new DataType(DataType.StandardType.INTEGER);
 
         then:
@@ -82,11 +82,11 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     }
 
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
-        ObjectReference columnName = ((AddAutoIncrementAction) action).columnName
+        Column.ColumnReference columnName = ((AddAutoIncrementAction) action).columnName
         Snapshot snapshot = new Snapshot(scope)
-        snapshot.add(new Table(columnName.container))
-        snapshot.add(new Column(new ObjectReference(columnName.container, "id"), "int"))
-        snapshot.add(new Column(columnName, "int"))
+        snapshot.add(new Table(columnName.relation))
+        snapshot.add(new Column(columnName.relation, "id", "int"))
+        snapshot.add(new Column(columnName.relation, columnName.name, "int"))
 
         if (((TestDetails) getTestDetails(scope)).createPrimaryKeyBeforeAutoIncrement()) {
             snapshot.add(new PrimaryKey(new ObjectReference(columnName.container, null), columnName.name))

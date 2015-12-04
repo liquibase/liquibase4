@@ -1,5 +1,8 @@
 liquibase.actionlogic.core.AddAutoIncrementLogic
+liquibase.actionlogic.core.AddColumnsLogic
+liquibase.actionlogic.core.AddPrimaryKeysLogic
 liquibase.actionlogic.core.AlterColumnLogic
+liquibase.actionlogic.core.AlterTableLogic
 liquibase.actionlogic.core.CreateTableLogic
 liquibase.actionlogic.core.DropDefaultValueLogic
 liquibase.actionlogic.core.DropForeignKeyLogic

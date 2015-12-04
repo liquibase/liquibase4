@@ -5,9 +5,11 @@ import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotDatabaseObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
+import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.structure.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
@@ -63,13 +65,20 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
         return createColumnSnapshotAction(columnName, scope);
     }
 
-    protected Action createColumnSnapshotAction(ObjectReference columnName, Scope scope) {
-        List<String> nameParts = columnName.asList(4);
+    protected Action createColumnSnapshotAction(ObjectReference columnRef, Scope scope) {
+        List<String> nameParts = columnRef.asList(4);
 
-        if (nameParts.get(0) != null || scope.getDatabase().supports(Catalog.class)) {
-            return new QueryJdbcMetaDataAction("getColumns", nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3));
+        AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
+        String tableName = database.escapeStringForLike(nameParts.get(2));
+        String columnName = database.escapeStringForLike(nameParts.get(3));
+        if (nameParts.get(0) != null || database.supports(Catalog.class)) {
+            return new QueryJdbcMetaDataAction("getColumns", nameParts.get(0), nameParts.get(1), tableName, columnName);
         } else {
-            return new QueryJdbcMetaDataAction("getColumns", nameParts.get(1), null, nameParts.get(2), nameParts.get(3));
+            if (database.metaDataCallsSchemasCatalogs()) {
+                return new QueryJdbcMetaDataAction("getColumns", nameParts.get(1), null, tableName, columnName);
+            } else {
+                return new QueryJdbcMetaDataAction("getColumns", null, nameParts.get(1), tableName, columnName);
+            }
         }
     }
 
@@ -93,7 +102,11 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
             column.container = new ObjectReference(rawCatalogName, rawTableName);
             column.name = rawColumnName;
         } else {
-            column.container = new ObjectReference(rawCatalogName, rawSchemaName, rawTableName);
+            if (database.supports(Catalog.class)) {
+                column.container = new ObjectReference(rawCatalogName, rawSchemaName, rawTableName);
+            } else {
+                column.container = new ObjectReference(rawSchemaName, rawTableName);
+            }
             column.name = rawColumnName;
 
         }
@@ -328,13 +341,13 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotDatabaseObjectsLog
         }
 
         Class valueType = ObjectUtil.defaultIfEmpty(column.type.valueType, Object.class);
-//        if (defaultValueAsString.startsWith("(") && defaultValueAsString.endsWith(")")) {
-//            return new DatabaseFunction(defaultValueAsString.substring(1, defaultValueAsString.length()-1));
-//        } else if (defaultValueAsString.startsWith("'") && defaultValueAsString.endsWith("'")) {
-//            return ObjectUtil.convert(defaultValueAsString.substring(1, defaultValueAsString.length() - 1), valueType);
-//        } else {
+        if (defaultValueAsString.startsWith("(") && defaultValueAsString.endsWith(")")) {
+            return new DatabaseFunction(defaultValueAsString.substring(1, defaultValueAsString.length()-1));
+        } else if (defaultValueAsString.startsWith("'") && defaultValueAsString.endsWith("'")) {
+            return ObjectUtil.convert(defaultValueAsString.substring(1, defaultValueAsString.length() - 1), valueType);
+        } else {
             return row.get("COLUMN_DEF", valueType);
-//        }
+        }
 
 //TODO: refactor action        if (database instanceof MSSQLDatabase) {
 //            Object defaultValue = row.get("COLUMN_DEF", Object.class);

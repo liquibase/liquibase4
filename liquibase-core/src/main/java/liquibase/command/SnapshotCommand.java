@@ -1,9 +1,6 @@
 package liquibase.command;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotDatabaseObjectsAction;
-import liquibase.actionlogic.ActionExecutor;
-import liquibase.exception.ActionPerformException;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.DatabaseObject;
@@ -43,7 +40,7 @@ public class SnapshotCommand extends AbstractCommand<SnapshotCommand.SnapshotCom
 
         for (ObjectReference related : relatedObjects) {
             for (Class type : types) {
-                snapshot.addAll(scope.getSingleton(SnapshotFactory.class).getAll(type, related, scope));
+                snapshot.addAll(scope.getSingleton(SnapshotFactory.class).snapshotAll(type, related, scope));
             }
         }
 

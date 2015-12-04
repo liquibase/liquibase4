@@ -49,7 +49,7 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
     public ActionStatus checkStatus(AddAutoIncrementAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
         try {
-            Column column = scope.getSingleton(SnapshotFactory.class).get(action.columnName, scope);
+            Column column = scope.getSingleton(SnapshotFactory.class).snapshot(action.columnName, scope);
             if (column == null) return result.unknown("Column '"+action.columnName+"' does not exist");
 
 

@@ -20,14 +20,14 @@ public class SnapshotFactory {
         return result.size() > 0;
     }
 
-    public <T extends DatabaseObject> T get(ObjectReference object, Scope scope) throws ActionPerformException {
+    public <T extends DatabaseObject> T snapshot(ObjectReference object, Scope scope) throws ActionPerformException {
         QueryResult result = (QueryResult) new ActionExecutor().execute(new SnapshotDatabaseObjectsAction(object), scope);
 
         return (T) result.asObject(object.getClass());
     }
 
 
-    public <T extends DatabaseObject> T get(Class<T> type, ObjectReference relatedTo, Scope scope) throws ActionPerformException {
+    public <T extends DatabaseObject> T snapshot(Class<T> type, ObjectReference relatedTo, Scope scope) throws ActionPerformException {
         ActionExecutor actionExecutor = scope.getSingleton(ActionExecutor.class);
 
         return actionExecutor.query(new SnapshotDatabaseObjectsAction(type, relatedTo), scope).asObject(type);
@@ -36,7 +36,7 @@ public class SnapshotFactory {
     /**
      * Snapshotting multiple objects. Returns empty list if none are found.
      */
-    public <T extends DatabaseObject> List<T> getAll(Class<T> type, ObjectReference relatedTo, Scope scope) throws ActionPerformException {
+    public <T extends DatabaseObject> List<T> snapshotAll(Class<T> type, ObjectReference relatedTo, Scope scope) throws ActionPerformException {
         ActionExecutor actionExecutor = scope.getSingleton(ActionExecutor.class);
 
         return actionExecutor.query(new SnapshotDatabaseObjectsAction(type, relatedTo), scope).asList(type);

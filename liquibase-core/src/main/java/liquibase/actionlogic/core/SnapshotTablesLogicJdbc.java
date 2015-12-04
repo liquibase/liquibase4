@@ -5,6 +5,7 @@ import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotDatabaseObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
+import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.ObjectReference;
@@ -58,10 +59,16 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotDatabaseObjectsLogi
             throw Validate.failure("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
 
-        if (scope.getDatabase().supports(Catalog.class)) {
+        AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
+        tableName = database.escapeStringForLike(tableName);
+        if (database.supports(Catalog.class)) {
             return new QueryJdbcMetaDataAction("getTables", catalogName, schemaName, tableName, new String[]{"TABLE"});
-        } else { //usually calls schemas "catalogs"
-            return new QueryJdbcMetaDataAction("getTables", schemaName, null, tableName, new String[]{"TABLE"});
+        } else {
+            if (database.metaDataCallsSchemasCatalogs()) {
+                return new QueryJdbcMetaDataAction("getTables", schemaName, null, tableName, new String[]{"TABLE"});
+            } else {
+                return new QueryJdbcMetaDataAction("getTables", null, schemaName, tableName, new String[]{"TABLE"});
+            }
         }
     }
 

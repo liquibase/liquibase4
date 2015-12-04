@@ -17,6 +17,7 @@ import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.TestStructureSupplierFactory
 import liquibase.structure.core.*
+import liquibase.test.TestObjectFactory
 import org.junit.Assume
 import org.slf4j.LoggerFactory
 import org.spockframework.runtime.SpecificationContext
@@ -70,11 +71,15 @@ abstract class AbstractActionTest extends Specification {
         JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers
     }
 
+    protected List createAllPermutations(Class type, Map<String, List<Object>> defaultValues) {
+        JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(type, defaultValues)
+    }
+
     protected List<ObjectReference> getObjectNames(Class<? extends DatabaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
         return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
     }
 
-    protected String correctObjectName(String name, Class<? extends DatabaseObject> type, Database database) {
+    protected String standardCaseObjectName(String name, Class<? extends DatabaseObject> type, Database database) {
         if (database.canStoreObjectName("lowercase", false, type)) {
             return name.toLowerCase();
         } else {

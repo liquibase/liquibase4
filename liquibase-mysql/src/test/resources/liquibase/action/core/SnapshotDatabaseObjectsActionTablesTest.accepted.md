@@ -26,12 +26,12 @@
 | :---------- | :------- | :------------------------------------------- | :------
 | e83394      | true     | lbcat.4test_table (TABLE)                    | **plan**: getTables(lbcat, null, 4test_table, [TABLE])
 | 56b06d      | true     | lbcat.anotherlowertable (TABLE)              | **plan**: getTables(lbcat, null, anotherlowertable, [TABLE])
-| 45eba6      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table (TABLE)  | **plan**: getTables(lbcat, null, crazy!@#\$%^&*()_+{}[]'"table, [TABLE])
+| 45eba6      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table (TABLE)  | **plan**: getTables(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, [TABLE])
 | e0e1e5      | true     | lbcat.lowertable (TABLE)                     | **plan**: getTables(lbcat, null, lowertable, [TABLE])
 | 1217fc      | true     | lbcat.only_in_lbcat (TABLE)                  | **plan**: getTables(lbcat, null, only_in_lbcat, [TABLE])
 | cdbe33      | true     | lbcat2.4test_table (TABLE)                   | **plan**: getTables(lbcat2, null, 4test_table, [TABLE])
 | c51a94      | true     | lbcat2.anotherlowertable (TABLE)             | **plan**: getTables(lbcat2, null, anotherlowertable, [TABLE])
-| 85fbd4      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table (TABLE) | **plan**: getTables(lbcat2, null, crazy!@#\$%^&*()_+{}[]'"table, [TABLE])
+| 85fbd4      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table (TABLE) | **plan**: getTables(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, [TABLE])
 | 3cb8b0      | true     | lbcat2.lowertable (TABLE)                    | **plan**: getTables(lbcat2, null, lowertable, [TABLE])
 | a1779f      | true     | lbcat2.only_in_lbcat2 (TABLE)                | **plan**: getTables(lbcat2, null, only_in_lbcat2, [TABLE])
 
