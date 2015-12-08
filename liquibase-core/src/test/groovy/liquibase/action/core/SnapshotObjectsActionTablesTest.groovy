@@ -50,7 +50,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
-                it.container == schemaRef
+                it.schema == schemaRef
             })
             assertThat result.asList(Table), containsInAnyOrder(expected.toArray())
         })
@@ -74,7 +74,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
-                it.container == schemaRef
+                it.schema == schemaRef
             })
             assertThat result.asList(Table), containsInAnyOrder(expected.toArray())
         })
@@ -99,7 +99,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         runStandardTest([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->
                 def expected = result.asList(Table).grep({
-                    it.container.container == catalogRef
+                    it.schema.catalog == catalogRef
                 })
 
                 assertThat result.asList(Table), containsInAnyOrder(expected.toArray())

@@ -24,12 +24,8 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
     }
 
     @Override
-    public int getPriority(SnapshotObjectsAction action, Scope scope) {
-        return super.getPriority(action, scope);
-    }
-
-    @Override
-    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+        Database database = scope.getDatabase();
         StringClauses query = new StringClauses(" ").append("SELECT " +
                 "KEY_COL.CONSTRAINT_SCHEMA AS FKTABLE_CAT, " +
                 "KEY_COL.CONSTRAINT_NAME AS FK_NAME, " +
@@ -48,29 +44,29 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
                 "AND KEY_COL.CONSTRAINT_NAME=CON.CONSTRAINT_NAME "+
                 "AND KEY_COL.TABLE_NAME=CON.TABLE_NAME "+
                 "WHERE KEY_COL.REFERENCED_COLUMN_NAME IS NOT NULL");
-        if (action.relatedTo.instanceOf(ForeignKey.class)) {
-            if (action.relatedTo.name== null) {
-                ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) action.relatedTo).table;
-                query.append("AND KEY_COL.TABLE_NAME='" + baseTable.name + "'")
-                        .append("AND KEY_COL.TABLE_SCHEMA='" + baseTable.container.name + "'");
+        if (relatedTo.instanceOf(ForeignKey.class)) {
+            if (relatedTo.name== null) {
+                ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
+                query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(baseTable.name) + "'")
+                        .append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(baseTable.container.name) + "'");
             } else {
-                query.append("AND KEY_COL.CONSTRAINT_NAME='" + action.relatedTo.name + "'")
-                        .append("AND KEY_COL.CONSTRAINT_SCHEMA='" + action.relatedTo.container.name + "'");
+                query.append("AND KEY_COL.CONSTRAINT_NAME='" + database.escapeString(relatedTo.name) + "'")
+                        .append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.container.container.name) + "'");
             }
-        } else if (action.relatedTo.instanceOf(Table.class)) {
-            query.append("AND KEY_COL.TABLE_NAME_NAME='" + action.relatedTo.name + "'")
-                    .append("AND KEY_COL.TABLE_SCHEMA='" + action.relatedTo.container.name + "'");
-        } else if (action.relatedTo.instanceOf(Schema.class)) {
-            query.append("AND KEY_COL.CONSTRAINT_SCHEMA='" + action.relatedTo.name + "'");
+        } else if (relatedTo.instanceOf(Table.class)) {
+            query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(relatedTo.name) + "'")
+                    .append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(relatedTo.container.name) + "'");
+        } else if (relatedTo.instanceOf(Schema.class)) {
+            query.append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.name) + "'");
         } else {
-            throw new ActionPerformException("Unexpected relatedTo type: " + action.relatedTo.getClass().getName());
+            throw new ActionPerformException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
         return new QuerySqlAction(query);
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
-        ForeignKey fk = (ForeignKey) super.convertToObject(row, originalAction, scope);
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        ForeignKey fk = (ForeignKey) super.convertToObject(row, relatedTo, originalAction, scope);
 
         String updateRule = row.get("UPDATE_RULE_STRING", String.class);
         if (updateRule != null) {

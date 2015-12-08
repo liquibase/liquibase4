@@ -32,8 +32,8 @@ public class PrimaryKey extends AbstractTableObject {
     }
 
     public PrimaryKey(String pkName, ObjectReference table, String... columns) {
-        super(pkName);
-
+        super(table, pkName);
+                
         for (String columnName : columns) {
             this.columns.add(new PrimaryKeyColumn(new ObjectReference(table, columnName)));
         }

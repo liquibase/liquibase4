@@ -28,7 +28,7 @@ class ActionExecutorTest extends Specification {
 
         then:
         def e = thrown(ActionPerformException)
-        e.message == "No supported ActionLogic implementation found for 'mock()' against scope(database=jdbc mock)"
+        e.message == "No supported ActionLogic implementation found for liquibase.action.MockAction 'mock()' against scope(database=jdbc mock)"
     }
 
     def "execute when validation fails with errors"() {

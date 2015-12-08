@@ -27,7 +27,9 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
             assert results.size() == 1;
 
             def foundFk = results.asObject(ForeignKey)
-            assert foundFk.name == fkRef
+
+            def foundFKRef = foundFk.toReference()
+            assert foundFKRef.equals(fkRef, true)
         })
 
         where:
@@ -45,7 +47,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
     @Unroll("#featureName: #tableName on #conn")
     def "can find all foreignKeys in a fully qualified complex table name"() {
         expect:
-        def action = new SnapshotObjectsAction(ForeignKey, new Table(tableName))
+        def action = new SnapshotObjectsAction(ForeignKey, tableName)
 
         runStandardTest([
                 tableName_asTable: tableName
@@ -54,8 +56,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
             assert results.size() > 1; //found more than one object
 
             for (ForeignKey fk : results.asList(ForeignKey)) {
-                assert fk.columnChecks.get(0).baseColumn.container == tableName
-                assert !fk.name.name.endsWith("_other")
+                assert fk.columnChecks.get(0).baseColumn.container.equals(tableName, true)
             }
 
         })
@@ -76,7 +77,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaName on #conn")
     def "can find all foreignKeys in a schema"() {
         expect:
-        def action = new SnapshotObjectsAction(ForeignKey, new Schema(schemaName))
+        def action = new SnapshotObjectsAction(ForeignKey, new ObjectReference(Schema, schemaName))
 
         runStandardTest([
                 schemaName_asTable: schemaName
@@ -85,7 +86,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
             assert results.size() > 1; //found more than one object
 
             for (ForeignKey fk : results.asList(ForeignKey)) {
-                assert fk.container == schemaName
+                assert fk.table.container.equals(schemaName, true)
             }
 
         })
@@ -106,76 +107,48 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
-        def seenTables = new HashSet<ObjectReference>()
-        if (((SnapshotObjectsAction) action).relatedTo instanceof ForeignKey) {
-            ForeignKey fk = ((SnapshotObjectsAction) action).relatedTo
-            for (def check : fk.columnChecks) {
-                def refTableName = check.referencedColumn.container
-                def baseTableName = check.baseColumn.container
-                if (seenTables.add(refTableName)) {
-                    snapshot.add(new Table(refTableName))
+        int i = 0;
+        //create generated-named FKs on complex object names
+        for (ObjectReference tableName : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
+            ObjectReference refTableName = (ObjectReference) tableName.clone()
+            refTableName.name = refTableName.name+"_REF"
+            if (tableName.name.matches(/[a-z\\d]+/)) { //keep it lower case
+                refTableName.name = tableName.name+"_ref"
+            }
+
+            snapshot.add(new Table(tableName))
+            snapshot.add(new Table(refTableName))
+            for (ObjectReference columnName : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
+                i = i + 1;
+                def refColumnName = columnName.name+"_REF"
+                if (columnName.name.matches(/[a-z\\d]+/)) { //keep it lower case
+                    refColumnName = columnName.name+"_ref"
                 }
-                if (seenTables.add(baseTableName)) {
-                    snapshot.add(new Table(baseTableName))
-                }
-                snapshot.add(new Column(check.referencedColumn, "int"))
-                snapshot.add(new Column(check.baseColumn, "int"))
-                snapshot.add(new PrimaryKey(new ObjectReference(check.referencedColumn.container), check.referencedColumn.name))
+                snapshot.add(new Column(tableName, columnName.name, "int"))
+                snapshot.add(new Column(refTableName, refColumnName, "int"))
+                snapshot.add(new Index(standardCaseObjectName("idx_"+i, Index, scope.getDatabase()), new Index.IndexedColumn(refTableName, refColumnName)))
+                snapshot.add(new ForeignKey(tableName, standardCaseObjectName("fk_test_"+i, ForeignKey, scope.database), [new Column.ColumnReference(tableName, columnName.name)], [new Column.ColumnReference(refTableName, refColumnName)]))
             }
-            snapshot.add(fk)
-
-            //add other FKs to ensure only the desired one(s) are fetched
-            def table1Name = (seenTables as List)[0]
-            for (def i = 0; i < 5; i++) {
-                def baseCol = new Column(new ObjectReference(table1Name, "base_col$i"), "int")
-                def refCol = new Column(new ObjectReference(table1Name.container, "ref_table$i", "ref_col$i"), "int")
-
-                snapshot.add(new Table(refCol.name.container))
-                snapshot.add(baseCol)
-                snapshot.add(refCol)
-                snapshot.add(new ForeignKey(standardCaseObjectName("fk_$i", ForeignKey, scope.getDatabase()), [baseCol.name], [refCol.name]))
-                snapshot.add(new PrimaryKey(new ObjectReference(refCol.name.container, null), refCol.name.name))
-            }
-        } else if (((SnapshotObjectsAction) action).relatedTo instanceof Table) {
-            Table table = ((SnapshotObjectsAction) action).relatedTo
-
-            def tableNames = getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)
-            tableNames.remove(table.name)
-
-            def columnNames = getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)
-            def fkNames = getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope)
-
-            int numItems = GroovyCollections.min([columnNames.size(), tableNames.size(), fkNames.size()])
-
-            snapshot.add(table)
-
-            for (def i = 0; i < numItems; i++) {
-                snapshot.add(new Table(tableNames[i]))
-                snapshot.add(new Column(new ObjectReference(table.name, columnNames[i].name), "int"))
-                snapshot.add(new Column(new ObjectReference(tableNames[i], columnNames[i].name), "int"))
-                snapshot.add(new PrimaryKey(new ObjectReference(tableNames[i], null), columnNames[i].name))
-                snapshot.add(new ForeignKey(new ObjectReference(table.name.container, fkNames[i].name), [new ObjectReference(table.name, columnNames[i].name)], [new ObjectReference(tableNames[i], columnNames[i].name)]))
-
-                //and another FK on the other table that shouldn't match
-                snapshot.add(new ForeignKey(new ObjectReference(table.name.container, correctObjectName(fkNames[i].name + "_other", ForeignKey, scope.getDatabase())), [new ObjectReference(tableNames[i], columnNames[i].name)], [new ObjectReference(tableNames[i], columnNames[i].name)]))
-            }
-        } else if (((SnapshotObjectsAction) action).relatedTo instanceof Schema) {
-            def tableNames = getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)
-            def columnNames = getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)
-            def fkNames = getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope)
-
-            int numItems = GroovyCollections.min([columnNames.size(), tableNames.size(), fkNames.size()])
-
-            for (def i = 0; i < numItems; i++) {
-                snapshot.add(new Table(tableNames[i]))
-                snapshot.add(new Column(new ObjectReference(tableNames[i], columnNames[i].name), "int"))
-                snapshot.add(new Index(new ObjectReference(tableNames[i], null), columnNames[i].name))
-                snapshot.add(new ForeignKey(new ObjectReference(tableNames[i].container, fkNames[i].name), [new ObjectReference(tableNames[i], columnNames[i].name)], [new ObjectReference(tableNames[i], columnNames[i].name)]))
-            }
-        } else {
-            throw new RuntimeException("Unexpected relatedTo type: "+((SnapshotObjectsAction) action).relatedTo.class.name)
         }
-        return snapshot;
 
+        //create complex-named FKs on generated object names
+        i=0;
+        for (ObjectReference fkName : getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
+            i = i + 1;
+            def tableName = new ObjectReference(Table, fkName.container.container, standardCaseObjectName("table_"+i, Table, scope.database))
+            def refTableName = new ObjectReference(Table, fkName.container.container, standardCaseObjectName("table_"+i+"_ref", Table, scope.database))
+
+            def column = new Column(tableName, standardCaseObjectName("id_ref", Column, scope.database), "int");
+            def refColumn = new Column(refTableName, standardCaseObjectName("id", Column, scope.database), DataType.parse("int"), false);
+
+            snapshot.add(new Table(tableName))
+            snapshot.add(new Table(refTableName))
+            snapshot.add(column)
+            snapshot.add(refColumn)
+            snapshot.add(new ForeignKey(tableName, fkName.name, [column.toReference()], [refColumn.toReference()]))
+            snapshot.add(new PrimaryKey(null, refTableName, refColumn.name))
+        }
+
+        return snapshot
     }
 }

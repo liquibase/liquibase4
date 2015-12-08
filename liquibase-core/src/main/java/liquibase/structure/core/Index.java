@@ -6,6 +6,7 @@ import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Index extends AbstractSchemaObject {
@@ -30,12 +31,10 @@ public class Index extends AbstractSchemaObject {
         super(schema, name);
     }
 
-    public Index(String indexName, String... columns) {
+    public Index(String indexName, IndexedColumn... columns) {
         super(indexName);
         if (columns != null && columns.length > 0) {
-            for (String column : columns) {
-                this.columns.add(new IndexedColumn(column));
-            }
+            this.columns.addAll(Arrays.asList(columns));
         }
     }
 

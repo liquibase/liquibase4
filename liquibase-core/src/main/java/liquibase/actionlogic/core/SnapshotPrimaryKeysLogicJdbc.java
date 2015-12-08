@@ -34,7 +34,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
 //        DatabaseObject relatedTo = action.relatedTo;
 //        ObjectReference objectReference;
 //        if (relatedTo instanceof Catalog) {
@@ -64,7 +64,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         String pkName = row.get("PK_NAME", String.class);
         String columnName = row.get("COLUMN_NAME", String.class);
         Integer position = row.get("KEY_SEQ", Integer.class);
@@ -103,8 +103,8 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
 }
 
     @Override
-    protected ActionResult.Modifier createModifier(SnapshotObjectsAction originalAction, Scope scope) {
-        return new SnapshotModifier(originalAction, scope) {
+    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) {
+        return new SnapshotModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
                 List<PrimaryKey> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(PrimaryKey.class);

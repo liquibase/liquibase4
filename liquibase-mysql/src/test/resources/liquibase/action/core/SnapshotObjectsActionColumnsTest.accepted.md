@@ -233,4 +233,4 @@
 | 98d561      | true     | testcol    | smallint    | **plan**: getColumns(lbcat, null, testtable, testcol)
 | a07eb7      | true     | testcol    | varchar(10) | **plan**: getColumns(lbcat, null, testtable, testcol)
 
-# Test Version: "a5ed59" #
+# Test Version: "f43a64" #

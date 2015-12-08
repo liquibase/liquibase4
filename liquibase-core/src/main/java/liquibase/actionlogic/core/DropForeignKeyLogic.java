@@ -9,6 +9,7 @@ import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
+import liquibase.structure.core.ForeignKey;
 import liquibase.util.StringClauses;
 
 public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyAction> {
@@ -38,6 +39,6 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
         Database database = scope.getDatabase();
         return new StringClauses()
                 .append("DROP CONSTRAINT")
-                .append(database.escapeObjectName(action.constraintName));
+                .append(database.escapeObjectName(action.constraintName, ForeignKey.class));
     }
 }

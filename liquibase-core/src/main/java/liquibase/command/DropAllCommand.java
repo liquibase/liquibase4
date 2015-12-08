@@ -38,7 +38,7 @@ public class DropAllCommand extends AbstractCommand {
         SnapshotCommand.SnapshotCommandResult snapshotResult = snapshotCommand.execute(scope);
 
         for (ForeignKey foreignKey : snapshotResult.snapshot.get(ForeignKey.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction(foreignKey.toReference(), foreignKey.columnChecks.get(0).baseColumn.container), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction(foreignKey.name, foreignKey.columnChecks.get(0).baseColumn.container), scope);
         }
 
         for (Table table : snapshotResult.snapshot.get(Table.class)) {

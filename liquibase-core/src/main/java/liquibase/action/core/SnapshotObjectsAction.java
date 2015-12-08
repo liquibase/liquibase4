@@ -5,6 +5,10 @@ import liquibase.action.QueryAction;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Action describing objects to snapshot.
  * The {@link SnapshotObjectsAction#typeToSnapshot} parameter contains the type of object to snapshot.
@@ -18,15 +22,17 @@ import liquibase.structure.ObjectReference;
 public class SnapshotObjectsAction extends AbstractAction implements QueryAction {
 
     public Class<? extends LiquibaseObject> typeToSnapshot;
-    public ObjectReference relatedTo;
+    public Set<ObjectReference> relatedTo = new HashSet<>();
 
     public SnapshotObjectsAction(ObjectReference objectToSnapshot) {
         this.typeToSnapshot = objectToSnapshot.type;
-        relatedTo = objectToSnapshot;
+        relatedTo.add(objectToSnapshot);
     }
 
-    public SnapshotObjectsAction(Class<? extends LiquibaseObject> typeToLookup, ObjectReference relatedTo) {
+    public SnapshotObjectsAction(Class<? extends LiquibaseObject> typeToLookup, ObjectReference... relatedTo) {
         this.typeToSnapshot = typeToLookup;
-        this.relatedTo = relatedTo;
+        if (relatedTo != null) {
+            this.relatedTo.addAll(Arrays.asList(relatedTo));
+        }
     }
 }

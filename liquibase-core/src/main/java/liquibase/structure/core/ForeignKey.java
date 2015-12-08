@@ -110,8 +110,22 @@ public class ForeignKey extends AbstractTableObject {
         }
     }
 
+    /**
+     * Object container is the constrained table ObjectReference
+     */
     public static class ForeignKeyReference extends ObjectReference {
-        public ObjectReference table;
+
+        public ForeignKeyReference() {
+            super(ForeignKey.class);
+        }
+
+        public ForeignKeyReference(ObjectReference table, String fkName) {
+            super(ForeignKey.class, table.container, fkName);
+        }
+
+        public ObjectReference getTable() {
+            return container;
+        }
     }
 
     public enum ConstraintType {

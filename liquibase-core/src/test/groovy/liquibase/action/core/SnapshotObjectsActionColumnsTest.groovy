@@ -52,7 +52,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
                     assert it instanceof Column;
-                    assert it.container == tableRef
+                    assert it.table == tableRef
                 }
         })
 
@@ -78,7 +78,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
                     assert it instanceof Column;
-                    assert it.container.container == schemaRef
+                    assert it.table.container == schemaRef
                 }
         })
 
@@ -104,7 +104,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
                     assert it instanceof Column;
-                    assert it.name.container.container.container.name.equals(catalogRef.getSimpleName())
+                    assert it.table.container.container.name.equals(catalogRef.name)
                 }
         })
 

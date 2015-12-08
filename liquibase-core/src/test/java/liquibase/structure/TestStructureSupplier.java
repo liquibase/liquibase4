@@ -98,6 +98,13 @@ public abstract class TestStructureSupplier<T extends LiquibaseObject> implement
             }
         }
 
+        if (AbstractTableObject.class.isAssignableFrom(type)) { //add in a null table name placeholder
+            for (ObjectReference ref : returnList) {
+                ref.container = new ObjectReference(ref.container, "TO_CLEAR"); //need to set a placeholder name to pick the right constructor
+                ref.container.name = null;
+            }
+        }
+
         return returnList;
     }
 

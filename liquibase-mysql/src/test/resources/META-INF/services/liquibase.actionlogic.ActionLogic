@@ -1,4 +1,5 @@
 liquibase.actionlogic.core.mysql.AddAutoIncrementLogicMysql
+liquibase.actionlogic.core.mysql.AddForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.AlterColumnLogicMysql
 liquibase.actionlogic.core.mysql.CreateTableLogicMysql
 liquibase.actionlogic.core.mysql.DropDefaultValueLogicMysql

@@ -14,9 +14,9 @@ public class AddPrimaryKeysAction extends AbstractAction {
     public AddPrimaryKeysAction() {
     }
 
-    public AddPrimaryKeysAction(PrimaryKey... PrimaryKeys) {
-        if (PrimaryKeys != null) {
-            this.primaryKeys.addAll(Arrays.asList(PrimaryKeys));
+    public AddPrimaryKeysAction(PrimaryKey... primaryKeys) {
+        if (primaryKeys != null) {
+            this.primaryKeys.addAll(Arrays.asList(primaryKeys));
         }
     }
 

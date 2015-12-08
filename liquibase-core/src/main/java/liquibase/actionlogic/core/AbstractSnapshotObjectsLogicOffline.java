@@ -10,6 +10,7 @@ import liquibase.database.OfflineConnection;
 import liquibase.exception.ActionPerformException;
 import liquibase.snapshot.Snapshot;
 import liquibase.structure.LiquibaseObject;
+import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public abstract class AbstractSnapshotObjectsLogicOffline<T extends SnapshotObje
 
 
     @Override
-    public ActionResult execute(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         final Database database = scope.getDatabase();
         OfflineConnection connection = (OfflineConnection) database.getConnection();
         Snapshot snapshot = connection.getSnapshot();
@@ -36,10 +37,10 @@ public abstract class AbstractSnapshotObjectsLogicOffline<T extends SnapshotObje
         Set allObjectsOfType = snapshot.get(getTypeToSnapshot());
 
 
-        return new ObjectBasedQueryResult(CollectionUtil.select(new ArrayList(allObjectsOfType), getDatabaseObjectFilter(action, scope)));
+        return new ObjectBasedQueryResult(CollectionUtil.select(new ArrayList(allObjectsOfType), getDatabaseObjectFilter(relatedTo, action, scope)));
     }
 
-    protected abstract CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(SnapshotObjectsAction action, Scope scope);
+    protected abstract CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope);
 
 
 }

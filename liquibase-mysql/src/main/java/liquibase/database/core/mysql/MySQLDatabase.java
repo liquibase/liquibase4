@@ -127,10 +127,18 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
             objectType = LiquibaseObject.class;
         }
 
-        if (objectType.isAssignableFrom(Index.class) || objectType.isAssignableFrom(ForeignKey.class)) {
+        if (Index.class.isAssignableFrom(objectType) || ForeignKey.class.isAssignableFrom(objectType)) {
             return super.escapeObjectName(objectReference.name, objectType);
         }
         return super.escapeObjectName(objectReference);
+    }
+
+    @Override
+    public String escapeString(String string) {
+        if (string == null) {
+            return null;
+        }
+        return super.escapeString(string.replace("\\", "\\\\"));
     }
 
     @Override

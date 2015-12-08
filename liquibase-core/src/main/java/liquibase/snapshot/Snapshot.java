@@ -64,7 +64,7 @@ public class Snapshot {
                     @Override
                     public boolean include(Object obj) {
                         ObjectReference name = ((LiquibaseObject) obj).toReference();
-                        return name.matches(objectReference);
+                        return name.equals(objectReference, true);
                     }
                 });
 

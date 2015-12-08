@@ -24,10 +24,8 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
             return new ObjectReference(null);
         }
 
-//        String[] split = string.split("\\.");
-//        return new ObjectReference(split);
-
-        return null;
+        String[] split = string.split("\\.");
+        return new ObjectReference(split);
     }
 
     public ObjectReference() {
@@ -36,8 +34,10 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
     public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container, String... names) {
         this.type = type;
         if (names == null || names.length == 0) {
-            this.container = container.container;
-            this.name = container.name;
+            if (container != null) {
+                this.container = container.container;
+                this.name = container.name;
+            }
         } else if (names.length == 1) {
             this.container = container;
             this.name = names[0];
@@ -95,39 +95,38 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         return this.toShortString().compareTo(o.toShortString());
     }
 
-    public boolean equalsIgnoreCase(ObjectReference name) {
-        return this.name.equalsIgnoreCase(name.name);
-    }
-
-
     @Override
     public boolean equals(Object obj) {
         return obj != null && (obj instanceof ObjectReference) && ((ObjectReference) obj).toShortString().equals(this.toShortString());
     }
 
-    public boolean equals(ObjectReference obj, boolean ignoreLengthDifferences) {
-        if (ignoreLengthDifferences) {
-            List<String> thisNames = this.asList();
-            List<String> otherNames = obj.asList();
-            int precision = Math.min(thisNames.size(), otherNames.size());
-
-            thisNames = thisNames.subList(thisNames.size() - precision, thisNames.size());
-            otherNames = otherNames.subList(otherNames.size() - precision, otherNames.size());
-
-            for (int i = 0; i < thisNames.size(); i++) {
-                String thisName = thisNames.get(i);
-                String otherName = otherNames.get(i);
-
-                if (thisName == null) {
-                    return otherName == null;
+    /**
+     * If fuzzyMatching is true, ignore null place differences. Else, do a standard equals comparison
+     */
+    public boolean equals(ObjectReference obj, boolean fuzzyMatching) {
+        if (obj == null) {
+            return false;
+        }
+        if (fuzzyMatching) {
+            if (this.name == null || obj.name == null) {
+                if (this.container == null || obj.container == null) {
+                    return true;
+                } else {
+                    return this.container.equals(obj.container, true);
                 }
-                if (!thisName.equals(otherName)) {
+            } else {
+                if (!this.name.equals(obj.name)) {
                     return false;
+                } else {
+                    if (this.container == null || obj.container == null) {
+                        return true;
+                    } else {
+                        return this.container.equals(obj.container, true);
+                    }
                 }
             }
-            return true;
         } else {
-            return this.toString().equals(obj.toString());
+            return this.equals(obj);
         }
 
     }
@@ -196,39 +195,6 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
             return 0;
         }
         return array.size() - 1;
-    }
-
-
-    /**
-     * Returns true if the names are equivalent, not counting null-value positions in either name
-     */
-    public boolean matches(ObjectReference objectReference) {
-        if (objectReference == null) {
-            return true;
-        }
-
-        List<String> thisList = this.asList();
-        List<String> otherList = objectReference.asList();
-
-        if (otherList.size() == 0) {
-            return true;
-        }
-
-        int length = Math.max(thisList.size(), otherList.size());
-
-        thisList = this.asList(length);
-        otherList = objectReference.asList(length);
-
-        for (int i = 0; i < length; i++) {
-            String thisName = thisList.get(i);
-            String otherName = otherList.get(i);
-            if (thisName != null && otherName != null) {
-                if (!thisName.equals(otherName)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /**

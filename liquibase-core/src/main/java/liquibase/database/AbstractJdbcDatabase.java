@@ -609,7 +609,7 @@ public abstract class AbstractJdbcDatabase implements Database {
             objectType = LiquibaseObject.class;
         }
 
-        if (objectType.isAssignableFrom(Column.class) || objectType.isAssignableFrom(PrimaryKey.class)  || objectType.isAssignableFrom(UniqueConstraint.class)) {
+        if (Column.class.isAssignableFrom(objectType) || PrimaryKey.class.isAssignableFrom(objectType)  || UniqueConstraint.class.isAssignableFrom(objectType)) {
             return escapeObjectName(objectReference.name, objectType);
         }
 

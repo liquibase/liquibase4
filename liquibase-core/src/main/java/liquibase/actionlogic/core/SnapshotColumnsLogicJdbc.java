@@ -45,9 +45,7 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     /**
      * Creates an ObjectName with null values for "unknown" portions and calls {@link #createColumnSnapshotAction(ObjectReference)}.
      */
-    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-        ObjectReference relatedTo = action.relatedTo;
-
+    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         ObjectReference columnName;
 
         if (relatedTo.instanceOf(Catalog.class)) {
@@ -84,7 +82,7 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
 
         String rawTableName = StringUtils.trimToNull(row.get("TABLE_NAME", String.class));

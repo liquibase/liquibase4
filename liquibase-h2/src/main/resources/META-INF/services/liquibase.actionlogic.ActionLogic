@@ -1,1 +1,3 @@
+liquibase.actionlogic.core.h2.AddAutoIncrementLogicH2
 liquibase.actionlogic.core.h2.AddPrimaryKeysLogicH2
+liquibase.actionlogic.core.h2.SnapshotForeignKeysLogicH2

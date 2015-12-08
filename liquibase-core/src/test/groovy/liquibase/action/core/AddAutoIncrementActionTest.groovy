@@ -49,19 +49,19 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
         def columnName = getObjectNames(Column, ObjectNameStrategy.SIMPLE_NAMES, scope)[0]
         columnName = new ObjectReference(tableName, columnName.name)
 
-        def action = new AddAutoIncrementAction(columnName, new DataType(DataType.StandardType.INTEGER), autoIncrementInformation)
+        def action = new AddAutoIncrementAction(new Column.ColumnReference(tableName, columnName.name), new DataType(DataType.StandardType.INTEGER), autoIncrementInformation)
 
         then:
         runStandardTest([
                 columnName_asTable : action.columnName.toString(),
                 startWith_asTable  : action.autoIncrementInformation.startWith,
                 incrementBy_asTable: action.autoIncrementInformation.incrementBy
-        ], action, conn, scope, {
+        ], action, conn, scope, { plan, result ->
             if (action.autoIncrementInformation.incrementBy != null) { //need to check because checkStatus does not get incrementBy metadata
-                assert it.toString().contains(action.autoIncrementInformation.incrementBy.toString()): "IncrementBy value not used"
+                assert plan.toString().contains(action.autoIncrementInformation.incrementBy.toString()): "IncrementBy value not used"
             }
             if (action.autoIncrementInformation.startWith != null) { //need to check because checkStatus does not get startWith metadata
-                assert it.toString().contains(action.autoIncrementInformation.startWith.toString()): "StartWith value not used"
+                assert plan.toString().contains(action.autoIncrementInformation.startWith.toString()): "StartWith value not used"
             }
 
         })
@@ -89,7 +89,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
         snapshot.add(new Column(columnName.relation, columnName.name, "int"))
 
         if (((TestDetails) getTestDetails(scope)).createPrimaryKeyBeforeAutoIncrement()) {
-            snapshot.add(new PrimaryKey(new ObjectReference(columnName.container, null), columnName.name))
+            snapshot.add(new PrimaryKey(null, columnName.container, columnName.name))
         }
 
         return snapshot

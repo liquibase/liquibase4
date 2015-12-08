@@ -35,9 +35,7 @@ public class SnapshotTablesLogicOffline extends AbstractSnapshotObjectsLogicOffl
     }
 
     @Override
-    protected CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(SnapshotObjectsAction action, Scope scope) {
-        final ObjectReference relatedTo = action.relatedTo;
-
+    protected CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(final ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) {
         return new CollectionUtil.CollectionFilter<Relation>() {
             @Override
             public boolean include(Relation relation) {

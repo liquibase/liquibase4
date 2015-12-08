@@ -857,4 +857,4 @@
 | 75ec21      | true     | TESTCOL    | smallint    | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 | 48d77f      | true     | TESTCOL    | varchar(10) | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 
-# Test Version: "a5ed59" #
+# Test Version: "f43a64" #

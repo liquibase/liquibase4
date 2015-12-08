@@ -35,9 +35,7 @@ public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotObjectsLogi
         return true;
     }
 
-    protected CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(SnapshotObjectsAction action, Scope scope) {
-        final ObjectReference relatedTo = action.relatedTo;
-
+    protected CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(final ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) {
         return new CollectionUtil.CollectionFilter<PrimaryKey>() {
             @Override
             public boolean include(PrimaryKey primarykey) {

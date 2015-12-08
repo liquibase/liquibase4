@@ -37,9 +37,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected Action createSnapshotAction(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-
-        ObjectReference relatedTo = action.relatedTo;
+    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
         String catalogName = null;
         String schemaName = null;
         String tableName = null;
@@ -73,7 +71,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         String rawTableName = row.get("TABLE_NAME", String.class);
         String rawSchemaName = row.get("TABLE_SCHEM", String.class);
         String rawCatalogName = row.get("TABLE_CAT", String.class);
