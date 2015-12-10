@@ -3,6 +3,7 @@ package liquibase.structure.core;
 import liquibase.AbstractExtensibleObject;
 import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
+import liquibase.structure.datatype.DataType;
 
 import java.math.BigInteger;
 
@@ -67,6 +68,11 @@ public class Column extends AbstractTableObject {
     }
 
     @Override
+    public ObjectReference toReference() {
+        return new ColumnReference(table, name);
+    }
+
+    @Override
     public int compareTo(Object other) {
         return this.getName().compareTo(((Column) other).getName());
     }
@@ -85,7 +91,7 @@ public class Column extends AbstractTableObject {
         }
 
         public ColumnReference(String... names) {
-            super(names);
+            super(Column.class, names);
             type = Column.class;
         }
 

@@ -62,7 +62,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [scope],
                     [it],
-                    it.allContainers
+                    it.allSchemas
             ])
         }
     }
@@ -70,7 +70,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaRef on #conn")
     def "can snapshot all tables in schema using a null table name reference"() {
         expect:
-        def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, new ObjectReference(Table, schemaRef, null)))
+        def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, schemaRef, null))
 
         runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
@@ -86,7 +86,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [scope],
                     [it],
-                    it.allContainers
+                    it.allSchemas
             ])
         }
     }
@@ -113,7 +113,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [it],
                     [scope],
-                    it.allContainers*.container.grep({ it != null }).unique()
+                    it.allSchemas*.container.grep({ it != null }).unique()
             ])
         }
     }

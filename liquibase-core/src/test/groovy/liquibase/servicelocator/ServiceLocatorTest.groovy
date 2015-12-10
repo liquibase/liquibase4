@@ -6,8 +6,8 @@ import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
-import liquibase.structure.DataTypeTranslator
-import liquibase.structure.TestStructureSupplier
+import liquibase.structure.datatype.DataTypeLogic
+import liquibase.structure.TestObjectReferenceSupplier
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -55,9 +55,9 @@ public class ServiceLocatorTest extends Specification {
                 ActionLogic,
                 ConnectionSupplier,
                 Database,
-                DataTypeTranslator,
+                DataTypeLogic,
                 ActionGenerator,
-                TestStructureSupplier,
+                TestObjectReferenceSupplier,
                 AbstractActionTest.TestDetails,
         ]
     }

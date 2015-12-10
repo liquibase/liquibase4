@@ -233,4 +233,13 @@
 | 98d561      | true     | testcol    | smallint    | **plan**: getColumns(lbcat, null, testtable, testcol)
 | a07eb7      | true     | testcol    | varchar(10) | **plan**: getColumns(lbcat, null, testtable, testcol)
 
-# Test Version: "f43a64" #
+# Test: "defaultValue comes through correctly" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | defaultValue | type    | OPERATIONS
+| :---------- | :------- | :----------- | :------ | :------
+| 312a8d      | true     | int          | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
+| aae650      | true     | varchar(20)  | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
+
+# Test Version: "db0ba7" #

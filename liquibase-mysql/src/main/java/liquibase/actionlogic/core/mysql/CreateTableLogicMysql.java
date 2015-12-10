@@ -31,7 +31,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
             String columnRemarks = column.remarks;
             if (columnRemarks != null) {
                 SetColumnRemarksAction remarksAction = new SetColumnRemarksAction();
-                remarksAction.columnName = new ObjectReference(action.table.name, column.name);
+                remarksAction.columnName = new Column.ColumnReference(action.table.name, column.name);
                 remarksAction.remarks = columnRemarks;
                 return new DelegateResult(result, remarksAction);
             }

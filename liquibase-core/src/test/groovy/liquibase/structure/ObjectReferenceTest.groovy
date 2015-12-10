@@ -1,5 +1,7 @@
 package liquibase.structure
 
+import liquibase.structure.core.Schema
+import liquibase.structure.core.Table
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -11,15 +13,16 @@ class ObjectReferenceTest extends Specification {
         objectName.toString() == expected
 
         where:
-        objectName                                                   | expected
-        new ObjectReference()                                        | "UNNAMED (NO TYPE)"
-        new ObjectReference(null)                                    | "UNNAMED (NO TYPE)"
-        new ObjectReference("a")                                     | "a (NO TYPE)"
-        new ObjectReference("a", "b")                                | "a.b (NO TYPE)"
-        new ObjectReference("a", "b", "c")                           | "a.b.c (NO TYPE)"
-        new ObjectReference(new ObjectReference("a", "b"))           | "a.b (NO TYPE)"
-        new ObjectReference(new ObjectReference("a", "b"), "c")      | "a.b.c (NO TYPE)"
-        new ObjectReference(new ObjectReference("a", "b"), "c", "d") | "a.b.c.d (NO TYPE)"
+        objectName                                                                  | expected
+//        new ObjectReference(Table)                                                  | "UNNAMED (TABLE)"
+//        new ObjectReference(Table, null)                                            | "UNNAMED (TABLE)"
+//        new ObjectReference(Table, "a")                                             | "a (TABLE)"
+//        new ObjectReference(Table, "a", "b")                                        | "a.b (TABLE)"
+//        new ObjectReference(Table, "a", "b", "c")                                   | "a.b.c (TABLE)"
+//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"))           | "a.b (TABLE)"
+//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c")      | "a.b.c (TABLE)"
+//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c", "d") | "a.b.c.d (TABLE)"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), null)     | "a.b.UNNAMED (TABLE)"
     }
 
     @Unroll("#featureName: #expected")
@@ -28,17 +31,17 @@ class ObjectReferenceTest extends Specification {
         objectName.asList() == expected
 
         where:
-        objectName                                      | expected
-        new ObjectReference()                           | []
-        new ObjectReference("a")                        | ["a"]
-        new ObjectReference("a", "b")                   | ["a", "b"]
-        new ObjectReference("a", "b", "c")              | ["a", "b", "c"]
-        new ObjectReference(null, "b", "c")             | ["b", "c"]
-        new ObjectReference("a", null, "c")             | ["a", null, "c"]
-        new ObjectReference("a", "b", null)             | ["a", "b", null]
-        new ObjectReference("a", null, "c")             | ["a", null, "c"]
-        new ObjectReference(null, null, "a", "b")       | ["a", "b"]  //top level nulls do not count toward name
-        new ObjectReference(null, "a", null, null, "c") | ["a", null, null, "c"]
+        objectName                                             | expected
+        new ObjectReference(Table,)                            | []
+        new ObjectReference(Table, "a")                        | ["a"]
+        new ObjectReference(Table, "a", "b")                   | ["a", "b"]
+        new ObjectReference(Table, "a", "b", "c")              | ["a", "b", "c"]
+        new ObjectReference(Table, null, "b", "c")             | ["b", "c"]
+        new ObjectReference(Table, "a", null, "c")             | ["a", null, "c"]
+        new ObjectReference(Table, "a", "b", null)             | ["a", "b", null]
+        new ObjectReference(Table, "a", null, "c")             | ["a", null, "c"]
+        new ObjectReference(Table, null, null, "a", "b")       | ["a", "b"]  //top level nulls do not count toward name
+        new ObjectReference(Table, null, "a", null, null, "c") | ["a", null, null, "c"]
 
     }
 
@@ -48,15 +51,15 @@ class ObjectReferenceTest extends Specification {
         objectName.toString() == expected
 
         where:
-        objectName                              | expected
-        new ObjectReference()                   | "UNNAMED (NO TYPE)"
-        new ObjectReference("abc")              | "abc (NO TYPE)"
-        new ObjectReference("ABC")              | "ABC (NO TYPE)"
-        new ObjectReference("ABC", "xyz")       | "ABC.xyz (NO TYPE)"
-        new ObjectReference("ABC", "XYZ", null) | "ABC.XYZ.UNNAMED (NO TYPE)"
-        new ObjectReference(null, "XYZ")        | "XYZ (NO TYPE)"
-        new ObjectReference("a", "b", "c")      | "a.b.c (NO TYPE)"
-        new ObjectReference("a", null, "c")     | "a.UNNAMED.c (NO TYPE)"
+        objectName                                     | expected
+        new ObjectReference(Table,)                    | "UNNAMED (TABLE)"
+        new ObjectReference(Table, "abc")              | "abc (TABLE)"
+        new ObjectReference(Table, "ABC")              | "ABC (TABLE)"
+        new ObjectReference(Table, "ABC", "xyz")       | "ABC.xyz (TABLE)"
+        new ObjectReference(Table, "ABC", "XYZ", null) | "ABC.XYZ.UNNAMED (TABLE)"
+        new ObjectReference(Table, null, "XYZ")        | "XYZ (TABLE)"
+        new ObjectReference(Table, "a", "b", "c")      | "a.b.c (TABLE)"
+        new ObjectReference(Table, "a", null, "c")     | "a.UNNAMED.c (TABLE)"
     }
 
     @Unroll
@@ -65,23 +68,23 @@ class ObjectReferenceTest extends Specification {
         objectName.depth() == expected
 
         where:
-        objectName                                      | expected
-        new ObjectReference()                           | 0
-        new ObjectReference("a")                        | 0
-        new ObjectReference("a", "b")                   | 1
-        new ObjectReference("a", "b", "c")              | 2
-        new ObjectReference("a", null, "c")             | 2
-        new ObjectReference(null, "a", "b")             | 1 //top level nulls do not count toward depth
-        new ObjectReference(null, null, "a", "b")       | 1 //top level nulls do not count toward depth
-        new ObjectReference(null, "a", null, "c")       | 2
-        new ObjectReference(null, "a", null, null, "c") | 3
-        new ObjectReference("a", "b", "c", "d")         | 3
+        objectName                                             | expected
+        new ObjectReference(Table,)                            | 0
+        new ObjectReference(Table, "a")                        | 0
+        new ObjectReference(Table, "a", "b")                   | 1
+        new ObjectReference(Table, "a", "b", "c")              | 2
+        new ObjectReference(Table, "a", null, "c")             | 2
+        new ObjectReference(Table, null, "a", "b")             | 1 //top level nulls do not count toward depth
+        new ObjectReference(Table, null, null, "a", "b")       | 1 //top level nulls do not count toward depth
+        new ObjectReference(Table, null, "a", null, "c")       | 2
+        new ObjectReference(Table, null, "a", null, null, "c") | 3
+        new ObjectReference(Table, "a", "b", "c", "d")         | 3
     }
 
     @Unroll
     def parse() {
         expect:
-        ObjectReference.parse(string).asList() == expected
+        ObjectReference.parse(Table, string).asList() == expected
 
         where:
         string  | expected
@@ -97,17 +100,17 @@ class ObjectReferenceTest extends Specification {
         objectName.asList(length) == expected
 
         where:
-        objectName                          | length | expected
-        new ObjectReference()               | 2      | [null, null]
-        new ObjectReference("a")            | 2      | [null, "a"]
-        new ObjectReference("a", "b")       | 2      | ["a", "b"]
-        new ObjectReference("a", "b", "c")  | 2      | ["b", "c"]
-        new ObjectReference("a", null, "c") | 3      | ["a", null, "c"]
-        new ObjectReference()               | 0      | []
-        new ObjectReference("a")            | 0      | []
-        new ObjectReference()               | 1      | [null]
-        new ObjectReference("a")            | 1      | ["a"]
-        new ObjectReference("a", "b")       | 1      | ["b"]
+        objectName                                 | length | expected
+        new ObjectReference(Table,)                | 2      | [null, null]
+        new ObjectReference(Table, "a")            | 2      | [null, "a"]
+        new ObjectReference(Table, "a", "b")       | 2      | ["a", "b"]
+        new ObjectReference(Table, "a", "b", "c")  | 2      | ["b", "c"]
+        new ObjectReference(Table, "a", null, "c") | 3      | ["a", null, "c"]
+        new ObjectReference(Table,)                | 0      | []
+        new ObjectReference(Table, "a")            | 0      | []
+        new ObjectReference(Table,)                | 1      | [null]
+        new ObjectReference(Table, "a")            | 1      | ["a"]
+        new ObjectReference(Table, "a", "b")       | 1      | ["b"]
     }
 
     @Unroll
@@ -116,38 +119,38 @@ class ObjectReferenceTest extends Specification {
         name1.equals(name2, fuzzy) == expected
 
         where:
-        name1                                        | name2                                        | fuzzy | expected
-        new ObjectReference("a")                     | new ObjectReference("a")                     | true   | true
-        new ObjectReference("a")                     | new ObjectReference("a")                     | false  | true
-        new ObjectReference("a")                     | new ObjectReference("b")                     | true   | false
-        new ObjectReference("a")                     | new ObjectReference("b")                     | false  | false
-        new ObjectReference("a")                     | new ObjectReference("b", "a")                | true   | true
-        new ObjectReference("a")                     | new ObjectReference("b", "a")                | false  | false
-        new ObjectReference("b", "a")                | new ObjectReference("a")                     | true   | true
-        new ObjectReference("b", "a")                | new ObjectReference("a")                     | false  | false
-        new ObjectReference("b", "a")                | new ObjectReference("b", "a")                | true   | true
-        new ObjectReference("b", "a")                | new ObjectReference("b", "a")                | false  | true
-        new ObjectReference("c", "b", "a")           | new ObjectReference("c", "b", "a")           | true   | true
-        new ObjectReference("c", "b", "a")           | new ObjectReference("c", "b", "a")           | false  | true
-        new ObjectReference("c", "x", "a")           | new ObjectReference("c", "b", "a")           | true   | false
-        new ObjectReference("c", "b", "a")           | new ObjectReference("c", "x", "a")           | true   | false
-        new ObjectReference("c", null, "a")          | new ObjectReference("c", "b", "a")           | true   | true
-        new ObjectReference("c", "b", "a")           | new ObjectReference("c", null, "a")          | true   | true
-        new ObjectReference(null, "c", "b", "a")     | new ObjectReference("c", "b", "a")           | true   | true
-        new ObjectReference("c", "b", "a")           | new ObjectReference(null, "c", "b", "a")     | true   | true
-        new ObjectReference(null, "c", "b", "a")     | new ObjectReference("c", "b", "a")           | false  | true
-        new ObjectReference("a")                     | new ObjectReference((String) null, "a")      | true   | true
-        new ObjectReference("a")                     | new ObjectReference((String) null, "b")      | true   | false
-        new ObjectReference((String) null, "a")      | new ObjectReference((String) null, "a")      | true   | true
-        new ObjectReference((String) null, "a")      | new ObjectReference((String) null, "b")      | true   | false
-        new ObjectReference("a", (String) null, "c") | new ObjectReference("a", "b", "c")           | true   | true
-        new ObjectReference("X", (String) null, "c") | new ObjectReference("a", "b", "c")           | true   | false
-        new ObjectReference("a", (String) null, "X") | new ObjectReference("a", "b", "c")           | true   | false
-        new ObjectReference("a", (String) null, "c") | new ObjectReference("X", "b", "c")           | true   | false
-        new ObjectReference("a", (String) null, "c") | new ObjectReference("a", "b", "X")           | true   | false
-        new ObjectReference("a", "b", "c")           | new ObjectReference("a", (String) null, "c") | true   | true
-        new ObjectReference("a", "b", "c", "d")      | new ObjectReference("b", (String) null, "d") | true   | true
-        new ObjectReference("b", (String) null, "d") | new ObjectReference("a", "b", "c", "d")      | true   | true
+        name1                                               | name2                                               | fuzzy | expected
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "a")                     | true  | true
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "a")                     | false | true
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "b")                     | true  | false
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "b")                     | false | false
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "b", "a")                | true  | true
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, "b", "a")                | false | false
+        new ObjectReference(Table, "b", "a")                | new ObjectReference(Table, "a")                     | true  | true
+        new ObjectReference(Table, "b", "a")                | new ObjectReference(Table, "a")                     | false | false
+        new ObjectReference(Table, "b", "a")                | new ObjectReference(Table, "b", "a")                | true  | true
+        new ObjectReference(Table, "b", "a")                | new ObjectReference(Table, "b", "a")                | false | true
+        new ObjectReference(Table, "c", "b", "a")           | new ObjectReference(Table, "c", "b", "a")           | true  | true
+        new ObjectReference(Table, "c", "b", "a")           | new ObjectReference(Table, "c", "b", "a")           | false | true
+        new ObjectReference(Table, "c", "x", "a")           | new ObjectReference(Table, "c", "b", "a")           | true  | false
+        new ObjectReference(Table, "c", "b", "a")           | new ObjectReference(Table, "c", "x", "a")           | true  | false
+        new ObjectReference(Table, "c", null, "a")          | new ObjectReference(Table, "c", "b", "a")           | true  | true
+        new ObjectReference(Table, "c", "b", "a")           | new ObjectReference(Table, "c", null, "a")          | true  | true
+        new ObjectReference(Table, null, "c", "b", "a")     | new ObjectReference(Table, "c", "b", "a")           | true  | true
+        new ObjectReference(Table, "c", "b", "a")           | new ObjectReference(Table, null, "c", "b", "a")     | true  | true
+        new ObjectReference(Table, null, "c", "b", "a")     | new ObjectReference(Table, "c", "b", "a")           | false | true
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, (String) null, "a")      | true  | true
+        new ObjectReference(Table, "a")                     | new ObjectReference(Table, (String) null, "b")      | true  | false
+        new ObjectReference(Table, (String) null, "a")      | new ObjectReference(Table, (String) null, "a")      | true  | true
+        new ObjectReference(Table, (String) null, "a")      | new ObjectReference(Table, (String) null, "b")      | true  | false
+        new ObjectReference(Table, "a", (String) null, "c") | new ObjectReference(Table, "a", "b", "c")           | true  | true
+        new ObjectReference(Table, "X", (String) null, "c") | new ObjectReference(Table, "a", "b", "c")           | true  | false
+        new ObjectReference(Table, "a", (String) null, "X") | new ObjectReference(Table, "a", "b", "c")           | true  | false
+        new ObjectReference(Table, "a", (String) null, "c") | new ObjectReference(Table, "X", "b", "c")           | true  | false
+        new ObjectReference(Table, "a", (String) null, "c") | new ObjectReference(Table, "a", "b", "X")           | true  | false
+        new ObjectReference(Table, "a", "b", "c")           | new ObjectReference(Table, "a", (String) null, "c") | true  | true
+        new ObjectReference(Table, "a", "b", "c", "d")      | new ObjectReference(Table, "b", (String) null, "d") | true  | true
+        new ObjectReference(Table, "b", (String) null, "d") | new ObjectReference(Table, "a", "b", "c", "d")      | true  | true
     }
 
     @Unroll
@@ -156,18 +159,18 @@ class ObjectReferenceTest extends Specification {
         name.truncate(length).toString() == expected
 
         where:
-        name                               | length | expected
-        new ObjectReference()              | 1      | "UNNAMED (NO TYPE)"
-        new ObjectReference()              | 2      | "UNNAMED (NO TYPE)"
-        new ObjectReference("a")           | 1      | "a (NO TYPE)"
-        new ObjectReference("a")           | 2      | "a (NO TYPE)"
-        new ObjectReference("a")           | 3      | "a (NO TYPE)"
-        new ObjectReference("a", "b")      | 1      | "b (NO TYPE)"
-        new ObjectReference("a", "b")      | 2      | "a.b (NO TYPE)"
-        new ObjectReference("a", "b")      | 3      | "a.b (NO TYPE)"
-        new ObjectReference("a", "b", "c") | 1      | "c (NO TYPE)"
-        new ObjectReference("a", "b", "c") | 2      | "b.c (NO TYPE)"
-        new ObjectReference("a", "b", "c") | 3      | "a.b.c (NO TYPE)"
+        name                                      | length | expected
+        new ObjectReference(Table,)               | 1      | "UNNAMED (TABLE)"
+        new ObjectReference(Table,)               | 2      | "UNNAMED (TABLE)"
+        new ObjectReference(Table, "a")           | 1      | "a (TABLE)"
+        new ObjectReference(Table, "a")           | 2      | "a (TABLE)"
+        new ObjectReference(Table, "a")           | 3      | "a (TABLE)"
+        new ObjectReference(Table, "a", "b")      | 1      | "b (TABLE)"
+        new ObjectReference(Table, "a", "b")      | 2      | "a.b (TABLE)"
+        new ObjectReference(Table, "a", "b")      | 3      | "a.b (TABLE)"
+        new ObjectReference(Table, "a", "b", "c") | 1      | "c (TABLE)"
+        new ObjectReference(Table, "a", "b", "c") | 2      | "b.c (TABLE)"
+        new ObjectReference(Table, "a", "b", "c") | 3      | "a.b.c (TABLE)"
     }
 }
 

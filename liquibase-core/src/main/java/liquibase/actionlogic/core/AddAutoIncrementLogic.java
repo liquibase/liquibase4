@@ -79,7 +79,7 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
         Database database = scope.getDatabase();
 
         StringClauses clauses = new StringClauses();
-        clauses.append(Clauses.dataType, action.columnDataType.toString()); //scope.getSingleton(DataTypeTranslatorFactory.class).getTranslator(scope).toSql(action.columnDataType, scope));
+        clauses.append(Clauses.dataType, action.columnDataType.toString()); //scope.getSingleton(DataTypeTranslatorFactory.class).getDataTypeLogic(scope).toSql(action.columnDataType, scope));
         clauses.append(Clauses.autoIncrement, generateAutoIncrementClause(action.autoIncrementInformation));
 
         return clauses;

@@ -83,19 +83,19 @@ public class ForeignKey extends AbstractTableObject {
     }
 
     public static class ForeignKeyColumnCheck extends AbstractExtensibleObject {
-        public ObjectReference baseColumn;
-        public ObjectReference referencedColumn;
+        public Column.ColumnReference baseColumn;
+        public Column.ColumnReference referencedColumn;
 
         public Integer position;
 
         public ForeignKeyColumnCheck() {
         }
 
-        public ForeignKeyColumnCheck(ObjectReference baseColumn, ObjectReference referencedColumn) {
+        public ForeignKeyColumnCheck(Column.ColumnReference baseColumn, Column.ColumnReference referencedColumn) {
             this(baseColumn, referencedColumn, null);
         }
 
-        public ForeignKeyColumnCheck(ObjectReference baseColumn, ObjectReference referencedColumn, Integer position) {
+        public ForeignKeyColumnCheck(Column.ColumnReference baseColumn, Column.ColumnReference referencedColumn, Integer position) {
             this.baseColumn = baseColumn;
             this.referencedColumn = referencedColumn;
             this.position = position;

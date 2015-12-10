@@ -10,6 +10,7 @@ import liquibase.database.ConnectionSupplierFactory
 import liquibase.snapshot.Snapshot
 import liquibase.structure.*
 import liquibase.structure.core.*
+import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -77,7 +78,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
     @Unroll("#featureName: #schemaName on #conn")
     def "can find all foreignKeys in a schema"() {
         expect:
-        def action = new SnapshotObjectsAction(ForeignKey, new ObjectReference(Schema, schemaName))
+        def action = new SnapshotObjectsAction(ForeignKey, schemaName)
 
         runStandardTest([
                 schemaName_asTable: schemaName
@@ -99,7 +100,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [it],
                     [scope],
-                    it.allContainers
+                    it.allSchemas
             ])
         }
     }

@@ -95,7 +95,7 @@ public abstract class AbstractJdbcDatabase implements Database {
             boolean autoCommit = conn.getAutoCommit();
             if (autoCommit == getAutoCommitMode()) {
                 // Don't adjust the auto-commit mode if it's already what the database wants it to be.
-                LoggerFactory.getLogger(getClass()).debug("Not adjusting the auto commit mode; it is already " + autoCommit);
+//                LoggerFactory.getLogger(getClass()).debug("Not adjusting the auto commit mode; it is already " + autoCommit);
             } else {
                 // Store the previous auto-commit mode, because the connection needs to be restored to it when this
                 // AbstractDatabase type is closed. This is important for systems which use connection pools.

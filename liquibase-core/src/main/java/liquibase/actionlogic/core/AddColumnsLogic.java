@@ -10,7 +10,8 @@ import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.exception.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.DataTypeTranslatorFactory;
+import liquibase.structure.datatype.DataType;
+import liquibase.structure.datatype.DataTypeLogicFactory;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
 import liquibase.util.CollectionUtil;
@@ -198,7 +199,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
         clauses.append("ADD")
                 .append(Clauses.columnName, database.escapeObjectName(columnName.name, Column.class))
-                .append(Clauses.dataType, scope.getSingleton(DataTypeTranslatorFactory.class).getTranslator(scope).toSql(columnType, scope))
+                .append(Clauses.dataType, scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(columnType, scope))
                 .append(getDefaultValueClause(column, action, scope));
 
         if (column.autoIncrementInformation != null) {
@@ -243,11 +244,10 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     }
 
     protected String getDefaultValueClause(Column column, AddColumnsAction action, Scope scope) {
-//        Database database = scope.getDatabase();
-//        Object defaultValue = column.defaultValue;
-//        if (defaultValue != null) {
-//            return "DEFAULT " + DataTypeFactory.getInstance().fromObject(defaultValue, database).objectToSql(defaultValue, database);
-//        }
+        Object defaultValue = column.defaultValue;
+        if (defaultValue != null) {
+            return "DEFAULT " + scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(defaultValue, column.type, scope);
+        }
         return null;
     }
 }

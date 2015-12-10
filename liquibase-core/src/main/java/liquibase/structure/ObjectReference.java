@@ -19,47 +19,41 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
      * Construct an ObjectName from the given string. If the string contains dots, it will be split into containers on the dots.
      * If null is passed, return an empty ObjectName
      */
-    public static ObjectReference parse(String string) {
+    public static ObjectReference parse(Class<? extends LiquibaseObject> type, String string) {
         if (string == null) {
             return new ObjectReference(null);
         }
 
         String[] split = string.split("\\.");
-        return new ObjectReference(split);
+        return new ObjectReference(type, split);
     }
 
     public ObjectReference() {
     }
 
-    public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container, String... names) {
+    public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container) {
         this.type = type;
+        this.container = container;
+    }
+
+    public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container, String... names) {
+        this(type, container);
         if (names == null || names.length == 0) {
-            if (container != null) {
-                this.container = container.container;
-                this.name = container.name;
-            }
+            this.name = null;
         } else if (names.length == 1) {
             this.container = container;
             this.name = names[0];
         } else {
             for (String name : names) {
-                container = new ObjectReference(container, name);
+                container = new ObjectReference(LiquibaseObject.class, container, name);
             }
             this.container = container.container;
             this.name = container.name;
         }
     }
 
-    public ObjectReference(ObjectReference container, String... names) {
-        this(null, container, names);
-    }
-
     public ObjectReference(Class<? extends LiquibaseObject> type, String... names) {
         this(type, null, names);
-    }
-
-    public ObjectReference(String... names) {
-        this(null, null, names);
     }
 
     public String toShortString() {

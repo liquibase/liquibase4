@@ -78,4 +78,4 @@
 | 8b1fdf      | true     | lbcat.table1.column1 (COLUMN) | 10        | **plan**: ALTER TABLE `lbcat`.`table1` MODIFY `column1` INTEGER AUTO_INCREMENT<br>AND THEN: ALTER TABLE `lbcat`.`table1` AUTO_INCREMENT=10
 | 8296e8      | true     | lbcat.table1.column1 (COLUMN) | 2         | **plan**: ALTER TABLE `lbcat`.`table1` MODIFY `column1` INTEGER AUTO_INCREMENT<br>AND THEN: ALTER TABLE `lbcat`.`table1` AUTO_INCREMENT=2
 
-# Test Version: "717ca1" #
+# Test Version: "2eb2d7" #

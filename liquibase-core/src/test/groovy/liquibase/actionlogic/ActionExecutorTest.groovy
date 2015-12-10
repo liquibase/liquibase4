@@ -46,7 +46,7 @@ class ActionExecutorTest extends Specification {
 
         then:
         def e = thrown(ActionPerformException)
-        e.message == "Validation Error(s): Mock Validation Error; Another Error for mock() with liquibase.actionlogic.ActionExecutorTest\$1"
+        e.message == "Mock Validation Error; Another Error"
     }
 
     def "execute update logic"() {

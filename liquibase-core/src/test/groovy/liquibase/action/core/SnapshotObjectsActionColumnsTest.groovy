@@ -12,6 +12,7 @@ import liquibase.snapshot.SnapshotFactory
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.*
+import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import org.junit.Assume
 import spock.lang.Unroll
@@ -89,7 +90,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [it],
                     [scope],
-                    it.allContainers
+                    it.allSchemas
             ])
         }
     }
@@ -117,7 +118,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
             return CollectionUtil.permutations([
                     [it],
                     [scope],
-                    it.allContainers*.container.unique(),
+                    it.allSchemas*.container.unique(),
             ])
         }
     }
@@ -168,45 +169,45 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
     @Unroll("#featureName: #typeString on #conn")
     def "dataType comes through correctly"() {
         when:
-        def schema = conn.allContainers[0]
+        def schema = conn.getAllSchemas()[0]
         def tableName = standardCaseObjectName("testtable", Table, conn.database)
         def columnName = standardCaseObjectName("testcol", Column, conn.database)
         def type = DataType.parse(typeString)
 
         def snapshot = new Snapshot(scope)
 
-        def column = new Column(new ObjectReference(schema, tableName), columnName, type)
+        def column = new Column(new ObjectReference(Table, schema, tableName), columnName, type)
         snapshot.add(column)
-        snapshot.add(new Table(new ObjectReference(schema, tableName)))
+        snapshot.add(new Table(new ObjectReference(Table, schema, tableName)))
 
         then:
         def action = new SnapshotObjectsAction(column.toReference())
 
         runStandardTest([columnName_asTable: column.getName(), type_asTable: ((Column) column).type], snapshot, action, conn, scope, {
             plan, result ->
-            assert result.asList(Column).size() == 1
-            def snapshotColumn = result.asObject(Column)
-            assert snapshotColumn.name == columnName
+                assert result.asList(Column).size() == 1
+                def snapshotColumn = result.asObject(Column)
+                assert snapshotColumn.name == columnName
 
-            //do some minor checks based on things that are always consistent
-            if (typeString == "int") {
-                assert snapshotColumn.type.toString().toLowerCase().startsWith("int")
-            } else if (typeString == "varchar(10)") {
-                assert snapshotColumn.type.toString().toLowerCase().startsWith("varchar") && snapshotColumn.type.toString().contains("(10")
-            }
+                //do some minor checks based on things that are always consistent
+                if (typeString == "int") {
+                    assert snapshotColumn.type.toString().toLowerCase().startsWith("int")
+                } else if (typeString == "varchar(10)") {
+                    assert snapshotColumn.type.toString().toLowerCase().startsWith("varchar") && snapshotColumn.type.toString().contains("(10")
+                }
 
-            //since data types change to what the database thinks, test by adding a new columnRef with the snapshot's datatype and check that those are consistant
-            def addColumnsAction = new AddColumnsAction()
-            def columnToAdd = snapshotColumn.clone() as Column
-            columnToAdd.name = snapshotColumn.name + "_added"
-            addColumnsAction.columns = [columnToAdd]
+                //since data types change to what the database thinks, test by adding a new columnRef with the snapshot's datatype and check that those are consistant
+                def addColumnsAction = new AddColumnsAction()
+                def columnToAdd = snapshotColumn.clone() as Column
+                columnToAdd.name = snapshotColumn.name + "_added"
+                addColumnsAction.columns = [columnToAdd]
 
-            scope.getSingleton(ActionExecutor).execute(addColumnsAction, scope)
+                scope.getSingleton(ActionExecutor).execute(addColumnsAction, scope)
 
-            def newColumnSnapshot = scope.getSingleton(SnapshotFactory).snapshot(Column, columnToAdd.toReference(), scope)
+                def newColumnSnapshot = scope.getSingleton(SnapshotFactory).snapshot(Column, columnToAdd.toReference(), scope)
 
-            assert snapshotColumn.type.toString() != null
-            assert snapshotColumn.type.toString() == newColumnSnapshot.type.toString()
+                assert snapshotColumn.type.toString() != null
+                assert snapshotColumn.type.toString() == newColumnSnapshot.type.toString()
         })
 
         where:
@@ -217,6 +218,51 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
                     [it],
                     [scope],
                     getDataTypesToTest()
+            ])
+        }
+    }
+
+    @Unroll("#featureName: #typeAndValue on #conn")
+    def "defaultValue comes through correctly"() {
+        when:
+        def typeString = typeAndValue[0]
+        def defaultValue = typeAndValue[1]
+
+        def schema = conn.getAllSchemas()[0]
+        def tableName = standardCaseObjectName("testtable", Table, conn.database)
+        def columnName = standardCaseObjectName("testcol", Column, conn.database)
+        def type = DataType.parse(typeString)
+
+        def snapshot = new Snapshot(scope)
+
+        def column = new Column(new Column.ColumnReference(schema, tableName), columnName, type)
+        column.defaultValue = defaultValue
+        snapshot.add(column)
+        snapshot.add(new Table(new ObjectReference(Table, schema, tableName)))
+
+        then:
+        def action = new SnapshotObjectsAction(column.toReference())
+
+        runStandardTest([type_asTable: column.getName(), defaultValue_asTable: ((Column) column).type], snapshot, action, conn, scope, {
+            plan, result ->
+                assert result.asList(Column).size() == 1
+                def snapshotColumn = result.asObject(Column)
+                assert snapshotColumn.name == columnName
+
+                assert snapshotColumn.defaultValue == defaultValue
+        })
+
+        where:
+        [conn, scope, typeAndValue] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+
+            return CollectionUtil.permutations([
+                    [it],
+                    [scope],
+                    [
+                            ["int", 3],
+                            ["varchar(20)", "A test varchar"]
+                    ]
             ])
         }
     }

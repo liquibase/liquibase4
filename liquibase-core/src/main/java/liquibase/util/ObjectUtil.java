@@ -1,6 +1,7 @@
 package liquibase.util;
 
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
 import java.lang.reflect.InvocationTargetException;
@@ -230,7 +231,7 @@ public class ObjectUtil {
                 return (T) object.toString();
             } else if (targetClass.isAssignableFrom(ObjectReference.class)) {
                 if (object instanceof String) {
-                    return (T) new ObjectReference((String) object);
+                    return (T) new ObjectReference(LiquibaseObject.class, (String) object);
                 } else {
                     throw new UnexpectedLiquibaseException("Cannot convert "+ object.getClass()+" to "+ObjectReference.class.getName());
                 }

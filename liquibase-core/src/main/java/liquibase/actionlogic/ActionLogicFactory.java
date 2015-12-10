@@ -32,8 +32,12 @@ public class ActionLogicFactory  extends AbstractServiceFactory<ActionLogic> {
     @Override
     protected int getPriority(ActionLogic obj, Scope scope, Object... args) {
         Action action = (Action) args[0];
-        if (obj instanceof AbstractActionLogic && !action.getClass().isAssignableFrom(((AbstractActionLogic) obj).getSupportedAction())) {
-            return Service.PRIORITY_NOT_APPLICABLE;
+        try {
+            if (obj instanceof AbstractActionLogic && !action.getClass().isAssignableFrom(((AbstractActionLogic) obj).getSupportedAction())) {
+                return Service.PRIORITY_NOT_APPLICABLE;
+            }
+        } catch (NullPointerException e) {
+            throw e;
         }
 
         return obj.getPriority(action, scope);

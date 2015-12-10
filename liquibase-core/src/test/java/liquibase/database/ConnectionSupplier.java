@@ -173,7 +173,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
         return scope;
     }
 
-    public List<ObjectReference> getAllContainers() {
+    public List<ObjectReference> getAllSchemas() {
         if (getDatabase().supports(Catalog.class)) {
             return Arrays.asList(new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getPrimarySchema()),
                     new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getAlternateSchema()),

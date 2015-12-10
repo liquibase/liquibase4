@@ -1,4 +1,4 @@
-package liquibase.structure.core;
+package liquibase.structure.datatype;
 
 import liquibase.AbstractExtensibleObject;
 import liquibase.util.StringClauses;

@@ -93,7 +93,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
             container = new ObjectReference(Schema.class, new ObjectReference(Catalog.class, rawCatalogName), rawSchemaName);
         }
 
-        Table table = new Table(new ObjectReference(container, rawTableName));
+        Table table = new Table(new ObjectReference(Table.class, container, rawTableName));
         table.remarks = remarks;
 
         if ("Y".equals(row.get("TEMPORARY", String.class))) {

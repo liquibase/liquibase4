@@ -23,30 +23,35 @@ public class PrimaryKey extends AbstractTableObject {
         super(pkName);
     }
 
-    public PrimaryKey(ObjectReference reference) {
+    public PrimaryKey(PrimaryKey.PrimaryKeyReference reference) {
         super(reference);
     }
 
-    public PrimaryKey(ObjectReference container, String name) {
-        super(container, name);
+    public PrimaryKey(ObjectReference table, String name) {
+        super(table, name);
     }
 
     public PrimaryKey(String pkName, ObjectReference table, String... columns) {
         super(table, pkName);
                 
         for (String columnName : columns) {
-            this.columns.add(new PrimaryKeyColumn(new ObjectReference(table, columnName)));
+            this.columns.add(new PrimaryKeyColumn(new Column.ColumnReference(table, columnName)));
         }
     }
 
     @Override
     public String toString() {
-        return getName() + "(" + StringUtils.join(this.columns, ",", new StringUtils.ToStringFormatter()) + ")";
+        return getName() + " on "+table.toShortString()+"(" + StringUtils.join(this.columns, ",", new StringUtils.ToStringFormatter()) + ")";
+    }
+
+    @Override
+    public ObjectReference toReference() {
+        return new PrimaryKeyReference(table, name);
     }
 
     public boolean containsColumn(Column column) {
         for (PrimaryKeyColumn ref : CollectionUtil.createIfNull(columns)) {
-            if (name.equals(column.name)) {
+            if (ref.toReference().equals(column.toReference(), true)) {
                 return true;
             }
         }
@@ -55,15 +60,16 @@ public class PrimaryKey extends AbstractTableObject {
 
     public static class PrimaryKeyColumn extends AbstractTableObject {
         public Boolean descending;
+        public Integer position;
 
         public PrimaryKeyColumn() {
         }
 
-        public PrimaryKeyColumn(ObjectReference column) {
+        public PrimaryKeyColumn(Column.ColumnReference column) {
             super(column.container, column.name);
         }
 
-        public PrimaryKeyColumn(ObjectReference column, Boolean descending) {
+        public PrimaryKeyColumn(Column.ColumnReference column, Boolean descending) {
             this(column);
             this.descending = descending;
         }
@@ -81,5 +87,24 @@ public class PrimaryKey extends AbstractTableObject {
             return name + (descending != null && descending ? " DESC" : "");
         }
     }
+
+    /**
+     * Object container is the constrained table ObjectReference
+     */
+    public static class PrimaryKeyReference extends ObjectReference {
+
+        public PrimaryKeyReference() {
+            super(PrimaryKey.class);
+        }
+
+        public PrimaryKeyReference(ObjectReference table, String pkName) {
+            super(PrimaryKey.class, table, pkName);
+        }
+
+        public ObjectReference getTable() {
+            return container;
+        }
+    }
+
 
 }

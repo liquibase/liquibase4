@@ -13,6 +13,7 @@ import liquibase.structure.DatabaseFunction;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
+import liquibase.structure.datatype.DataType;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 import liquibase.util.Validate;
@@ -46,16 +47,16 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
      * Creates an ObjectName with null values for "unknown" portions and calls {@link #createColumnSnapshotAction(ObjectReference)}.
      */
     protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-        ObjectReference columnName;
+        Column.ColumnReference columnName;
 
         if (relatedTo.instanceOf(Catalog.class)) {
-            columnName = new ObjectReference(relatedTo.name, null, null, null);
+            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.name, null, null), null);
         } else if (relatedTo.instanceOf(Schema.class)) {
-            columnName = new ObjectReference(relatedTo.container, relatedTo.name, null, null);
+            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.container, relatedTo.name, null), null);
         } else if (relatedTo.instanceOf(Relation.class)) {
-            columnName = new ObjectReference(relatedTo.container, relatedTo.name, null);
+            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.container, relatedTo.name), null);
         } else if (relatedTo.instanceOf(Column.class)) {
-            columnName = relatedTo;
+            columnName = new Column.ColumnReference(relatedTo.container, relatedTo.name);
         } else {
             throw Validate.failure("Unexpected type: " + relatedTo.getClass().getName());
         }
@@ -97,13 +98,13 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
         Column column = new Column();
         if (rawSchemaName == null) {
-            column.table = new ObjectReference(rawCatalogName, rawTableName);
+            column.table = new ObjectReference(Table.class, rawCatalogName, rawTableName);
             column.name = rawColumnName;
         } else {
             if (database.supports(Catalog.class)) {
-                column.table = new ObjectReference(rawCatalogName, rawSchemaName, rawTableName);
+                column.table = new ObjectReference(Table.class, rawCatalogName, rawSchemaName, rawTableName);
             } else {
-                column.table = new ObjectReference(rawSchemaName, rawTableName);
+                column.table = new ObjectReference(Table.class, rawSchemaName, rawTableName);
             }
             column.name = rawColumnName;
 

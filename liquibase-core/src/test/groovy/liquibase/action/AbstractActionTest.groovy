@@ -75,6 +75,10 @@ abstract class AbstractActionTest extends Specification {
         JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(type, defaultValues)
     }
 
+    protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, Scope scope) {
+        return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, scope)
+    }
+
     protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
         return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
     }
@@ -104,8 +108,8 @@ abstract class AbstractActionTest extends Specification {
             throw SetupResult.OK;
         }
 
-        for (ObjectReference name : supplier.getAllContainers()) {
-            new DropAllCommand(new ObjectReference(Schema, name)).execute(scope);
+        for (ObjectReference name : supplier.getAllSchemas()) {
+            new DropAllCommand(name).execute(scope);
         }
 
         if (snapshot != null) {

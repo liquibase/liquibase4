@@ -6,18 +6,15 @@ import liquibase.database.ConnectionSupplier;
 import liquibase.database.Database;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.servicelocator.Service;
-import liquibase.snapshot.Snapshot;
 import liquibase.structure.core.Table;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 
 import java.util.*;
 
-public abstract class TestStructureSupplier<T extends LiquibaseObject> implements Service {
+public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> implements Service {
 
     abstract int getPriority(Class<? extends LiquibaseObject> type, Scope scope);
-
-    abstract List<T> getTestObjects(Class<T> type, Snapshot snapshot, Scope scope);
 
     List<String> getSimpleObjectNames(Class<T> type, Scope  scope) {
         List<String> returnList = new ArrayList<>();
@@ -59,7 +56,7 @@ public abstract class TestStructureSupplier<T extends LiquibaseObject> implement
         return getObjectNames(type, scope.get(JUnitScope.Attr.objectNameStrategy, ObjectNameStrategy.SIMPLE_NAMES), scope);
     }
 
-    List<ObjectReference> getObjectNames(Class<T> type, ObjectNameStrategy nameStrategy, Scope scope) {
+    public List<ObjectReference> getObjectNames(Class<T> type, ObjectNameStrategy nameStrategy, Scope scope) {
         List<ObjectReference> returnList = new ArrayList<>();
 
         List<ObjectReference> containers = ObjectUtil.defaultIfEmpty(getObjectContainers(scope), Collections.singletonList((ObjectReference) null));
@@ -100,7 +97,7 @@ public abstract class TestStructureSupplier<T extends LiquibaseObject> implement
 
         if (AbstractTableObject.class.isAssignableFrom(type)) { //add in a null table name placeholder
             for (ObjectReference ref : returnList) {
-                ref.container = new ObjectReference(ref.container, "TO_CLEAR"); //need to set a placeholder name to pick the right constructor
+                ref.container = new ObjectReference(LiquibaseObject.class, ref.container, "TO_CLEAR"); //need to set a placeholder name to pick the right constructor
                 ref.container.name = null;
             }
         }
@@ -109,8 +106,6 @@ public abstract class TestStructureSupplier<T extends LiquibaseObject> implement
     }
 
     protected List<ObjectReference> getObjectContainers(Scope scope) {
-        return scope.get(JUnitScope.Attr.connectionSupplier, ConnectionSupplier.class).getAllContainers();
+        return scope.get(JUnitScope.Attr.connectionSupplier, ConnectionSupplier.class).getAllSchemas();
     }
-
-    abstract Set<Class<? extends LiquibaseObject>> requires(Scope scope);
 }

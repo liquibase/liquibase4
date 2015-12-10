@@ -10,6 +10,7 @@ import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.*;
+import liquibase.structure.datatype.DataTypeLogicFactory;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
@@ -244,13 +245,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         // auto-increment columns, there should be no default value
         if (defaultValue != null && autoIncrementInformation == null) {
-            String defaultValueString;
-//            if (defaultValue instanceof SequenceNextValueFunction) {
-//                defaultValueString = database.generateDatabaseFunctionValue((SequenceNextValueFunction) defaultValue);
-//            } else {
-                defaultValueString = defaultValue.toString();
-//            }
-
+            String defaultValueString = scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(defaultValue, column.type, scope);
             columnClause.append(ColumnClauses.defaultValue, "DEFAULT " + defaultValueString);
         }
 

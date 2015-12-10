@@ -33,8 +33,37 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
 
     @Override
     public ValidationErrors validate(QueryJdbcMetaDataAction action, Scope scope) {
-        return super.validate(action, scope)
+        ValidationErrors errors = super.validate(action, scope)
                 .checkForRequiredField("method", action);
+
+        if (!errors.hasErrors()) {
+            if (action.method.equals("getTables")) {
+                if (action.arguments.size() != 4) {
+                    errors.addError("getTables requires 4 arguments");
+                }
+            } else if (action.method.equals("getColumns")) {
+                if (action.arguments.size() != 4) {
+                    errors.addError("getColumns requires 4 arguments");
+                }
+            } else if (action.method.equals("getPrimaryKeys")) {
+                if (action.arguments.size() != 3) {
+                    errors.addError("getPrimaryKeys requires 3 arguments");
+                } else {
+                    if (action.arguments.size() > 2 && action.arguments.get(2) == null) {
+                        errors.addError("getPrimaryKeys requires a not-null 3rd argument (table name)");
+                    }
+                }
+            } else if (action.method.equals("getImportedKeys")) {
+                if (action.arguments.size() != 3) {
+                    errors.addError("getImportedKeys requires 3 arguments");
+                } else {
+                    if (action.arguments.size() > 2 && action.arguments.get(2) == null) {
+                        errors.addError("getImportedKeys requires a 3rd argument (table name)");
+                    }
+                }
+            }
+        }
+        return errors;
     }
 
     @Override
@@ -55,17 +84,12 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
         List arguments = action.arguments;
         try {
             if (method.equals("getTables")) {
-                Validate.isTrue(arguments.size() == 4, "getTables requires 4 arguments");
                 return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))));
             } else if (method.equals("getColumns")) {
-                Validate.isTrue(arguments.size() == 4, "getColumns requires 4 arguments");
                 return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))));
             } else if (method.equals("getPrimaryKeys")) {
-                Validate.isTrue(arguments.size() == 3, "getPrimaryKeys requires 3 arguments");
                 return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getPrimaryKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
             } else if (method.equals("getImportedKeys")) {
-                Validate.isTrue(arguments.size() == 3, "getImportedKeys requires 3 arguments");
-                Validate.isTrue(arguments.get(2) != null, "getImportedKeys does not support a null table name");
                 return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getImportedKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
             }
             throw new ActionPerformException("Unknown method '" + method + "'");

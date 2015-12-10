@@ -857,4 +857,12 @@
 | 221b3d      | Unsupported Database | TESTCOL    | smallint    | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
 | d5470d      | Unsupported Database | TESTCOL    | varchar(10) | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
 
-# Test Version: "f0361e" #
+# Test: "defaultValue comes through correctly" #
+
+- **connection:** unsupported[config:standard]
+
+| Permutation | Verified             | defaultValue | type    | OPERATIONS
+| :---------- | :------------------- | :----------- | :------ | :------
+| 03648a      | Unsupported Database | int          | TESTCOL | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
+
+# Test Version: "404bde" #

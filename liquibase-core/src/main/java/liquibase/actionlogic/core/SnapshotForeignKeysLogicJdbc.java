@@ -99,25 +99,25 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
 
         ObjectReference objectReference;
         if (fkTableCat != null && fkTableSchema == null) {
-            objectReference = new ObjectReference(fkTableCat, fkTableName, fkName);
+            objectReference = new ObjectReference(ForeignKey.class, fkTableCat, fkTableName, fkName);
         } else {
-            objectReference = new ObjectReference(fkTableCat, fkTableSchema, fkTableName, fkName);
+            objectReference = new ObjectReference(ForeignKey.class, fkTableCat, fkTableSchema, fkTableName, fkName);
         }
         ObjectReference fkTableObjectReference;
         if (fkTableCat != null && fkTableSchema == null) {
-            fkTableObjectReference = new ObjectReference(fkTableCat, fkTableName);
+            fkTableObjectReference = new ObjectReference(Table.class, fkTableCat, fkTableName);
         } else {
-            fkTableObjectReference = new ObjectReference(fkTableCat, fkTableSchema, fkTableName);
+            fkTableObjectReference = new ObjectReference(Table.class, fkTableCat, fkTableSchema, fkTableName);
         }
         ObjectReference pkTableObjectReference;
         if (pkTableCat != null && pkTableSchema == null) {
-            pkTableObjectReference = new ObjectReference(pkTableCat, pkTableName);
+            pkTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableName);
         } else {
-            pkTableObjectReference = new ObjectReference(pkTableCat, pkTableSchema, pkTableName);
+            pkTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableSchema, pkTableName);
         }
 
         ForeignKey fk = new ForeignKey(objectReference);
-        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(new ObjectReference(fkTableObjectReference, fkColumnName), new ObjectReference(pkTableObjectReference, pkColumnName), position));
+        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(new Column.ColumnReference(fkTableObjectReference, fkColumnName), new Column.ColumnReference(pkTableObjectReference, pkColumnName), position));
 
         if (updateRule != null) {
             switch (updateRule) {

@@ -275,8 +275,10 @@ public class MockDatabase implements Database, InternalDatabase {
 
     @Override
     public String escapeString(String string) {
-        return string;
-    }
+        if (string == null) {
+            return null;
+        }
+        return string.replaceAll("'", "''");    }
 
     @Override
     public boolean supportsForeignKeyDisable() {

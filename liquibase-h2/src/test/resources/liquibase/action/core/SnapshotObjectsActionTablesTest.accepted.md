@@ -15,8 +15,8 @@
 
 | Permutation | Verified | schemaName         | OPERATIONS
 | :---------- | :------- | :----------------- | :------
-| ffe0a3      | true     | LBSCHEMA2 (SCHEMA) | **plan**: getTables(null, null, LBSCHEMA2, [TABLE])
-| 31a9a7      | true     | PUBLIC (SCHEMA)    | **plan**: getTables(null, null, PUBLIC, [TABLE])
+| ffe0a3      | true     | LBSCHEMA2 (SCHEMA) | **plan**: getTables(null, LBSCHEMA2, null, [TABLE])
+| 31a9a7      | true     | PUBLIC (SCHEMA)    | **plan**: getTables(null, PUBLIC, null, [TABLE])
 
 # Test: "can snapshot fully qualified table" #
 
@@ -47,4 +47,4 @@
 | 38b9af      | true     | PUBLIC.lowertable (TABLE)                       | **plan**: getTables(null, PUBLIC, lowertable, [TABLE])
 | 97fc83      | true     | PUBLIC.only_in_PUBLIC (TABLE)                   | **plan**: getTables(null, PUBLIC, only\_in\_PUBLIC, [TABLE])
 
-# Test Version: "963303" #
+# Test Version: "550056" #

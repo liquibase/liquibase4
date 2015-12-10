@@ -30,7 +30,7 @@ public class CreateTableAction extends AbstractAction {
     }
 
     public CreateTableAction addColumn(String columnName, String type) {
-        return addColumn(new Column(new ObjectReference(table.name, columnName), type));
+        return addColumn(new Column(table.toReference(), columnName, type));
     }
 
     public CreateTableAction addColumn(Column column) {

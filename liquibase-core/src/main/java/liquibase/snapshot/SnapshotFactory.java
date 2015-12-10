@@ -23,7 +23,7 @@ public class SnapshotFactory {
     public <T extends LiquibaseObject> T snapshot(ObjectReference object, Scope scope) throws ActionPerformException {
         QueryResult result = (QueryResult) new ActionExecutor().execute(new SnapshotObjectsAction(object), scope);
 
-        return (T) result.asObject(object.getClass());
+        return (T) result.asObject(object.type);
     }
 
 

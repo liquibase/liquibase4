@@ -15,8 +15,8 @@
 
 | Permutation | Verified | schemaName      | OPERATIONS
 | :---------- | :------- | :-------------- | :------
-| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: getTables(null, null, lbcat, [TABLE])
-| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: getTables(null, null, lbcat2, [TABLE])
+| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: getTables(lbcat, null, null, [TABLE])
+| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: getTables(lbcat2, null, null, [TABLE])
 
 # Test: "can snapshot fully qualified table" #
 
@@ -35,4 +35,4 @@
 | 3cb8b0      | true     | lbcat2.lowertable (TABLE)                    | **plan**: getTables(lbcat2, null, lowertable, [TABLE])
 | a1779f      | true     | lbcat2.only_in_lbcat2 (TABLE)                | **plan**: getTables(lbcat2, null, only_in_lbcat2, [TABLE])
 
-# Test Version: "963303" #
+# Test Version: "550056" #

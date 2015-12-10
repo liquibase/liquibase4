@@ -9,7 +9,7 @@ import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.Column
-import liquibase.structure.core.DataType
+import liquibase.structure.datatype.DataType
 import liquibase.structure.core.PrimaryKey
 import liquibase.structure.core.Table
 import liquibase.util.CollectionUtil
@@ -47,7 +47,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
         when:
         def tableName = getObjectNames(Table, ObjectNameStrategy.SIMPLE_NAMES, scope)[0]
         def columnName = getObjectNames(Column, ObjectNameStrategy.SIMPLE_NAMES, scope)[0]
-        columnName = new ObjectReference(tableName, columnName.name)
+        columnName = new Column.ColumnReference(tableName, columnName.name)
 
         def action = new AddAutoIncrementAction(new Column.ColumnReference(tableName, columnName.name), new DataType(DataType.StandardType.INTEGER), autoIncrementInformation)
 
