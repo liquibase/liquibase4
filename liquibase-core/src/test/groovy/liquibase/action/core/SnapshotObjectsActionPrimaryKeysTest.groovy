@@ -207,49 +207,80 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         }
     }
 
+    @Unroll("#featureName: #schemaName on #conn")
+    def "Finds multi-column PKs correctly"() {
+        expect:
+
+        def table = new Table(schemaName, standardCaseObjectName("table_name", Table, scope.database))
+        def column1 = new Column(table.toReference(), standardCaseObjectName("col1", Column, scope.database), "int")
+        def column2 = new Column(table.toReference(), standardCaseObjectName("col2", Column, scope.database), "int")
+        def column3 = new Column(table.toReference(), standardCaseObjectName("col3", Column, scope.database), "int")
+
+        def pk = new PrimaryKey(null, table.toReference(), column1.name, column3.name)
+        def snapshot = new Snapshot(scope)
+        snapshot.addAll([table, column1, column2, column3, pk])
+
+        def action = new SnapshotObjectsAction(pk.toReference())
+
+        runStandardTest([
+                schemaName_asTable: schemaName
+        ], snapshot, action, conn, scope, { plan, results ->
+            assert results instanceof ObjectBasedQueryResult
+            assert results.size() == 1; //found more than one object
+
+            PrimaryKey foundPk = results.asObject(PrimaryKey)
+            assert foundPk.table.equals(table.toReference(), true)
+            assert foundPk.columns.size() == 2
+
+            assert foundPk.columns[0].name == column1.name
+            assert foundPk.columns[1].name == column3.name
+
+        })
+
+
+        where:
+        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+
+            return CollectionUtil.permutations([
+                    [it],
+                    [scope],
+                    it.allSchemas
+            ])
+        }
+    }
+
+
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
 
-        Set<String> addedPrimaryKeys = new HashSet<>();
-
+        def columnName = standardCaseObjectName("id", Column, scope.database)
         //Crate the expected PK/table combo
         for (ObjectReference relatedTo : ((SnapshotObjectsAction) action).relatedTo) {
-            if (relatedTo.instanceOf(PrimaryKey) && relatedTo.name != null && relatedTo.container.name != null) {
-                def columnName = standardCaseObjectName("id", Column, scope.database)
+            if (relatedTo.instanceOf(PrimaryKey)) {
 
-                snapshot.add(new Table(relatedTo.container))
-                snapshot.add(new Column(relatedTo.container, columnName, "int"))
-                snapshot.add(new PrimaryKey(relatedTo.name, relatedTo.container, columnName))
-                addedPrimaryKeys.add(relatedTo.name)
+                def tableName = relatedTo.container ?: new ObjectReference(Table, standardCaseObjectName("test_table", Table, scope.database))
 
+                snapshot.add(new Table(tableName))
+                snapshot.add(new Column(tableName, columnName, "int"))
+                snapshot.add(new PrimaryKey(relatedTo.name, tableName, columnName))
+            } else if (relatedTo.instanceOf(Table)) {
+                snapshot.add(new Table(relatedTo))
+                snapshot.add(new Column(relatedTo, columnName, "int"))
+                snapshot.add(new PrimaryKey(null, relatedTo, columnName))
             }
         }
 
-        int i = 0;
-        //create generated-named PKs on complex object names
-        for (ObjectReference tableName : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
+        //create some additional tables
+        for (int i=0; i<5; i++) {
             i = i + 1;
-            def columnName = standardCaseObjectName("id", Column, scope.database)
-            snapshot.add(new Table(tableName))
-            snapshot.add(new Column(tableName, columnName, "int"))
-            snapshot.add(new PrimaryKey(standardCaseObjectName("pk_test_" + i, PrimaryKey, scope.database), tableName, columnName))
-        }
-
-        //create complex-named PKs on generated object names
-        i = 0;
-        for (ObjectReference pkName : getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope)) {
-            if (addedPrimaryKeys.contains(pkName.name)) {
-                continue
+            for (ObjectReference schema : getObjectNames(Schema, scope)) {
+                def tableName = new ObjectReference(Table, schema, standardCaseObjectName("table_$i", Table, scope.database))
+                snapshot.add(new Table(tableName))
+                snapshot.add(new Column(tableName, columnName, "int"))
+                snapshot.add(new PrimaryKey(standardCaseObjectName("pk_test_" + i, PrimaryKey, scope.database), tableName, columnName))
             }
-
-            i = i + 1;
-            def tableName = new ObjectReference(Table, pkName.container.container, standardCaseObjectName("table_" + i, Table, scope.database))
-            def column = new Column(tableName, standardCaseObjectName("id", Column, scope.database), "int");
-
-            snapshot.add(new Table(tableName))
-            snapshot.add(column)
-            snapshot.add(new PrimaryKey(pkName.name, tableName, column.name))
         }
 
         return snapshot

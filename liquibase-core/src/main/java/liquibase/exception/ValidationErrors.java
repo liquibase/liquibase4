@@ -95,6 +95,17 @@ public class ValidationErrors {
         }
     }
 
+    /**
+     * Adds the given error message if the check param is true.
+     */
+    public ValidationErrors addError(boolean check, String message) {
+        if (check) {
+            return addError(message);
+        } else {
+            return this;
+        }
+    }
+
     public ValidationErrors addError(String message) {
         errorMessages.add(message);
         return this;

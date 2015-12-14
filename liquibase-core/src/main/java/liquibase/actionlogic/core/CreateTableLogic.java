@@ -181,7 +181,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         String referencesString = StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
             @Override
             public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
-                return database.escapeObjectName(obj.baseColumn.name, Column.class);
+                return database.escapeObjectName(obj.baseColumn, Column.class);
             }
         });
 

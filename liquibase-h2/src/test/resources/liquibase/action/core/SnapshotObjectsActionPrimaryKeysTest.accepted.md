@@ -1,5 +1,14 @@
 **NOTE: This output is generated and parsed by TestMD. Please read it, but DO NOT EDIT MANUALLY**
 
+# Test: "Finds multi-column PKs correctly" #
+
+- **connection:** h2[config:standard]
+
+| Permutation | Verified | schemaName         | OPERATIONS
+| :---------- | :------- | :----------------- | :------
+| ffe0a3      | true     | LBSCHEMA2 (SCHEMA) | **plan**: getPrimaryKeys(null, LBSCHEMA2, TABLE_NAME)
+| 31a9a7      | true     | PUBLIC (SCHEMA)    | **plan**: getPrimaryKeys(null, PUBLIC, TABLE_NAME)
+
 # Test: "can find all primaryKeys in a fully qualified complex table name" #
 
 - **connection:** h2[config:standard]
@@ -62,29 +71,19 @@
 
 - **connection:** h2[config:standard]
 
-| Permutation | Verified | pkName                                                                | OPERATIONS
-| :---------- | :------- | :-------------------------------------------------------------------- | :------
-| c64e36      | true     | LBSCHEMA2.KNOWN_TABLE.4TEST_primarykey (PRIMARYKEY)                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 8cd258      | true     | LBSCHEMA2.KNOWN_TABLE.4test_primarykey (PRIMARYKEY)                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 3fff04      | true     | LBSCHEMA2.KNOWN_TABLE.ANOTHERUPPERPRIMARYKEY (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 05f551      | true     | LBSCHEMA2.KNOWN_TABLE.AnotherMixedPrimaryKey (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 966ece      | true     | LBSCHEMA2.KNOWN_TABLE.CRAZY!@#\$%^&*()_+{}[]'"PRIMARYKEY (PRIMARYKEY) | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 20e994      | true     | LBSCHEMA2.KNOWN_TABLE.MixedPrimaryKey (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| ec4a7b      | true     | LBSCHEMA2.KNOWN_TABLE.UPPERPRIMARYKEY (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 5fd99b      | true     | LBSCHEMA2.KNOWN_TABLE.anotherlowerprimarykey (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 943fa7      | true     | LBSCHEMA2.KNOWN_TABLE.crazy!@#\$%^&*()_+{}[]'"primarykey (PRIMARYKEY) | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| a48c18      | true     | LBSCHEMA2.KNOWN_TABLE.lowerprimarykey (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| c80a0e      | true     | LBSCHEMA2.KNOWN_TABLE.only_in_LBSCHEMA2 (PRIMARYKEY)                  | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
-| 6364dd      | true     | PUBLIC.KNOWN_TABLE.4TEST_primarykey (PRIMARYKEY)                      | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 8d6e2c      | true     | PUBLIC.KNOWN_TABLE.4test_primarykey (PRIMARYKEY)                      | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 178b9f      | true     | PUBLIC.KNOWN_TABLE.ANOTHERUPPERPRIMARYKEY (PRIMARYKEY)                | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| b68510      | true     | PUBLIC.KNOWN_TABLE.AnotherMixedPrimaryKey (PRIMARYKEY)                | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 3344ed      | true     | PUBLIC.KNOWN_TABLE.CRAZY!@#\$%^&*()_+{}[]'"PRIMARYKEY (PRIMARYKEY)    | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 6990ac      | true     | PUBLIC.KNOWN_TABLE.MixedPrimaryKey (PRIMARYKEY)                       | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 14a862      | true     | PUBLIC.KNOWN_TABLE.UPPERPRIMARYKEY (PRIMARYKEY)                       | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 46178f      | true     | PUBLIC.KNOWN_TABLE.anotherlowerprimarykey (PRIMARYKEY)                | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| a58468      | true     | PUBLIC.KNOWN_TABLE.crazy!@#\$%^&*()_+{}[]'"primarykey (PRIMARYKEY)    | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| 489f23      | true     | PUBLIC.KNOWN_TABLE.lowerprimarykey (PRIMARYKEY)                       | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
-| d8b4ed      | true     | PUBLIC.KNOWN_TABLE.only_in_PUBLIC (PRIMARYKEY)                        | **plan**: getPrimaryKeys(null, PUBLIC, KNOWN_TABLE)
+| Permutation | Verified | pkName                                                      | OPERATIONS
+| :---------- | :------- | :---------------------------------------------------------- | :------
+| 04d404      | true     | KNOWN_TABLE.4TEST_primarykey (PRIMARYKEY)                   | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| df4382      | true     | KNOWN_TABLE.4test_primarykey (PRIMARYKEY)                   | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| b98f97      | true     | KNOWN_TABLE.ANOTHERUPPERPRIMARYKEY (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| c7a70f      | true     | KNOWN_TABLE.AnotherMixedPrimaryKey (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 3c3463      | true     | KNOWN_TABLE.CRAZY!@#\$%^&*()_+{}[]'"PRIMARYKEY (PRIMARYKEY) | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 21f20d      | true     | KNOWN_TABLE.MixedPrimaryKey (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| ea5cb5      | true     | KNOWN_TABLE.UPPERPRIMARYKEY (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 634d46      | true     | KNOWN_TABLE.anotherlowerprimarykey (PRIMARYKEY)             | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 98e891      | true     | KNOWN_TABLE.crazy!@#\$%^&*()_+{}[]'"primarykey (PRIMARYKEY) | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 0409e3      | true     | KNOWN_TABLE.lowerprimarykey (PRIMARYKEY)                    | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| ea956e      | true     | KNOWN_TABLE.only_in_LBSCHEMA2 (PRIMARYKEY)                  | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
+| 0ca391      | true     | KNOWN_TABLE.only_in_PUBLIC (PRIMARYKEY)                     | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
 
-# Test Version: "e86ce9" #
+# Test Version: "5ee9c8" #

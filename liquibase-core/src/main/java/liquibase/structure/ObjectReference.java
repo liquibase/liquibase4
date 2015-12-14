@@ -33,7 +33,16 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
 
     public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container) {
         this.type = type;
-        this.container = container;
+        if (container != null) {
+            if (type.isAssignableFrom(container.type)) {
+                this.container = container.container;
+                this.name = container.name;
+            } else {
+                this.container = container;
+                this.name = null;
+            }
+        }
+
     }
 
     public ObjectReference(Class<? extends LiquibaseObject> type, ObjectReference container, String... names) {

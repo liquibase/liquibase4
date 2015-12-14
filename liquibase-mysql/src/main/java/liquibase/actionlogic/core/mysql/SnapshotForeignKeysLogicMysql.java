@@ -36,22 +36,22 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
                 "KEY_COL.TABLE_NAME AS FKTABLE_NAME, " +
                 "KEY_COL.COLUMN_NAME AS FKCOLUMN_NAME, " +
                 "KEY_COL.ORDINAL_POSITION AS KEY_SEQ, " +
-                "CON.UPDATE_RULE AS UPDATE_RULE_STRING, "+
-                "CON.DELETE_RULE AS DELETE_RULE_STRING "+
+                "CON.UPDATE_RULE AS UPDATE_RULE_STRING, " +
+                "CON.DELETE_RULE AS DELETE_RULE_STRING " +
                 "FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KEY_COL " +
                 "JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS CON " +
                 "ON KEY_COL.CONSTRAINT_SCHEMA=CON.CONSTRAINT_SCHEMA " +
-                "AND KEY_COL.CONSTRAINT_NAME=CON.CONSTRAINT_NAME "+
-                "AND KEY_COL.TABLE_NAME=CON.TABLE_NAME "+
+                "AND KEY_COL.CONSTRAINT_NAME=CON.CONSTRAINT_NAME " +
+                "AND KEY_COL.TABLE_NAME=CON.TABLE_NAME " +
                 "WHERE KEY_COL.REFERENCED_COLUMN_NAME IS NOT NULL");
         if (relatedTo.instanceOf(ForeignKey.class)) {
-            if (relatedTo.name== null) {
+            if (relatedTo.name == null) {
                 ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
-                query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(baseTable.name) + "'")
-                        .append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(baseTable.container.name) + "'");
+                query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(baseTable.name) + "'");
+                query.append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(baseTable.container.name) + "'");
             } else {
-                query.append("AND KEY_COL.CONSTRAINT_NAME='" + database.escapeString(relatedTo.name) + "'")
-                        .append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.container.container.name) + "'");
+                query.append("AND KEY_COL.CONSTRAINT_NAME='" + database.escapeString(relatedTo.name) + "'");
+                query.append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.container.container.name) + "'");
             }
         } else if (relatedTo.instanceOf(Table.class)) {
             query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(relatedTo.name) + "'")
@@ -71,24 +71,46 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
         String updateRule = row.get("UPDATE_RULE_STRING", String.class);
         if (updateRule != null) {
             switch (updateRule) {
-                case "CASCADE": fk.updateRule = ForeignKey.ConstraintType.importedKeyCascade; break;
-                case "SET NULL": fk.updateRule = ForeignKey.ConstraintType.importedKeySetNull; break;
-                case "SET DEFAULT": fk.updateRule = ForeignKey.ConstraintType.importedKeySetDefault; break;
-                case "RESTRICT": fk.updateRule = ForeignKey.ConstraintType.importedKeyRestrict; break;
-                case "NO ACTION": fk.updateRule = ForeignKey.ConstraintType.importedKeyNoAction; break;
-                default: throw new ActionPerformException("Unknown update rule: "+updateRule);
+                case "CASCADE":
+                    fk.updateRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    break;
+                case "SET NULL":
+                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    break;
+                case "SET DEFAULT":
+                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    break;
+                case "RESTRICT":
+                    fk.updateRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    break;
+                case "NO ACTION":
+                    fk.updateRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    break;
+                default:
+                    throw new ActionPerformException("Unknown update rule: " + updateRule);
             }
         }
 
         String deleteRule = row.get("DELETE_RULE_STRING", String.class);
         if (deleteRule != null) {
             switch (deleteRule) {
-                case "CASCADE": fk.deleteRule = ForeignKey.ConstraintType.importedKeyCascade; break;
-                case "SET NULL": fk.deleteRule = ForeignKey.ConstraintType.importedKeySetNull; break;
-                case "SET DEFAULT": fk.deleteRule = ForeignKey.ConstraintType.importedKeySetDefault; break;
-                case "RESTRICT": fk.deleteRule = ForeignKey.ConstraintType.importedKeyRestrict; break;
-                case "NO ACTION": fk.deleteRule = ForeignKey.ConstraintType.importedKeyNoAction; break;
-                default: throw new ActionPerformException("Unknown delete rule: "+deleteRule);
+                case "CASCADE":
+                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    break;
+                case "SET NULL":
+                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    break;
+                case "SET DEFAULT":
+                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    break;
+                case "RESTRICT":
+                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    break;
+                case "NO ACTION":
+                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    break;
+                default:
+                    throw new ActionPerformException("Unknown delete rule: " + deleteRule);
             }
         }
 

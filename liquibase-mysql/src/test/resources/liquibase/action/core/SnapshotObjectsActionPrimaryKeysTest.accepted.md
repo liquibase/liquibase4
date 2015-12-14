@@ -1,5 +1,14 @@
 **NOTE: This output is generated and parsed by TestMD. Please read it, but DO NOT EDIT MANUALLY**
 
+# Test: "Finds multi-column PKs correctly" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | schemaName      | OPERATIONS
+| :---------- | :------- | :-------------- | :------
+| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: getPrimaryKeys(lbcat, null, table_name)
+| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: getPrimaryKeys(lbcat2, null, table_name)
+
 # Test: "can find all primaryKeys in a fully qualified complex table name" #
 
 - **connection:** mysql[config:caseInsensitive]
@@ -34,4 +43,4 @@
 | a0be3e      | true     | lbcat2.lowertable.UNNAMED (PRIMARYKEY)                    | **plan**: getPrimaryKeys(lbcat2, null, lowertable)
 | 712cc9      | true     | lbcat2.only_in_lbcat2.UNNAMED (PRIMARYKEY)                | **plan**: getPrimaryKeys(lbcat2, null, only_in_lbcat2)
 
-# Test Version: "e86ce9" #
+# Test Version: "5ee9c8" #

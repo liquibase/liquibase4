@@ -3,9 +3,9 @@ package liquibase.structure;
 import liquibase.Scope;
 import liquibase.servicelocator.AbstractServiceFactory;
 
-public class TestStructureSupplierFactory extends AbstractServiceFactory<TestObjectReferenceSupplier> {
+public class TestObjectReferenceSupplierFactory extends AbstractServiceFactory<TestObjectReferenceSupplier> {
 
-    public TestStructureSupplierFactory(Scope scope) {
+    public TestObjectReferenceSupplierFactory(Scope scope) {
         super(scope);
     }
 
@@ -20,7 +20,7 @@ public class TestStructureSupplierFactory extends AbstractServiceFactory<TestObj
         return obj.getPriority(objectType, scope);
     }
 
-    public <T extends LiquibaseObject> TestObjectReferenceSupplier<T> getStructureSupplier(Class<T> objectType, Scope scope) {
+    public <T extends LiquibaseObject> TestObjectReferenceSupplier<T> getObjectReferenceSupplier(Class<T> objectType, Scope scope) {
         return getService(scope, objectType);
     }
 }

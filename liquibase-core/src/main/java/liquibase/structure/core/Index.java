@@ -96,6 +96,10 @@ public class Index extends AbstractSchemaObject {
             super(table, name);
         }
 
+        public IndexedColumn(Column.ColumnReference column) {
+            super(column.getRelation(), column.name);
+        }
+
         public String toString(boolean includeRelation) {
             if (includeRelation) {
                 return toString();

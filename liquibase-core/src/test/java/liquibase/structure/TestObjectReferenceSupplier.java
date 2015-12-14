@@ -6,6 +6,7 @@ import liquibase.database.ConnectionSupplier;
 import liquibase.database.Database;
 import liquibase.database.core.UnsupportedDatabase;
 import liquibase.servicelocator.Service;
+import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Table;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
@@ -97,12 +98,19 @@ public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> imp
 
         if (AbstractTableObject.class.isAssignableFrom(type)) { //add in a null table name placeholder
             for (ObjectReference ref : returnList) {
-                ref.container = new ObjectReference(LiquibaseObject.class, ref.container, "TO_CLEAR"); //need to set a placeholder name to pick the right constructor
-                ref.container.name = null;
+                ref.container = new ObjectReference(LiquibaseObject.class, ref.container, null);
             }
         }
 
-        return returnList;
+        List<ObjectReference> finalReturnList = new ArrayList<>();
+        for (ObjectReference reference : returnList) {
+            if (reference.instanceOf(ForeignKey.class)) {
+                reference = new ForeignKey.ForeignKeyReference(reference.container, reference.name);
+            }
+            finalReturnList.add(reference);
+        }
+
+        return finalReturnList;
     }
 
     protected List<ObjectReference> getObjectContainers(Scope scope) {

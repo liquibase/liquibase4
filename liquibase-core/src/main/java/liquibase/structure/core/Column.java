@@ -30,6 +30,10 @@ public class Column extends AbstractTableObject {
         super(reference.getRelation(), reference.name);
     }
 
+    public Column(ColumnReference reference, DataType type, Boolean nullable) {
+        this(reference.getRelation(), reference.name, type, nullable);
+    }
+
     public Column(ObjectReference table, String name) {
         super(table, name);
     }

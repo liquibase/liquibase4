@@ -2,6 +2,7 @@ package liquibase.action;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
+import liquibase.structure.ObjectReference;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class ActionStatus {
             return this;
         }
 
-        boolean correct = correctValue == null || correctValue.equals(checkValue);
+        boolean correct = correctValue == null || (correctValue instanceof ObjectReference ? ((ObjectReference) correctValue).equals((ObjectReference) checkValue, true) : correctValue.equals(checkValue));
 
         return assertCorrect(correct, "'" + propertyName + "' is incorrect (expected '" + correctValue + "' got '" + checkValue + "')");
     }

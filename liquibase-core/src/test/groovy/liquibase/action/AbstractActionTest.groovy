@@ -15,7 +15,7 @@ import liquibase.snapshot.Snapshot
 import liquibase.structure.LiquibaseObject
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
-import liquibase.structure.TestStructureSupplierFactory
+import liquibase.structure.TestObjectReferenceSupplierFactory
 import liquibase.structure.core.*
 import liquibase.test.TestObjectFactory
 import org.junit.Assume
@@ -76,11 +76,11 @@ abstract class AbstractActionTest extends Specification {
     }
 
     protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, Scope scope) {
-        return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, scope)
+        return scope.getSingleton(TestObjectReferenceSupplierFactory).getObjectReferenceSupplier(objectType, scope).getObjectNames(objectType, scope)
     }
 
     protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestStructureSupplierFactory).getStructureSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
+        return scope.getSingleton(TestObjectReferenceSupplierFactory).getObjectReferenceSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
     }
 
     protected String standardCaseObjectName(String name, Class<? extends LiquibaseObject> type, Database database) {
@@ -139,6 +139,15 @@ abstract class AbstractActionTest extends Specification {
 
     AbstractActionTest.TestDetails getTestDetails(Scope scope) {
         return scope.getSingleton(AbstractActionTest.TestDetailsFactory).getTestDetails(this, scope)
+    }
+
+    String concatConsistantCaseObjectName(String baseName, String stringToAdd) {
+        if (baseName.matches(/[^A-Z]+/)) { //keep it lower case
+            return baseName + stringToAdd.toLowerCase()
+        } else { //mixed case or all caps. Use upper case
+            return baseName + stringToAdd.toUpperCase()
+        }
+
     }
 
     static class ActionTestPermutation extends Permutation {

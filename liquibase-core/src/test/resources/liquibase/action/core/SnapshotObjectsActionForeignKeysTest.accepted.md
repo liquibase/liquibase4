@@ -1,5 +1,14 @@
 **NOTE: This output is generated and parsed by TestMD. Please read it, but DO NOT EDIT MANUALLY**
 
+# Test: "Finds multi-column FKs correctly" #
+
+- **connection:** unsupported[config:standard]
+
+| Permutation | Verified             | schemaName         | OPERATIONS
+| :---------- | :------------------- | :----------------- | :------
+| 5a2aea      | Unsupported Database | LBSCHEMA (SCHEMA)  | **plan**: getImportedKeys(null, LBSCHEMA, TABLE_NAME)
+| 2cb1f9      | Unsupported Database | LBSCHEMA2 (SCHEMA) | **plan**: getImportedKeys(null, LBSCHEMA2, TABLE_NAME)
+
 # Test: "can find all foreignKeys in a fully qualified complex table name" #
 
 - **connection:** unsupported[config:standard]
@@ -29,42 +38,35 @@
 | d06325      | Unsupported Database | LBSCHEMA2.lowertable (TABLE)                    | **plan**: getImportedKeys(null, LBSCHEMA2, lowertable)
 | 6dc804      | Unsupported Database | LBSCHEMA2.only_in_LBSCHEMA2 (TABLE)             | **plan**: getImportedKeys(null, LBSCHEMA2, only_in_LBSCHEMA2)
 
-# Test: "can find all foreignKeys in a schema" #
-
-- **connection:** unsupported[config:standard]
-
-| Permutation | Verified             | schemaName         | OPERATIONS
-| :---------- | :------------------- | :----------------- | :------
-| 5a2aea      | Unsupported Database | LBSCHEMA (SCHEMA)  | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 2cb1f9      | Unsupported Database | LBSCHEMA2 (SCHEMA) | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-
 # Test: "can find fully qualified complex foreign key names" #
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | fkName                                                            | OPERATIONS
-| :---------- | :------------------- | :---------------------------------------------------------------- | :------
-| aed6c4      | Unsupported Database | LBSCHEMA.UNNAMED.4TEST_foreignkey (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 9eea48      | Unsupported Database | LBSCHEMA.UNNAMED.4test_foreignkey (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| f256a4      | Unsupported Database | LBSCHEMA.UNNAMED.ANOTHERUPPERFOREIGNKEY (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 6868cd      | Unsupported Database | LBSCHEMA.UNNAMED.AnotherMixedForeignKey (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| b5363a      | Unsupported Database | LBSCHEMA.UNNAMED.CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY (FOREIGNKEY)  | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| fcbd86      | Unsupported Database | LBSCHEMA.UNNAMED.MixedForeignKey (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 46d7a0      | Unsupported Database | LBSCHEMA.UNNAMED.UPPERFOREIGNKEY (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| fc5c51      | Unsupported Database | LBSCHEMA.UNNAMED.anotherlowerforeignkey (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 7e9e77      | Unsupported Database | LBSCHEMA.UNNAMED.crazy!@#\$%^&*()_+{}[]'"foreignkey (FOREIGNKEY)  | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| 7a3c71      | Unsupported Database | LBSCHEMA.UNNAMED.lowerforeignkey (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| b21b54      | Unsupported Database | LBSCHEMA.UNNAMED.only_in_LBSCHEMA (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, null)
-| cd9a11      | Unsupported Database | LBSCHEMA2.UNNAMED.4TEST_foreignkey (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| f5d590      | Unsupported Database | LBSCHEMA2.UNNAMED.4test_foreignkey (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| 7af7e2      | Unsupported Database | LBSCHEMA2.UNNAMED.ANOTHERUPPERFOREIGNKEY (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| d02cb5      | Unsupported Database | LBSCHEMA2.UNNAMED.AnotherMixedForeignKey (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| a708ec      | Unsupported Database | LBSCHEMA2.UNNAMED.CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY (FOREIGNKEY) | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| 6c10d4      | Unsupported Database | LBSCHEMA2.UNNAMED.MixedForeignKey (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| ef32d8      | Unsupported Database | LBSCHEMA2.UNNAMED.UPPERFOREIGNKEY (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| 998a6c      | Unsupported Database | LBSCHEMA2.UNNAMED.anotherlowerforeignkey (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| 702f22      | Unsupported Database | LBSCHEMA2.UNNAMED.crazy!@#\$%^&*()_+{}[]'"foreignkey (FOREIGNKEY) | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| 044214      | Unsupported Database | LBSCHEMA2.UNNAMED.lowerforeignkey (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, null)
-| e4b27f      | Unsupported Database | LBSCHEMA2.UNNAMED.only_in_LBSCHEMA2 (FOREIGNKEY)                  | **plan**: getImportedKeys(null, LBSCHEMA2, null)
+| Permutation | Verified             | fkName                                                                  | OPERATIONS
+| :---------- | :------------------- | :---------------------------------------------------------------------- | :------
+| afd4ab      | Unsupported Database | 4TEST_foreignkey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| f99a5a      | Unsupported Database | 4TEST_foreignkey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 6608d1      | Unsupported Database | 4test_foreignkey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 944df7      | Unsupported Database | 4test_foreignkey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| ed3be1      | Unsupported Database | ANOTHERUPPERFOREIGNKEY on LBSCHEMA.TEST_TABLE (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 971041      | Unsupported Database | ANOTHERUPPERFOREIGNKEY on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| f6f92a      | Unsupported Database | AnotherMixedForeignKey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 8b7d12      | Unsupported Database | AnotherMixedForeignKey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| db1c0d      | Unsupported Database | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY on LBSCHEMA.TEST_TABLE (FOREIGNKEY)  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 71418b      | Unsupported Database | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY on LBSCHEMA2.TEST_TABLE (FOREIGNKEY) | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 81d4fa      | Unsupported Database | MixedForeignKey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 3b8dfe      | Unsupported Database | MixedForeignKey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| e0c0ee      | Unsupported Database | UPPERFOREIGNKEY on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 4685d7      | Unsupported Database | UPPERFOREIGNKEY on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 2eb86a      | Unsupported Database | anotherlowerforeignkey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)              | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| a3129d      | Unsupported Database | anotherlowerforeignkey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)             | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 3dcc55      | Unsupported Database | crazy!@#\$%^&*()_+{}[]'"foreignkey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 23cb64      | Unsupported Database | crazy!@#\$%^&*()_+{}[]'"foreignkey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY) | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 65ba38      | Unsupported Database | lowerforeignkey on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                     | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| b1949e      | Unsupported Database | lowerforeignkey on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 3dc6dd      | Unsupported Database | only_in_LBSCHEMA on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                    | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 15548e      | Unsupported Database | only_in_LBSCHEMA on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| c35f2a      | Unsupported Database | only_in_LBSCHEMA2 on LBSCHEMA.TEST_TABLE (FOREIGNKEY)                   | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 9ee6b8      | Unsupported Database | only_in_LBSCHEMA2 on LBSCHEMA2.TEST_TABLE (FOREIGNKEY)                  | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
 
-# Test Version: "f199e2" #
+# Test Version: "a0a37" #

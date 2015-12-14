@@ -14,14 +14,15 @@ class ObjectReferenceTest extends Specification {
 
         where:
         objectName                                                                  | expected
-//        new ObjectReference(Table)                                                  | "UNNAMED (TABLE)"
-//        new ObjectReference(Table, null)                                            | "UNNAMED (TABLE)"
-//        new ObjectReference(Table, "a")                                             | "a (TABLE)"
-//        new ObjectReference(Table, "a", "b")                                        | "a.b (TABLE)"
-//        new ObjectReference(Table, "a", "b", "c")                                   | "a.b.c (TABLE)"
-//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"))           | "a.b (TABLE)"
-//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c")      | "a.b.c (TABLE)"
-//        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c", "d") | "a.b.c.d (TABLE)"
+        new ObjectReference(Table)                                                  | "UNNAMED (TABLE)"
+        new ObjectReference(Table, null)                                            | "UNNAMED (TABLE)"
+        new ObjectReference(Table, "a")                                             | "a (TABLE)"
+        new ObjectReference(Table, "a", "b")                                        | "a.b (TABLE)"
+        new ObjectReference(Table, "a", "b", "c")                                   | "a.b.c (TABLE)"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"))           | "a.b.UNNAMED (TABLE)"
+        new ObjectReference(Table, new ObjectReference(Table, "a", "b"))           | "a.b (TABLE)"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c")      | "a.b.c (TABLE)"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c", "d") | "a.b.c.d (TABLE)"
         new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), null)     | "a.b.UNNAMED (TABLE)"
     }
 

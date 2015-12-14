@@ -97,18 +97,13 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
             return null;
         }
 
-        ObjectReference objectReference;
+        ForeignKey.ForeignKeyReference objectReference;
         if (fkTableCat != null && fkTableSchema == null) {
-            objectReference = new ObjectReference(ForeignKey.class, fkTableCat, fkTableName, fkName);
+            objectReference = new ForeignKey.ForeignKeyReference(fkTableCat, fkTableName, fkName);
         } else {
-            objectReference = new ObjectReference(ForeignKey.class, fkTableCat, fkTableSchema, fkTableName, fkName);
+            objectReference = new ForeignKey.ForeignKeyReference(fkTableCat, fkTableSchema, fkTableName, fkName);
         }
-        ObjectReference fkTableObjectReference;
-        if (fkTableCat != null && fkTableSchema == null) {
-            fkTableObjectReference = new ObjectReference(Table.class, fkTableCat, fkTableName);
-        } else {
-            fkTableObjectReference = new ObjectReference(Table.class, fkTableCat, fkTableSchema, fkTableName);
-        }
+
         ObjectReference pkTableObjectReference;
         if (pkTableCat != null && pkTableSchema == null) {
             pkTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableName);
@@ -117,7 +112,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
         }
 
         ForeignKey fk = new ForeignKey(objectReference);
-        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(new Column.ColumnReference(fkTableObjectReference, fkColumnName), new Column.ColumnReference(pkTableObjectReference, pkColumnName), position));
+        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, new Column.ColumnReference(pkTableObjectReference, pkColumnName), position));
 
         if (updateRule != null) {
             switch (updateRule) {
@@ -186,7 +181,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                 List<ForeignKey> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(ForeignKey.class);
                 Map<ObjectReference, ForeignKey> combinedResults = new HashMap<>();
                 for (ForeignKey foreignKey : rawResults) {
-                    ForeignKey existingPk = combinedResults.get(foreignKey.name);
+                    ForeignKey existingPk = combinedResults.get(foreignKey.toReference());
                     if (existingPk == null) {
                         combinedResults.put(foreignKey.toReference(), foreignKey);
                     } else {
@@ -199,7 +194,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                         @Override
                         public int compare(ForeignKey.ForeignKeyColumnCheck o1, ForeignKey.ForeignKeyColumnCheck o2) {
                             if (o1.position == null || o2.position == null) {
-                                return o1.baseColumn.name.compareTo(o2.baseColumn.name);
+                                return o1.baseColumn.compareTo(o2.baseColumn);
                             } else {
                                 return o1.position.compareTo(o2.position);
                             }

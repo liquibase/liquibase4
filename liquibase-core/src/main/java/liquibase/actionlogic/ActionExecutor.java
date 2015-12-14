@@ -23,7 +23,7 @@ public class ActionExecutor {
     public ActionResult execute(Action action, Scope scope) throws ActionPerformException {
         Plan plan = createPlan(action, scope);
         if (plan.getValidationErrors().hasErrors()) {
-            throw new ActionPerformException(plan.getValidationErrors().toString());
+            throw new ActionPerformException("Validation Error(s): "+ StringUtils.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
         }
         return plan.execute(scope);
     }

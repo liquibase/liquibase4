@@ -49,7 +49,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
 
             validationErrors.checkForRequiredField("columnChecks", fk);
 
-            if (fk.name != null && fk.table != null && !supportsSeparateConstraintSchema() && !fk.table.equals(fk.columnChecks.get(0).baseColumn.container.container)) {
+            if (fk.name != null && fk.table != null && !supportsSeparateConstraintSchema() && !fk.table.equals(fk.table, true)) {
                 validationErrors.addUnsupportedError("Specifying a different foreign key schema", database.getShortName());
             }
         }
@@ -73,7 +73,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                     result.assertCorrect(actionFK, snapshotFK);
                     if (actionFK.columnChecks.size() == snapshotFK.columnChecks.size()) {
                         for (int i=0; i <  actionFK.columnChecks.size(); i++) {
-                            result.assertCorrect(actionFK.columnChecks.get(i), snapshotFK.columnChecks.get(i));
+                            result.assertCorrect(actionFK.columnChecks.get(i), snapshotFK.columnChecks.get(i), Arrays.asList("position"));
                         }
                     } else {
                         result.assertCorrect(false, "columnCheck sizes are different");
@@ -100,7 +100,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
 
     protected Action execute(ForeignKey fk, AddForeignKeysAction action, Scope scope) {
         return new AlterTableAction(
-                fk.columnChecks.get(0).baseColumn.container,
+                fk.table,
                 generateSql(fk, action, scope)
         );
     }
@@ -112,13 +112,14 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         String constrantName = supportsSeparateConstraintSchema() ? database.escapeObjectName(foreignKey.name, ForeignKey.class) : database.escapeObjectName(foreignKey.getName(), ForeignKey.class);
 
         StringClauses clauses = new StringClauses()
-                .append("ADD CONSTRAINT")
+                .append("ADD")
+                .append("CONSTRAINT")
                 .append(AddForeignKeysLogic.Clauses.constraintName, constrantName)
                 .append("FOREIGN KEY")
                 .append(Clauses.baseColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
-                        return database.escapeObjectName(obj.baseColumn.name, Column.class);
+                        return database.escapeObjectName(obj.baseColumn, Column.class);
                     }
                 }) + ")")
                 .append("REFERENCES")

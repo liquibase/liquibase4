@@ -237,4 +237,4 @@
 | 65e409      | true     | AUTO INCREMENT START WITH null INCREMENT BY null |              | true       | test_pk on lbcat.table1(column_name) |              | INTEGER     | **plan**: ALTER TABLE `lbcat`.`table1` ADD `column_name` INTEGER AUTO_INCREMENT NULL PRIMARY KEY
 | ca7d4a      | true     | AUTO INCREMENT START WITH null INCREMENT BY null |              | true       | test_pk on lbcat.table1(column_name) | Remarks Here | INTEGER     | **plan**: ALTER TABLE `lbcat`.`table1` ADD `column_name` INTEGER AUTO_INCREMENT NULL PRIMARY KEY COMMENT 'Remarks Here'
 
-# Test Version: "4f4be7" #
+# Test Version: "d7afa5" #
