@@ -1,7 +1,10 @@
 package liquibase.database.core.mysql;
 
+import com.mysql.jdbc.JDBC4Connection;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.JdbcConnection;
+import liquibase.database.OfflineConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
@@ -10,6 +13,7 @@ import liquibase.structure.core.Index;
 import liquibase.structure.core.Sequence;
 
 import java.math.BigInteger;
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +30,14 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
         super.quotingEndCharacter = "`";
     }
 
+    @Override
+    public void setConnection(DatabaseConnection conn) {
+        if (conn instanceof JdbcConnection) {
+            Connection underlyingConnection = ((JdbcConnection) conn).getUnderlyingConnection();
+            ((JDBC4Connection) underlyingConnection).setUseInformationSchema(true);
+        }
+        super.setConnection(conn);
+    }
 
     @Override
     public String getShortName() {
@@ -122,6 +134,9 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
 
     @Override
     public String escapeObjectName(ObjectReference objectReference) {
+        if (objectReference == null) {
+            return null;
+        }
         Class<? extends LiquibaseObject> objectType = objectReference.type;
         if (objectType == null) {
             objectType = LiquibaseObject.class;
