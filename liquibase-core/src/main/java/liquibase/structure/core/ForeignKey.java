@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class ForeignKey extends AbstractTableObject {
 
+    public ObjectReference referencedTable;
     public List<ForeignKeyColumnCheck> columnChecks = new ArrayList<>();
     public Boolean deferrable;
     public Boolean initiallyDeferred;
@@ -34,21 +35,17 @@ public class ForeignKey extends AbstractTableObject {
         super(reference);
     }
 
-    public ForeignKey(ObjectReference table, String name) {
+    public ForeignKey(ObjectReference baseTable, String name) {
         super(name);
-        this.table = table;
+        this.table = baseTable;
     }
 
-    public ForeignKey(ObjectReference table, String name, List<String> foreignKeyColumns, List<Column.ColumnReference> primaryKeyColumns) {
-        this(table, name);
-        for (int i = 0; i < CollectionUtil.createIfNull(foreignKeyColumns).size(); i++) {
-            this.columnChecks.add(new ForeignKeyColumnCheck(foreignKeyColumns.get(i), primaryKeyColumns.get(i), i));
+    public ForeignKey(ObjectReference baseTable, ObjectReference referencedTable, String name, List<String> baseColumns, List<String> referencedColumns) {
+        this(baseTable, name);
+        this.referencedTable = referencedTable;
+        for (int i = 0; i < CollectionUtil.createIfNull(baseColumns).size(); i++) {
+            this.columnChecks.add(new ForeignKeyColumnCheck(baseColumns.get(i), referencedColumns.get(i), i));
         }
-    }
-
-    @Override
-    public String toString() {
-        return getName() + " on " + (table==null?null:table.toShortString()) + "(" + StringUtils.join(columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter()) + ")";
     }
 
     @Override
@@ -90,18 +87,18 @@ public class ForeignKey extends AbstractTableObject {
 
     public static class ForeignKeyColumnCheck extends AbstractExtensibleObject {
         public String baseColumn;
-        public Column.ColumnReference referencedColumn;
+        public String referencedColumn;
 
         public Integer position;
 
         public ForeignKeyColumnCheck() {
         }
 
-        public ForeignKeyColumnCheck(String baseColumn, Column.ColumnReference referencedColumn) {
+        public ForeignKeyColumnCheck(String baseColumn, String referencedColumn) {
             this(baseColumn, referencedColumn, null);
         }
 
-        public ForeignKeyColumnCheck(String baseColumn, Column.ColumnReference referencedColumn, Integer position) {
+        public ForeignKeyColumnCheck(String baseColumn, String referencedColumn, Integer position) {
             this.baseColumn = baseColumn;
             this.referencedColumn = referencedColumn;
             this.position = position;
@@ -112,7 +109,7 @@ public class ForeignKey extends AbstractTableObject {
 
         @Override
         public String toString(ForeignKeyColumnCheck obj) {
-            return obj.baseColumn + "->" + (obj.referencedColumn == null ? null: obj.referencedColumn.toShortString());
+            return obj.baseColumn + "->" + obj.referencedColumn;
         }
     }
 
@@ -138,8 +135,13 @@ public class ForeignKey extends AbstractTableObject {
         }
 
         @Override
-        public String toShortString() {
-            return name + " on " + (container == null ? null : container.toShortString());
+        public String toString() {
+            return name + " on " + (container == null ? null : container.toString());
+        }
+
+        @Override
+        public String toLongString() {
+            return name + " on " + (container == null ? null : container.toLongString());
         }
     }
 

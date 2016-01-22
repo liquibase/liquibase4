@@ -58,7 +58,7 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
 
             for (Column column : snapshotFactory.snapshotAll(Column.class, missingTable.toReference(), referenceOfflineDatabaseScope)) {
                 action.columns.add(column);
-    //            columnDefinition.columnName = column.getName();
+    //            columnDefinition.column = column.getName();
     //
     //            LiquibaseDataType ldt = DataTypeFactory.getInstance().from(column.type, targetScope.getDatabase());
     //            DatabaseDataType ddt = ldt.toDatabaseDataType(referenceScope.getDatabase());

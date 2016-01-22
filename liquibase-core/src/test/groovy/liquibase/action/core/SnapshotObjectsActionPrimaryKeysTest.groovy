@@ -14,7 +14,6 @@ import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.*
 import liquibase.util.CollectionUtil
-import org.junit.Assume
 import spock.lang.Unroll
 
 class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
@@ -24,7 +23,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(pkRef)
 
-        runStandardTest([
+        testAction([
                 pkName_asTable: pkRef
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -40,24 +39,24 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         where:
         [conn, scope, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            def pkNames = getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it })
 
-            def validationErrors = scope.getSingleton(ActionExecutor).validate(new SnapshotObjectsAction(pkNames.get(0)), scope)
-
-            return CollectionUtil.permutations([
+            return assumeNotEmpty("No supported permutations", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    pkNames,
-            ])
+                    getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it }),
+            ], new ValidActionFilter(scope)))
         }
     }
 
-    @Unroll("#featureName: #pkRef on #conn")
+    @Unroll("#featureName: #schema #pkRef on #conn")
     def "can find complex pk names with a table"() {
-        expect:
+        when:
+        pkRef.container.container = schema
+
+        then:
         def action = new SnapshotObjectsAction(pkRef)
 
-        runStandardTest([
+        testAction([
                 pkName_asTable: pkRef
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -71,15 +70,14 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schema, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             def pkNames = getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = standardCaseObjectName("known_table", Table, scope.getDatabase()); return it })
 
-            def validationErrors = scope.getSingleton(ActionExecutor).validate(new SnapshotObjectsAction(pkNames.get(0)), scope)
-
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
+                    it.allSchemas,
                     pkNames,
             ])
         }
@@ -90,7 +88,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(pkRef)
 
-        runStandardTest([
+        testAction([
                 pkName_asTable: pkRef
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -107,7 +105,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ new PrimaryKey.PrimaryKeyReference(it, null) }),
@@ -120,7 +118,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(PrimaryKey, tableName)
 
-        runStandardTest([
+        testAction([
                 tableName_asTable: tableName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -137,7 +135,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
@@ -150,7 +148,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(PrimaryKey, tableName)
 
-        runStandardTest([
+        testAction([
                 tableName_asTable: tableName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -168,7 +166,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ return new ObjectReference(Table, it, null) }),
@@ -181,7 +179,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(PrimaryKey, schemaName)
 
-        runStandardTest([
+        testAction([
                 schemaName_asTable: schemaName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -199,7 +197,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope),
@@ -222,7 +220,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
 
         def action = new SnapshotObjectsAction(pk.toReference())
 
-        runStandardTest([
+        testAction([
                 schemaName_asTable: schemaName
         ], snapshot, action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -242,7 +240,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
@@ -250,6 +248,11 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         }
     }
 
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        return null;
+    }
 
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
@@ -273,7 +276,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         }
 
         //create some additional tables
-        for (int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             i = i + 1;
             for (ObjectReference schema : getObjectNames(Schema, scope)) {
                 def tableName = new ObjectReference(Table, schema, standardCaseObjectName("table_$i", Table, scope.database))
@@ -284,5 +287,10 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         }
 
         return snapshot
+    }
+
+    @Override
+    boolean isOkSetupError(Action action, ValidationErrors validationErrors) {
+        return validationErrors.hasError("PrimaryKey.name is not supported")
     }
 }

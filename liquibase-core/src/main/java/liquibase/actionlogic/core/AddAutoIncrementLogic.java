@@ -33,14 +33,7 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         ValidationErrors validationErrors = super.validate(action, scope);
-        validationErrors.checkForRequiredField("columnName", action);
-        validationErrors.checkForRequiredField("columnDataType", action);
-
-        if (!validationErrors.hasErrors()) {
-            if (action.columnName.asList().size() < 2) {
-                validationErrors.addError("Table name is required");
-            }
-        }
+        validationErrors.checkRequiredFields(action, "column", "column.container");
 
         return validationErrors;
     }
@@ -49,15 +42,15 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
     public ActionStatus checkStatus(AddAutoIncrementAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
         try {
-            Column column = scope.getSingleton(SnapshotFactory.class).snapshot(action.columnName, scope);
-            if (column == null) return result.unknown("Column '"+action.columnName+"' does not exist");
+            Column column = scope.getSingleton(SnapshotFactory.class).snapshot(action.column, scope);
+            if (column == null) return result.unknown("Column '"+action.column +"' does not exist");
 
 
-            result.assertApplied(column.isAutoIncrement(), "Column '"+action.columnName+"' is not auto-increment");
+            result.assertApplied(column.isAutoIncrement(), "Column '"+action.column +"' is not auto-increment");
 
 //            if (column.autoIncrementInformation != null) {
-//                result.assertCorrect(action, column.autoIncrementInformation, "startWith");
-//                result.assertCorrect(action, column.autoIncrementInformation, "incrementBy");
+//                result.assertPropertyCorrect(action, column.autoIncrementInformation, "startWith");
+//                result.assertPropertyCorrect(action, column.autoIncrementInformation, "incrementBy");
 //            }
 
             return result;
@@ -69,8 +62,8 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
 
     @Override
     public ActionResult execute(AddAutoIncrementAction action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(new AlterColumnAction(
-                action.columnName,
+        return new DelegateResult(action, null, new AlterColumnAction(
+                action.column,
                 generateSql(action, scope)));
     }
 
@@ -79,7 +72,9 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
         Database database = scope.getDatabase();
 
         StringClauses clauses = new StringClauses();
-        clauses.append(Clauses.dataType, action.columnDataType.toString()); //scope.getSingleton(DataTypeTranslatorFactory.class).getDataTypeLogic(scope).toSql(action.columnDataType, scope));
+        if (action.dataType != null) {
+            clauses.append(Clauses.dataType, action.dataType.toString()); //scope.getSingleton(DataTypeTranslatorFactory.class).getDataTypeLogic(scope).toSql(action.dataType, scope));
+        }
         clauses.append(Clauses.autoIncrement, generateAutoIncrementClause(action.autoIncrementInformation));
 
         return clauses;

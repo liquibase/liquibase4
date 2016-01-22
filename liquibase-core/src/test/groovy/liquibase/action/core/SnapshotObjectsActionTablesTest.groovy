@@ -26,7 +26,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Table, tableRef)
 
-        runStandardTest([tableName_asTable: tableRef], action, conn, scope, { plan, result ->
+        testAction([tableName_asTable: tableRef], action, conn, scope, { plan, result ->
             assert result.asList(Table).size() == 1
             assert result.asObject(Object) instanceof Table
             assert result.asObject(Table).getName() == tableRef.name
@@ -48,7 +48,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Table, schemaRef)
 
-        runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
+        testAction([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
                 it.schema == schemaRef
             })
@@ -72,7 +72,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, schemaRef, null))
 
-        runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
+        testAction([schemaName_asTable: schemaRef], action, conn, scope, { plan, result ->
             def expected = result.asList(Table).grep({
                 it.schema == schemaRef
             })
@@ -96,7 +96,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Table, new ObjectReference(Table, new ObjectReference(new ObjectReference(catalogRef, null), null)))
 
-        runStandardTest([catalogName_asTable: catalogRef], action, conn, scope, {
+        testAction([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->
                 def expected = result.asList(Table).grep({
                     it.schema.catalog == catalogRef
@@ -116,6 +116,22 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
                     it.allSchemas*.container.grep({ it != null }).unique()
             ])
         }
+    }
+
+    @Unroll
+    def "describe"() {
+        expect:
+        action.describe() == expected
+
+        where:
+        action | expected
+        new SnapshotObjectsAction(new ObjectReference(Table, "schema_name", "table_name")) | "snapshotObjects(relatedTo=[schema_name.table_name (TABLE)], typeToSnapshot=liquibase.structure.core.Table)"
+    }
+
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        return null;
     }
 
     @Override

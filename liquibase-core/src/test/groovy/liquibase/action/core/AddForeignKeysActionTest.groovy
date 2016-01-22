@@ -33,7 +33,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         action.foreignKeys = [foreignKey]
 
         then:
-        runStandardTest([
+        testAction([
                 fkName_asTable    : fkName.toString(),
                 tableName_asTable : tableName.toString(),
                 columnName_asTable: columnName.toString()
@@ -69,7 +69,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
 
         then:
-        runStandardTest([
+        testAction([
                 schemaName_asTable: columnName.toString()
         ], action, conn, scope)
 
@@ -87,18 +87,8 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
     @Unroll("#featureName: #foreignKeyDefinition.describe() on #conn")
     def "Valid parameter foreignKey permutations work"() {
-        when:
-        ((ForeignKey) foreignKeyDefinition).table = new ObjectReference(Table, schemaName, standardCaseObjectName("base_table", Table, scope.database))
-        def refTableName = new ObjectReference(Table, schemaName, standardCaseObjectName("ref_table", Table, scope.database))
-
-        def baseColumnName = standardCaseObjectName("id", Column, scope.database)
-        def refColumnName = standardCaseObjectName("id_ref", Column, scope.database)
-
-        ((ForeignKey) foreignKeyDefinition).columnChecks = [new ForeignKey.ForeignKeyColumnCheck(baseColumnName, new Column.ColumnReference(refTableName, refColumnName))]
-        AddForeignKeysAction action = new AddForeignKeysAction(foreignKeyDefinition)
-
-        then:
-        runStandardTest([
+        expect:
+        testAction([
                 columnChecks_asTable     : foreignKeyDefinition.columnChecks,
                 deferrable_asTable       : foreignKeyDefinition.deferrable,
                 initiallyDeferred_asTable: foreignKeyDefinition.initiallyDeferred,
@@ -107,22 +97,37 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         ], action, conn, scope)
 
         where:
-        [conn, scope, schemaName, foreignKeyDefinition] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutations([
                     [it],
                     [scope],
-                    it.getAllSchemas(),
-                    JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(ForeignKey, [
-                            columnChecks: null,
-                            deferrable: [null, true, false],
-                            initiallyDeferred: [null, true, false],
-                            updateRule: [null, ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
-                            deleteRule: [null, ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
-                    ]),
+                    createAllActionPermutations(it, scope),
             ])
         }
 
+    }
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        def baseTableName = standardCaseObjectName("base_table", Table, scope.database)
+        def refTableName = standardCaseObjectName("ref_table", Table, scope.database)
+
+        def baseColumnName = standardCaseObjectName("id", Column, scope.database)
+        def refColumnName = standardCaseObjectName("id_ref", Column, scope.database)
+
+        return createAllPermutations(AddForeignKeysAction, [
+                foreignKeys: CollectionUtil.toSingletonLists(createAllPermutations(ForeignKey, [
+                        name             : [null, "test_fk"],
+                        table            : CollectionUtil.addNull(connectionSupplier.allSchemas.each({ return new ObjectReference(Table, it, baseTableName) })),
+                        referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.each({ return new ObjectReference(Table, it, refTableName) })),
+                        columnChecks     : [null, [], [new ForeignKey.ForeignKeyColumnCheck(baseColumnName, baseTableName)]],
+                        deferrable       : [null, true, false],
+                        initiallyDeferred: [null, true, false],
+                        updateRule       : [null, ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
+                        deleteRule       : [null, ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
+                ]))
+        ])
     }
 
     @Override
@@ -135,7 +140,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
             for (def check : fk.columnChecks) {
                 def refTableName = check.referencedColumn.container
                 if (index == null) {
-                    index = new Index(refTableName.container, concatConsistantCaseObjectName(refTableName.name, "_idx"))
+                    index = new Index(refTableName, concatConsistantCaseObjectName(refTableName.name, "_idx"))
                 }
 
                 if (!seenTables.contains(baseTableName)) {

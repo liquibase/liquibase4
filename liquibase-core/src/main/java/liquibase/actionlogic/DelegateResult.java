@@ -17,26 +17,14 @@ public class DelegateResult extends ActionResult {
 
     private ActionResult.Modifier modifier;
 
-    public DelegateResult(List<Action> actions) {
-        this(actions.toArray(new Action[actions.size()]));
-    }
-
-    public DelegateResult(Action... actions) {
-        this((Modifier) null, actions);
-    }
-
-    /**
-     * Creates a new DelegateResult with the actions of the given previousResult and then the additional actions.
-     * Any modifier defined in the previousResult will be kept as well.
-     */
-    public DelegateResult(DelegateResult previousResult, Action... actions) {
-        this(previousResult.getModifier(), previousResult.getActions().toArray(new Action[previousResult.getActions().size()]));
-        this.actions.addAll(Arrays.asList(actions));
-    }
-
-    public DelegateResult(ActionResult.Modifier modifier, Action... actions) {
+    public DelegateResult(Action sourceAction, ActionResult.Modifier modifier, Action... actions) {
+        super(sourceAction);
         if (actions != null) {
-            this.actions.addAll(Arrays.asList(actions));
+            for (Action action : actions) {
+                if (action != null) {
+                    this.actions.add(action);
+                }
+            }
         }
         if (modifier != null) {
             this.modifier = modifier;

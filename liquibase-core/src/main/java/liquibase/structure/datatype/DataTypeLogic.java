@@ -12,6 +12,9 @@ public abstract class DataTypeLogic implements Service {
      * Translate the given dataType into a string for inclusion in SQL.
      */
     public String toSql(DataType dataType, Scope scope) {
+        if (dataType == null) {
+            return null;
+        }
         return dataType.toString();
     }
 

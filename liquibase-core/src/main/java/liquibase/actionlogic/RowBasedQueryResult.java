@@ -1,5 +1,6 @@
 package liquibase.actionlogic;
 
+import liquibase.action.Action;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
@@ -21,8 +22,8 @@ public class RowBasedQueryResult extends QueryResult {
      * <li>If the result is a collection of Maps, it stored as a collection with each Map converted to a Row</li>
      * <li>If the result is a collection of Non-Maps, it stored as a collection with each row containing a single-key Row with the value stored at key "value"</li>
      */
-    public RowBasedQueryResult(Object result, String message) {
-        super(message);
+    public RowBasedQueryResult(Object result, String message, Action sourceAction) {
+        super(message, sourceAction);
         if (result == null) {
             this.resultSet = Collections.unmodifiableList(new ArrayList<Row>());
             return;
@@ -52,8 +53,8 @@ public class RowBasedQueryResult extends QueryResult {
         this.resultSet = Collections.unmodifiableList(convertedResultSet);
     }
 
-    public RowBasedQueryResult(Object singleValue) {
-        this(singleValue, null);
+    public RowBasedQueryResult(Object singleValue, Action souceAction) {
+        this(singleValue, null, souceAction);
     }
 
 

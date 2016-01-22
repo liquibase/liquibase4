@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Index extends AbstractSchemaObject {
+public class Index extends AbstractTableObject {
 
+    public ObjectReference indexContainer;
     public List<IndexedColumn> columns = new ArrayList<>();
     public String tablespace;
     public Boolean unique;
@@ -27,63 +28,56 @@ public class Index extends AbstractSchemaObject {
         super(reference);
     }
 
-    public Index(ObjectReference schema, String name) {
-        super(schema, name);
+    public Index(ObjectReference table, String name) {
+        super(table, name);
     }
 
-    public Index(String indexName, IndexedColumn... columns) {
-        super(indexName);
+    public Index(String indexName, ObjectReference table, IndexedColumn... columns) {
+        this(table, indexName);
         if (columns != null && columns.length > 0) {
             this.columns.addAll(Arrays.asList(columns));
         }
     }
 
+    public Index(String indexName, IndexedColumn... columns) {
+        this(indexName, null, columns);
+    }
 
-//    @Override
-//    public int compareTo(Object other) {
-//        Index o = (Index) other;
-//        int returnValue = this.columns.get(0).name.container.compareTo(o.columns.get(0).name.container);
-//
-//        if (returnValue == 0) {
-//            ObjectReference thisName = ObjectUtil.defaultIfEmpty(this.getName(), new ObjectReference());
-//            ObjectReference oName = ObjectUtil.defaultIfEmpty(o.getName(), new ObjectReference());
-//            returnValue = thisName.compareTo(oName);
-//        }
-//
-//        //We should not have two indexes that have the same name and tablename
-//        /*if (returnValue == 0) {
-//        	returnValue = this.getColumnName().compareTo(o.getColumnName());
-//        }*/
-//
-//
-//        return returnValue;
-//    }
 
-//    @Override
-//    public int hashCode() {
-//        return toString().hashCode();
-//    }
+    @Override
+    public ObjectReference toReference() {
+        return new IndexReference(indexContainer, table, name);
+    }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == null) {
-//            return false;
-//        }
-//
-//        if (!(obj instanceof Index)) {
-//            return false;
-//        }
-//
-//        return this.compareTo(obj) == 0;
-//    }
-
+    /**
+     * {@link #container} lists the table. {@link #indexContainer} can contain the index's qualifier
+     */
     public static class IndexReference extends ObjectReference {
-        public ObjectReference table;
+
+        public ObjectReference indexContainer;
+
+        public IndexReference() {
+            super(Index.class);
+        }
+
+        public IndexReference(ObjectReference table, String indexName) {
+            super(Index.class, table, indexName);
+        }
+
+        public IndexReference(ObjectReference indexContainer, ObjectReference table, String indexName) {
+            this(table, indexName);
+            this.indexContainer = indexContainer;
+        }
+
+        public final ObjectReference getTable() {
+            return container;
+        }
     }
 
     public static class IndexedColumn extends AbstractTableObject {
         public Boolean computed;
         public Boolean descending;
+        public Integer position;
 
         public IndexedColumn() {
         }
@@ -96,6 +90,11 @@ public class Index extends AbstractSchemaObject {
             super(table, name);
         }
 
+        public IndexedColumn(Column.ColumnReference column, Boolean descending) {
+            this(column);
+            this.descending = descending;
+        }
+
         public IndexedColumn(Column.ColumnReference column) {
             super(column.getRelation(), column.name);
         }
@@ -106,11 +105,6 @@ public class Index extends AbstractSchemaObject {
             } else {
                 return name  + (descending != null && descending ? " DESC" : "");
             }
-        }
-
-        @Override
-        public String toString() {
-            return name + (descending != null && descending ? " DESC" : "");
         }
 
     }

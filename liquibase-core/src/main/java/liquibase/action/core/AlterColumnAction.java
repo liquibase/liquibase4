@@ -6,14 +6,14 @@ import liquibase.util.StringClauses;
 
 public class AlterColumnAction extends AbstractAction {
 
-    public ObjectReference columnName;
+    public ObjectReference column;
     public StringClauses newDefinition;
 
     public AlterColumnAction() {
     }
 
-    public AlterColumnAction(ObjectReference columnName, StringClauses newDefinition) {
-        this.columnName = columnName;
+    public AlterColumnAction(ObjectReference column, StringClauses newDefinition) {
+        this.column = column;
         this.newDefinition = newDefinition;
     }
 

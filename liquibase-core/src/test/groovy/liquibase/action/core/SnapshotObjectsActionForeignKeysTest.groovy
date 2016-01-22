@@ -25,7 +25,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         then:
         def action = new SnapshotObjectsAction(fkRef)
 
-        runStandardTest([
+        testAction([
                 fkName_asTable: fkRef
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -55,7 +55,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(ForeignKey, tableName)
 
-        runStandardTest([
+        testAction([
                 tableName_asTable: tableName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -85,7 +85,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(ForeignKey, schemaName)
 
-        runStandardTest([
+        testAction([
                 schemaName_asTable: schemaName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -132,7 +132,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
 
         def action = new SnapshotObjectsAction(fk.toReference())
 
-        runStandardTest([
+        testAction([
                 schemaName_asTable: schemaName
         ], snapshot, action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
@@ -166,6 +166,11 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
                     it.allSchemas
             ])
         }
+    }
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        return null;
     }
 
     @Override

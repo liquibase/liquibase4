@@ -61,11 +61,6 @@ public abstract class AbstractObject extends AbstractExtensibleObject implements
     }
 
     @Override
-    public String toString() {
-        return toReference().toString();
-    }
-
-    @Override
     public int hashCode() {
         return toReference().hashCode();
     }

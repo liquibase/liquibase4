@@ -18,12 +18,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MySQLDatabase extends AbstractJdbcDatabase {
+public class MysqlDatabase extends AbstractJdbcDatabase {
     public static final String PRODUCT_NAME = "MySQL";
 
     private static Set<String> reservedWords = new HashSet();
 
-    public MySQLDatabase() {
+    public MysqlDatabase() {
         super.setCurrentDateTimeFunction("NOW()");
         // objects in mysql are always case sensitive
         super.quotingStartCharacter = "`";
@@ -446,13 +446,15 @@ public class MySQLDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public String escapeStringForLike(String string) {
+    public String escapeStringForLike(String string, boolean forUseInSql) {
         if (string == null) {
             return null;
         }
-        string = string.replace("\\", "\\\\\\\\");
-        string = string.replace("'", "''");
-        return string;
+
+        if (forUseInSql) {
+            string = string.replace("\\", "\\\\"); //need to double-escape \'s
+        }
+        return super.escapeStringForLike(string, forUseInSql);
     }
 
 }

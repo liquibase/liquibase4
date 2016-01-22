@@ -4,13 +4,13 @@ import liquibase.Scope;
 import liquibase.action.core.RenameViewAction;
 import liquibase.actionlogic.core.RenameViewLogic;
 import liquibase.database.Database;
-import liquibase.database.core.mysql.MySQLDatabase;
+import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.util.StringClauses;
 
 public class RenameViewLogicMysql extends RenameViewLogic {
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
-        return MySQLDatabase.class;
+        return MysqlDatabase.class;
     }
 
     @Override

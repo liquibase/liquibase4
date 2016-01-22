@@ -8,6 +8,7 @@ import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.Column;
 import liquibase.structure.datatype.DataType;
+import liquibase.util.CollectionUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
 
@@ -20,11 +21,8 @@ public class AddColumnsLogicH2 extends AddColumnsLogic {
 
     @Override
     public ValidationErrors validate(AddColumnsAction action, Scope scope) {
-        ValidationErrors errors = super.validate(action, scope);
-        if (action.primaryKey != null) {
-            errors.addUnsupportedError("Adding a primary key column", scope.getDatabase().getShortName());
-        }
-        return errors;
+        return super.validate(action, scope)
+                .checkUnsupportedFields(action, "primaryKeys", "columns.autoIncrementInformation");
     }
 
     @Override

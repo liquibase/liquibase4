@@ -1,8 +1,6 @@
 package liquibase.exception;
 
 import liquibase.ExtensibleObject;
-import liquibase.action.Action;
-import liquibase.structure.ObjectReference;
 import liquibase.util.StringUtils;
 
 import java.util.*;
@@ -16,37 +14,83 @@ public class ValidationErrors {
         return errorMessages.size() > 0;
     }
 
+    public boolean hasError(String message) {
+        return errorMessages.contains(message);
+    }
+
     public boolean hasWarnings() {
         return warningMessages.size() > 0;
     }
 
-    /**
-     * More convenient version of {@link #checkRequiredField(String, Object)} that doesn't require you to lookup the value first.
-     * Instead, simply pass the field and the base object.
-     */
-    public ValidationErrors checkForRequiredField(String requiredFieldName, ExtensibleObject object) {
-        Object value = object.get(requiredFieldName, Object.class);
-        checkRequiredField(requiredFieldName, value);
+    public ValidationErrors checkRequiredFields(ExtensibleObject object, String... requiredFields) {
+        if (object == null || hasErrors() || requiredFields == null) {
+            return this;
+        }
+
+        for (String requiredFieldName : requiredFields) {
+            Object value = object.get(requiredFieldName, Object.class);
+
+            String fieldPrefix = object.getClass().getSimpleName()+".";
+            if (value == null) {
+                return addError(fieldPrefix+requiredFieldName + " is required");
+            } else if (value instanceof Collection) {
+                if (((Collection) value).size() == 0) {
+                    return addError(fieldPrefix + requiredFieldName + " is required");
+                } else {
+                    boolean foundValue = false;
+                    for (Object obj : (Collection) value) {
+                        if (obj != null) {
+                            foundValue = true;
+                            break;
+                        }
+                    }
+                    if (!foundValue) {
+                        return addError(fieldPrefix + requiredFieldName + " is required");
+                    }
+                }
+            } else if (value instanceof Object[]) {
+                if (((Object[]) value).length == 0) {
+                    return addError(fieldPrefix+requiredFieldName + " is required");
+                } else {
+                    boolean foundValue = false;
+                    for (Object obj : (Object[]) value) {
+                        if (obj != null) {
+                            foundValue = true;
+                            break;
+                        }
+                    }
+                    if (!foundValue) {
+                        return addError(fieldPrefix + requiredFieldName + " is required");
+                    }
+                }
+            }
+        }
 
         return this;
     }
 
-    public ValidationErrors checkForRequiredField(Enum requiredFieldName, ExtensibleObject object) {
-        return checkForRequiredField(requiredFieldName.name(), object);
+    public ValidationErrors checkRequiredFields(Collection<? extends ExtensibleObject> objectCollection, String... requiredFields) {
+        if (!hasErrors() && objectCollection != null) {
+            for (ExtensibleObject object : objectCollection) {
+                if (object == null) {
+                    continue;
+                }
+                checkRequiredFields(object, requiredFields);
+            }
+        }
+
+        return this;
     }
 
-    /**
-     * Less convenient version of {@link #checkForRequiredField(Enum, liquibase.ExtensibleObject)} that takes a value to check if it is null or empty and the field for the error message.
-     * This method will eventually be removed.
-     */
-    public void checkRequiredField(String requiredFieldName, Object value) {
-        if (value == null) {
-            addError(requiredFieldName + " is required");
-        } else if (value instanceof Collection && ((Collection) value).size() == 0) {
-            addError(requiredFieldName + " is empty");
-        } else if (value instanceof Object[] && ((Object[]) value).length == 0) {
-            addError(requiredFieldName + " is empty");
+    public ValidationErrors checkRequiredFields(ExtensibleObject object, Enum... requiredFields) {
+        String[] fieldsNames = null;
+        if (requiredFields != null) {
+            fieldsNames = new String[requiredFields.length];
+            for (int i=0; i<requiredFields.length; i++) {
+                fieldsNames[i] = requiredFields[i].name();
+            }
         }
+        return checkRequiredFields(object, fieldsNames);
     }
 
     /**
@@ -68,31 +112,47 @@ public class ValidationErrors {
 
     }
 
-    public ValidationErrors addUnsupportedError(String message, String scopeDescription) {
-        addError(message + " is not supported in " + scopeDescription);
-        return this;
-    }
-
-    /**
-     * More convenient version of {@link #checkDisallowedField(String, Object, String)} that doesn't require you to lookup the value first.
-     * Instead, simply pass the field and the base object.
-     */
-    public ValidationErrors checkForDisallowedField(String disallowedField, ExtensibleObject object, String scopeDescription) {
+    public ValidationErrors addUnsupportedError(String message, ExtensibleObject object) {
+        String className = "";
         if (object != null) {
-            Object value = object.get(disallowedField, Object.class);
-            checkDisallowedField(disallowedField, value, scopeDescription);
+            className = object.getClass().getSimpleName() + " does not support ";
+        }
+
+        addError(className + message);
+        return this;
+    }
+
+    public ValidationErrors checkUnsupportedFields(ExtensibleObject object, String... unsupportedFields) {
+        if (!hasErrors() && object != null) {
+            String fieldPrefix = object.getClass().getSimpleName()+".";
+            for (String field : unsupportedFields) {
+                Object value = object.get(field, Object.class);
+                if (value != null) {
+                    if (value instanceof Collection) {
+                        for (Object obj : (Collection) value) {
+                            if (obj != null) {
+                                addError(fieldPrefix+field + " is not supported");
+                                return this;
+                            }
+                        }
+                    } else {
+                        addError(fieldPrefix+field + " is not supported");
+                    }
+                }
+            }
         }
         return this;
     }
 
-    public ValidationErrors checkForDisallowedField(Enum disallowedField, ExtensibleObject object, String scopeDescription) {
-        return checkForDisallowedField(disallowedField.name(), object, scopeDescription);
-    }
-
-    public void checkDisallowedField(String disallowedFieldName, Object value, String scopeDescription) {
-        if (value != null) {
-            addError(disallowedFieldName + " is not allowed in "+scopeDescription);
+    public ValidationErrors checkUnsupportedFields(ExtensibleObject object, Enum... disallowedFields) {
+        String[] names = new String[0];
+        if (disallowedFields != null) {
+            names = new String[disallowedFields.length];
+            for (int i=0; i<disallowedFields.length;i++) {
+                names[i] = disallowedFields[i].name();
+            }
         }
+        return checkUnsupportedFields(object, names);
     }
 
     /**
@@ -196,24 +256,28 @@ public class ValidationErrors {
         return this;
     }
 
-    /**
-     * Convenience method for {@link #checkForRequiredContainer(String, String, Action)}
-     */
-    public ValidationErrors checkForRequiredContainer(String errorMessage, Enum field, Action action) {
-        return checkForRequiredContainer(errorMessage, field.name(), action);
-    }
+    public ValidationErrors checkField(ExtensibleObject object, String field, FieldCheck check) {
+        if (object == null) {
+            return this;
+        }
 
-    /**
-     * Adds the given errorMessage to the validationErrors if the {@link ObjectReference} on the given field is set but doesn't have a container defined.
-     * If the given field is not set, no error message is set.
-     */
-    public ValidationErrors checkForRequiredContainer(String errorMessage, String field, Action action) {
-        ObjectReference objectReference = action.get(field, ObjectReference.class);
-        if (objectReference != null) {
-            if (objectReference.container == null) {
-                addError(errorMessage);
-            } else if (objectReference.container.name == null) {
-                addError(errorMessage);
+        Object value = object.get(field, Object.class);
+        if (value != null) {
+            if (value instanceof Collection) {
+                for (Object obj : (Collection) value) {
+                    if (this.hasErrors()) {
+                        break;
+                    }
+                    String errorMessage = check.check(obj);
+                    if (errorMessage != null) {
+                        this.addError(object.getClass().getSimpleName()+"."+field+" "+errorMessage);
+                    }
+                }
+            } else {
+                String errorMessage = check.check(value);
+                if (errorMessage != null) {
+                    this.addError(object.getClass().getSimpleName()+"."+field+" "+errorMessage);
+                }
             }
         }
         return this;
@@ -222,5 +286,9 @@ public class ValidationErrors {
     public interface ErrorCheck {
 
         boolean check();
+    }
+
+    public interface FieldCheck<T> {
+        String check(T obj);
     }
 }

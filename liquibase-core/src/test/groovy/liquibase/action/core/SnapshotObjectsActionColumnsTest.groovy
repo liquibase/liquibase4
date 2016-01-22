@@ -24,7 +24,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Column, columnRef)
 
-        runStandardTest([columnName_asTable: columnRef.toString()], action, conn, scope, {
+        testAction([columnName_asTable: columnRef.toString()], action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() == 1
                 assert result.asObject(Object) instanceof Column
@@ -48,7 +48,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Column, tableRef)
 
-        runStandardTest([tableName_asTable: tableRef], action, conn, scope, {
+        testAction([tableName_asTable: tableRef], action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
@@ -74,7 +74,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Column, schemaRef)
 
-        runStandardTest([schemaName_asTable: schemaRef], action, conn, scope, {
+        testAction([schemaName_asTable: schemaRef], action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
@@ -100,7 +100,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(Column, catalogRef)
 
-        runStandardTest([catalogName_asTable: catalogRef], action, conn, scope, {
+        testAction([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
@@ -128,7 +128,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         expect:
         def action = new SnapshotObjectsAction(columnRef)
 
-        runStandardTest([columnName_asTable: columnRef, autoIncrement_asTable: autoIncrement], action, conn, scope, {
+        testAction([columnName_asTable: columnRef, autoIncrement_asTable: autoIncrement], action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
@@ -183,7 +183,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         then:
         def action = new SnapshotObjectsAction(column.toReference())
 
-        runStandardTest([columnName_asTable: column.getName(), type_asTable: ((Column) column).type], snapshot, action, conn, scope, {
+        testAction([columnName_asTable: column.getName(), type_asTable: ((Column) column).type], snapshot, action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() == 1
                 def snapshotColumn = result.asObject(Column)
@@ -243,7 +243,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         then:
         def action = new SnapshotObjectsAction(column.toReference())
 
-        runStandardTest([type_asTable: column.getName(), defaultValue_asTable: ((Column) column).type], snapshot, action, conn, scope, {
+        testAction([type_asTable: column.getName(), defaultValue_asTable: ((Column) column).type], snapshot, action, conn, scope, {
             plan, result ->
                 assert result.asList(Column).size() == 1
                 def snapshotColumn = result.asObject(Column)
@@ -269,6 +269,11 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
     protected ArrayList<String> getDataTypesToTest() {
         ["int", "bigint", "smallint", "varchar(10)", "float", "double"]
+    }
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        return null;
     }
 
     @Override

@@ -10,9 +10,7 @@ import liquibase.exception.ActionPerformException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * Convenience abstract base class for {@link SnapshotObjectsAction} related logic.
@@ -75,18 +73,16 @@ public abstract class AbstractSnapshotObjectsLogic<T extends SnapshotObjectsActi
 
 
     @Override
-    public final ActionResult execute(T action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(T action, Scope scope) throws ActionPerformException {
         if (action.relatedTo.size() == 1) {
             return execute(action.relatedTo.iterator().next(), action, scope);
         }
 
-        LinkedHashMap<Action, ActionResult> result = new LinkedHashMap<>();
+        List<ActionResult> result = new ArrayList<>();
         for (ObjectReference relatedTo : action.relatedTo) {
-            SnapshotObjectsAction cloneAction = (SnapshotObjectsAction) action.clone();
-            cloneAction.relatedTo = new HashSet<>(Collections.singleton(relatedTo));
-            result.put(cloneAction, execute(action.relatedTo.iterator().next(), action, scope));
+            result.add(execute(relatedTo, action, scope));
         }
-        return new CompoundResult(result);
+        return new CompoundResult(result, action);
     }
 
     /**

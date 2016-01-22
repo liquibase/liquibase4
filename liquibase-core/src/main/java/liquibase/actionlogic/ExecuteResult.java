@@ -1,5 +1,6 @@
 package liquibase.actionlogic;
 
+import liquibase.action.Action;
 import liquibase.util.StringUtils;
 
 /**
@@ -7,11 +8,12 @@ import liquibase.util.StringUtils;
  */
 public class ExecuteResult extends ActionResult {
 
-    public ExecuteResult() {
+    public ExecuteResult(Action sourceAction) {
+        super(sourceAction);
     }
 
-    public ExecuteResult(String message) {
-        super(message);
+    public ExecuteResult(String message, Action sourceAction) {
+        super(message, sourceAction);
     }
 
     @Override

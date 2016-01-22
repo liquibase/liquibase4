@@ -13,7 +13,6 @@ import liquibase.exception.ActionPerformException;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.ValidationErrors;
 import liquibase.util.JdbcUtils;
-import liquibase.util.Validate;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -34,7 +33,7 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
     @Override
     public ValidationErrors validate(QueryJdbcMetaDataAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
-                .checkForRequiredField("method", action);
+                .checkRequiredFields(action, "method");
 
         if (!errors.hasErrors()) {
             if (action.method.equals("getTables")) {
@@ -61,6 +60,16 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
                         errors.addError("getImportedKeys requires a 3rd argument (table name)");
                     }
                 }
+            } else if (action.method.equals("getIndexInfo")) {
+                if (action.arguments.size() != 5) {
+                    errors.addError("getIndexInfo requires 5 arguments");
+                } else {
+                    if (action.arguments.get(2) == null) {
+                        errors.addError("getIndexInfo requires a 3rd argument (table name)");
+                    }
+                }
+            } else {
+                errors.addError("Unknown method '" + action.method + "' for validation");
             }
         }
         return errors;
@@ -84,13 +93,15 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
         List arguments = action.arguments;
         try {
             if (method.equals("getTables")) {
-                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))));
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))), action);
             } else if (method.equals("getColumns")) {
-                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))));
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))), action);
             } else if (method.equals("getPrimaryKeys")) {
-                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getPrimaryKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getPrimaryKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))), action);
             } else if (method.equals("getImportedKeys")) {
-                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getImportedKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getImportedKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))), action);
+            } else if (method.equals("getIndexInfo")) {
+                return new RowBasedQueryResult(JdbcUtils.extract(getMetaData(scope).getIndexInfo((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (Boolean) arguments.get(3), (Boolean) arguments.get(4))), action);
             }
             throw new ActionPerformException("Unknown method '" + method + "'");
         } catch (Exception e) {

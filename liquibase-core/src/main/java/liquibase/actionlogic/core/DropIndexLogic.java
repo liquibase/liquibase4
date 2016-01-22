@@ -20,14 +20,14 @@ public class DropIndexLogic extends AbstractActionLogic<DropIndexAction> {
     @Override
     public ValidationErrors validate(DropIndexAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForRequiredField("indexName", action);
+                .checkRequiredFields(action, "indexName");
     }
 
 
     @Override
     public ActionResult execute(DropIndexAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
-        return new DelegateResult(new ExecuteSqlAction("DROP INDEX " + database.escapeObjectName(action.indexName)));
+        return new DelegateResult(action, null, new ExecuteSqlAction("DROP INDEX " + database.escapeObjectName(action.indexName)));
     }
 
 }

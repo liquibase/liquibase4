@@ -179,7 +179,10 @@ public class StringUtils {
     public static String join(ExtensibleObject extensibleObject, String delimiter, StringUtilsFormatter formatter) {
         List<String> list = new ArrayList<String>();
         for (String attribute : new TreeSet<>(extensibleObject.getAttributeNames())) {
-            list.add(attribute+"="+formatter.toString(extensibleObject.get(attribute, Object.class)));
+            String formattedValue = formatter.toString(extensibleObject.get(attribute, Object.class));
+            if (formattedValue != null) {
+                list.add(attribute+"="+ formattedValue);
+            }
         }
         return join(list, delimiter);
     }
@@ -344,7 +347,18 @@ public class StringUtils {
             } else if (obj instanceof Class) {
                 return ((Class) obj).getName();
             } else if (obj instanceof Object[]) {
-                return "["+ StringUtils.join((Object[]) obj, ", ", this)+"]";
+                if (((Object[]) obj).length == 0) {
+                    return null;
+                } else {
+                    return "["+ StringUtils.join((Object[]) obj, ", ", this)+"]";
+                }
+            } else if (obj instanceof Collection) {
+                if (((Collection) obj).size() == 0) {
+                    return null;
+                } else {
+                    return "["+ StringUtils.join((Collection) obj, ", ", this)+"]";
+                }
+
             }
             return obj.toString();
         }

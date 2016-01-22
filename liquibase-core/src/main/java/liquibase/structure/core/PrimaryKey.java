@@ -13,7 +13,6 @@ public class PrimaryKey extends AbstractTableObject {
 
     public List<PrimaryKeyColumn> columns = new ArrayList<>();
     public String tablespace;
-    public ObjectReference backingIndex;
     public Boolean clustered;
 
     public PrimaryKey() {
@@ -33,15 +32,10 @@ public class PrimaryKey extends AbstractTableObject {
 
     public PrimaryKey(String pkName, ObjectReference table, String... columns) {
         super(table, pkName);
-                
+
         for (String columnName : columns) {
             this.columns.add(new PrimaryKeyColumn(new Column.ColumnReference(table, columnName)));
         }
-    }
-
-    @Override
-    public String toString() {
-        return getName() + " on "+table.toShortString()+"(" + StringUtils.join(this.columns, ",", new StringUtils.ToStringFormatter()) + ")";
     }
 
     @Override
@@ -58,7 +52,11 @@ public class PrimaryKey extends AbstractTableObject {
         return false;
     }
 
-    public static class PrimaryKeyColumn extends AbstractTableObject {
+    public static class PrimaryKeyColumn extends AbstractObject {
+
+        /**
+         * Not normally included in a snapshot because the primary key does not actually have a direction. Supported when creating a primary key, however.
+         */
         public Boolean descending;
         public Integer position;
 
@@ -66,7 +64,7 @@ public class PrimaryKey extends AbstractTableObject {
         }
 
         public PrimaryKeyColumn(Column.ColumnReference column) {
-            super(column.container, column.name);
+            super(column.name);
         }
 
         public PrimaryKeyColumn(Column.ColumnReference column, Boolean descending) {
@@ -80,11 +78,6 @@ public class PrimaryKey extends AbstractTableObject {
             } else {
                 return name + (descending != null && descending ? " DESC" : "");
             }
-        }
-
-        @Override
-        public String toString() {
-            return name + (descending != null && descending ? " DESC" : "");
         }
     }
 

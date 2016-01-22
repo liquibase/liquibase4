@@ -38,13 +38,13 @@ class ActionStatusTest extends Specification {
         object2.set(propertyName, object2Value)
 
         then:
-        new ActionStatus().assertCorrect(object1, object2, propertyName).toString() == expected
+        new ActionStatus().assertPropertyCorrect(object1, object2, propertyName).toString() == expected
 
         where:
         propertyName | object1Value | object2Value | expected
         "prop"       | "a"          | "a"          | "Applied"
-        "prop"       | "a"          | "b"          | "Incorrect: 'prop' is incorrect (expected 'a' got 'b')"
-        "prop"       | "a"          | null         | "Incorrect: 'prop' is incorrect (expected 'a' got 'null')"
+        "prop"       | "a"          | "b"          | "Incorrect: 'prop' is incorrect on AbstractExtensibleObject{prop=b} (expected 'a' got 'b')"
+        "prop"       | "a"          | null         | "Incorrect: 'prop' is incorrect on AbstractExtensibleObject{} (expected 'a' got 'null')"
         "prop"       | null         | "a"          | "Applied"
         "prop"       | null         | null         | "Applied"
 

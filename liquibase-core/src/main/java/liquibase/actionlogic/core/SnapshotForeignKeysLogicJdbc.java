@@ -71,7 +71,8 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String relatedToForeignKeyName = null;
         if (relatedTo.instanceOf(ForeignKey.class)) {
@@ -112,7 +113,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
         }
 
         ForeignKey fk = new ForeignKey(objectReference);
-        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, new Column.ColumnReference(pkTableObjectReference, pkColumnName), position));
+        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, pkColumnName, position));
 
         if (updateRule != null) {
             switch (updateRule) {
@@ -174,7 +175,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
 }
 
     @Override
-    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) {
+    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
         return new SnapshotModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
@@ -202,7 +203,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                     });
                 }
 
-                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()));
+                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);
             }
         };
     }

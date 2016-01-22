@@ -20,15 +20,14 @@ public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
     @Override
     public ValidationErrors validate(AlterTableAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForRequiredField("tableName", action)
-                .checkForRequiredField("newDefinition", action);
+                .checkRequiredFields(action, "table", "newDefinition");
     }
 
     @Override
     public ActionResult execute(AlterTableAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
-        return new DelegateResult(new ExecuteSqlAction("ALTER TABLE "
-                + database.escapeObjectName(action.tableName)
+        return new DelegateResult(action, null, new ExecuteSqlAction("ALTER TABLE "
+                + database.escapeObjectName(action.table)
                 + " "
                 + action.newDefinition.toString().trim()));
     }

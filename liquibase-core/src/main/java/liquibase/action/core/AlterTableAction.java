@@ -6,14 +6,14 @@ import liquibase.util.StringClauses;
 
 public class AlterTableAction extends AbstractAction {
 
-    public ObjectReference tableName;
+    public ObjectReference table;
     public StringClauses newDefinition;
 
     public AlterTableAction() {
     }
 
-    public AlterTableAction(ObjectReference tableName, StringClauses newDefinition) {
-        this.tableName = tableName;
+    public AlterTableAction(ObjectReference table, StringClauses newDefinition) {
+        this.table = table;
         this.newDefinition = newDefinition;
     }
 

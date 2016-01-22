@@ -1,5 +1,7 @@
 package liquibase.actionlogic;
 
+import liquibase.action.Action;
+
 /**
  * Result of an action that updates existing data.
  */
@@ -7,12 +9,13 @@ public class UpdateResult extends ActionResult {
 
     private long numberAffected;
 
-    public UpdateResult(long numberAffected) {
+    public UpdateResult(long numberAffected, Action sourceAction) {
+        super(sourceAction);
         this.numberAffected = numberAffected;
     }
 
-    public UpdateResult(long numberAffected, String message) {
-        super(message);
+    public UpdateResult(long numberAffected, String message, Action sourceAction) {
+        super(message, sourceAction);
         this.numberAffected = numberAffected;
     }
 

@@ -1,16 +1,14 @@
 package liquibase.structure.core;
 
-import liquibase.structure.AbstractObject;
 import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UniqueConstraint extends AbstractTableObject {
 
-	public List<ObjectReference> columns = new ArrayList<>();
+	public List<String> columns = new ArrayList<>();
 	public Boolean deferrable;
 	public Boolean initiallyDeferred;
 	public Boolean disabled;
@@ -20,24 +18,41 @@ public class UniqueConstraint extends AbstractTableObject {
 	public UniqueConstraint() {
 	}
 
-	public UniqueConstraint(String name) {
-		super(name);
+	public UniqueConstraint(String constraintName) {
+		super(constraintName);
 	}
 
-	public UniqueConstraint(ObjectReference reference) {
+	public UniqueConstraint(UniqueConstraintReference reference) {
 		super(reference);
 	}
 
-	public UniqueConstraint(ObjectReference table, String name, String... columns) {
-		super(table, name);
+	public UniqueConstraint(ObjectReference table, String constraintName) {
+		super(table, constraintName);
+	}
+
+	public UniqueConstraint(String constraintName, ObjectReference table, String... columns) {
+		super(table, constraintName);
 		for (String column : columns) {
-			this.columns.add(new Column.ColumnReference(table, column));
+			this.columns.add(column);
 		}
 	}
 
-	@Override
-	public String toString() {
-		return getName() + "(" + StringUtils.join(this.columns, ",", new StringUtils.ToStringFormatter()) + ")";
+	/**
+	 * Object container is the constrained table ObjectReference
+	 */
+	public static class UniqueConstraintReference extends ObjectReference {
+
+		public UniqueConstraintReference() {
+			super(UniqueConstraint.class);
+		}
+
+		public UniqueConstraintReference(ObjectReference table, String constraintName) {
+			super(UniqueConstraint.class, table, constraintName);
+		}
+
+		public ObjectReference getTable() {
+			return container;
+		}
 	}
 
 }

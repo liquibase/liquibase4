@@ -13,7 +13,7 @@ import java.util.List;
 public class AddColumnsAction extends AbstractAction {
 
     public List<Column> columns = new ArrayList<>();
-    public PrimaryKey primaryKey;
+    public List<PrimaryKey> primaryKeys = new ArrayList<>();
     public List<UniqueConstraint> uniqueConstraints = new ArrayList<>();
     public List<ForeignKey> foreignKeys = new ArrayList<>();
 

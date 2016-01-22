@@ -22,13 +22,13 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
     @Override
     public ValidationErrors validate(DropForeignKeyAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForRequiredField("baseTableName", action)
-                .checkForRequiredField("constraintName", action);
+                .checkRequiredFields(action, "baseTableName")
+                .checkRequiredFields(action, "constraintName");
     }
 
     @Override
     public ActionResult execute(DropForeignKeyAction action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(new AlterTableAction(
+        return new DelegateResult(action, null, new AlterTableAction(
                 action.baseTableName,
                 generateSql(action, scope)
         ));

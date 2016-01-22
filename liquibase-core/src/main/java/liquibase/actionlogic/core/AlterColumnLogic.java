@@ -28,23 +28,21 @@ public class AlterColumnLogic extends AbstractActionLogic<AlterColumnAction> {
     @Override
     public ValidationErrors validate(AlterColumnAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForRequiredField("columnName", action)
-                .checkForRequiredContainer("Table name is required", "columnName", action)
-                .checkForRequiredField("newDefinition", action);
+                .checkRequiredFields(action, "column", "column.container.name", "newDefinition");
     }
 
     @Override
     public ActionResult execute(AlterColumnAction action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(new ExecuteSqlAction(getAlterColumnClauses(action, scope)));
+        return new DelegateResult(action, null, new ExecuteSqlAction(getAlterColumnClauses(action, scope)));
     }
 
     protected StringClauses getAlterColumnClauses(AlterColumnAction action, Scope scope) {
         Database database = scope.getDatabase();
         return new StringClauses(" ")
                 .append("ALTER TABLE")
-                .append(Clauses.tableName, database.escapeObjectName(action.columnName.container))
+                .append(Clauses.tableName, database.escapeObjectName(action.column.container))
                 .append("ALTER COLUMN")
-                .append(Clauses.columnName, database.escapeObjectName(action.columnName.name, Column.class))
+                .append(Clauses.columnName, database.escapeObjectName(action.column.name, Column.class))
                 .append(Clauses.newDefinition, action.newDefinition.toString().trim());
     }
 }

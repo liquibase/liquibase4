@@ -1,7 +1,9 @@
 liquibase.actionlogic.core.mysql.AddAutoIncrementLogicMysql
 liquibase.actionlogic.core.mysql.AddColumnsLogicMysql
 liquibase.actionlogic.core.mysql.AddForeignKeysLogicMysql
+liquibase.actionlogic.core.mysql.AddPrimaryKeysLogicMysql
 liquibase.actionlogic.core.mysql.AlterColumnLogicMysql
+liquibase.actionlogic.core.mysql.CreateIndexesLogicMysql
 liquibase.actionlogic.core.mysql.CreateTableLogicMysql
 liquibase.actionlogic.core.mysql.DropDefaultValueLogicMysql
 liquibase.actionlogic.core.mysql.DropForeignKeyLogicMysql
@@ -9,3 +11,4 @@ liquibase.actionlogic.core.mysql.DropIndexLogicMysql
 liquibase.actionlogic.core.mysql.RenameViewLogicMysql
 liquibase.actionlogic.core.mysql.SnapshotForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.SnapshotPrimaryKeysLogicMysql
+liquibase.actionlogic.core.mysql.SnapshotTablesLogicMysql

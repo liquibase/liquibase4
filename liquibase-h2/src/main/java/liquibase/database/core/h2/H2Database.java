@@ -60,6 +60,9 @@ public class H2Database extends AbstractJdbcDatabase {
 
     @Override
     public String escapeObjectName(ObjectReference objectReference) {
+        if (objectReference == null) {
+            return null;
+        }
         if (objectReference.type != null && Relation.class.isAssignableFrom(objectReference.type) && objectReference.container != null && objectReference.container.container != null ) { //cannot reference catalog level
             objectReference = (ObjectReference) objectReference.clone();
             objectReference.container.container = null;

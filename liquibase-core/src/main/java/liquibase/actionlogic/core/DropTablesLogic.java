@@ -29,10 +29,10 @@ public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
         Database database = scope.getDatabase();
 
         ValidationErrors errors = super.validate(action, scope)
-                .checkForRequiredField("tableNames", action);
+                .checkRequiredFields(action, "tableNames");
 
         if (ObjectUtil.defaultIfEmpty(action.cascadeConstraints, false) && !supportsDropTableCascadeConstraints()) {
-            errors.checkForDisallowedField("cascadeConstraints", action, database.getShortName());
+            errors.checkUnsupportedFields(action, "cascadeConstraints");
         }
         return errors;
     }
@@ -49,7 +49,7 @@ public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
             actions.add(new ExecuteSqlAction(generateSql(tableName, action, scope)));
         }
 
-        return new DelegateResult(actions);
+        return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
     protected StringClauses generateSql(ObjectReference tableName, DropTablesAction action, Scope scope) {

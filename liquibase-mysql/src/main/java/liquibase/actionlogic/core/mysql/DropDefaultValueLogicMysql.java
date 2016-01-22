@@ -4,14 +4,14 @@ import liquibase.Scope;
 import liquibase.action.core.DropDefaultValueAction;
 import liquibase.actionlogic.core.DropDefaultValueLogic;
 import liquibase.database.Database;
-import liquibase.database.core.mysql.MySQLDatabase;
+import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.util.StringClauses;
 
 public class DropDefaultValueLogicMysql extends DropDefaultValueLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
-        return MySQLDatabase.class;
+        return MysqlDatabase.class;
     }
 
     @Override

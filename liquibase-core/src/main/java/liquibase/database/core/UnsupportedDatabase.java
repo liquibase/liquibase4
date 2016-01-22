@@ -8,8 +8,16 @@ import liquibase.exception.DatabaseException;
 /**
  * Fallback database when no others match. Should follow SQL standard as closely as possible.
  * SQL reference: http://savage.net.au/SQL/sql-2003-2.bnf.html
+ * Database feature comparison: http://www.sql-workbench.net/dbms_comparison.html
  */
 public class UnsupportedDatabase extends AbstractJdbcDatabase {
+
+    public UnsupportedDatabase() {
+    }
+
+    public UnsupportedDatabase(DatabaseConnection connection) {
+        setConnection(connection);
+    }
 
     @Override
     public int getPriority(Scope scope) {

@@ -3,10 +3,7 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.ActionResult;
-import liquibase.actionlogic.DelegateResult;
-import liquibase.actionlogic.ObjectBasedQueryResult;
-import liquibase.actionlogic.RowBasedQueryResult;
+import liquibase.actionlogic.*;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
@@ -30,7 +27,7 @@ public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjects
      */
     @Override
     public ActionResult execute(ObjectReference relatedTo, T action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(createModifier(relatedTo, action, scope), createSnapshotAction(relatedTo, action, scope));
+        return new DelegateResult(action, createModifier(relatedTo, action, scope), createSnapshotAction(relatedTo, action, scope));
 
     }
 
@@ -43,9 +40,9 @@ public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjects
     /**
      * Returns a {@link liquibase.actionlogic.ActionResult.Modifier} that will convert the raw results from the action returned by {@link #createSnapshotAction(ObjectReference, SnapshotObjectsAction, Scope)}
      * to a list of objects.
-     * Default implementation returns {@link AbstractSnapshotObjectsLogicJdbc.SnapshotModifier} which uses {@link #convertToObject(RowBasedQueryResult.Row, ObjectReference, SnapshotObjectsAction, Scope)}
+     * Default implementation returns {@link AbstractSnapshotObjectsLogicJdbc.SnapshotModifier} which uses {@link #convertToObject(Object, ObjectReference, SnapshotObjectsAction, Scope)}
      * to convert the returned QueryResult to the correct DatabaseObject.
-     *
+     * <p/>
      * The passed action is the original action, not the one returned by {@link #createSnapshotAction(ObjectReference, SnapshotObjectsAction, Scope)}
      */
     protected ActionResult.Modifier createModifier(ObjectReference relatedTo, T originalAction, final Scope scope) {
@@ -55,7 +52,7 @@ public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjects
     /**
      * Converts a row returned by the generated action into the final object type.
      */
-    protected abstract LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, T originalAction, Scope scope) throws ActionPerformException;
+    protected abstract LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, T originalAction, Scope scope) throws ActionPerformException;
 
     /**
      * Called for each DatabaseObject in {@link SnapshotModifier#rewrite(liquibase.actionlogic.ActionResult)} to "fix" any raw data coming back from the database.
@@ -97,7 +94,18 @@ public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjects
 
         @Override
         public ActionResult rewrite(ActionResult result) throws ActionPerformException {
-            List<LiquibaseObject> liquibaseObjects = new ArrayList<LiquibaseObject>();
+            if (result instanceof CompoundResult) {
+                List<ActionResult> flatResults = ((CompoundResult) result).getFlatResults();
+                if (flatResults.size() != 1) {
+                    throw new ActionPerformException("Expected 1 ActionResult, got "+flatResults.size());
+                }
+                result = flatResults.get(0);
+                if (!(result instanceof RowBasedQueryResult)) {
+                    throw new ActionPerformException("Expected RowBasedQueryResult, got "+result.getClass().getName());
+                }
+            }
+
+            List<LiquibaseObject> liquibaseObjects = new ArrayList<>();
             for (RowBasedQueryResult.Row row : ((RowBasedQueryResult) result).getRows()) {
                 LiquibaseObject object = convertToObject(row, getRelatedTo(), getOriginalAction(), getScope());
                 if (object != null) {
@@ -106,7 +114,7 @@ public abstract class AbstractSnapshotObjectsLogicJdbc<T extends SnapshotObjects
                 }
             }
 
-            return new ObjectBasedQueryResult(liquibaseObjects);
+            return new ObjectBasedQueryResult(liquibaseObjects, originalAction);
         }
 
     }

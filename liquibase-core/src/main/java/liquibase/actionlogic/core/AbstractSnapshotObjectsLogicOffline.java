@@ -37,7 +37,7 @@ public abstract class AbstractSnapshotObjectsLogicOffline<T extends SnapshotObje
         Set allObjectsOfType = snapshot.get(getTypeToSnapshot());
 
 
-        return new ObjectBasedQueryResult(CollectionUtil.select(new ArrayList(allObjectsOfType), getDatabaseObjectFilter(relatedTo, action, scope)));
+        return new ObjectBasedQueryResult(CollectionUtil.select(new ArrayList(allObjectsOfType), getDatabaseObjectFilter(relatedTo, action, scope)), action);
     }
 
     protected abstract CollectionUtil.CollectionFilter<? extends LiquibaseObject> getDatabaseObjectFilter(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope);

@@ -58,7 +58,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
         }
 
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        tableName = database.escapeStringForLike(tableName);
+        tableName = database.escapeStringForLike(tableName, false);
         if (database.supports(Catalog.class)) {
             return new QueryJdbcMetaDataAction("getTables", catalogName, schemaName, tableName, new String[]{"TABLE"});
         } else {
@@ -71,7 +71,9 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
+
         String rawTableName = row.get("TABLE_NAME", String.class);
         String rawSchemaName = row.get("TABLE_SCHEM", String.class);
         String rawCatalogName = row.get("TABLE_CAT", String.class);

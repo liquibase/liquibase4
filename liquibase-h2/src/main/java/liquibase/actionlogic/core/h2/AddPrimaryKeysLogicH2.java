@@ -5,6 +5,7 @@ import liquibase.action.core.AddPrimaryKeysAction;
 import liquibase.actionlogic.core.AddPrimaryKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
+import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.util.StringClauses;
 
@@ -12,6 +13,17 @@ public class AddPrimaryKeysLogicH2 extends AddPrimaryKeysLogic {
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
         return H2Database.class;
+    }
+
+    @Override
+    public ValidationErrors validate(AddPrimaryKeysAction action, Scope scope) {
+        ValidationErrors validate = super.validate(action, scope);
+
+        for (PrimaryKey pk : action.primaryKeys) {
+            validate.checkUnsupportedFields(pk, "name");
+        }
+
+        return validate;
     }
 
     @Override

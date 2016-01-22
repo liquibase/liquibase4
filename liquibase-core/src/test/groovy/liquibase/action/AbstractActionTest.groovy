@@ -9,6 +9,7 @@ import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
 import liquibase.database.core.UnsupportedDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
+import liquibase.exception.ValidationErrors
 import liquibase.servicelocator.AbstractServiceFactory
 import liquibase.servicelocator.Service
 import liquibase.snapshot.Snapshot
@@ -18,6 +19,10 @@ import liquibase.structure.ObjectReference
 import liquibase.structure.TestObjectReferenceSupplierFactory
 import liquibase.structure.core.*
 import liquibase.test.TestObjectFactory
+import liquibase.util.CollectionUtil
+import liquibase.util.StreamUtil
+import liquibase.util.StringUtils
+import org.junit.Assert
 import org.junit.Assume
 import org.slf4j.LoggerFactory
 import org.spockframework.runtime.SpecificationContext
@@ -34,41 +39,67 @@ abstract class AbstractActionTest extends Specification {
 
     protected abstract Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope)
 
-    def runStandardTest(Map parameters, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results -> }, Closure setupClosure = {}) {
-        return runStandardTest(parameters, null, action, connectionSupplier, scope, assertClosure, setupClosure)
+    public abstract createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope)
+
+    def testAction(Map parameters, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results -> }, Closure setupClosure = {}) {
+        return testAction(parameters, null, action, connectionSupplier, scope, assertClosure, setupClosure)
     }
 
-    def runStandardTest(Map parameters, Snapshot snapshot, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results ->}, Closure setupClosure = {}) {
-        def executor = scope.getSingleton(ActionExecutor)
-
-        def errors = executor.validate(action, scope)
-        Assume.assumeFalse(errors.toString() + " for action" + action.describe(), errors.hasErrors())
-
-        def plan = executor.createPlan(action, scope)
-
-
-        if (snapshot == null) {
-            snapshot = createSnapshot(action, connectionSupplier, scope)
+    def testAction(Map parameters, Snapshot snapshot, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results ->}, Closure setupClosure = {}) {
+        if (scope.database instanceof UnsupportedDatabase) {
+            LoggerFactory.getLogger(getClass()).debug("Cannot testAction on an unsupported database")
+            return true;
         }
 
-        testMDPermutation(snapshot, setupClosure, connectionSupplier, scope)
-                .addParameters(parameters)
-                .addOperations(plan: plan)
-                .run({
-            def results = plan.execute(scope)
+        def executor = scope.getSingleton(ActionExecutor)
+        try {
+            executor.resetPlanHistory()
 
-            if (!(action instanceof QueryAction)) {
-                assert executor.checkStatus(action, scope).applied
+            def errors = executor.validate(action, scope)
+//            Assume.assumeFalse(errors.toString() + " for action" + action.describe(), errors.hasErrors())
+            if (errors.hasErrors()) {
+                Assert.fail("Should not have pass invalid action to testAction. Filter beforehand for performance reasons: "+errors.toString())
+            }
+            def plan = executor.createPlan(action, scope)
+
+
+            if (snapshot == null) {
+                snapshot = createSnapshot(action, connectionSupplier, scope)
             }
 
-            assertClosure(plan, results)
-        })
+            testMDPermutation(snapshot, setupClosure, connectionSupplier, scope)
+                    .addParameters(parameters)
+                    .addOperations(plan: plan.describe(false))
+                    .run({
+                def results = plan.execute(scope)
 
-        return true;
+                if (!(action instanceof QueryAction)) {
+                    assert executor.checkStatus(action, scope).applied
+                }
+
+                assertClosure(plan, results)
+            })
+
+            return true;
+        } catch (Throwable e) {
+            LoggerFactory.getLogger(getClass()).error("Error on testAction for "+action.describe(), e)
+            LoggerFactory.getLogger(getClass()).error("All executed:\n"+StringUtils.pad(StringUtils.join(executor.getExecutedPlans(), "\n"), 4))
+            throw e
+        }
     }
+
+    protected Collection assumeNotEmpty(String errorMessage, Collection values) {
+        Assume.assumeTrue(errorMessage, values != null && values.size() > 0)
+        return values;
+    }
+
 
     protected Set<ConnectionSupplier> getConnectionSuppliers() {
         JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers
+    }
+
+    protected List createAllPermutationsWithoutNulls(Class type, Map<String, List<Object>> defaultValues) {
+        JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutationsWithoutNulls(type, defaultValues)
     }
 
     protected List createAllPermutations(Class type, Map<String, List<Object>> defaultValues) {
@@ -84,6 +115,9 @@ abstract class AbstractActionTest extends Specification {
     }
 
     protected String standardCaseObjectName(String name, Class<? extends LiquibaseObject> type, Database database) {
+        if (name == null) {
+            return null;
+        }
         if (database.canStoreObjectName("lowercase", false, type)) {
             return name.toLowerCase();
         } else {
@@ -122,7 +156,15 @@ abstract class AbstractActionTest extends Specification {
             for (def type : [Table, UniqueConstraint, Index, ForeignKey]) {
                 for (def obj : snapshot.get(type)) {
                     for (def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
-                        LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe())
+                        def errors = executor.validate(action, scope)
+                        LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe(true))
+                        if (errors.hasErrors()) {
+                            if (isOkSetupError(action, errors)) {
+                                continue
+                            } else {
+                                throw new RuntimeException(errors.toString() + " for action " + action.describe())
+                            }
+                        }
                         executor.execute(action, scope)
                     }
                 }
@@ -134,6 +176,9 @@ abstract class AbstractActionTest extends Specification {
         throw SetupResult.OK
     }
 
+    boolean isOkSetupError(Action action, ValidationErrors validationErrors) {
+        return false
+    }
 
     def cleanupDatabase(Snapshot snapshot, ConnectionSupplier supplier, Scope scope) {}
 
@@ -233,5 +278,33 @@ abstract class AbstractActionTest extends Specification {
             }
         }
 
+    }
+
+    protected static class ValidActionFilter implements CollectionUtil.CollectionFilter<Map> {
+
+        private Scope scope
+
+        ValidActionFilter(Scope scope) {
+            this.scope = scope
+        }
+
+        @Override
+        boolean include(Map obj) {
+            boolean foundAction = false;;
+            for (Map.Entry entry : obj.entrySet()) {
+                if (entry.value instanceof Action) {
+                    foundAction = true;
+                    def errors = scope.getSingleton(ActionExecutor).validate(entry.value, scope)
+                    def valid = !errors.hasErrors()
+                    if (!valid) {
+                        return false;
+                    }
+                }
+            }
+            if (!foundAction) {
+                return false;
+            }
+            return true;
+        }
     }
 }

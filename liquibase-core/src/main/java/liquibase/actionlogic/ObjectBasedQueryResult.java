@@ -1,5 +1,6 @@
 package liquibase.actionlogic;
 
+import liquibase.action.Action;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.ObjectUtil;
 
@@ -10,12 +11,12 @@ public class ObjectBasedQueryResult extends QueryResult {
 
     private List resultSet;
 
-    public ObjectBasedQueryResult(Object result) {
-        this(result, null);
+    public ObjectBasedQueryResult(Object result, Action sourceAction) {
+        this(result, null, sourceAction);
     }
 
-    public ObjectBasedQueryResult(Object result, String message) {
-        super(message);
+    public ObjectBasedQueryResult(Object result, String message, Action sourceAction) {
+        super(message, sourceAction);
         if (result == null) {
             this.resultSet = Collections.unmodifiableList(new ArrayList());
             return;

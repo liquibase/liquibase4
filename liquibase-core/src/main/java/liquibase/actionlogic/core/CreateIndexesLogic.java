@@ -41,13 +41,17 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
         ValidationErrors validationErrors = new ValidationErrors();
         for (Index index : action.indexes) {
-            validationErrors.checkForRequiredField("name", index);
-            validationErrors.checkForRequiredField("columns", index);
+            validationErrors.checkRequiredFields(index, "columns");
+            validationErrors.checkRequiredFields(index, "table");
 
             if (!database.supportsClustered(Index.class)) {
                 if (ObjectUtil.defaultIfEmpty(index.clustered, false)) {
                     validationErrors.addWarning("Creating clustered index not supported with " + database);
                 }
+            }
+
+            for (Index.IndexedColumn column : index.columns) {
+                validationErrors.checkRequiredFields(column, "name");
             }
         }
 
@@ -63,7 +67,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
             actions.addAll(Arrays.asList(execute(index, action, scope)));
         }
 
-        return new DelegateResult(actions.toArray(new Action[actions.size()]));
+        return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
     protected Action execute(Index index, CreateIndexesAction action, Scope scope) {
@@ -73,7 +77,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
     protected StringClauses generateSql(Index index, CreateIndexesAction action, Scope scope) {
         final Database database = scope.getDatabase();
         ObjectReference indexName = index.toReference();
-        ObjectReference tableName = index.columns.get(0).table;
+        ObjectReference tableName = index.table;
         String tablespace = index.tablespace;
 
 
@@ -86,7 +90,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
         clauses.append("INDEX ");
 
         if (indexName != null) {
-            clauses.append(Clauses.indexName, database.escapeObjectName(indexName));
+            clauses.append(Clauses.indexName, database.escapeObjectName(indexName.name, Index.class));
         }
 
         clauses.append("ON");

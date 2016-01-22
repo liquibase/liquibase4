@@ -53,7 +53,9 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
             this.container = container;
             this.name = names[0];
         } else {
+            Class<? extends LiquibaseObject> lastType = type;
             for (String name : names) {
+                Class<? extends LiquibaseObject> containerType = null;
                 container = new ObjectReference(LiquibaseObject.class, container, name);
             }
             this.container = container.container;
@@ -65,7 +67,8 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         this(type, null, names);
     }
 
-    public String toShortString() {
+    @Override
+    public String toString() {
         String returnString;
         List<String> list = asList();
         if (list.size() == 0) {
@@ -81,12 +84,11 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         return returnString;
     }
 
-    @Override
-    public String toString() {
+    public String toLongString() {
         if (type == null) {
-            return toShortString() + " (NO TYPE)";
+            return toString() + " (NO TYPE)";
         } else {
-            return toShortString() + " (" + type.getSimpleName().toUpperCase() + ")";
+            return toString() + " (" + type.getSimpleName().toUpperCase() + ")";
         }
     }
 
@@ -95,12 +97,12 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
         if (o == null) {
             return 1;
         }
-        return this.toShortString().compareTo(o.toShortString());
+        return this.toLongString().compareTo(o.toLongString());
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && (obj instanceof ObjectReference) && ((ObjectReference) obj).toShortString().equals(this.toShortString());
+        return obj != null && (obj instanceof ObjectReference) && ((ObjectReference) obj).toString().equals(this.toString());
     }
 
     /**
@@ -136,7 +138,7 @@ public class ObjectReference extends AbstractExtensibleObject implements Compara
 
     @Override
     public int hashCode() {
-        return toShortString().hashCode();
+        return toString().hashCode();
     }
 
 

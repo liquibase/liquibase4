@@ -15,6 +15,8 @@ import java.util.*;
  */
 public class ActionExecutor {
 
+    private List<String> executedPlans = new ArrayList<>();
+
     /**
      * Executes an action.
      * Default implementation creates a {@link liquibase.actionlogic.ActionExecutor.Plan} for the given action and executes it.
@@ -25,6 +27,7 @@ public class ActionExecutor {
         if (plan.getValidationErrors().hasErrors()) {
             throw new ActionPerformException("Validation Error(s): "+ StringUtils.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
         }
+        executedPlans.add(plan.describe(true));
         return plan.execute(scope);
     }
 
@@ -36,7 +39,17 @@ public class ActionExecutor {
         if (plan.getValidationErrors().hasErrors()) {
             throw new ActionPerformException(plan.getValidationErrors().toString());
         }
+
+        executedPlans.add(plan.describe(true));
         return (QueryResult) plan.execute(scope);
+    }
+
+    public List<String> getExecutedPlans() {
+        return Collections.unmodifiableList(executedPlans);
+    }
+
+    public void resetPlanHistory() {
+        executedPlans.clear();
     }
 
     public ActionStatus checkStatus(Action action, Scope scope) {
@@ -59,32 +72,30 @@ public class ActionExecutor {
      * The Steps in the Plan will contain {@link liquibase.actionlogic.ActionLogic.InteractsExternally} implementations.
      */
     public Plan createPlan(Action action, Scope scope) {
-        Plan plan = new Plan();
-
-        buildPlan(action, scope, plan, new ArrayDeque<ActionResult.Modifier>());
-
+        ValidationErrors errors = new ValidationErrors();
+        Plan plan = new Plan(buildStep(0, action, errors, scope));
+        plan.validationErrors = errors;
         return plan;
     }
 
-    protected void buildPlan(Action action, Scope scope, Plan plan, Deque<ActionResult.Modifier> modifiers) {
+    protected Plan.Step buildStep(int depth, Action action, ValidationErrors errors, Scope scope) {
         ActionLogic actionLogic = getActionLogic(action, scope);
 
         if (actionLogic == null) {
-            plan.getValidationErrors().addError("No supported ActionLogic implementation found for "+action.getClass().getName()+" '"+action.describe()+"' against "+scope.describe());
-            return;
+            errors.addError("No supported ActionLogic implementation found for " + action.getClass().getName() + " '" + action.describe() + "' against " + scope.describe());
+            return null;
         }
 
-        plan.getValidationErrors().addAll(actionLogic.validate(action, scope));
-        if (plan.getValidationErrors().hasErrors()) {
-            return;
+        errors.addAll(actionLogic.validate(action, scope));
+        if (errors.hasErrors()) {
+            return null;
         }
 
         if (actionLogic instanceof ActionLogic.InteractsExternally && ((ActionLogic.InteractsExternally) actionLogic).interactsExternally(action, scope)) {
-            plan.addStep(new Plan.Step(action, actionLogic, modifiers));
-            return;
+            return new Plan.ActionStep(action, actionLogic);
         }
 
-        ActionResult result = null;
+        ActionResult result;
         try {
             result = actionLogic.execute(action, scope);
         } catch (ActionPerformException e) {
@@ -93,17 +104,19 @@ public class ActionExecutor {
 
         if (result instanceof DelegateResult) {
             List<Action> actions = ((DelegateResult) result).getActions();
-            ActionResult.Modifier modifier = ((DelegateResult) result).getModifier();
+
             if (actions.size() == 0) {
-                plan.getValidationErrors().addError(actionLogic.getClass().getName()+" tried to handle '"+action.describe()+"' but returned no actions to run");
+                errors.addError(actionLogic.getClass().getName()+" tried to handle '"+action.describe()+"' but returned no actions to run");
+                return null;
             } else {
+                Plan.DelegateStep step = new Plan.DelegateStep(depth + 1, ((DelegateResult) result).getModifier());
                 for (Action rewroteAction : actions) {
-                    if (modifier != null) {
-                        modifiers.push(modifier);
-                    }
-                    buildPlan(rewroteAction, scope, plan, modifiers);
+                    step.addStep(buildStep(depth + 1, rewroteAction, errors, scope));
                 }
+                return step;
             }
+        } else {
+            return new Plan.ActionStep(action, actionLogic);
         }
     }
 
@@ -118,51 +131,73 @@ public class ActionExecutor {
      */
     public static class Plan {
 
-        private List<Step> steps = new ArrayList<>();
+        private Step step;
         private ValidationErrors validationErrors = new ValidationErrors();
 
-        public Plan addStep(Step step) {
-            this.steps.add(step);
-            return this;
+        public Plan(Step step) {
+            this.step = step;
         }
 
-        public List<Step> getSteps() {
-            return Collections.unmodifiableList(steps);
+        public Step getStep() {
+            return step;
         }
 
         public ValidationErrors getValidationErrors() {
             return validationErrors;
         }
 
-        public String describe() {
-            return StringUtils.join(getSteps(), "\nAND THEN: ", new StringUtils.StringUtilsFormatter<Step>() {
-                @Override
-                public String toString(Step step) {
-                    return step.getAction().describe();
-                }
-            });
+        public String describe(boolean includeLogicDescription) {
+            if (step == null) {
+                return "No steps";
+            } else {
+                return step.describe(includeLogicDescription);
+            }
         }
 
         @Override
         public String toString() {
-            return describe();
+            return describe(true);
         }
 
         public ActionResult execute(Scope scope) throws ActionPerformException {
-            if (getSteps().size() == 0) {
+            if (step == null) {
                 throw new ActionPerformException("No steps in action plan");
             } else {
-                LinkedHashMap<Action, ActionResult> results = new LinkedHashMap<>();
-                for (Plan.Step step : getSteps()) {
-                    Action finalAction = step.getAction();
-                    results.put(finalAction, step.execute(scope));
-                }
-
-                if (results.size() == 1) {
-                    return results.values().iterator().next();
-                }
-                return new CompoundResult(results);
+                return step.execute(scope);
             }
+
+        }
+
+        public static abstract class Step {
+
+            private ActionResult.Modifier modifier;
+
+            public Step() {
+            }
+
+            public Step(ActionResult.Modifier modifier) {
+                this.modifier = modifier;
+            }
+
+            public ActionResult.Modifier getModifier() {
+                return modifier;
+            }
+
+            public abstract ActionResult execute(Scope scope) throws ActionPerformException;
+
+            public abstract String describe(boolean includeLogicDescription);
+
+            /**
+             * If the passed result is a CompoundResult with just a single result, return just the nested result.
+             */
+            protected ActionResult flattenCompoundResult(ActionResult result) {
+//                if (result instanceof CompoundResult && ((CompoundResult) result).getFlatResults().size() == 1) {
+//                    return flattenCompoundResult(((CompoundResult) result).getFlatResults().get(0));
+//                } else {
+                    return result;
+//                }
+            }
+
 
         }
 
@@ -170,16 +205,14 @@ public class ActionExecutor {
          * A step in a {@link liquibase.actionlogic.ActionExecutor.Plan}.
          * The step contains an Action to run, the ActionLogic to execute it, and a Deque of Modifiers to adjust the result.
          */
-        public static class Step {
+        public static class ActionStep extends Step {
 
             private Action action;
             private ActionLogic logic;
-            private Deque<ActionResult.Modifier> modifiers;
 
-            public Step(Action action, ActionLogic logic, Deque<ActionResult.Modifier> modifiers) {
+            public ActionStep(Action action, ActionLogic logic) {
                 this.action = action;
                 this.logic = logic;
-                this.modifiers = modifiers;
             }
 
             public Action getAction() {
@@ -190,20 +223,74 @@ public class ActionExecutor {
                 return logic;
             }
 
-            public Deque<ActionResult.Modifier> getModifiers() {
-                return modifiers;
+            @Override
+            public String describe(boolean includeLogicDescription) {
+                if (includeLogicDescription) {
+                    return "Execute "+action.describe()+" with "+logic.getClass().getName();
+                } else {
+                    return action.describe();
+                }
             }
 
             public ActionResult execute(Scope scope) throws ActionPerformException {
                 ActionResult result = this.getLogic().execute(action, scope);
-                for (ActionResult.Modifier modifier : this.getModifiers()) {
-                    result = modifier.rewrite(result);
+                if (this.getModifier() != null) {
+                    result = getModifier().rewrite(flattenCompoundResult(result));
                 }
 
-                return result;
+                return flattenCompoundResult(result);
             }
         }
 
+        public static class DelegateStep extends Step {
+            private List<Step> steps = new ArrayList<>();
+            int depth;
+
+            public DelegateStep(int depth) {
+                this.depth = depth;
+            }
+
+            public DelegateStep(int depth, ActionResult.Modifier modifier) {
+                super(modifier);
+                this.depth = depth;
+            }
+
+            public List<Step> getSteps() {
+                return Collections.unmodifiableList(steps);
+            }
+
+            @Override
+            public String describe(final boolean includeLogicDescription) {
+                return StringUtils.pad(StringUtils.join(steps, "\n", new StringUtils.StringUtilsFormatter<Step>() {
+                    @Override
+                    public String toString(Step step) {
+                        return step.describe(includeLogicDescription);
+                    }
+                }), depth*4);
+            }
+
+
+            @Override
+            public ActionResult execute(Scope scope) throws ActionPerformException {
+                CompoundResult result = new CompoundResult(null);
+                for (Step step : getSteps()) {
+                    result.addResult(step.execute(scope));
+                }
+
+                ActionResult returnResult;
+                if (this.getModifier() == null) {
+                    returnResult = result;
+                } else {
+                    returnResult = getModifier().rewrite(flattenCompoundResult(result));
+                }
+
+                return flattenCompoundResult(returnResult);
+            }
+
+            public void addStep(Step step) {
+                this.steps.add(step);
+            }
+        }
     }
 
 }

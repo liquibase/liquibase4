@@ -46,10 +46,27 @@ public class ActionStatus {
     }
 
     /**
-     * Convenience method like {@link #assertCorrect(ExtensibleObject, ExtensibleObject, String)} but tests all properties
+     * Convenience method like {@link #assertPropertyCorrect(ExtensibleObject, ExtensibleObject, String)} but tests all properties
      */
     public <T extends ExtensibleObject> ActionStatus assertCorrect(T correctObject, T objectToCheck) {
-        return assertCorrect(correctObject, objectToCheck, (Collection<String>) null);
+        return assertCorrect(correctObject, objectToCheck, (String) null);
+    }
+
+    public <T> ActionStatus assertCorrect(T correctObject, T objectToCheck, String invalidMessage) {
+        if (invalidMessage != null) {
+            invalidMessage = invalidMessage+": ";
+        }
+        if (correctObject instanceof ExtensibleObject) {
+            return assertCorrect((ExtensibleObject) correctObject, (ExtensibleObject) objectToCheck, (Collection<String>) null);
+        } else {
+            if (correctObject == null && objectToCheck == null) {
+                return this;
+            } else if (correctObject == null || objectToCheck == null) {
+                return assertCorrect(false, invalidMessage+"expected "+correctObject+" but got "+objectToCheck);
+            } else {
+                return assertCorrect(correctObject.equals(objectToCheck), invalidMessage+"expected "+correctObject+" but got "+objectToCheck);
+            }
+        }
     }
 
     public <T extends ExtensibleObject> ActionStatus assertCorrect(T correctObject, T objectToCheck, Collection<String> excludeFields) {
@@ -59,7 +76,7 @@ public class ActionStatus {
 
         for (String property : correctObject.getAttributeNames()) {
             if (!excludeFields.contains(property)) {
-                assertCorrect(correctObject, objectToCheck, property);
+                assertPropertyCorrect(correctObject, objectToCheck, property);
             }
         }
 
@@ -73,7 +90,7 @@ public class ActionStatus {
      *
      * Does not support and therefore does not check Collection values.
      */
-    public ActionStatus assertCorrect(ExtensibleObject correctObject, ExtensibleObject objectToCheck, String propertyName) {
+    public ActionStatus assertPropertyCorrect(ExtensibleObject correctObject, ExtensibleObject objectToCheck, String propertyName) {
         Object correctValue = correctObject.get(propertyName, Object.class);
         Object checkValue = objectToCheck.get(propertyName, Object.class);
 
@@ -83,7 +100,7 @@ public class ActionStatus {
 
         boolean correct = correctValue == null || (correctValue instanceof ObjectReference ? ((ObjectReference) correctValue).equals((ObjectReference) checkValue, true) : correctValue.equals(checkValue));
 
-        return assertCorrect(correct, "'" + propertyName + "' is incorrect (expected '" + correctValue + "' got '" + checkValue + "')");
+        return assertCorrect(correct, "'" + propertyName + "' is incorrect on "+objectToCheck.describe()+" (expected '" + correctValue + "' got '" + checkValue + "')");
     }
 
     /**
@@ -191,6 +208,20 @@ public class ActionStatus {
         }
 
         return out;
+    }
+
+    public void addAll(ActionStatus status) {
+        for (Map.Entry<ActionStatus.Status, SortedSet<String>> entry : status.messages.entrySet()) {
+            this.messages.get(entry.getKey()).addAll(entry.getValue());
+        }
+
+        if (status.atLeastOneAssertion) {
+            this.atLeastOneAssertion = true;
+        }
+        if (status.exception != null) {
+            this.exception = exception;
+        }
+
     }
 
     public enum Status {

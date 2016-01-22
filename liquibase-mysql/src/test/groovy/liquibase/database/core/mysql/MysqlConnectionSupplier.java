@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-public class MySQLConnectionSupplier extends ConnectionSupplier {
+public class MysqlConnectionSupplier extends ConnectionSupplier {
 
     @Override
     public String getDatabaseShortName() {

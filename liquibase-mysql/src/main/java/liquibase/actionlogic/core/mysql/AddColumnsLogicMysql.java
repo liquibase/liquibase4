@@ -5,7 +5,7 @@ import liquibase.action.core.AddColumnsAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.core.AddColumnsLogic;
 import liquibase.database.Database;
-import liquibase.database.core.mysql.MySQLDatabase;
+import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.Column;
@@ -16,7 +16,7 @@ public class AddColumnsLogicMysql extends AddColumnsLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
-        return MySQLDatabase.class;
+        return MysqlDatabase.class;
     }
 
     @Override
@@ -25,8 +25,8 @@ public class AddColumnsLogicMysql extends AddColumnsLogic {
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns)
-                if (ObjectUtil.defaultIfEmpty(column.isAutoIncrement(), false) && (action.primaryKey == null || !action.primaryKey.containsColumn(column))) {
-                    errors.addUnsupportedError("Auto-increment columns must be primary key columns", scope.getDatabase().getShortName());
+                if (ObjectUtil.defaultIfEmpty(column.isAutoIncrement(), false) && isPrimaryKey(column, action)) {
+                    errors.addUnsupportedError("non-primary key auto-increment columns", action);
                 }
         }
         return errors;

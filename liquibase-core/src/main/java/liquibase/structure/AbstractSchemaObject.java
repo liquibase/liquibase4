@@ -1,5 +1,7 @@
 package liquibase.structure;
 
+import liquibase.structure.core.Schema;
+
 public abstract class AbstractSchemaObject extends AbstractObject {
 
     public ObjectReference schema;
@@ -14,6 +16,9 @@ public abstract class AbstractSchemaObject extends AbstractObject {
     public AbstractSchemaObject(ObjectReference reference) {
         super(reference.name);
         this.schema = reference.container;
+        if (this.schema != null && (this.schema.type == null || this.schema.type.equals(LiquibaseObject.class))) {
+            this.schema.type = Schema.class;
+        }
     }
 
     public AbstractSchemaObject(ObjectReference schema, String name) {

@@ -30,7 +30,7 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
 
             Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
             Statement stmt = jdbcConnection.createStatement();
-            return new RowBasedQueryResult(JdbcUtils.extract(stmt.executeQuery(sql)));
+            return new RowBasedQueryResult(JdbcUtils.extract(stmt.executeQuery(sql)), action);
         } catch (SQLException e) {
             throw new ActionPerformException("Error executing query '"+ sql +"'"+e);
         }

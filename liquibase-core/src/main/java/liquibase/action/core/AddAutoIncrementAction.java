@@ -6,16 +6,16 @@ import liquibase.structure.datatype.DataType;
 
 public class AddAutoIncrementAction extends AbstractAction {
 
-    public Column.ColumnReference columnName;
-    public DataType columnDataType;
+    public Column.ColumnReference column;
+    public DataType dataType;
     public Column.AutoIncrementInformation autoIncrementInformation;
 
     public AddAutoIncrementAction() {
     }
 
-    public AddAutoIncrementAction(Column.ColumnReference columnName, DataType columnDataType, Column.AutoIncrementInformation autoIncrementInformation) {
-        this.columnName = columnName;
-        this.columnDataType = columnDataType;
+    public AddAutoIncrementAction(Column.ColumnReference column, DataType dataType, Column.AutoIncrementInformation autoIncrementInformation) {
+        this.column = column;
+        this.dataType = dataType;
         this.autoIncrementInformation = autoIncrementInformation;
     }
 }

@@ -20,13 +20,12 @@ public class DropDefaultValueLogic extends AbstractSqlBuilderLogic<DropDefaultVa
     @Override
     public ValidationErrors validate(DropDefaultValueAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForRequiredContainer("Table name is required", "columnName", action)
-                .checkForRequiredField("columnName", action);
+                .checkRequiredFields(action, "column", "column.container.name");
     }
 
     @Override
     public ActionResult execute(DropDefaultValueAction action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(new AlterColumnAction(
+        return new DelegateResult(action, null, new AlterColumnAction(
                 action.columnName,
                 generateSql(action, scope)));
     }

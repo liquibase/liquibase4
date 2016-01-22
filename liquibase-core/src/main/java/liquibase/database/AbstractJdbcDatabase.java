@@ -604,6 +604,9 @@ public abstract class AbstractJdbcDatabase implements Database {
 
     @Override
     public String escapeObjectName(ObjectReference objectReference) {
+        if (objectReference == null) {
+            return null;
+        }
         Class<? extends LiquibaseObject> objectType = objectReference.type;
         if (objectType == null) {
             objectType = LiquibaseObject.class;
@@ -785,10 +788,19 @@ public abstract class AbstractJdbcDatabase implements Database {
         return false;
     }
 
-    public String escapeStringForLike(String string) {
+    /**
+     * Escape a string to be used in a like statement.
+     *
+     * @param forUseInSql if true, do additional processing required to use the string concatenated into SQL (escape quotes, etc).
+     */
+    public String escapeStringForLike(String string, boolean forUseInSql) {
         if (string == null) {
             return null;
         }
-        return (string.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_"));
+        string = string.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        if (forUseInSql) {
+            string = string.replace("'", "''");
+        }
+        return string;
     }
 }

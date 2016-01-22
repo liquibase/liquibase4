@@ -68,8 +68,8 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
         List<String> nameParts = columnRef.asList(4);
 
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        String tableName = database.escapeStringForLike(nameParts.get(2));
-        String columnName = database.escapeStringForLike(nameParts.get(3));
+        String tableName = database.escapeStringForLike(nameParts.get(2), false);
+        String columnName = database.escapeStringForLike(nameParts.get(3), false);
         if (nameParts.get(0) != null || database.supports(Catalog.class)) {
             return new QueryJdbcMetaDataAction("getColumns", nameParts.get(0), nameParts.get(1), tableName, columnName);
         } else {
@@ -83,7 +83,8 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(Object result, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) result;
         Database database = scope.getDatabase();
 
         String rawTableName = StringUtils.trimToNull(row.get("TABLE_NAME", String.class));

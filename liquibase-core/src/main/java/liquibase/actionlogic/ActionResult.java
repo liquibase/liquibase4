@@ -1,5 +1,7 @@
 package liquibase.actionlogic;
 
+import liquibase.AbstractExtensibleObject;
+import liquibase.action.Action;
 import liquibase.exception.ActionPerformException;
 
 /**
@@ -14,13 +16,20 @@ import liquibase.exception.ActionPerformException;
  */
 public abstract class ActionResult {
 
+    private Action sourceAction;
+
+    /**
+     * Returns the message (if any) associated with this result.
+     */
     private String message;
 
-    public ActionResult() {
+    public ActionResult(Action sourceAction) {
+        this.sourceAction = sourceAction;
     }
 
-    public ActionResult(String message) {
+    public ActionResult(String message, Action sourceAction) {
         this.message = message;
+        this.sourceAction = sourceAction;
     }
 
     /**
@@ -30,13 +39,17 @@ public abstract class ActionResult {
         return message;
     }
 
+    public Action getSourceAction() {
+        return sourceAction;
+    }
+
     /**
      * Implementations contain logic to modify the data in an ActionResult and return a new result.
      * Used to adapt the results of an {@link liquibase.actionlogic.ActionLogic} implementation through another.
      */
-    public static interface Modifier {
+    public interface Modifier {
 
-        public ActionResult rewrite(ActionResult result) throws ActionPerformException;
+        ActionResult rewrite(ActionResult result) throws ActionPerformException;
 
     }
 }

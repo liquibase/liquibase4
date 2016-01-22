@@ -7,7 +7,7 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.core.AddAutoIncrementLogic;
 import liquibase.database.Database;
-import liquibase.database.core.mysql.MySQLDatabase;
+import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.Column;
@@ -18,19 +18,20 @@ public class AddAutoIncrementLogicMysql extends AddAutoIncrementLogic {
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForDisallowedField("incrementBy", action.autoIncrementInformation, scope.getDatabase().getShortName());
+                .checkRequiredFields(action, "dataType")
+                .checkUnsupportedFields(action, "autoIncrementInformation.incrementBy");
     }
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
-        return MySQLDatabase.class;
+        return MysqlDatabase.class;
     }
 
     @Override
     public ActionResult execute(AddAutoIncrementAction action, Scope scope) throws ActionPerformException {
         DelegateResult delegate = (DelegateResult) super.execute(action, scope);
         if (action.autoIncrementInformation != null && action.autoIncrementInformation.startWith != null) {
-            delegate.addActions(new AlterTableAction(action.columnName.container, new StringClauses().append("AUTO_INCREMENT="+action.autoIncrementInformation.startWith)));
+            delegate.addActions(new AlterTableAction(action.column.container, new StringClauses().append("AUTO_INCREMENT="+action.autoIncrementInformation.startWith)));
         }
         return delegate;
     }

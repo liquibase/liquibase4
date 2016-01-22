@@ -4,7 +4,7 @@
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | autoIncrement | columnName                                                                      | OPERATIONS
+| Permutation | Verified             | autoIncrement | column                                                                      | OPERATIONS
 | :---------- | :------------------- | :------------ | :------------------------------------------------------------------------------ | :------
 | a8b996      | Unsupported Database | false         | LBSCHEMA.4TEST_table.4TEST_column (COLUMN)                                      | **plan**: getColumns(null, LBSCHEMA, 4TEST\_table, 4TEST\_column)
 | d867b9      | Unsupported Database | false         | LBSCHEMA.4TEST_table.4test_column (COLUMN)                                      | **plan**: getColumns(null, LBSCHEMA, 4TEST\_table, 4test\_column)
@@ -539,7 +539,7 @@
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | tableName                                       | OPERATIONS
+| Permutation | Verified             | table                                       | OPERATIONS
 | :---------- | :------------------- | :---------------------------------------------- | :------
 | f15368      | Unsupported Database | LBSCHEMA.4TEST_table (TABLE)                    | **plan**: getColumns(null, LBSCHEMA, 4TEST\_table, null)
 | 71dd23      | Unsupported Database | LBSCHEMA.4test_table (TABLE)                    | **plan**: getColumns(null, LBSCHEMA, 4test\_table, null)
@@ -577,7 +577,7 @@
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | columnName                                                                      | OPERATIONS
+| Permutation | Verified             | column                                                                      | OPERATIONS
 | :---------- | :------------------- | :------------------------------------------------------------------------------ | :------
 | 0dc4dd      | Unsupported Database | LBSCHEMA.4TEST_table.4TEST_column (COLUMN)                                      | **plan**: getColumns(null, LBSCHEMA, 4TEST\_table, 4TEST\_column)
 | 8cd2f7      | Unsupported Database | LBSCHEMA.4TEST_table.4test_column (COLUMN)                                      | **plan**: getColumns(null, LBSCHEMA, 4TEST\_table, 4test\_column)
@@ -848,7 +848,7 @@
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | columnName | type        | OPERATIONS
+| Permutation | Verified             | column | type        | OPERATIONS
 | :---------- | :------------------- | :--------- | :---------- | :------
 | 8ebae6      | Unsupported Database | TESTCOL    | bigint      | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
 | 928dc7      | Unsupported Database | TESTCOL    | double      | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)

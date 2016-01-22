@@ -1,5 +1,7 @@
 package liquibase.actionlogic;
 
+import liquibase.action.Action;
+
 import java.util.List;
 
 /**
@@ -8,11 +10,12 @@ import java.util.List;
  */
 public abstract class QueryResult extends ActionResult {
 
-    public QueryResult() {
+    public QueryResult(Action sourceAction) {
+        super(sourceAction);
     }
 
-    public QueryResult(String message) {
-        super(message);
+    public QueryResult(String message, Action sourceAction) {
+        super(message, sourceAction);
     }
 
     /**

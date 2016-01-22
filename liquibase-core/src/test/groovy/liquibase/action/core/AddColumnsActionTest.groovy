@@ -5,9 +5,12 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
+import liquibase.exception.UnexpectedLiquibaseException
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
+import liquibase.structure.ObjectReference
 import liquibase.structure.core.Column
+import liquibase.structure.core.ForeignKey
 import liquibase.structure.datatype.DataType
 import liquibase.structure.core.PrimaryKey
 import liquibase.structure.core.Table
@@ -26,14 +29,14 @@ class AddColumnsActionTest extends AbstractActionTest {
         def action = new AddColumnsAction(new Column(columnName.container, columnName.name, new DataType(DataType.StandardType.INTEGER)))
 
         then:
-        runStandardTest([
+        testAction([
                 columnName_asTable: columnName.toString()
         ], action, conn, scope)
 
         where:
         [conn, scope, columnName, tableName] << connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope),
@@ -50,94 +53,84 @@ class AddColumnsActionTest extends AbstractActionTest {
         action.columns = [new Column(tableName, columnNames[0], new DataType(DataType.StandardType.INTEGER)), new Column(tableName, columnNames[1], new DataType(DataType.StandardType.INTEGER))]
 
         then:
-        runStandardTest([
-                tableName_asTable: tableName.toString(),
+        testAction([
+                tableName_asTable  : tableName.toString(),
                 columnNames_asTable: columnNames.toString()
         ], action, conn, scope)
 
         where:
         [conn, scope, columnNames, tableName] << connectionSuppliers.collectMany {
-            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.objectNameStrategy, ObjectNameStrategy.COMPLEX_NAMES)
-            return CollectionUtil.permutations([
+            def scope = JUnitScope.getInstance(it)
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).collect {[it.name+"_2", it.name+"_3"]},
+                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).collect { [it.name + "_2", it.name + "_3"] },
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)
             ])
         }
     }
 
-    @Unroll("#featureName: with PK #primaryKey and FKs #foreignKeys on #conn")
-    def "Can apply single column with various settings"() {
-        when:
-        def tableName = getObjectNames(Table, ObjectNameStrategy.SIMPLE_NAMES, scope)[0]
-
-        def action = new AddColumnsAction()
-        column.table = tableName
-        column.name = standardCaseObjectName("column_name", Column, scope.getDatabase())
-
-        if (column.type != null && column.defaultValue == "WITH_DEFAULT_VALUE") {
-            if (column.type.standardType == DataType.StandardType.INTEGER) {
-                column.defaultValue = 3
-            } else if (column.type.standardType  == DataType.StandardType.VARCHAR) {
-                column.defaultValue = "test value"
-            } else {
-                Assert.fail("Unknown dataType: "+column.type)
-            }
-        }
-
-        if (primaryKey == "Unnamed PK") {
-            primaryKey = new PrimaryKey(null, tableName, column.name)
-        } else if (primaryKey == "Named PK") {
-            primaryKey = new PrimaryKey(standardCaseObjectName("test_pk", PrimaryKey, scope.getDatabase()), tableName, column.name)
-        }
-
+    @Unroll("#featureName: #action on #conn")
+    def "Can add single column with various PK settings"() {
+//        when:
 //        columnDef.addAfterColumn;
 //        columnDef.addBeforeColumn;
 //        columnDef.addAtPosition;
 //        columnDef.constraints;
 
-        action.primaryKey = primaryKey
-        action.columns = [column]
-        action.foreignKeys = foreignKeys.each {
-            it.columnChecks.each {
-                it.baseColumn = column.name
-                it.referencedColumn.container.container = tableName.container //set referenced table to be in the same container as this test
-            }
-        }
-
-        then:
-        Assume.assumeTrue("Auto-increment does not apply to "+column.type, column.autoIncrementInformation == null || column.type.toString().toLowerCase().contains("int"))
-
-        runStandardTest([
-                type_asTable: column.type,
-                defaultValue_asTable: column.defaultValue,
-                remarks_asTable: column.remarks,
-                primaryKey_asTable: primaryKey,
-                isNullable_asTable: column.nullable,
-                foreignKeys_asTable: foreignKeys,
-                autoIncrementInformation_asTable: column.autoIncrementInformation,
+        expect:
+        testAction([
+                type_asTable                    : action.columns*.type,
+                defaultValue_asTable            : action.columns*.defaultValue,
+                remarks_asTable                 : action.columns*.remarks,
+                primaryKey_asTable              : action.primaryKeys,
+                isNullable_asTable              : action.columns*.nullable,
+                foreignKeys_asTable             : action.foreignKeys*.toString(),
+                autoIncrementInformation_asTable: action.columns*.autoIncrementInformation,
         ], action, conn, scope)
 
         where:
-        [conn, scope, column, primaryKey, foreignKeys] << connectionSuppliers.collectMany {
+        [conn, scope, action] << connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutations(Column, [
-                            type: [new DataType(DataType.StandardType.INTEGER), new DataType(DataType.StandardType.VARCHAR, 10)],
-                            defaultValue: [null, "WITH_DEFAULT_VALUE"],
-                            remarks: [null, "Remarks Here"],
-                            nullable: [null, true, false],
-                            autoIncrementInformation: [null, new Column.AutoIncrementInformation(), new Column.AutoIncrementInformation(2, 3)]
-                    ]),
-                    [null, "Unnamed PK", "Named PK"],
-                    [[]] //, [new ForeignKey(null, [new Column.ColumnReference("this_col")], [new ObjectReference("other_table", "other_col")])]]
-
-            ])
+                    createAllActionPermutations(it, scope)
+            ], new ValidActionFilter(scope))
         }
 
+    }
+
+    @Override
+    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+        def tableName = standardCaseObjectName("test_table", Table, scope.database)
+        def tableRef = new ObjectReference(Table, tableName);
+        def columnName = standardCaseObjectName("column_name", Column, scope.getDatabase())
+
+        return createAllPermutations(AddColumnsAction, [
+                columns   : CollectionUtil.toSingletonLists(createAllPermutations(Column, [
+                        name                    : [columnName],
+                        table                   : [tableRef],
+                        type                    : [new DataType(DataType.StandardType.INTEGER), new DataType(DataType.StandardType.VARCHAR, 10)],
+                        defaultValue            : ["WITH_DEFAULT_VALUE"],
+                        remarks                 : ["Remarks Here"],
+                        nullable                : [true, false],
+                        autoIncrementInformation: [new Column.AutoIncrementInformation(), new Column.AutoIncrementInformation(2, 3)]
+                ]).each({
+                    if (it.type != null && it.defaultValue == "WITH_DEFAULT_VALUE") {
+                        if (it.type.standardType == DataType.StandardType.INTEGER) {
+                            it.defaultValue = 3
+                        } else if (it.type.standardType == DataType.StandardType.VARCHAR) {
+                            it.defaultValue = "test value"
+                        } else {
+                            throw new RuntimeException("Unknown dataType: " + column.type)
+                        }
+                    }
+                })),
+                primaryKeys: [[], [new PrimaryKey(null, tableRef, columnName)], [new PrimaryKey(standardCaseObjectName("pk_name", PrimaryKey, scope.database), tableRef, columnName)]],
+
+        ])
     }
 
     @Override

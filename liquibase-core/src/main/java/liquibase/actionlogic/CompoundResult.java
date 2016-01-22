@@ -10,12 +10,17 @@ import java.util.*;
  */
 public class CompoundResult extends ActionResult {
 
-    private LinkedHashMap<Action, ActionResult> results;
+    private List<ActionResult> results = new ArrayList<>();
+
+    public CompoundResult(Action sourceAction) {
+        super(sourceAction);
+    }
 
     /**
      * Creates a new CompoundResult of the given Action/ActionResult pairs.
      */
-    public CompoundResult(LinkedHashMap<Action, ActionResult> results) {
+    public CompoundResult(List<ActionResult> results, Action sourceAction) {
+        super(sourceAction);
         if (results == null || results.size() == 0) {
             throw new UnexpectedLiquibaseException("Null or empty results passed to a CompoundResult");
         }
@@ -25,12 +30,27 @@ public class CompoundResult extends ActionResult {
     }
 
     /**
-     * Returns the results stored in this CompoundResult.
+     * Returns the results stored in this CompoundResult, flattened to a single list.
      * They are returned in the order the actions were executed.
      * The returned list is unmodifiable.
      */
-    public List<ActionResult> getResults() {
-        return Collections.unmodifiableList(new ArrayList<ActionResult>(results.values()));
+    public List<ActionResult> getFlatResults() {
+        List<ActionResult> flatResults = new ArrayList<>();
+        for (ActionResult result : results) {
+            if (result instanceof CompoundResult) {
+                flatResults.addAll(((CompoundResult) result).getFlatResults());
+            } else {
+                flatResults.add(result);
+            }
+        }
+        return Collections.unmodifiableList(flatResults);
+    }
+
+    /**
+     * Returns the results stored in this CompoundResult, without flattening.
+     */
+    public List<ActionResult> getNestedResults() {
+        return Collections.unmodifiableList(results);
     }
 
     /**
@@ -38,7 +58,18 @@ public class CompoundResult extends ActionResult {
      * The returned Map iterator order preserves the original execution order.
      * The returned map is unmodifiable.
      */
-    public Map<Action, ActionResult> getResultsBySource() {
-        return Collections.unmodifiableMap(results);
+    public ActionResult getResultsByAction(Action sourceAction) {
+        for (ActionResult result : results) {
+            if (result.getSourceAction().equals(sourceAction)) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    public void addResult(ActionResult result) {
+        if (result != null) {
+            this.results.add(result);
+        }
     }
 }

@@ -42,15 +42,19 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         Database database = scope.getDatabase();
 
         for (ForeignKey fk : action.foreignKeys) {
+            if (fk == null) {
+                continue;
+            }
             if (!database.supportsInitiallyDeferrableColumns()) {
-                validationErrors.checkForDisallowedField("initiallyDeferred", fk, database.getShortName());
-                validationErrors.checkForDisallowedField("deferrable", fk, database.getShortName());
+                validationErrors.checkUnsupportedFields(fk, "initiallyDeferred");
+                validationErrors.checkUnsupportedFields(fk, "deferrable");
             }
 
-            validationErrors.checkForRequiredField("columnChecks", fk);
+            validationErrors.checkRequiredFields(fk, "table");
+            validationErrors.checkRequiredFields(fk, "columnChecks");
 
             if (fk.name != null && fk.table != null && !supportsSeparateConstraintSchema() && !fk.table.equals(fk.table, true)) {
-                validationErrors.addUnsupportedError("Specifying a different foreign key schema", database.getShortName());
+                validationErrors.addUnsupportedError("specifying a different foreign key schema", action);
             }
         }
 
@@ -92,21 +96,25 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         List<Action> actions = new ArrayList<>();
 
         for (ForeignKey fk : action.foreignKeys) {
+            if (fk == null) {
+                continue;
+            }
+
             actions.addAll(Arrays.asList(execute(fk, action, scope)));
         }
 
-        return new DelegateResult(actions.toArray(new Action[actions.size()]));
+        return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
     protected Action execute(ForeignKey fk, AddForeignKeysAction action, Scope scope) {
         return new AlterTableAction(
                 fk.table,
-                generateSql(fk, action, scope)
+                generateConstraintClause(fk, action, scope)
         );
     }
 
 
-    protected StringClauses generateSql(ForeignKey foreignKey, AddForeignKeysAction action, Scope scope) {
+    public StringClauses generateConstraintClause(ForeignKey foreignKey, AddForeignKeysAction action, Scope scope) {
         final Database database = scope.getDatabase();
 
         String constrantName = supportsSeparateConstraintSchema() ? database.escapeObjectName(foreignKey.name, ForeignKey.class) : database.escapeObjectName(foreignKey.getName(), ForeignKey.class);
@@ -123,11 +131,11 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                     }
                 }) + ")")
                 .append("REFERENCES")
-                .append(Clauses.referencedTableName, database.escapeObjectName(foreignKey.columnChecks.get(0).referencedColumn.container))
+                .append(Clauses.referencedTableName, database.escapeObjectName(foreignKey.referencedTable))
                 .append(Clauses.referencedColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
-                        return database.escapeObjectName(obj.referencedColumn.name, Column.class);
+                        return database.escapeObjectName(obj.referencedColumn, Column.class);
                     }
                 }) + ")");
 

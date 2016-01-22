@@ -19,6 +19,13 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
 
     private static Map<Class, Map<String, Field>> attributeFieldCache = new HashMap<>();
 
+    public AbstractExtensibleObject() {
+    }
+
+    public AbstractExtensibleObject(Map<String, ?> values) {
+        attributes.putAll(values);
+    }
+
     @Override
     public Set<String> getAttributeNames() {
         HashSet<String> returnSet = new HashSet<>(attributes.keySet());
@@ -82,6 +89,41 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
     }
 
     private <T> T get(String attribute, T defaultValue, Class<T> type) {
+        if (attribute.contains(".")) {
+            List<String> splitAttributes = Arrays.asList(attribute.split("\\."));
+
+            Object baseObject = this.get(splitAttributes.get(0), Object.class);
+            String nextFields = StringUtils.join(splitAttributes.subList(1, splitAttributes.size()), ".");
+
+            if (baseObject == null) {
+                return null;
+            } else if (baseObject instanceof ExtensibleObject) {
+                return ((ExtensibleObject) baseObject).get(nextFields, type);
+            } else if (baseObject instanceof Collection) {
+                List returnList = new ArrayList();
+                for (Object obj : (Collection) baseObject) {
+                    T value = ((ExtensibleObject) obj).get(nextFields, type);
+                    if (value instanceof Collection) {
+                        returnList.addAll((Collection) value);
+                    } else {
+                        returnList.add(value);
+                    }
+                }
+                if (nextFields.contains(".")) {
+                    for (Object obj :  returnList) {
+                        if (obj != null) {
+                            return (T) returnList;
+                        }
+                    }
+                    return null;
+                } else {
+                    return (T) returnList;
+                }
+            } else {
+                throw new UnexpectedLiquibaseException("Cannot traverse field(s) "+nextFields+" on a "+baseObject.getClass().getName());
+            }
+        }
+
         T value;
 
         Field field = getAttributeFields().get(attribute);
@@ -157,8 +199,7 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
 
     public String describe() {
         String name = getClass().getSimpleName();
-        name = StringUtils.lowerCaseFirst(name);
-        return name+"("+ StringUtils.join(this, ", ", new StringUtils.DefaultFormatter())+")";
+        return name+"{"+ StringUtils.join(this, ", ", new StringUtils.DefaultFormatter())+"}";
     }
 
     @Override

@@ -171,6 +171,11 @@ public class Scope {
         return get(Attr.resourceAccessor, ResourceAccessor.class);
     }
 
+    @Override
+    public String toString() {
+        return describe();
+    }
+
     public String describe() {
         String databaseName = null;
         Database database = getDatabase();

@@ -18,9 +18,7 @@ import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
@@ -38,31 +36,28 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     }
 
     @Override
-    public ValidationErrors validate(AddColumnsAction action, Scope scope) {
-        ValidationErrors errors = super.validate(action, scope)
-                .checkForRequiredField("columns", action);
-
-        if (errors.hasErrors()) {
-            return errors;
-        }
-
+    public ValidationErrors validate(final AddColumnsAction action, Scope scope) {
         Database database = scope.getDatabase();
+        ValidationErrors errors = super.validate(action, scope)
+                .checkRequiredFields(action, "columns", "columns.table.name", "columns.name", "columns.type");
 
-        List<Column> columns = action.columns;
-
-        for (Column column : columns) {
-            errors.checkForRequiredField("name", column)
-                    .checkForRequiredField("type", column);
-
-            if (column.isAutoIncrement() && !database.supportsAutoIncrement()) {
-                errors.addUnsupportedError("Auto-increment columns are not supported", database.getShortName());
-            }
-
-            if (column.isAutoIncrement() && column.defaultValue != null) {
-                errors.addUnsupportedError("Adding a default value on an auto-increment column", database.getShortName());
-            }
+        if (!database.supportsAutoIncrement()) {
+            errors.checkUnsupportedFields(action, "columns.autoIncrement");
         }
 
+        errors.checkField(action, "columns", new ValidationErrors.FieldCheck<Column>() {
+            @Override
+            public String check(Column column) {
+                if (column.isAutoIncrement()) {
+                    if (column.defaultValue != null) {
+                        return "cannot set both a default value and auto-increment";
+                    } else if (!isPrimaryKey(column, action)){
+                        return "auto-increment columns must be primary keys";
+                    }
+                }
+                return null;
+            }
+        });
 
 //        if (statement.isPrimaryKey() && (database instanceof H2Database
 //                || database instanceof DB2Database
@@ -91,14 +86,18 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         ObjectReference tableName = action.columns.get(0).table;
 
         try {
-            PrimaryKey snapshotPK = null;
+            Map<ObjectReference, PrimaryKey> snapshotPKsByTable = new HashMap<>();
 
-            if (action.primaryKey != null) {
-                snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(PrimaryKey.class, tableName), scope).asObject(PrimaryKey.class);
+            if (action.primaryKeys != null) {
+                for (PrimaryKey actionPk : action.primaryKeys) {
+                    PrimaryKey snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(actionPk.toReference()), scope).asObject(PrimaryKey.class);
+                    snapshotPKsByTable.put(snapshotPK.table, snapshotPK);
+                }
             }
 
             for (Column actionColumn : action.columns) {
                 Column snapshotColumn = scope.getSingleton(SnapshotFactory.class).snapshot(Column.class, actionColumn.toReference(), scope);
+
                 if (snapshotColumn == null) {
                     result.assertApplied(false, "Column '"+actionColumn.name+"' not found");
                 } else {
@@ -106,6 +105,8 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                     if (table == null) {
                         result.unknown("Cannot find table " + snapshotColumn.table);
                     } else {
+                        PrimaryKey snapshotPK = snapshotPKsByTable.get(table.toReference());
+
                         List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable"));
 
                         if (actionColumn.nullable == null && snapshotColumn.isAutoIncrement() || snapshotPK != null && snapshotPK.columns.contains(snapshotColumn.name)) {
@@ -125,7 +126,8 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                 }
             }
 
-            if (action.primaryKey != null) {
+            for (PrimaryKey actionPK : CollectionUtil.createIfNull(action.primaryKeys)) {
+                PrimaryKey snapshotPK = snapshotPKsByTable.get(actionPK.table);
                 if (snapshotPK == null) {
                     result.assertApplied(false, "No primary key on '"+tableName+"'");
                 } else {
@@ -139,7 +141,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                         }
                         result.assertCorrect(pkHasColumn, "Column '"+actionColumn.name+"' is not part of the primary key");
                     }
-                    result.assertCorrect(action.primaryKey, snapshotPK, Arrays.asList("name"));
+                    result.assertCorrect(actionPK, snapshotPK, Arrays.asList("name"));
                 }
             }
 
@@ -173,7 +175,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         addUniqueConstraintActions(action, scope, actions);
         addForeignKeyStatements(action, scope, actions);
 
-        return new DelegateResult(actions.toArray(new Action[actions.size()]));
+        return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
     protected Action[] execute(Column column, AddColumnsAction action, Scope scope) {
@@ -193,7 +195,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
         ObjectReference columnName = column.toReference();
         DataType columnType = column.type;
-        boolean primaryKey = action.primaryKey != null && action.primaryKey.containsColumn(column);
+        boolean primaryKey = isPrimaryKey(column, action);
         boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, false); // primaryKey || ObjectUtil.defaultIfEmpty(column.nullable, false);
 //        String addAfterColumn = column.addAfterColumn;
 
@@ -226,6 +228,15 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 //        }
 
         return clauses;
+    }
+
+    protected boolean isPrimaryKey(Column column, AddColumnsAction action) {
+        for (PrimaryKey pk : CollectionUtil.createIfNull(action.primaryKeys)) {
+            if (pk.containsColumn(column)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void addUniqueConstraintActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {

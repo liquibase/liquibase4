@@ -8,10 +8,11 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.core.CreateTableLogic;
 import liquibase.database.Database;
-import liquibase.database.core.mysql.MySQLDatabase;
+import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.ObjectReference;
+import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.Column;
+import liquibase.structure.core.PrimaryKey;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringClauses;
 
@@ -20,7 +21,40 @@ import java.util.List;
 public class CreateTableLogicMysql extends CreateTableLogic {
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
-        return MySQLDatabase.class;
+        return MysqlDatabase.class;
+    }
+
+    @Override
+    public ValidationErrors validate(CreateTableAction action, Scope scope) {
+        ValidationErrors errors = super.validate(action, scope);
+        if (!errors.hasErrors() && action.primaryKey != null) {
+            for (PrimaryKey.PrimaryKeyColumn col : action.primaryKey.columns) {
+                if (col.descending != null && col.descending) {
+                    errors.addError("Cannot specify descending primary keys on " + scope.getDatabase().getShortName());
+                }
+            }
+        }
+        if (!errors.hasErrors()) {
+            for (Column column : action.columns) {
+                if (column.autoIncrementInformation != null) {
+                    if (action.primaryKey == null) {
+                        errors.addError("Auto-increment columns must have a primary key");
+                    } else {
+                        boolean foundKeyCol = false;
+                        for (PrimaryKey.PrimaryKeyColumn pkCol : action.primaryKey.columns) {
+                            if (pkCol.name.equals(column.name)) {
+                                foundKeyCol = true;
+                            }
+                        }
+                        if (!foundKeyCol) {
+                            errors.addError("Auto-increment columns must be defined as a primary key");
+                        }
+                    }
+                }
+            }
+        }
+
+        return errors;
     }
 
     @Override
@@ -33,7 +67,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
                 SetColumnRemarksAction remarksAction = new SetColumnRemarksAction();
                 remarksAction.columnName = new Column.ColumnReference(action.table.name, column.name);
                 remarksAction.remarks = columnRemarks;
-                return new DelegateResult(result, remarksAction);
+                result.addActions(remarksAction);
             }
         }
 

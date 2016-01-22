@@ -1,7 +1,11 @@
 package liquibase.action;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.structure.ObjectReference;
 import liquibase.util.StringUtils;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Convenience standard implementation of {@link liquibase.action.Action}.

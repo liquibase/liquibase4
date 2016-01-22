@@ -9,11 +9,19 @@
 | 5a2aea      | Unsupported Database | LBSCHEMA (SCHEMA)  | **plan**: getPrimaryKeys(null, LBSCHEMA, TABLE_NAME)
 | 2cb1f9      | Unsupported Database | LBSCHEMA2 (SCHEMA) | **plan**: getPrimaryKeys(null, LBSCHEMA2, TABLE_NAME)
 
+# Test: "Snapshots column direction correctly" #
+
+- **connection:** unsupported[config:standard]
+
+| Permutation | Verified             | schemaName        | OPERATIONS
+| :---------- | :------------------- | :---------------- | :------
+| 5a2aea      | Unsupported Database | LBSCHEMA (SCHEMA) | **plan**: getPrimaryKeys(null, LBSCHEMA, TABLE1)
+
 # Test: "can find all primaryKeys in a fully qualified complex table name" #
 
 - **connection:** unsupported[config:standard]
 
-| Permutation | Verified             | tableName                                       | OPERATIONS
+| Permutation | Verified             | table                                       | OPERATIONS
 | :---------- | :------------------- | :---------------------------------------------- | :------
 | f15368      | Unsupported Database | LBSCHEMA.4TEST_table (TABLE)                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4TEST_table)
 | 71dd23      | Unsupported Database | LBSCHEMA.4test_table (TABLE)                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4test_table)
@@ -86,4 +94,4 @@
 | ef0e48      | Unsupported Database | KNOWN_TABLE.only_in_LBSCHEMA (PRIMARYKEY)                   | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
 | b1ec2e      | Unsupported Database | KNOWN_TABLE.only_in_LBSCHEMA2 (PRIMARYKEY)                  | **plan**: getPrimaryKeys(null, null, KNOWN_TABLE)
 
-# Test Version: "aa4207" #
+# Test Version: "a7f54e" #

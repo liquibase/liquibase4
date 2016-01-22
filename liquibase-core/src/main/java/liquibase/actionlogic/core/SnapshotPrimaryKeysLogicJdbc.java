@@ -66,12 +66,12 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected LiquibaseObject convertToObject(RowBasedQueryResult.Row row, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
+
         String pkName = row.get("PK_NAME", String.class);
         String columnName = row.get("COLUMN_NAME", String.class);
         Integer position = row.get("KEY_SEQ", Integer.class);
-        String ascOrDesc = row.get("ASC_OR_DESC", String.class);
-        Boolean descending = "D".equals(ascOrDesc) ? Boolean.TRUE : "A".equals(ascOrDesc) ? Boolean.FALSE : null;
 
         String tableCat = row.get("TABLE_CAT", String.class);
         String tableSchema = row.get("TABLE_SCHEM", String.class);
@@ -86,7 +86,6 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
 
         PrimaryKey pk = new PrimaryKey(pkReference);
         PrimaryKey.PrimaryKeyColumn pkColumn = new PrimaryKey.PrimaryKeyColumn(new Column.ColumnReference(pkReference.getTable(), columnName));
-        pkColumn.descending = descending;
         pkColumn.position = position;
         pk.columns.add(pkColumn);
 
@@ -94,7 +93,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) {
+    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
         return new SnapshotModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
@@ -122,7 +121,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                     });
                 }
 
-                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()));
+                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);
             }
         };
     }

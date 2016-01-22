@@ -3,13 +3,18 @@ package liquibase.actionlogic
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.*
+import liquibase.action.core.SnapshotObjectsAction
 import liquibase.database.MockJdbcConnection
 import liquibase.database.core.MockDatabase
+import liquibase.database.core.UnsupportedDatabase
 import liquibase.exception.ActionPerformException
 import liquibase.exception.ValidationErrors
 import liquibase.servicelocator.MockServiceLocator
 import liquibase.servicelocator.ServiceLocator
+import liquibase.structure.ObjectReference
+import liquibase.structure.core.Table
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class ActionExecutorTest extends Specification {
 
@@ -52,7 +57,7 @@ class ActionExecutorTest extends Specification {
     def "execute update logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new UpdateResult(12, "update logic ran");
+            return new UpdateResult(12, "update logic ran", it);
         }))
 
         def result = new ActionExecutor().execute(new MockAction(), scope)
@@ -66,7 +71,7 @@ class ActionExecutorTest extends Specification {
     def "execute 'execute' logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new ExecuteResult("execute logic ran");
+            return new ExecuteResult("execute logic ran", it);
         }))
 
         def result = new ActionExecutor().execute(new MockAction(), scope)
@@ -79,7 +84,7 @@ class ActionExecutorTest extends Specification {
     def "execute 'query' logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new RowBasedQueryResult("DATA", "query logic ran");
+            return new RowBasedQueryResult("DATA", "query logic ran", it);
         }))
 
         def result = new ActionExecutor().execute(new MockAction(), scope)
@@ -92,7 +97,7 @@ class ActionExecutorTest extends Specification {
     def "execute 'rewrite' logic with an empty rewrite action list throws an exception"() {
         when:
         serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
-            return new DelegateResult();
+            return new DelegateResult(it, null);
         }))
 
         def result = new ActionExecutor().execute(new MockAction(), scope)
@@ -105,63 +110,12 @@ class ActionExecutorTest extends Specification {
     def "execute 'rewrite' logic with a single rewrite action"() {
         when:
         serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
-            return new DelegateResult(new UpdateSqlAction("sql action 1"));
+            return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"));
         }))
         serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql);
-            }
-        })
-
-        then:
-        def result = new ActionExecutor().execute(new MockAction(), scope)
-
-        result instanceof ExecuteResult
-        result.message == "executed sql: sql action 1"
-    }
-
-    def "execute 'rewrite' logic with multiple rewrite actions"() {
-        when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
-            return new DelegateResult(new UpdateSqlAction("sql action 1"), new UpdateSqlAction("sql action 2"));
-        }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
-            @Override
-            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql);
-            }
-        })
-
-        then:
-        def result = new ActionExecutor().execute(new MockAction(), scope)
-
-        def nestedActions = new ArrayList<Map.Entry>(((CompoundResult) result).resultsBySource.entrySet())
-
-        nestedActions.size() == 2
-        nestedActions[0].key == new UpdateSqlAction("sql action 1")
-        nestedActions[0].value.message == "executed sql: sql action 1"
-
-        nestedActions[1].key == (new UpdateSqlAction("sql action 2"))
-        nestedActions[1].value.message == "executed sql: sql action 2"
-    }
-
-    def "execute 'rewrite' logic with multiple levels of rewrite actions"() {
-        when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
-            return new DelegateResult(new UpdateSqlAction("sql action 1"), new ExecuteSqlAction("exec sql action"), new UpdateSqlAction("sql action 2"));
-        }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
-            @Override
-            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql);
-            }
-        })
-
-        serviceLocator.addService(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
-            @Override
-            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new DelegateResult(new UpdateSqlAction("nested 1"), new UpdateSqlAction("nested 2"));
+                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
             }
         })
 
@@ -169,19 +123,127 @@ class ActionExecutorTest extends Specification {
         def result = new ActionExecutor().execute(new MockAction(), scope)
 
         result instanceof CompoundResult
-        def nestedActions = new ArrayList<Map.Entry>(((CompoundResult) result).resultsBySource.entrySet())
+        ((CompoundResult) result).flatResults.size() == 1
 
-        nestedActions.size() == 4
-        nestedActions[0].key == new UpdateSqlAction("sql action 1")
-        nestedActions[0].value.message == "executed sql: sql action 1"
+        when:
+        result = ((CompoundResult) result).flatResults[0]
 
-        nestedActions[1].key == new UpdateSqlAction("nested 1")
-        nestedActions[1].value.message == "executed sql: nested 1"
+        then:
+        result instanceof ExecuteResult
+        result.message == "executed sql: sql action 1"
+    }
 
-        nestedActions[2].key == new UpdateSqlAction("nested 2")
-        nestedActions[2].value.message == "executed sql: nested 2"
+    def "execute 'rewrite' logic with multiple delegate results"() {
+        when:
+        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+            return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"), new UpdateSqlAction("sql action 2"));
+        }))
+        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+            @Override
+            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+            }
+        })
 
-        nestedActions[3].key == (new UpdateSqlAction("sql action 2"))
-        nestedActions[3].value.message == "executed sql: sql action 2"
+        then:
+        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+
+        result.flatResults.size() == 2
+        result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
+        result.flatResults[0].message == "executed sql: sql action 1"
+
+        result.flatResults[1].sourceAction == new UpdateSqlAction("sql action 2")
+        result.flatResults[1].message == "executed sql: sql action 2"
+    }
+
+    def "execute 'rewrite' logic with multiple levels of DelegateResults"() {
+        when:
+        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+            return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"), new ExecuteSqlAction("exec sql action"), new UpdateSqlAction("sql action 2"));
+        }))
+        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+            @Override
+            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+            }
+        })
+
+        serviceLocator.addService(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
+            @Override
+            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+                return new DelegateResult(action, null, new UpdateSqlAction("nested 1"), new UpdateSqlAction("nested 2"));
+            }
+        })
+
+        then:
+        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+
+        result.flatResults.size() == 4
+        result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
+        result.flatResults[0].message == "executed sql: sql action 1"
+
+        result.flatResults[1].sourceAction == new UpdateSqlAction("nested 1")
+        result.flatResults[1].message == "executed sql: nested 1"
+
+        result.flatResults[2].sourceAction == new UpdateSqlAction("nested 2")
+        result.flatResults[2].message == "executed sql: nested 2"
+
+        result.flatResults[3].sourceAction == (new UpdateSqlAction("sql action 2"))
+        result.flatResults[3].message == "executed sql: sql action 2"
+    }
+
+    def "execute 'rewrite' logic with multiple levels of DelegateResults and a top level modifier"() {
+        when:
+        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+            return new DelegateResult(it, new ActionResult.Modifier() {
+                @Override
+                ActionResult rewrite(ActionResult result) throws ActionPerformException {
+                    if (result instanceof ExecuteResult) {
+                        ((ExecuteResult) result).message = result.message + "X"
+                    }
+                    return result
+                }
+            }, new UpdateSqlAction("sql action 1"), new ExecuteSqlAction("exec sql action"), new UpdateSqlAction("sql action 2"));
+        }))
+        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+            @Override
+            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+            }
+        })
+
+        serviceLocator.addService(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
+            @Override
+            ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+                return new DelegateResult(action, null, new UpdateSqlAction("nested 1"), new UpdateSqlAction("nested 2"));
+            }
+        })
+
+        then:
+        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+
+        result.flatResults.size() == 4
+        result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
+        result.flatResults[0].message == "executed sql: sql action 1"
+
+        result.flatResults[1].sourceAction == new UpdateSqlAction("nested 1")
+        result.flatResults[1].message == "executed sql: nested 1"
+
+        result.flatResults[2].sourceAction == new UpdateSqlAction("nested 2")
+        result.flatResults[2].message == "executed sql: nested 2"
+
+        result.flatResults[3].sourceAction == (new UpdateSqlAction("sql action 2"))
+        result.flatResults[3].message == "executed sql: sql action 2"
+    }
+
+
+    @Unroll
+    def "plan is built correctly"() {
+        expect:
+        new ActionExecutor().createPlan(action, JUnitScope.getInstance(new UnsupportedDatabase(new MockJdbcConnection()))).describe(true) == expected
+
+        where:
+        action                                                                             | expected
+        new SnapshotObjectsAction(new ObjectReference(Table, "table_schem", "table_name")) | "Execute getTables(null, table_schem, table\\_name, [TABLE]) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic"
     }
 }

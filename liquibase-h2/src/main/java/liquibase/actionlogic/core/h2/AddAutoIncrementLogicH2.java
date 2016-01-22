@@ -6,6 +6,8 @@ import liquibase.actionlogic.core.AddAutoIncrementLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ValidationErrors;
+import liquibase.structure.core.Column;
+import liquibase.util.StringClauses;
 
 public class AddAutoIncrementLogicH2 extends AddAutoIncrementLogic {
 
@@ -17,8 +19,7 @@ public class AddAutoIncrementLogicH2 extends AddAutoIncrementLogic {
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkForDisallowedField("incrementBy", action.autoIncrementInformation, scope.getDatabase().getShortName());
+                .checkUnsupportedFields(action.autoIncrementInformation, "incrementBy")
+                .checkRequiredFields(action, "dataType");
     }
-
-
 }

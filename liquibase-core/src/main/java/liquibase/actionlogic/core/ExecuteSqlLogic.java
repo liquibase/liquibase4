@@ -48,7 +48,7 @@ public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction>  {
         } catch (SQLException e) {
             throw new ActionPerformException("Error executing SQL: "+action.sql.toString(), e);
         }
-        return new ExecuteResult();
+        return new ExecuteResult(action);
 
     }
 }
