@@ -72,7 +72,7 @@ public class ActionExecutor {
      * The Steps in the Plan will contain {@link liquibase.actionlogic.ActionLogic.InteractsExternally} implementations.
      */
     public Plan createPlan(Action action, Scope scope) {
-        ValidationErrors errors = new ValidationErrors();
+        ValidationErrors errors = new ValidationErrors(action);
         Plan plan = new Plan(buildStep(0, action, errors, scope));
         plan.validationErrors = errors;
         return plan;
@@ -86,7 +86,19 @@ public class ActionExecutor {
             return null;
         }
 
-        errors.addAll(actionLogic.validate(action, scope));
+        ValidationErrors stepErrors = actionLogic.validate(action, scope);
+
+        if (depth == 0) {
+            errors.addAll(stepErrors, null);
+        } else {
+            for (String message : stepErrors.getErrorMessages()) {
+                errors.addError(": Step error: "+message);
+            }
+            for (String message : stepErrors.getWarningMessages()) {
+                errors.addWarning(": Step error: " + message);
+            }
+        }
+
         if (errors.hasErrors()) {
             return null;
         }
@@ -132,7 +144,7 @@ public class ActionExecutor {
     public static class Plan {
 
         private Step step;
-        private ValidationErrors validationErrors = new ValidationErrors();
+        private ValidationErrors validationErrors = new ValidationErrors(null);
 
         public Plan(Step step) {
             this.step = step;

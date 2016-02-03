@@ -4,72 +4,111 @@
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | schemaName      | OPERATIONS
-| :---------- | :------- | :-------------- | :------
-| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: getIndexInfo(lbcat, null, table_name, false, true)
-| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: getIndexInfo(lbcat2, null, table_name, false, true)
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='table_name' AND INDEX_NAME='idx_table_name' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 9f6418      | true     | lbcat2     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='table_name' AND INDEX_NAME='idx_table_name' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+
+# Test: "Snapshots column direction correctly" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='table1' AND INDEX_NAME='idx_table1' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "Snapshots multi-column primary key correctly" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | primaryKey                        | OPERATIONS
-| :---------- | :------- | :-------------------------------- | :------
-| 8ef588      | true     | lbcat.table2.UNNAMED (PRIMARYKEY) | **plan**: Execute getIndexInfo(lbcat, null, table2, false, true) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic<br>Execute getPrimaryKeys(lbcat, null, table2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | primaryKey           | OPERATIONS
+| :---------- | :------- | :------------------- | :------
+| d0c73a      | true     | lbcat.table2.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='table2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX<br>SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='table2' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "Snapshots single-column primary key correctly" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | primaryKey                        | OPERATIONS
-| :---------- | :------- | :-------------------------------- | :------
-| de26f7      | true     | lbcat.table1.UNNAMED (PRIMARYKEY) | **plan**: Execute getIndexInfo(lbcat, null, table1, false, true) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic<br>Execute getPrimaryKeys(lbcat, null, table1) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | primaryKey           | OPERATIONS
+| :---------- | :------- | :------------------- | :------
+| 33f083      | true     | lbcat.table1.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='table1' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX<br>SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='table1' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "can find all indexes in a fully qualified complex table name" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | table                                    | OPERATIONS
-| :---------- | :------- | :------------------------------------------- | :------
-| e83394      | true     | lbcat.4test_table (TABLE)                    | **plan**: getIndexInfo(lbcat, null, 4test_table, false, true)
-| 56b06d      | true     | lbcat.anotherlowertable (TABLE)              | **plan**: getIndexInfo(lbcat, null, anotherlowertable, false, true)
-| 45eba6      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table (TABLE)  | **plan**: getIndexInfo(lbcat, null, crazy!@#\$%^&*()_+{}[]'"table, false, true)
-| e0e1e5      | true     | lbcat.lowertable (TABLE)                     | **plan**: getIndexInfo(lbcat, null, lowertable, false, true)
-| 1217fc      | true     | lbcat.only_in_lbcat (TABLE)                  | **plan**: getIndexInfo(lbcat, null, only_in_lbcat, false, true)
-| cdbe33      | true     | lbcat2.4test_table (TABLE)                   | **plan**: getIndexInfo(lbcat2, null, 4test_table, false, true)
-| c51a94      | true     | lbcat2.anotherlowertable (TABLE)             | **plan**: getIndexInfo(lbcat2, null, anotherlowertable, false, true)
-| 85fbd4      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table (TABLE) | **plan**: getIndexInfo(lbcat2, null, crazy!@#\$%^&*()_+{}[]'"table, false, true)
-| 3cb8b0      | true     | lbcat2.lowertable (TABLE)                    | **plan**: getIndexInfo(lbcat2, null, lowertable, false, true)
-| a1779f      | true     | lbcat2.only_in_lbcat2 (TABLE)                | **plan**: getIndexInfo(lbcat2, null, only_in_lbcat2, false, true)
+| Permutation | Verified | tableName                            | OPERATIONS
+| :---------- | :------- | :----------------------------------- | :------
+| 6db8bb      | true     | lbcat.4test_table                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='4test_table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| b2e45f      | true     | lbcat.anotherlowertable              | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='anotherlowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 5f0ea5      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 572208      | true     | lbcat.lowertable                     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='lowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 58d58f      | true     | lbcat.only_in_lbcat                  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='only_in_lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| be2547      | true     | lbcat2.4test_table                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='4test_table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| c493e5      | true     | lbcat2.anotherlowertable             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='anotherlowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 94369b      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 2c35e6      | true     | lbcat2.lowertable                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='lowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='only_in_lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+
+# Test: "can find all indexes related to a schema" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 9f6418      | true     | lbcat2     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+
+# Test: "can find all indexes related to a table with a null name" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | tableName      | OPERATIONS
+| :---------- | :------- | :------------- | :------
+| 2891fc      | true     | lbcat.UNNAMED  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 98f9fe      | true     | lbcat2.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "can find by IndexReference with a table name but null index name" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | indexName                                            | OPERATIONS
-| :---------- | :------- | :--------------------------------------------------- | :------
-| 769be6      | true     | lbcat.4test_table.UNNAMED (INDEX)                    | **plan**: getIndexInfo(lbcat, null, 4test_table, false, true)
-| 352487      | true     | lbcat.anotherlowertable.UNNAMED (INDEX)              | **plan**: getIndexInfo(lbcat, null, anotherlowertable, false, true)
-| c65324      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED (INDEX)  | **plan**: getIndexInfo(lbcat, null, crazy!@#\$%^&*()_+{}[]'"table, false, true)
-| 6563e7      | true     | lbcat.lowertable.UNNAMED (INDEX)                     | **plan**: getIndexInfo(lbcat, null, lowertable, false, true)
-| 4da986      | true     | lbcat.only_in_lbcat.UNNAMED (INDEX)                  | **plan**: getIndexInfo(lbcat, null, only_in_lbcat, false, true)
-| 30e384      | true     | lbcat2.4test_table.UNNAMED (INDEX)                   | **plan**: getIndexInfo(lbcat2, null, 4test_table, false, true)
-| fa8f20      | true     | lbcat2.anotherlowertable.UNNAMED (INDEX)             | **plan**: getIndexInfo(lbcat2, null, anotherlowertable, false, true)
-| 1105ef      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED (INDEX) | **plan**: getIndexInfo(lbcat2, null, crazy!@#\$%^&*()_+{}[]'"table, false, true)
-| 866d73      | true     | lbcat2.lowertable.UNNAMED (INDEX)                    | **plan**: getIndexInfo(lbcat2, null, lowertable, false, true)
-| d318ec      | true     | lbcat2.only_in_lbcat2.UNNAMED (INDEX)                | **plan**: getIndexInfo(lbcat2, null, only_in_lbcat2, false, true)
+| Permutation | Verified | indexName                                    | OPERATIONS
+| :---------- | :------- | :------------------------------------------- | :------
+| 18a904      | true     | lbcat.4test_table.UNNAMED                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='4test_table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| a1ae67      | true     | lbcat.anotherlowertable.UNNAMED              | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='anotherlowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 8b706c      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| acef93      | true     | lbcat.lowertable.UNNAMED                     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='lowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 7c99d9      | true     | lbcat.only_in_lbcat.UNNAMED                  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat' AND TABLE_NAME='only_in_lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| d0ffcd      | true     | lbcat2.4test_table.UNNAMED                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='4test_table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| be7f5a      | true     | lbcat2.anotherlowertable.UNNAMED             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='anotherlowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 853ed5      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| eb7916      | true     | lbcat2.lowertable.UNNAMED                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='lowertable' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 04894a      | true     | lbcat2.only_in_lbcat2.UNNAMED                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA='lbcat2' AND TABLE_NAME='only_in_lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "can find complex index names with a table" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | indexName                                         | OPERATIONS
-| :---------- | :------- | :------------------------------------------------ | :------
-| 00cdd4      | true     | known_table.4test_index (INDEX)                   | **plan**: getIndexInfo(null, null, known_table, false, true)
-| 6b02d3      | true     | known_table.anotherlowerindex (INDEX)             | **plan**: getIndexInfo(null, null, known_table, false, true)
-| 05d9a9      | true     | known_table.crazy!@#\$%^&*()_+{}[]'"index (INDEX) | **plan**: getIndexInfo(null, null, known_table, false, true)
-| 7812ac      | true     | known_table.lowerindex (INDEX)                    | **plan**: getIndexInfo(null, null, known_table, false, true)
-| e8a018      | true     | known_table.only_in_lbcat (INDEX)                 | **plan**: getIndexInfo(null, null, known_table, false, true)
-| 0fa075      | true     | known_table.only_in_lbcat2 (INDEX)                | **plan**: getIndexInfo(null, null, known_table, false, true)
+| Permutation | Verified | indexName                                 | OPERATIONS
+| :---------- | :------- | :---------------------------------------- | :------
+| 26eaf8      | true     | known_table.4test_index                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='4test_index' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 54868f      | true     | known_table.anotherlowerindex             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='anotherlowerindex' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| d3f33b      | true     | known_table.crazy!@#\$%^&*()_+{}[]'"index | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='crazy!@#\\$%^&*()_+{}[]''"index' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 069718      | true     | known_table.lowerindex                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='lowerindex' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 7a0013      | true     | known_table.only_in_lbcat                 | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='only_in_lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 45d5ef      | true     | known_table.only_in_lbcat2                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME='known_table' AND INDEX_NAME='only_in_lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
 
-# Test Version: "dc9421" #
+# Test: "can find complex indexes names without a table" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | indexName                                | OPERATIONS
+| :---------- | :------- | :--------------------------------------- | :------
+| ae5838      | true     | test_table.4test_index                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='4test_index' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 833f4f      | true     | test_table.anotherlowerindex             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='anotherlowerindex' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 039027      | true     | test_table.crazy!@#\$%^&*()_+{}[]'"index | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='crazy!@#\\$%^&*()_+{}[]''"index' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| dd66fe      | true     | test_table.lowerindex                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='lowerindex' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| 2b479a      | true     | test_table.only_in_lbcat                 | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='only_in_lbcat' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+| a1377a      | true     | test_table.only_in_lbcat2                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_SCHEMA AS INDEX_QUALIFIER, INDEX_NAME,3 AS TYPE, SEQ_IN_INDEX AS ORDINAL_POSITION, COLUMN_NAME, 'A' AS ASC_OR_DESC, CARDINALITY, NULL AS PAGES, NULL AS FILTER_CONDITION FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='only_in_lbcat2' ORDER BY NON_UNIQUE, INDEX_NAME, SEQ_IN_INDEX
+
+# Test Version: "773daa" #

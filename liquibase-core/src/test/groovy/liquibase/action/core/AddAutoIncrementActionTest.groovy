@@ -24,7 +24,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     def "Can apply standard settings to complex names"() {
         expect:
         testAction([
-                columnName_asTable: action.column
+                columnName_asTable: action.column,
         ], action, conn, scope)
 
         where:
@@ -35,7 +35,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
                             column  : createAllPermutationsWithoutNulls(Column.ColumnReference, [
-                                    name     : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).each({ it.name }),
+                                    name     : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).each({ it.name }).unique(),
                                     container: getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
                             ]),
                             dataType: [new DataType(DataType.StandardType.INTEGER)]

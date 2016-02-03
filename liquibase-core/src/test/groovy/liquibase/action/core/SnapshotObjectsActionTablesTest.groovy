@@ -35,7 +35,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         where:
         [scope, conn, tableRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [scope],
                     [it],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)
@@ -59,7 +59,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         [scope, conn, schemaRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [scope],
                     [it],
                     it.allSchemas
@@ -83,7 +83,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         [scope, conn, schemaRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [scope],
                     [it],
                     it.allSchemas
@@ -110,7 +110,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
             Assume.assumeTrue("Database does not support catalogs", it.database.supports(Catalog))
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas*.container.grep({ it != null }).unique()
@@ -125,7 +125,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
 
         where:
         action | expected
-        new SnapshotObjectsAction(new ObjectReference(Table, "schema_name", "table_name")) | "snapshotObjects(relatedTo=[schema_name.table_name (TABLE)], typeToSnapshot=liquibase.structure.core.Table)"
+        new SnapshotObjectsAction(new ObjectReference(Table, "schema_name", "table_name")) | "snapshotObjects(relatedTo=[schema_name.table_name], typeToSnapshot=liquibase.structure.core.Table)"
     }
 
 

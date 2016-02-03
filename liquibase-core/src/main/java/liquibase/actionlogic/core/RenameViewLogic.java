@@ -18,8 +18,7 @@ public class RenameViewLogic extends AbstractSqlBuilderLogic<RenameViewAction> {
     @Override
     public ValidationErrors validate(RenameViewAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "oldViewName")
-                .checkRequiredFields(action, "newViewName");
+                .checkRequiredFields("oldViewName", "newViewName");
     }
 
     @Override

@@ -36,32 +36,27 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
 
     @Override
     public ValidationErrors validate(AddUniqueConstraintsAction action, Scope scope) {
-        ValidationErrors validationErrors = super.validate(action, scope);
+        ValidationErrors validationErrors = super.validate(action, scope)
+                .checkRequiredFields("uniqueConstraints", "uniqueConstraints.table", "uniqueConstraints.columns");
+
+        //normally not supported so ignoring by default
+        validationErrors.checkUnsupportedFields("uniqueConstraints.disabled", "uniqueConstraints.backingIndex");
 
         Database database = scope.getDatabase();
+        if (!database.supportsInitiallyDeferrableColumns()) {
+            validationErrors.checkUnsupportedFields("uniqueConstraints.initiallyDeferred", "uniqueConstraints.deferrable");
+        }
+        if (!scope.getDatabase().supportsTablespaces()) {
+            validationErrors.checkUnsupportedFields("uniqueConstraints.tablespace");
+        }
 
         for (UniqueConstraint constraint : action.uniqueConstraints) {
             if (constraint == null) {
                 continue;
             }
-            if (!database.supportsInitiallyDeferrableColumns()) {
-                validationErrors.checkUnsupportedFields(constraint, "initiallyDeferred");
-                validationErrors.checkUnsupportedFields(constraint, "deferrable");
-            }
-            if (!scope.getDatabase().supportsTablespaces()) {
-                validationErrors.checkUnsupportedFields(constraint, "tablespace");
-            }
-
-            validationErrors.checkRequiredFields(constraint, "table");
-            validationErrors.checkRequiredFields(constraint, "columns");
-
-            //normally not supported so ignoring by default
-            validationErrors.checkUnsupportedFields(constraint, "disabled");
-            validationErrors.checkUnsupportedFields(constraint, "backingIndex");
-
 
             if (constraint.name != null && constraint.table != null && !supportsSeparateConstraintSchema() && !constraint.table.equals(constraint.table, true)) {
-                validationErrors.addUnsupportedError("specifying a different constraint schema", action);
+                validationErrors.addUnsupportedError("specifying a different constraint schema");
             }
         }
 

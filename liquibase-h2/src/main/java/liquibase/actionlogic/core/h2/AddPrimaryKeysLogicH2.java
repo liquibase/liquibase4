@@ -17,13 +17,8 @@ public class AddPrimaryKeysLogicH2 extends AddPrimaryKeysLogic {
 
     @Override
     public ValidationErrors validate(AddPrimaryKeysAction action, Scope scope) {
-        ValidationErrors validate = super.validate(action, scope);
-
-        for (PrimaryKey pk : action.primaryKeys) {
-            validate.checkUnsupportedFields(pk, "name");
-        }
-
-        return validate;
+        return super.validate(action, scope)
+                .checkUnsupportedFields("primaryKeys.name");
     }
 
     @Override

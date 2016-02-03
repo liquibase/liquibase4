@@ -33,7 +33,7 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
     @Override
     public ValidationErrors validate(QueryJdbcMetaDataAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields(action, "method");
+                .checkRequiredFields("method");
 
         if (!errors.hasErrors()) {
             if (action.method.equals("getTables")) {

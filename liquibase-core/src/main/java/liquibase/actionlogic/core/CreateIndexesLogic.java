@@ -13,6 +13,7 @@ import liquibase.exception.ValidationErrors;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
+import liquibase.structure.core.PrimaryKey;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -37,23 +38,25 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
     @Override
     public ValidationErrors validate(CreateIndexesAction action, Scope scope) {
-        Database database = scope.getDatabase();
+        final ValidationErrors validationErrors = super.validate(action, scope)
+                .checkRequiredFields("indexes.columns", "indexes.columns.name",
+                        "indexes.table");
 
-        ValidationErrors validationErrors = new ValidationErrors();
-        for (Index index : action.indexes) {
-            validationErrors.checkRequiredFields(index, "columns");
-            validationErrors.checkRequiredFields(index, "table");
+        final Database database = scope.getDatabase();
 
-            if (!database.supportsClustered(Index.class)) {
-                if (ObjectUtil.defaultIfEmpty(index.clustered, false)) {
-                    validationErrors.addWarning("Creating clustered index not supported with " + database);
-                }
-            }
-
-            for (Index.IndexedColumn column : index.columns) {
-                validationErrors.checkRequiredFields(column, "name");
-            }
+        if (!database.supportsClustered(Index.class)) {
+            validationErrors.checkUnsupportedFields("indexes.clustered");
         }
+
+        validationErrors.checkField("indexes.column", new ValidationErrors.FieldCheck<Index.IndexedColumn>() {
+            @Override
+            public String check(Index.IndexedColumn column) {
+                if (column != null && column.direction != null && !database.supportsIndexDirection(column.direction)) {
+                    return "Cannot specify " + column.direction + " primary keys";
+                }
+                return null;
+            }
+        });
 
         return validationErrors;
     }
@@ -110,8 +113,8 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
                     name = database.escapeObjectName(column.name, Column.class);
                 }
 
-                if (ObjectUtil.defaultIfEmpty(column.descending, false)) {
-                    name += " DESC";
+                if (column.direction != null) {
+                    name += " " + column.direction;
                 }
                 return name;
             }

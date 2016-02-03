@@ -28,7 +28,7 @@ public class AlterColumnLogic extends AbstractActionLogic<AlterColumnAction> {
     @Override
     public ValidationErrors validate(AlterColumnAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "column", "column.container.name", "newDefinition");
+                .checkRequiredFields("column", "column.container.name", "newDefinition");
     }
 
     @Override

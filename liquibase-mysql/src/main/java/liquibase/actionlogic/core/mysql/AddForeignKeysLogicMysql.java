@@ -24,11 +24,11 @@ public class AddForeignKeysLogicMysql extends AddForeignKeysLogic {
             }
 
             if (fk.updateRule == ForeignKey.ConstraintType.importedKeySetDefault) {
-                errors.addUnsupportedError("update rule SET DEFAULT", action);
+                errors.addUnsupportedError("update rule SET DEFAULT");
             }
 
             if (fk.deleteRule == ForeignKey.ConstraintType.importedKeySetDefault) {
-                errors.addUnsupportedError("delete rule SET DEFAULT", action);
+                errors.addUnsupportedError("delete rule SET DEFAULT");
             }
         }
         return errors;

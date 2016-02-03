@@ -42,7 +42,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         where:
         [conn, scope, indexRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it }),
@@ -71,7 +71,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         where:
         [conn, scope, indexRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = standardCaseObjectName("known_table", Table, scope.getDatabase()); return it }),
@@ -101,7 +101,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, indexRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ new Index.IndexReference(it, null) }),
@@ -131,7 +131,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
@@ -162,7 +162,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ return new ObjectReference(Table, it, null) }),
@@ -193,7 +193,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope),
@@ -236,7 +236,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
@@ -254,9 +254,10 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
 
         def index = new Index(standardCaseObjectName("idx_table1", Index, scope.database), table.toReference())
         index.columns = [
-                new Index.IndexedColumn(new Column.ColumnReference(table.toReference(), columnAsc.name), false),
-                new Index.IndexedColumn(new Column.ColumnReference(table.toReference(), columnDesc.name), true)
-        ]
+                new Index.IndexedColumn(columnAsc.name, Index.IndexDirection.ASC),
+                new Index.IndexedColumn(columnDesc.name, Index.IndexDirection.DESC)
+        ].findAll { scope.getDatabase().supportsIndexDirection(it.direction) }
+
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table, columnAsc, columnDesc, index])
 
@@ -271,20 +272,22 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
 
             Index foundIndex = results.asObject(Index)
             assert foundIndex.table.equals(table.toReference(), true)
-            assert foundIndex.columns.size() == 2
+            assert foundIndex.columns.size() == index.columns.size()
 
             assert foundIndex.columns[0].name == columnAsc.name
-            assert foundIndex.columns[1].name == columnDesc.name
+            assert foundIndex.columns[0].direction == Index.IndexDirection.ASC
 
-            assert foundIndex.columns[0].descending == false
-            assert foundIndex.columns[1].descending == true
+            if (foundIndex.columns.size() > 1) {
+                assert foundIndex.columns[1].direction == Index.IndexDirection.DESC
+                assert foundIndex.columns[1].name == columnDesc.name
+            }
         })
 
         where:
         [conn, scope] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
             ])
@@ -310,23 +313,23 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         def table1PK = new PrimaryKey(null, table1.toReference(), table1Col1.name)
         def table2PK = new PrimaryKey(null, table2.toReference(), table2Col2.name, table2Col3.name)
 
-        def table1Index1 = new Index(concatConsistantCaseObjectName(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col2.name), new Index.IndexedColumn(table1.toReference(), table1Col3.name))
-        def table1Index2 = new Index(concatConsistantCaseObjectName(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col3.name))
-        def table1Index3 = new Index(concatConsistantCaseObjectName(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col4.name))
-        def table1Index4 = new Index(concatConsistantCaseObjectName(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col1.name), new Index.IndexedColumn(table1.toReference(), table1Col2.name))
+        def table1Index1 = new Index(concatConsistantCaseObjectName(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
+        def table1Index2 = new Index(concatConsistantCaseObjectName(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
+        def table1Index3 = new Index(concatConsistantCaseObjectName(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
+        def table1Index4 = new Index(concatConsistantCaseObjectName(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
 
-        def table2Index1 = new Index(concatConsistantCaseObjectName(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col1.name))
-        def table2Index2 = new Index(concatConsistantCaseObjectName(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col2.name))
-        def table2Index3 = new Index(concatConsistantCaseObjectName(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col3.name))
-        def table2Index4 = new Index(concatConsistantCaseObjectName(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col2.name), new Index.IndexedColumn(table2.toReference(), table2Col4.name))
+        def table2Index1 = new Index(concatConsistantCaseObjectName(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
+        def table2Index2 = new Index(concatConsistantCaseObjectName(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
+        def table2Index3 = new Index(concatConsistantCaseObjectName(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
+        def table2Index4 = new Index(concatConsistantCaseObjectName(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
 
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table1, table2,
                          table1PK, table2PK,
                          table1Col1, table1Col2, table1Col3, table1Col4,
                          table2Col1, table2Col2, table2Col3, table2Col4,
-                         table1Index1,table1Index2,table1Index3,table1Index4,
-                         table2Index1,table2Index2,table2Index3,table2Index4,
+                         table1Index1, table1Index2, table1Index3, table1Index4,
+                         table2Index1, table2Index2, table2Index3, table2Index4,
         ])
 
         def action = new SnapshotObjectsAction(Index, table1PK.toReference())
@@ -349,7 +352,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
             ])
@@ -375,23 +378,23 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         def table1PK = new PrimaryKey(null, table1.toReference(), table1Col1.name)
         def table2PK = new PrimaryKey(null, table2.toReference(), table2Col2.name, table2Col3.name)
 
-        def table1Index1 = new Index(concatConsistantCaseObjectName(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col2.name), new Index.IndexedColumn(table1.toReference(), table1Col3.name))
-        def table1Index2 = new Index(concatConsistantCaseObjectName(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col3.name))
-        def table1Index3 = new Index(concatConsistantCaseObjectName(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col4.name))
-        def table1Index4 = new Index(concatConsistantCaseObjectName(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1.toReference(), table1Col1.name), new Index.IndexedColumn(table1.toReference(), table1Col2.name))
+        def table1Index1 = new Index(concatConsistantCaseObjectName(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
+        def table1Index2 = new Index(concatConsistantCaseObjectName(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
+        def table1Index3 = new Index(concatConsistantCaseObjectName(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
+        def table1Index4 = new Index(concatConsistantCaseObjectName(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
 
-        def table2Index1 = new Index(concatConsistantCaseObjectName(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col1.name))
-        def table2Index2 = new Index(concatConsistantCaseObjectName(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col2.name))
-        def table2Index3 = new Index(concatConsistantCaseObjectName(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col3.name))
-        def table2Index4 = new Index(concatConsistantCaseObjectName(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2.toReference(), table2Col2.name), new Index.IndexedColumn(table2.toReference(), table2Col4.name))
+        def table2Index1 = new Index(concatConsistantCaseObjectName(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
+        def table2Index2 = new Index(concatConsistantCaseObjectName(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
+        def table2Index3 = new Index(concatConsistantCaseObjectName(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
+        def table2Index4 = new Index(concatConsistantCaseObjectName(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
 
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table1, table2,
                          table1PK, table2PK,
                          table1Col1, table1Col2, table1Col3, table1Col4,
                          table2Col1, table2Col2, table2Col3, table2Col4,
-                         table1Index1,table1Index2,table1Index3,table1Index4,
-                         table2Index1,table2Index2,table2Index3,table2Index4,
+                         table1Index1, table1Index2, table1Index3, table1Index4,
+                         table2Index1, table2Index2, table2Index3, table2Index4,
         ])
 
         def action = new SnapshotObjectsAction(Index, table2PK.toReference())
@@ -415,7 +418,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
             ])
@@ -428,6 +431,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
 
         def columnName = standardCaseObjectName("id", Column, scope.database)
         //Crate the expected index/table combo
+        int incNumber = 0;
         for (ObjectReference relatedTo : ((SnapshotObjectsAction) action).relatedTo) {
             if (relatedTo.instanceOf(Index)) {
 
@@ -441,8 +445,12 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
 
                 def indexName = relatedTo.name ?: standardCaseObjectName("idx_passed", Index, scope.database)
 
-                snapshot.add(new Index(indexName, tableName, new Index.IndexedColumn(tableName, columnName)))
+                snapshot.add(new Index(indexName, tableName, new Index.IndexedColumn(columnName)))
             } else if (relatedTo.instanceOf(Table)) {
+                relatedTo = relatedTo.clone()
+                if (relatedTo.name == null) {
+                    relatedTo.name = standardCaseObjectName("generated_table_" + (incNumber++), Table, scope.database)
+                }
                 snapshot.add(new Table(relatedTo))
                 snapshot.add(new Column(relatedTo, columnName, "int"))
                 snapshot.add(new Index(standardCaseObjectName("idx_passed_table", Index, scope.database), relatedTo, new Index.IndexedColumn(columnName)))

@@ -22,8 +22,7 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
     @Override
     public ValidationErrors validate(DropForeignKeyAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "baseTableName")
-                .checkRequiredFields(action, "constraintName");
+                .checkRequiredFields("baseTableName", "constraintName");
     }
 
     @Override

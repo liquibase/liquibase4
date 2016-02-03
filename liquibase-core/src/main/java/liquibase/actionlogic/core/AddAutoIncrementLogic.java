@@ -33,7 +33,7 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         ValidationErrors validationErrors = super.validate(action, scope);
-        validationErrors.checkRequiredFields(action, "column", "column.container");
+        validationErrors.checkRequiredFields("column", "column.container");
 
         return validationErrors;
     }

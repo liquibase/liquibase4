@@ -15,6 +15,7 @@ import liquibase.exception.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;
+import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -37,26 +38,26 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
 
     @Override
     public ValidationErrors validate(AddForeignKeysAction action, Scope scope) {
-        ValidationErrors validationErrors = super.validate(action, scope);
+        ValidationErrors validationErrors = super.validate(action, scope)
+                .checkRequiredFields("foreignKeys.table", "foreignKeys.table.name",
+                        "foreignKeys.referencedTable","foreignKeys.referencedTable.name",
+                        "foreignKeys.columnChecks", "foreignKeys.columnChecks.baseColumn", "foreignKeys.columnChecks.referencedColumn");
 
         Database database = scope.getDatabase();
 
-        for (ForeignKey fk : action.foreignKeys) {
-            if (fk == null) {
-                continue;
-            }
-            if (!database.supportsInitiallyDeferrableColumns()) {
-                validationErrors.checkUnsupportedFields(fk, "initiallyDeferred");
-                validationErrors.checkUnsupportedFields(fk, "deferrable");
-            }
-
-            validationErrors.checkRequiredFields(fk, "table");
-            validationErrors.checkRequiredFields(fk, "columnChecks");
-
-            if (fk.name != null && fk.table != null && !supportsSeparateConstraintSchema() && !fk.table.equals(fk.table, true)) {
-                validationErrors.addUnsupportedError("specifying a different foreign key schema", action);
-            }
+        if (!database.supportsInitiallyDeferrableColumns()) {
+            validationErrors.checkUnsupportedFields("foreignKeys.initiallyDeferred", "foreignKeys.deferrable");
         }
+
+        validationErrors.checkField("foreignKeys", new ValidationErrors.FieldCheck<ForeignKey>() {
+            @Override
+            public String check(ForeignKey fk) {
+                if (fk.table.container != null && fk.referencedTable.container != null && !supportsSeparateConstraintSchema() && !fk.table.container.equals(fk.referencedTable.container, true)) {
+                    return "cannot specify a different foreign key schema";
+                }
+                return null;
+            }
+        });
 
         return validationErrors;
     }
@@ -77,7 +78,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                     result.assertCorrect(actionFK, snapshotFK);
                     if (actionFK.columnChecks.size() == snapshotFK.columnChecks.size()) {
                         for (int i=0; i <  actionFK.columnChecks.size(); i++) {
-                            result.assertCorrect(actionFK.columnChecks.get(i), snapshotFK.columnChecks.get(i), Arrays.asList("position"));
+                            result.assertCorrect(actionFK.columnChecks.get(i), snapshotFK.columnChecks.get(i));
                         }
                     } else {
                         result.assertCorrect(false, "columnCheck sizes are different");

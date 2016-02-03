@@ -765,11 +765,6 @@ public abstract class AbstractJdbcDatabase implements Database {
     }
 
     @Override
-    public boolean supportsPrimaryKeyNames() {
-        return true;
-    }
-
-    @Override
     public String escapeDataTypeName(String dataTypeName) {
         return dataTypeName;
     }
@@ -778,6 +773,18 @@ public abstract class AbstractJdbcDatabase implements Database {
     @Override
     public boolean supportsClustered(Class<? extends LiquibaseObject> objectType) {
         return false;
+    }
+
+    @Override
+    public boolean supportsIndexDirection(Index.IndexDirection direction) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsNamed(Class<? extends LiquibaseObject> type) {
+        return true;
+
+
     }
 
     public boolean looksLikeFunctionCall(String value) {

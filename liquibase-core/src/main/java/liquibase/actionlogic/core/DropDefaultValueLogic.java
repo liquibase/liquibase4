@@ -20,7 +20,7 @@ public class DropDefaultValueLogic extends AbstractSqlBuilderLogic<DropDefaultVa
     @Override
     public ValidationErrors validate(DropDefaultValueAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "column", "column.container.name");
+                .checkRequiredFields("column", "column.container.name");
     }
 
     @Override

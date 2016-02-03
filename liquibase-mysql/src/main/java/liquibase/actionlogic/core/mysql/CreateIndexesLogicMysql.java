@@ -17,15 +17,8 @@ public class CreateIndexesLogicMysql extends CreateIndexesLogic {
 
     @Override
     public ValidationErrors validate(CreateIndexesAction action, Scope scope) {
-        ValidationErrors validate = super.validate(action, scope);
-        for (Index index : action.indexes) {
-            validate.checkRequiredFields(index, "name");
-            for (Index.IndexedColumn col : index.columns) {
-                if (col.descending != null && col.descending) {
-                    validate.addError("Cannot specify descending indexes on "+scope.getDatabase().getShortName());
-                }
-            }
-        }
+        ValidationErrors validate = super.validate(action, scope)
+                .checkRequiredFields("indexes.name");
         return validate;
     }
 }

@@ -82,7 +82,7 @@ public abstract class AbstractActionLogic<T extends Action> implements ActionLog
      */
     @Override
     public ValidationErrors validate(T action, Scope scope) {
-        return new ValidationErrors();
+        return new ValidationErrors(action);
     }
 
     /**

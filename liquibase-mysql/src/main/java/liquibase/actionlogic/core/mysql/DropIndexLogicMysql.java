@@ -21,7 +21,7 @@ public class DropIndexLogicMysql extends DropIndexLogic {
     @Override
     public ValidationErrors validate(DropIndexAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "table");
+                .checkRequiredFields("table");
     }
 
     @Override

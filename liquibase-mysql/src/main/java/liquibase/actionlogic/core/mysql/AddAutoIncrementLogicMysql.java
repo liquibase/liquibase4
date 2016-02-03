@@ -18,8 +18,8 @@ public class AddAutoIncrementLogicMysql extends AddAutoIncrementLogic {
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "dataType")
-                .checkUnsupportedFields(action, "autoIncrementInformation.incrementBy");
+                .checkRequiredFields("dataType")
+                .checkUnsupportedFields("autoIncrementInformation.incrementBy");
     }
 
     @Override

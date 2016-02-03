@@ -10,7 +10,7 @@ public abstract class UnsupportedActionLogic extends AbstractActionLogic {
 
     @Override
     public ValidationErrors validate(Action action, Scope scope) {
-        return new ValidationErrors().addUnsupportedError(scope.getDatabase().getShortName(), action);
+        return new ValidationErrors(action).addUnsupportedError(null);
     }
 
     @Override

@@ -12,9 +12,12 @@ import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
+import liquibase.structure.LiquibaseObject;
+import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
+import liquibase.structure.core.Table;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
@@ -34,18 +37,36 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
     }
 
     @Override
-    public ValidationErrors validate(AddPrimaryKeysAction action, Scope scope) {
-        ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields(action, "primaryKeys", "primaryKeys.columns", "primaryKeys.columns.name", "primaryKeys.table");
-        if (!scope.getDatabase().supportsTablespaces()) {
-            errors.checkUnsupportedFields(action, "primaryKeys.tablespace");
+    public ValidationErrors validate(AddPrimaryKeysAction action, final Scope scope) {
+        final ValidationErrors errors = super.validate(action, scope)
+                .checkRequiredFields("primaryKeys", "primaryKeys.columns", "primaryKeys.columns.name", "primaryKeys.table");
+
+        final Database database = scope.getDatabase();
+
+        if (!database.supportsTablespaces()) {
+            errors.checkUnsupportedFields("primaryKeys.tablespace");
         }
 
-        for (PrimaryKey primaryKey : action.primaryKeys) {
-            if (ObjectUtil.defaultIfEmpty(primaryKey.clustered, false)) {
-                errors.addUnsupportedError("adding a clustered primary key", action);
+        errors.checkField("primaryKeys", new ValidationErrors.FieldCheck<PrimaryKey>() {
+            @Override
+            public String check(PrimaryKey pk) {
+                if (pk.clustered != null && pk.clustered) {
+                    return "adding a clustered primary key";
+                }
+                return null;
             }
-        }
+        });
+
+
+        errors.checkField("primaryKeys.columns", new ValidationErrors.FieldCheck<PrimaryKey.PrimaryKeyColumn>() {
+            @Override
+            public String check(PrimaryKey.PrimaryKeyColumn col) {
+                if (col.direction != null && !database.supportsIndexDirection(col.direction)) {
+                    return "'" + col.direction + "'";
+                }
+                return null;
+            }
+        });
 
         return errors;
     }
@@ -55,7 +76,11 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
         ActionStatus result = new ActionStatus();
         try {
             for (PrimaryKey actionPK : action.primaryKeys) {
-                PrimaryKey snapshotPK = scope.getSingleton(SnapshotFactory.class).snapshot(PrimaryKey.class, actionPK.toReference(), scope);
+                ObjectReference table = actionPK.table;
+                if (table.type == null || table.type.equals(LiquibaseObject.class)) {
+                    table.type = Table.class;
+                }
+                PrimaryKey snapshotPK = scope.getSingleton(SnapshotFactory.class).snapshot(PrimaryKey.class, table, scope);
                 if (snapshotPK == null) {
                     result.assertApplied(false, "Primary Key '" + actionPK.toReference()+ "' not found");
                 } else {
@@ -63,13 +88,16 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
                     if (actionPK.clustered == null || !actionPK.clustered) {
                         ignoreList.add("clustered");
                     }
+                    if (!scope.getDatabase().supportsNamed(PrimaryKey.class)) {
+                        ignoreList.add("name");
+                    }
 
 
                     result.assertCorrect(actionPK, snapshotPK, ignoreList);
 
                     if (actionPK.columns.size() == snapshotPK.columns.size()) {
                         for (int i=0; i <  actionPK.columns.size(); i++) {
-                            result.assertCorrect(actionPK.columns.get(i), snapshotPK.columns.get(i), Arrays.asList("position", "descending"));
+                            result.assertCorrect(actionPK.columns.get(i), snapshotPK.columns.get(i), Arrays.asList("direction"));
                         }
                     } else {
                         result.assertCorrect(false, "columnCheck sizes are different");
@@ -79,7 +107,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
                 if (result.isApplied()) {
                     boolean checkIndex = false;
                     for (PrimaryKey.PrimaryKeyColumn column : actionPK.columns) {
-                        if (column.descending != null) { //need to check the corresponding index
+                        if (column.direction != null) { //need to check the corresponding index
                             checkIndex = true;
                         }
                     }
@@ -87,8 +115,8 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
                     if (checkIndex) {
                         Index index = scope.getSingleton(SnapshotFactory.class).snapshot(Index.class, snapshotPK.toReference(), scope);
                         for (int i=0; i<actionPK.columns.size(); i++) {
-                            if (actionPK.columns.get(i).descending != null) {
-                                result.assertCorrect(actionPK.columns.get(i).descending.equals(index.columns.get(i).descending), "column "+actionPK.columns.get(i).name+" direction is incorrect. Expected "+actionPK.columns.get(i).descending+", got "+index.columns.get(i).descending);
+                            if (actionPK.columns.get(i).direction != null) {
+                                result.assertCorrect(actionPK.columns.get(i).direction.equals(index.columns.get(i).direction), "column "+actionPK.columns.get(i).name+" direction is incorrect. Expected "+actionPK.columns.get(i).direction+", got "+index.columns.get(i).direction);
                             }
                         }
                     }
@@ -132,12 +160,8 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
         StringClauses columns = new StringClauses("(", ", ", ")");
         for (PrimaryKey.PrimaryKeyColumn col : pk.columns) {
             String colDef = scope.getDatabase().escapeObjectName(col.name, Column.class);
-            if (col.descending != null) {
-                if (col.descending) {
-                    colDef += " DESC";
-                } else {
-                    colDef += " ASC";
-                }
+            if (col.direction != null) {
+                colDef += " "+col.direction;
             }
             columns.append(colDef);
         }

@@ -55,14 +55,18 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
         List<String> nameParts = objectReference.asList(4);
 
         if (scope.getDatabase().supports(Catalog.class)) {
-            return new QueryJdbcMetaDataAction("getPrimaryKeys", nameParts.get(0), nameParts.get(1), nameParts.get(2));
+            return createSnapshotAction(nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3), scope);
         } else {
             if (((AbstractJdbcDatabase) scope.getDatabase()).metaDataCallsSchemasCatalogs()) {
-                return new QueryJdbcMetaDataAction("getPrimaryKeys", nameParts.get(1), null, nameParts.get(2));
+                return createSnapshotAction(nameParts.get(1), null, nameParts.get(2), nameParts.get(3), scope);
             } else {
-                return new QueryJdbcMetaDataAction("getPrimaryKeys", null, nameParts.get(1), nameParts.get(2));
+                return createSnapshotAction(null, nameParts.get(1), nameParts.get(2), nameParts.get(3), scope);
             }
         }
+    }
+
+    protected Action createSnapshotAction(String jdbcCatalogName, String jdbcSchemaName, String tableName, String primaryKeyName, Scope scope) {
+        return new QueryJdbcMetaDataAction("getPrimaryKeys", jdbcCatalogName, jdbcSchemaName, tableName);
     }
 
     @Override
@@ -85,8 +89,7 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
         }
 
         PrimaryKey pk = new PrimaryKey(pkReference);
-        PrimaryKey.PrimaryKeyColumn pkColumn = new PrimaryKey.PrimaryKeyColumn(new Column.ColumnReference(pkReference.getTable(), columnName));
-        pkColumn.position = position;
+        PrimaryKey.PrimaryKeyColumn pkColumn = new PrimaryKey.PrimaryKeyColumn(columnName);
         pk.columns.add(pkColumn);
 
         return pk;
@@ -106,19 +109,6 @@ public class SnapshotPrimaryKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                     } else {
                         existingPk.columns.addAll(primaryKey.columns);
                     }
-                }
-
-                for (PrimaryKey primaryKey : combinedResults.values()) {
-                    Collections.sort(primaryKey.columns, new Comparator<PrimaryKey.PrimaryKeyColumn>() {
-                        @Override
-                        public int compare(PrimaryKey.PrimaryKeyColumn o1, PrimaryKey.PrimaryKeyColumn o2) {
-                            if (o1.position == null || o2.position == null) {
-                                return o1.name.compareTo(o2.name);
-                            } else {
-                                return o1.position.compareTo(o2.position);
-                            }
-                        }
-                    });
                 }
 
                 return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);

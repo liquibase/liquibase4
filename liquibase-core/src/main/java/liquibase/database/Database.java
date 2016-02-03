@@ -5,7 +5,9 @@ import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
+import liquibase.structure.core.Index;
 
+import java.io.DataOutput;
 import java.util.Date;
 
 public interface Database extends Service {
@@ -125,8 +127,6 @@ public interface Database extends Service {
 
     boolean createsIndexesForForeignKeys();
 
-    boolean supportsPrimaryKeyNames();
-
     String escapeDataTypeName(String dataTypeName);
 
     boolean requiresDefiningColumnsAsNull();
@@ -136,5 +136,9 @@ public interface Database extends Service {
     boolean supports(Class<? extends LiquibaseObject> type);
 
     boolean supportsAutoIncrement();
+
+    boolean supportsNamed(Class<? extends LiquibaseObject> type);
+
+    boolean supportsIndexDirection(Index.IndexDirection direction);
 }
 

@@ -44,7 +44,7 @@ public class ForeignKey extends AbstractTableObject {
         this(baseTable, name);
         this.referencedTable = referencedTable;
         for (int i = 0; i < CollectionUtil.createIfNull(baseColumns).size(); i++) {
-            this.columnChecks.add(new ForeignKeyColumnCheck(baseColumns.get(i), referencedColumns.get(i), i));
+            this.columnChecks.add(new ForeignKeyColumnCheck(baseColumns.get(i), referencedColumns.get(i)));
         }
     }
 
@@ -59,13 +59,17 @@ public class ForeignKey extends AbstractTableObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ForeignKey that = (ForeignKey) o;
+        return createComparisonString().equals(((ForeignKey) o).createComparisonString());
+    }
 
-        String thisString = StringUtils.join(this.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter());
-        String thatString = StringUtils.join(that.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter());
-
-        return thisString.equals(thatString);
-
+    protected String createComparisonString() {
+        return this.table +
+                "(" +
+                StringUtils.join(this.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter()) +
+                ") to " +
+                this.referencedTable +
+                "(" + StringUtils.join(this.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter()) +
+                ")";
     }
 
     @Override
@@ -77,31 +81,24 @@ public class ForeignKey extends AbstractTableObject {
 
     @Override
     public int compareTo(Object other) {
-        ForeignKey that = (ForeignKey) other;
-
-        String thisString = StringUtils.join(this.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter());
-        String thatString = StringUtils.join(that.columnChecks, ", ", new ForeignKeyColumnCheckStringUtilsFormatter());
-
-        return thisString.compareTo(thatString);
+        return createComparisonString().compareTo(((ForeignKey) other).createComparisonString());
     }
 
     public static class ForeignKeyColumnCheck extends AbstractExtensibleObject {
         public String baseColumn;
         public String referencedColumn;
 
-        public Integer position;
-
         public ForeignKeyColumnCheck() {
         }
 
         public ForeignKeyColumnCheck(String baseColumn, String referencedColumn) {
-            this(baseColumn, referencedColumn, null);
-        }
-
-        public ForeignKeyColumnCheck(String baseColumn, String referencedColumn, Integer position) {
             this.baseColumn = baseColumn;
             this.referencedColumn = referencedColumn;
-            this.position = position;
+        }
+
+        @Override
+        public String toString() {
+            return baseColumn+" TO "+referencedColumn;
         }
     }
 

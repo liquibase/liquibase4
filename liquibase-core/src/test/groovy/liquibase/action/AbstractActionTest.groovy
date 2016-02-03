@@ -9,6 +9,7 @@ import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
 import liquibase.database.core.UnsupportedDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
+import liquibase.exception.ActionPerformException
 import liquibase.exception.ValidationErrors
 import liquibase.servicelocator.AbstractServiceFactory
 import liquibase.servicelocator.Service
@@ -24,12 +25,15 @@ import liquibase.util.StreamUtil
 import liquibase.util.StringUtils
 import org.junit.Assert
 import org.junit.Assume
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.spockframework.runtime.SpecificationContext
 import spock.lang.Specification
 import testmd.Permutation
 import testmd.TestMD
 import testmd.logic.SetupResult
+
+import java.text.NumberFormat
 
 abstract class AbstractActionTest extends Specification {
 
@@ -71,7 +75,13 @@ abstract class AbstractActionTest extends Specification {
                     .addParameters(parameters)
                     .addOperations(plan: plan.describe(false))
                     .run({
-                def results = plan.execute(scope)
+                def results
+                try {
+                    results = plan.execute(scope)
+                } catch (ActionPerformException e) {
+                    LoggerFactory.getLogger(getClass()).warn("Snapshot: "+snapshot.describe())
+                    throw e;
+                }
 
                 if (!(action instanceof QueryAction)) {
                     assert executor.checkStatus(action, scope).applied
@@ -159,11 +169,7 @@ abstract class AbstractActionTest extends Specification {
                         def errors = executor.validate(action, scope)
                         LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe(true))
                         if (errors.hasErrors()) {
-                            if (isOkSetupError(action, errors)) {
-                                continue
-                            } else {
-                                throw new RuntimeException(errors.toString() + " for action " + action.describe())
-                            }
+                            throw new RuntimeException(errors.toString() + " for action " + action.describe())
                         }
                         executor.execute(action, scope)
                     }
@@ -174,10 +180,6 @@ abstract class AbstractActionTest extends Specification {
         setupClosure()
 
         throw SetupResult.OK
-    }
-
-    boolean isOkSetupError(Action action, ValidationErrors validationErrors) {
-        return false
     }
 
     def cleanupDatabase(Snapshot snapshot, ConnectionSupplier supplier, Scope scope) {}
@@ -193,6 +195,11 @@ abstract class AbstractActionTest extends Specification {
             return baseName + stringToAdd.toUpperCase()
         }
 
+    }
+
+    Collection okIfEmpty(String assertionErrorMessage, Collection collection) {
+        Assume.assumeTrue(assertionErrorMessage, collection != null && collection.size() > 0)
+        return collection
     }
 
     static class ActionTestPermutation extends Permutation {
@@ -284,6 +291,19 @@ abstract class AbstractActionTest extends Specification {
 
         private Scope scope
 
+        private static int filteredActions = 0;
+        private static Map<String, Integer> filteredActionsByReason = new HashMap<>()
+
+
+        static {
+            //output the total filtered actions for informational purposes
+            Runtime.getRuntime().addShutdownHook({
+                if (filteredActions > 0) {
+                    def logger = LoggerFactory.getLogger(ValidActionFilter)
+                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
+                }
+            })
+        }
         ValidActionFilter(Scope scope) {
             this.scope = scope
         }
@@ -297,14 +317,24 @@ abstract class AbstractActionTest extends Specification {
                     def errors = scope.getSingleton(ActionExecutor).validate(entry.value, scope)
                     def valid = !errors.hasErrors()
                     if (!valid) {
+                        trackFilteredAction(errors.toString())
                         return false;
                     }
                 }
             }
             if (!foundAction) {
+                trackFilteredAction("No action found")
                 return false;
             }
             return true;
+        }
+
+        protected trackFilteredAction(String message) {
+            filteredActions++;
+
+            def lastCount = filteredActionsByReason.get(message) ?: 0
+            lastCount = lastCount + 1
+            filteredActionsByReason.put(message, lastCount)
         }
     }
 }

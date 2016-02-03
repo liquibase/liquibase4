@@ -4,43 +4,61 @@
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | schemaName      | OPERATIONS
-| :---------- | :------- | :-------------- | :------
-| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: Execute getPrimaryKeys(lbcat, null, table_name) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: Execute getPrimaryKeys(lbcat2, null, table_name) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='table_name' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 9f6418      | true     | lbcat2     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='table_name' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "can find all primaryKeys in a fully qualified complex table name" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | table                                    | OPERATIONS
-| :---------- | :------- | :------------------------------------------- | :------
-| e83394      | true     | lbcat.4test_table (TABLE)                    | **plan**: Execute getPrimaryKeys(lbcat, null, 4test_table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 56b06d      | true     | lbcat.anotherlowertable (TABLE)              | **plan**: Execute getPrimaryKeys(lbcat, null, anotherlowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 45eba6      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table (TABLE)  | **plan**: Execute getPrimaryKeys(lbcat, null, crazy!@#\$%^&*()_+{}[]'"table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e0e1e5      | true     | lbcat.lowertable (TABLE)                     | **plan**: Execute getPrimaryKeys(lbcat, null, lowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1217fc      | true     | lbcat.only_in_lbcat (TABLE)                  | **plan**: Execute getPrimaryKeys(lbcat, null, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cdbe33      | true     | lbcat2.4test_table (TABLE)                   | **plan**: Execute getPrimaryKeys(lbcat2, null, 4test_table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| c51a94      | true     | lbcat2.anotherlowertable (TABLE)             | **plan**: Execute getPrimaryKeys(lbcat2, null, anotherlowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 85fbd4      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table (TABLE) | **plan**: Execute getPrimaryKeys(lbcat2, null, crazy!@#\$%^&*()_+{}[]'"table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3cb8b0      | true     | lbcat2.lowertable (TABLE)                    | **plan**: Execute getPrimaryKeys(lbcat2, null, lowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a1779f      | true     | lbcat2.only_in_lbcat2 (TABLE)                | **plan**: Execute getPrimaryKeys(lbcat2, null, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | tableName                            | OPERATIONS
+| :---------- | :------- | :----------------------------------- | :------
+| 6db8bb      | true     | lbcat.4test_table                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='4test_table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| b2e45f      | true     | lbcat.anotherlowertable              | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='anotherlowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 5f0ea5      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 572208      | true     | lbcat.lowertable                     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='lowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 58d58f      | true     | lbcat.only_in_lbcat                  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='only_in_lbcat' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| be2547      | true     | lbcat2.4test_table                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='4test_table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| c493e5      | true     | lbcat2.anotherlowertable             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='anotherlowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 94369b      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 2c35e6      | true     | lbcat2.lowertable                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='lowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='only_in_lbcat2' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+
+# Test: "can find all primaryKeys related to a schema" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 9f6418      | true     | lbcat2     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+
+# Test: "can find all primaryKeys related to a table with a null name" #
+
+- **connection:** mysql[config:caseInsensitive]
+
+| Permutation | Verified | tableName      | OPERATIONS
+| :---------- | :------- | :------------- | :------
+| 2891fc      | true     | lbcat.UNNAMED  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 98f9fe      | true     | lbcat2.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
 
 # Test: "can find by PrimaryKeyReference with a table name but null primary key name" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | pkName                                                    | OPERATIONS
-| :---------- | :------- | :-------------------------------------------------------- | :------
-| 0a97c7      | true     | lbcat.4test_table.UNNAMED (PRIMARYKEY)                    | **plan**: Execute getPrimaryKeys(lbcat, null, 4test_table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e32b23      | true     | lbcat.anotherlowertable.UNNAMED (PRIMARYKEY)              | **plan**: Execute getPrimaryKeys(lbcat, null, anotherlowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 730a19      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED (PRIMARYKEY)  | **plan**: Execute getPrimaryKeys(lbcat, null, crazy!@#\$%^&*()_+{}[]'"table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a53b43      | true     | lbcat.lowertable.UNNAMED (PRIMARYKEY)                     | **plan**: Execute getPrimaryKeys(lbcat, null, lowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a1ca94      | true     | lbcat.only_in_lbcat.UNNAMED (PRIMARYKEY)                  | **plan**: Execute getPrimaryKeys(lbcat, null, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e0a233      | true     | lbcat2.4test_table.UNNAMED (PRIMARYKEY)                   | **plan**: Execute getPrimaryKeys(lbcat2, null, 4test_table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cd45d5      | true     | lbcat2.anotherlowertable.UNNAMED (PRIMARYKEY)             | **plan**: Execute getPrimaryKeys(lbcat2, null, anotherlowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 72b4c0      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED (PRIMARYKEY) | **plan**: Execute getPrimaryKeys(lbcat2, null, crazy!@#\$%^&*()_+{}[]'"table) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a0be3e      | true     | lbcat2.lowertable.UNNAMED (PRIMARYKEY)                    | **plan**: Execute getPrimaryKeys(lbcat2, null, lowertable) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 712cc9      | true     | lbcat2.only_in_lbcat2.UNNAMED (PRIMARYKEY)                | **plan**: Execute getPrimaryKeys(lbcat2, null, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | pkName                                       | OPERATIONS
+| :---------- | :------- | :------------------------------------------- | :------
+| 381ff1      | true     | lbcat.4test_table.UNNAMED                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='4test_table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| e98d03      | true     | lbcat.anotherlowertable.UNNAMED              | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='anotherlowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 03e404      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 13b48b      | true     | lbcat.lowertable.UNNAMED                     | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='lowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 5fa915      | true     | lbcat.only_in_lbcat.UNNAMED                  | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat' AND TABLE_NAME='only_in_lbcat' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 6c184b      | true     | lbcat2.4test_table.UNNAMED                   | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='4test_table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 830045      | true     | lbcat2.anotherlowertable.UNNAMED             | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='anotherlowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| b8fe13      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"table' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| e0dce6      | true     | lbcat2.lowertable.UNNAMED                    | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='lowertable' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
+| 3dd243      | true     | lbcat2.only_in_lbcat2.UNNAMED                | **plan**: SELECT TABLE_SCHEMA AS TABLE_CAT, NULL AS TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, SEQ_IN_INDEX AS KEY_SEQ, 'PRIMARY' AS PK_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE INDEX_NAME='PRIMARY' AND TABLE_SCHEMA='lbcat2' AND TABLE_NAME='only_in_lbcat2' ORDER BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX
 
-# Test Version: "0cd8ca" #
+# Test Version: "63a53a" #

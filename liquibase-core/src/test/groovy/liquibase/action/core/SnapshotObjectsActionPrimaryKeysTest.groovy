@@ -4,11 +4,9 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
-import liquibase.actionlogic.ActionExecutor
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.exception.ValidationErrors
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
@@ -18,13 +16,11 @@ import spock.lang.Unroll
 
 class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
 
-    @Unroll("#featureName: #pkRef on #conn")
+    @Unroll("#featureName: #action on #conn")
     def "can find complex pk names without a table"() {
         expect:
-        def action = new SnapshotObjectsAction(pkRef)
-
         testAction([
-                pkName_asTable: pkRef
+                pkName_asTable: action.relatedTo*.toString()
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
             assert results.size() == 1;
@@ -37,50 +33,65 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << okIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return assumeNotEmpty("No supported permutations", CollectionUtil.permutationsWithoutNulls([
-                    [it],
-                    [scope],
-                    getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it }),
-            ], new ValidActionFilter(scope)))
-        }
-    }
-
-    @Unroll("#featureName: #schema #pkRef on #conn")
-    def "can find complex pk names with a table"() {
-        when:
-        pkRef.container.container = schema
-
-        then:
-        def action = new SnapshotObjectsAction(pkRef)
-
-        testAction([
-                pkName_asTable: pkRef
-        ], action, conn, scope, { plan, results ->
-            assert results instanceof ObjectBasedQueryResult
-            assert results.size() == 1;
-
-            def foundPk = results.asObject(PrimaryKey)
-
-            def foundPkRef = foundPk.toReference()
-            assert foundPkRef.equals(pkRef, true)
-            assert foundPk.columns.size() > 0
-        })
-
-        where:
-        [conn, scope, schema, pkRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            def scope = JUnitScope.getInstance(it)
-            def pkNames = getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = standardCaseObjectName("known_table", Table, scope.getDatabase()); return it })
+            if (!((TestDetails) getTestDetails(scope)).testNamedPrimaryKeys()) {
+                return []
+            }
 
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    it.allSchemas,
-                    pkNames,
-            ])
-        }
+                    getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return new SnapshotObjectsAction(it) }),
+            ], new ValidActionFilter(scope))
+        })
+    }
+
+    @Unroll("#featureName: #action on #conn")
+    def "can find complex pk names with a table"() {
+        when:
+        def pkRef = action.relatedTo.iterator().next()
+
+        then:
+        testAction([
+                pkName_asTable: pkRef
+        ], action, conn, scope, { plan, results ->
+            assert results instanceof ObjectBasedQueryResult
+            assert results.size() == 1;
+
+            def foundPk = results.asObject(PrimaryKey)
+
+            def foundPkRef = foundPk.toReference()
+            assert foundPkRef.equals(pkRef, true)
+            assert foundPk.columns.size() > 0
+        })
+
+        where:
+        [conn, scope, action] << okIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+
+            if (!((TestDetails) getTestDetails(scope)).testNamedPrimaryKeys()) {
+                return []
+            }
+
+            def tableName = standardCaseObjectName("known_table", Table, scope.getDatabase())
+
+            return CollectionUtil.permutationsWithoutNulls([
+                    [it],
+                    [scope],
+                    CollectionUtil.permutationsWithoutNulls([
+                            it.allSchemas,
+                            getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope)
+                    ]).each({
+                        def ref = it[1]
+                        ref.container.name = tableName
+                        ref.container.container = it[0]
+
+                        return new SnapshotObjectsAction(ref)
+                    })
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #pkRef on #conn")
@@ -269,11 +280,16 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
                 snapshot.add(new Column(tableName, columnName, "int"))
                 snapshot.add(new PrimaryKey(relatedTo.name, tableName, columnName))
             } else if (relatedTo.instanceOf(Table)) {
+                if (relatedTo.name == null) {
+                    continue
+                }
                 snapshot.add(new Table(relatedTo))
                 snapshot.add(new Column(relatedTo, columnName, "int"))
                 snapshot.add(new PrimaryKey(null, relatedTo, columnName))
             }
         }
+
+        boolean testNamedPKs = ((TestDetails) getTestDetails(scope)).testNamedPrimaryKeys();
 
         //create some additional tables
         for (int i = 0; i < 5; i++) {
@@ -282,15 +298,23 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
                 def tableName = new ObjectReference(Table, schema, standardCaseObjectName("table_$i", Table, scope.database))
                 snapshot.add(new Table(tableName))
                 snapshot.add(new Column(tableName, columnName, "int"))
-                snapshot.add(new PrimaryKey(standardCaseObjectName("pk_test_" + i, PrimaryKey, scope.database), tableName, columnName))
+
+                def pkName = null;
+                if (testNamedPKs) {
+                    pkName = standardCaseObjectName("pk_test_" + i, PrimaryKey, scope.database)
+                }
+
+                snapshot.add(new PrimaryKey(pkName, tableName, columnName))
             }
         }
 
         return snapshot
     }
 
-    @Override
-    boolean isOkSetupError(Action action, ValidationErrors validationErrors) {
-        return validationErrors.hasError("PrimaryKey.name is not supported")
+    public static class TestDetails extends AbstractActionTest.TestDetails {
+        public boolean testNamedPrimaryKeys() {
+            return true;
+        }
     }
+
 }

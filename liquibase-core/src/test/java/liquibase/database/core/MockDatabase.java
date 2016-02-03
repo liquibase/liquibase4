@@ -7,6 +7,7 @@ import liquibase.database.InternalDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
+import liquibase.structure.core.Index;
 import liquibase.structure.core.Schema;
 import liquibase.util.StringUtils;
 
@@ -306,11 +307,6 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public boolean supportsPrimaryKeyNames() {
-        return true;
-    }
-
-    @Override
     public String toString() {
         return "Mock database";
     }
@@ -328,6 +324,16 @@ public class MockDatabase implements Database, InternalDatabase {
     @Override
     public String escapeDataTypeName(String dataTypeName) {
         return dataTypeName;
+    }
+
+    @Override
+    public boolean supportsNamed(Class<? extends LiquibaseObject> type) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsIndexDirection(Index.IndexDirection direction) {
+        return true;
     }
 
 }

@@ -9,7 +9,6 @@ import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.exception.ValidationErrors;
-import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.datatype.DataType;
 import liquibase.structure.datatype.DataTypeLogicFactory;
 import liquibase.structure.ObjectReference;
@@ -18,6 +17,7 @@ import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
+import java.math.BigInteger;
 import java.util.*;
 
 public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
@@ -39,25 +39,102 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     public ValidationErrors validate(final AddColumnsAction action, Scope scope) {
         Database database = scope.getDatabase();
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields(action, "columns", "columns.table.name", "columns.name", "columns.type");
+                .checkRequiredFields("columns", "columns.name", "columns.type",
+                        "columns.table", "columns.table.name");
 
         if (!database.supportsAutoIncrement()) {
-            errors.checkUnsupportedFields(action, "columns.autoIncrement");
+            errors.checkUnsupportedFields("columns.autoIncrement");
         }
 
-        errors.checkField(action, "columns", new ValidationErrors.FieldCheck<Column>() {
+
+        errors.checkField("columns", new ValidationErrors.FieldCheck<Column>() {
             @Override
             public String check(Column column) {
                 if (column.isAutoIncrement()) {
+                    if (action.primaryKey != null && action.primaryKey.columns.size() > 1) {
+                        return "cannot add a multi-column primary key and mark a column as auto-increment";
+                    }
                     if (column.defaultValue != null) {
                         return "cannot set both a default value and auto-increment";
-                    } else if (!isPrimaryKey(column, action)){
+                    } else if (!isPrimaryKey(column, action)) {
                         return "auto-increment columns must be primary keys";
                     }
+                } else if (column.nullable != null && column.nullable && isPrimaryKey(column, action)) {
+                    return "primary key columns cannot be nullable";
                 }
                 return null;
             }
         });
+
+        if (!errors.hasErrors() && CollectionUtil.createIfNull(action.foreignKeys).size() > 0) {
+            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(createAddForeignKeysAction(action), scope), "foreignKeys");
+
+
+            errors.checkField("foreignKeys", new ValidationErrors.FieldCheck<ForeignKey>() {
+                @Override
+                public String check(ForeignKey fk) {
+                    if (fk.updateRule == ForeignKey.ConstraintType.importedKeySetNull) {
+                        for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
+                            for (Column column : action.columns) {
+                                if (column.name.equals(check.baseColumn)) {
+                                    if (column.nullable != null && !column.nullable) {
+                                        return "cannot use update rule 'set null' on a not null column";
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (fk.deleteRule == ForeignKey.ConstraintType.importedKeySetNull) {
+                        for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
+                            for (Column column : action.columns) {
+                                if (column.name.equals(check.baseColumn)) {
+                                    if (column.nullable != null && !column.nullable) {
+                                        return "cannot use delete rule 'set null' on a not null column";
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return null;
+                }
+            });
+        }
+
+        if (!errors.hasErrors() && CollectionUtil.createIfNull(action.uniqueConstraints).size() > 0) {
+            AddUniqueConstraintsAction addUniqueConstraintsAction = createAddUniqueConstraintsAction(action);
+            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addUniqueConstraintsAction, scope), "uniqueConstraints");
+        }
+
+        if (!errors.hasErrors() && action.primaryKey != null) {
+            AddPrimaryKeysAction addPrimaryKeysAction = createAddPrimaryKeysAction(action);
+            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addPrimaryKeysAction, scope), "primaryKeys", "primaryKey");
+        }
+
+        if (!errors.hasErrors()) {
+            int autoIncColumns = 0;
+            for (Column column : action.columns) {
+                if (column.autoIncrementInformation != null) {
+                    autoIncColumns++;
+                    if (column.type.standardType != null && !(column.type.standardType.valueType.equals(Integer.class) || column.type.standardType.valueType.equals(BigInteger.class))) {
+                        errors.addUnsupportedError("a non-integer auto-increment column");
+                    }
+                    if (column.nullable != null && column.nullable) {
+                        errors.addUnsupportedError("a nullable auto-increment column");
+                    }
+                    if (column.defaultValue != null) {
+                        errors.addUnsupportedError("a default value on an auto-increment column");
+                    }
+                }
+            }
+            if (autoIncColumns > 1) {
+                errors.addError("There can be only one auto-increment column");
+            }
+        }
 
 //        if (statement.isPrimaryKey() && (database instanceof H2Database
 //                || database instanceof DB2Database
@@ -80,82 +157,75 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         return errors;
     }
 
+    protected AddPrimaryKeysAction createAddPrimaryKeysAction(AddColumnsAction action) {
+        return new AddPrimaryKeysAction(action.primaryKey);
+    }
+
+    protected AddUniqueConstraintsAction createAddUniqueConstraintsAction(AddColumnsAction action) {
+        if (action.uniqueConstraints == null) {
+            return null;
+        }
+
+        return new AddUniqueConstraintsAction(action.uniqueConstraints.toArray(new UniqueConstraint[action.uniqueConstraints.size()]));
+    }
+
+    protected AddForeignKeysAction createAddForeignKeysAction(AddColumnsAction action) {
+        return new AddForeignKeysAction(action.foreignKeys.toArray(new ForeignKey[action.foreignKeys.size()]));
+    }
+
     @Override
     public ActionStatus checkStatus(AddColumnsAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
-        ObjectReference tableName = action.columns.get(0).table;
 
+        List<Column> snapshotColumns = new ArrayList<>();
+        ActionExecutor executor = scope.getSingleton(ActionExecutor.class);
         try {
-            Map<ObjectReference, PrimaryKey> snapshotPKsByTable = new HashMap<>();
-
-            if (action.primaryKeys != null) {
-                for (PrimaryKey actionPk : action.primaryKeys) {
-                    PrimaryKey snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(actionPk.toReference()), scope).asObject(PrimaryKey.class);
-                    snapshotPKsByTable.put(snapshotPK.table, snapshotPK);
-                }
-            }
-
             for (Column actionColumn : action.columns) {
-                Column snapshotColumn = scope.getSingleton(SnapshotFactory.class).snapshot(Column.class, actionColumn.toReference(), scope);
-
-                if (snapshotColumn == null) {
-                    result.assertApplied(false, "Column '"+actionColumn.name+"' not found");
-                } else {
-                    Table table = scope.getSingleton(SnapshotFactory.class).snapshot(snapshotColumn.table, scope);
-                    if (table == null) {
-                        result.unknown("Cannot find table " + snapshotColumn.table);
-                    } else {
-                        PrimaryKey snapshotPK = snapshotPKsByTable.get(table.toReference());
-
-                        List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable"));
-
-                        if (actionColumn.nullable == null && snapshotColumn.isAutoIncrement() || snapshotPK != null && snapshotPK.columns.contains(snapshotColumn.name)) {
-                            excludeFields.add("nullable"); //did not specify nullable, and auto-increment and/or PK usually auto-adds it but not always. Cannot check
-                        }
-
-                        result.assertCorrect(actionColumn, snapshotColumn, excludeFields);
-
-                        result.assertCorrect(assertDataTypesCorrect(actionColumn, snapshotColumn, scope), "Data types do not match (expected "+actionColumn.type.standardType+", got "+snapshotColumn.type.standardType+")");
-
-                        if (actionColumn.isAutoIncrement()) {
-                            result.assertCorrect(snapshotColumn.isAutoIncrement(), "Column is not auto-increment");
-                        }
-
-
-                    }
-                }
+                snapshotColumns.add(executor.query(new SnapshotObjectsAction(actionColumn.toReference()), scope).asObject(Column.class));
             }
 
-            for (PrimaryKey actionPK : CollectionUtil.createIfNull(action.primaryKeys)) {
-                PrimaryKey snapshotPK = snapshotPKsByTable.get(actionPK.table);
-                if (snapshotPK == null) {
-                    result.assertApplied(false, "No primary key on '"+tableName+"'");
-                } else {
-                    for (Column actionColumn : action.columns) {
-                        boolean pkHasColumn = false;
-                        for (PrimaryKey.PrimaryKeyColumn pkColumn : snapshotPK.columns) {
-                            if (pkColumn.name.equals(actionColumn.getName())) {
-                                pkHasColumn = true;
-                                break;
-                            }
-                        }
-                        result.assertCorrect(pkHasColumn, "Column '"+actionColumn.name+"' is not part of the primary key");
-                    }
-                    result.assertCorrect(actionPK, snapshotPK, Arrays.asList("name"));
-                }
+            PrimaryKey snapshotPK = null;
+            if (action.primaryKey != null) {
+                snapshotPK = executor.query(new SnapshotObjectsAction(PrimaryKey.class, action.primaryKey.table), scope).asObject(PrimaryKey.class);
             }
 
-            for (ForeignKey actionFK : action.foreignKeys) {
-                ForeignKey snapshotFK = scope.getSingleton(SnapshotFactory.class).snapshot(actionFK.toReference(), scope);
-                if (snapshotFK == null) {
-                    result.assertApplied(false, "Foreign Key not created on '"+tableName+"'");
-                } else {
-                    result.assertCorrect(actionFK, snapshotFK);
+            for (int i = 0; i < snapshotColumns.size(); i++) {
+                List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable", "table"));
+
+                Column actionColumn = action.columns.get(i);
+                Column snapshotColumn = snapshotColumns.get(i);
+
+                if (actionColumn.nullable == null && snapshotColumn.isAutoIncrement() || snapshotPK != null && snapshotPK.columns.contains(snapshotColumn.name)) {
+                    excludeFields.add("nullable"); //did not specify nullable, and auto-increment and/or PK usually auto-adds it but not always. Cannot check
+                    excludeFields.add("defaultValue"); //if auto-increment and/or pk, defaultValue is sometimes unexpected
                 }
+
+                result.assertCorrect(actionColumn, snapshotColumn, excludeFields);
+                result.assertCorrect(actionColumn.nullable, actionColumn.nullable, "column.nullable is incorrect");
+                if (actionColumn.isAutoIncrement()) {
+                    result.assertCorrect(snapshotColumn.isAutoIncrement(), "Column is not auto-increment");
+                }
+                result.assertCorrect(actionColumn.type.standardType == snapshotColumn.type.standardType, "column.type is incorrect");
             }
-        } catch (Throwable e) {
+
+            if (action.primaryKey != null) {
+                AddPrimaryKeysAction addPrimaryKeysAction = createAddPrimaryKeysAction(action);
+                result.addAll(executor.checkStatus(addPrimaryKeysAction, scope));
+            }
+
+            if (action.foreignKeys != null && action.foreignKeys.size() > 0) {
+                AddForeignKeysAction addForeignKeysAction = createAddForeignKeysAction(action);
+                result.addAll(executor.checkStatus(addForeignKeysAction, scope));
+            }
+
+            if (action.uniqueConstraints != null && action.uniqueConstraints.size() > 0) {
+                AddUniqueConstraintsAction addUniqueConstraintsAction = createAddUniqueConstraintsAction(action);
+                result.addAll(executor.checkStatus(addUniqueConstraintsAction, scope));
+            }
+        } catch (ActionPerformException e) {
             return result.unknown(e);
         }
+
         return result;
     }
 
@@ -173,7 +243,11 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         }
 
         addUniqueConstraintActions(action, scope, actions);
-        addForeignKeyStatements(action, scope, actions);
+        addForeignKeyActions(action, scope, actions);
+
+        if (action.primaryKey != null && action.primaryKey.columns.size() > 1) {
+            addPrimaryKeyActions(action, scope, actions);
+        }
 
         return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
@@ -195,8 +269,9 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
         ObjectReference columnName = column.toReference();
         DataType columnType = column.type;
-        boolean primaryKey = isPrimaryKey(column, action);
-        boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, false); // primaryKey || ObjectUtil.defaultIfEmpty(column.nullable, false);
+
+        boolean markPrimaryKey = canInlinePrimaryKey(action) && isPrimaryKey(column, action);
+        boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, true); // markPrimaryKey || ObjectUtil.defaultIfEmpty(column.nullable, false);
 //        String addAfterColumn = column.addAfterColumn;
 
         clauses.append("ADD")
@@ -209,7 +284,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
             if (addAutoIncrementLogic != null && addAutoIncrementLogic instanceof AddAutoIncrementLogic) {
                 clauses.append(Clauses.autoIncrement, ((AddAutoIncrementLogic) addAutoIncrementLogic).generateAutoIncrementClause(column.autoIncrementInformation));
             } else {
-                throw new UnexpectedLiquibaseException("Cannot use AddAutoIncrementLogic class "+addAutoIncrementLogic+" to build auto increment clauses");
+                throw new UnexpectedLiquibaseException("Cannot use AddAutoIncrementLogic class " + addAutoIncrementLogic + " to build auto increment clauses");
             }
         }
 
@@ -221,7 +296,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
             clauses.append(Clauses.nullable, "NOT NULL");
         }
 
-        clauses.append(Clauses.primaryKey, primaryKey ? "PRIMARY KEY" : null);
+        clauses.append(Clauses.primaryKey, markPrimaryKey ? "PRIMARY KEY" : null);
 
 //        if (addAfterColumn != null) {
 //            clauses.append("AFTER " + database.escapeObjectName(addAfterColumn, Column.class));
@@ -230,13 +305,18 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         return clauses;
     }
 
+    protected boolean canInlinePrimaryKey(AddColumnsAction action) {
+        return action.primaryKey != null && CollectionUtil.createIfNull(action.primaryKey.columns).size() == 1;
+    }
+
     protected boolean isPrimaryKey(Column column, AddColumnsAction action) {
-        for (PrimaryKey pk : CollectionUtil.createIfNull(action.primaryKeys)) {
-            if (pk.containsColumn(column)) {
-                return true;
-            }
+        return action.primaryKey != null && action.primaryKey.containsColumn(column);
+    }
+
+    protected void addPrimaryKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
+        if (action.primaryKey != null) {
+            returnActions.add(new AddPrimaryKeysAction(action.primaryKey));
         }
-        return false;
     }
 
     protected void addUniqueConstraintActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
@@ -246,7 +326,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         }
     }
 
-    protected void addForeignKeyStatements(AddColumnsAction action, Scope scope, List<Action> returnActions) {
+    protected void addForeignKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
         List<ForeignKey> constraints = CollectionUtil.createIfNull(action.foreignKeys);
 
         for (ForeignKey fkConstraint : constraints) {

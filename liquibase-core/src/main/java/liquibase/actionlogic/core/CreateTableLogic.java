@@ -45,96 +45,21 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
     }
 
     @Override
-    public ValidationErrors validate(CreateTableAction action, Scope scope) {
+    public ValidationErrors validate(final CreateTableAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields(action, "table")
-                .checkRequiredFields(action, "columns")
-
-                .checkRequiredFields(action.table, "name")
-                .checkUnsupportedFields(action.table, "tablespace")
-
-                .checkRequiredFields(action.columns, "name")
-                .checkRequiredFields(action.columns, "type");
-
-        if (!errors.hasErrors() && action.foreignKeys != null) {
-            AddForeignKeysAction addForeignKeysAction = createAddForeignKeysAction(action);
-            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addForeignKeysAction, scope));
-
-            for (ForeignKey fk : action.foreignKeys) {
-                if (fk != null && fk.updateRule == ForeignKey.ConstraintType.importedKeySetNull) {
-                    for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
-                        for (Column column : action.columns) {
-                            if (column.name.equals(check.baseColumn) && ObjectUtil.defaultIfEmpty(column.nullable, false)) {
-                                errors.addError("Cannot set foreign key update rule to 'set null' on a not null field");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!errors.hasErrors() && action.uniqueConstraints != null) {
-            AddUniqueConstraintsAction addUniqueConstraintsAction = createAddUniqueConstraintsAction(action);
-            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addUniqueConstraintsAction, scope));
-        }
-
-        if (!errors.hasErrors() && action.primaryKey != null) {
-            AddPrimaryKeysAction addPrimaryKeysAction = createAddPrimaryKeysAction(action);
-            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addPrimaryKeysAction, scope));
-        }
+                .checkRequiredFields("columns", "table", "table.name")
+                .checkUnsupportedFields("table.tablespace");
 
         if (!errors.hasErrors()) {
-            int autoIncColumns = 0;
-            for (Column column : action.columns) {
-                if (column.autoIncrementInformation != null) {
-                    autoIncColumns++;
-                    if (column.type.standardType != null && !(column.type.standardType.valueType.equals(Integer.class) || column.type.standardType.valueType.equals(BigInteger.class))) {
-                        errors.addError("Cannot set a non-integer column as auto-increment");
-                    }
-                    if (column.nullable != null && column.nullable) {
-                        errors.addError("Cannot set a nullable column as auto-increment");
-                    }
-                    if (column.defaultValue != null) {
-                        errors.addError("cannot set a default value on an auto-increment column");
-                    }
-                }
-            }
-            if (autoIncColumns > 1) {
-                errors.addError("There can be only one auto-increment column");
-            }
+            AddColumnsAction addColumnsAction = new AddColumnsAction();
+            addColumnsAction.columns = action.columns;
+            addColumnsAction.primaryKey = action.primaryKey;
+            addColumnsAction.uniqueConstraints = action.uniqueConstraints;
+            addColumnsAction.foreignKeys = action.foreignKeys;
+
+            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addColumnsAction, scope), null);
         }
         return errors;
-    }
-
-    protected AddPrimaryKeysAction createAddPrimaryKeysAction(CreateTableAction action) {
-        return new AddPrimaryKeysAction(action.primaryKey);
-    }
-
-    protected AddUniqueConstraintsAction createAddUniqueConstraintsAction(CreateTableAction action) {
-        if (action.uniqueConstraints == null) {
-            return null;
-        }
-
-        AddUniqueConstraintsAction addConstraintsAction = new AddUniqueConstraintsAction(action.uniqueConstraints.toArray(new UniqueConstraint[action.uniqueConstraints.size()]));
-        for (UniqueConstraint uq : addConstraintsAction.uniqueConstraints) {
-            if (uq == null) {
-                continue;
-            }
-            uq.table = action.table.toReference();
-        }
-
-        return addConstraintsAction;
-    }
-
-    protected AddForeignKeysAction createAddForeignKeysAction(CreateTableAction action) {
-        AddForeignKeysAction addForeignKeysAction = new AddForeignKeysAction(action.foreignKeys.toArray(new ForeignKey[action.foreignKeys.size()]));
-        for (ForeignKey fk : addForeignKeysAction.foreignKeys) {
-            if (fk == null) {
-                continue;
-            }
-            fk.table = action.table.toReference();
-        }
-        return addForeignKeysAction;
     }
 
     @Override
@@ -144,50 +69,11 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         try {
             Table snapshotTable = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(action.table.toReference()), scope).asObject(Table.class);
             List<Column> snapshotColumns = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(Column.class, action.table.toReference()), scope).asList(Column.class);
-            PrimaryKey snapshotPK = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(PrimaryKey.class, action.table.toReference()), scope).asObject(PrimaryKey.class);
 
             result.assertCorrect(action.table, snapshotTable);
             result.assertCorrect(action.columns.size(), snapshotColumns.size(), "Column size incorrect");
 
-            boolean hasAutoIncrement = false;
-            for (int i=0; i<snapshotColumns.size(); i++) {
-                List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable", "table"));
 
-                Column actionColumn = action.columns.get(i);
-                Column snapshotColumn = snapshotColumns.get(i);
-
-                if (actionColumn.nullable == null && snapshotColumn.isAutoIncrement() || snapshotPK != null && snapshotPK.columns.contains(snapshotColumn.name)) {
-                    excludeFields.add("nullable"); //did not specify nullable, and auto-increment and/or PK usually auto-adds it but not always. Cannot check
-                    excludeFields.add("defaultValue"); //if auto-increment and/or pk, defaultValue is sometimes unexpected
-                }
-
-                result.assertCorrect(actionColumn, snapshotColumn, excludeFields);
-                result.assertCorrect(actionColumn.nullable, actionColumn.nullable, "column.nullable is incorrect");
-                if (actionColumn.isAutoIncrement()) {
-                    result.assertCorrect(snapshotColumn.isAutoIncrement(), "Column is not auto-increment");
-                    hasAutoIncrement = true;
-                }
-                result.assertCorrect(actionColumn.type.standardType == snapshotColumn.type.standardType, "column.type is incorrect");
-            }
-
-            if (action.primaryKey == null) {
-                if (!hasAutoIncrement) {  //sometimes PKs are created automatically if a column is marked auto-increment
-                    result.assertCorrect(snapshotPK == null, "Unexpected primary key created");
-                }
-            } else {
-                AddPrimaryKeysAction addPrimaryKeysAction = createAddPrimaryKeysAction(action);
-                result.addAll(scope.getSingleton(ActionExecutor.class).checkStatus(addPrimaryKeysAction, scope));
-            }
-
-            if (action.foreignKeys != null && action.foreignKeys.size() > 0) {
-                AddForeignKeysAction addForeignKeysAction = createAddForeignKeysAction(action);
-                result.addAll(scope.getSingleton(ActionExecutor.class).checkStatus(addForeignKeysAction, scope));
-            }
-
-            if (action.uniqueConstraints != null && action.uniqueConstraints.size() > 0) {
-                AddUniqueConstraintsAction addUniqueConstraintsAction = createAddUniqueConstraintsAction(action);
-                result.addAll(scope.getSingleton(ActionExecutor.class).checkStatus(addUniqueConstraintsAction, scope));
-            }
 
             return result;
         } catch (ActionPerformException e) {
@@ -238,7 +124,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         if (action.primaryKey != null) {
             StringClauses primaryKey = new StringClauses(" ");
-            if (database.supportsPrimaryKeyNames()) {
+            if (database.supportsNamed(PrimaryKey.class)) {
                 String pkName = action.primaryKey.getName();
                 if (pkName == null) {
                     pkName = database.generatePrimaryKeyName(action.table.getName());
@@ -252,12 +138,8 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
             StringClauses columnClauses = new StringClauses("(", ", ", ")");
             for (PrimaryKey.PrimaryKeyColumn col : action.primaryKey.columns) {
                 String colDef = scope.getDatabase().escapeObjectName(col.name, Column.class);
-                if (col.descending != null) {
-                    if (col.descending) {
-                        colDef += " DESC";
-                    } else {
-                        colDef += " ASC";
-                    }
+                if (col.direction!= null) {
+                    colDef += " "+col.direction;
                 }
                 columnClauses.append(colDef);
             }

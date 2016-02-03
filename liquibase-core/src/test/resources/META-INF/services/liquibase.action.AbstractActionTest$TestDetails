@@ -1,1 +1,2 @@
 liquibase.action.core.AddAutoIncrementActionTest$TestDetails
+liquibase.action.core.SnapshotObjectsActionPrimaryKeysTest$TestDetails

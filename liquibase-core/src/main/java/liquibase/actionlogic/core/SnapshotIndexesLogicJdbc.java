@@ -85,14 +85,18 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
         List<String> nameParts = objectReference.asList(4);
 
         if (scope.getDatabase().supports(Catalog.class)) {
-            return new QueryJdbcMetaDataAction("getIndexInfo", nameParts.get(0), nameParts.get(1), nameParts.get(2), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM);
+            return createSnapshotAction(nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM, scope);
         } else {
             if (((AbstractJdbcDatabase) scope.getDatabase()).metaDataCallsSchemasCatalogs()) {
-                return new QueryJdbcMetaDataAction("getIndexInfo", nameParts.get(1), null, nameParts.get(2), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM);
+                return createSnapshotAction(nameParts.get(1), null, nameParts.get(2), nameParts.get(3), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM, scope);
             } else {
-                return new QueryJdbcMetaDataAction("getIndexInfo", null, nameParts.get(1), nameParts.get(2), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM);
+                return createSnapshotAction(null, nameParts.get(1), nameParts.get(2), nameParts.get(3), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM, scope);
             }
         }
+    }
+
+    protected Action createSnapshotAction(String jdbcCatalogName, String jdbcSchemaName, String tableName, String indexName, boolean unique, boolean approximate, Scope scope) {
+        return new QueryJdbcMetaDataAction("getIndexInfo", jdbcCatalogName, jdbcSchemaName, tableName, unique, approximate);
     }
 
     @Override
@@ -110,7 +114,7 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
         String columnName = row.get("COLUMN_NAME", String.class);
         Integer position = row.get("ORDINAL_POSITION", Integer.class);
         String ascOrDesc = row.get("ASC_OR_DESC", String.class);
-        Boolean descending = "D".equals(ascOrDesc) ? Boolean.TRUE : "A".equals(ascOrDesc) ? Boolean.FALSE : null;
+        Index.IndexDirection direction = "D".equals(ascOrDesc) ? Index.IndexDirection.DESC : "A".equals(ascOrDesc) ? Index.IndexDirection.ASC : null;
 
         String tableCat = row.get("TABLE_CAT", String.class);
         String tableSchema = row.get("TABLE_SCHEM", String.class);
@@ -145,13 +149,13 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
         Index.IndexedColumn indexedColumn;
         if (definition == null) {
-            indexedColumn = new Index.IndexedColumn(new Column.ColumnReference(indexReference.getTable(), columnName));
+            indexedColumn = new Index.IndexedColumn(columnName);
             indexedColumn.computed = false;
         } else {
-            indexedColumn = new Index.IndexedColumn(new Column.ColumnReference(indexReference.getTable(), definition));
+            indexedColumn = new Index.IndexedColumn(definition);
             indexedColumn.computed = true;
         }
-        indexedColumn.descending = descending;
+        indexedColumn.direction = direction;
         indexedColumn.position = position;
         index.columns.add(indexedColumn);
 

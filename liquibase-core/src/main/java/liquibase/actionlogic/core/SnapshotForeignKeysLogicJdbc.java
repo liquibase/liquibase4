@@ -88,7 +88,6 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
         String fkTableSchema = row.get("FKTABLE_SCHEM", String.class);
         String fkTableName = row.get("FKTABLE_NAME", String.class);
         String fkColumnName = row.get("FKCOLUMN_NAME", String.class);
-        Integer position = row.get("KEY_SEQ", Integer.class);
         Short updateRule = row.get("UPDATE_RULE", Short.class);
         Short deleteRule = row.get("DELETE_RULE", Short.class);
         String fkName = row.get("FK_NAME", String.class);
@@ -105,15 +104,16 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
             objectReference = new ForeignKey.ForeignKeyReference(fkTableCat, fkTableSchema, fkTableName, fkName);
         }
 
-        ObjectReference pkTableObjectReference;
+        ObjectReference refTableObjectReference;
         if (pkTableCat != null && pkTableSchema == null) {
-            pkTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableName);
+            refTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableName);
         } else {
-            pkTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableSchema, pkTableName);
+            refTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableSchema, pkTableName);
         }
 
         ForeignKey fk = new ForeignKey(objectReference);
-        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, pkColumnName, position));
+        fk.referencedTable = refTableObjectReference;
+        fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, pkColumnName));
 
         if (updateRule != null) {
             switch (updateRule) {
@@ -188,19 +188,6 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                     } else {
                         existingPk.columnChecks.addAll(foreignKey.columnChecks);
                     }
-                }
-
-                for (ForeignKey foreignKey : combinedResults.values()) {
-                    Collections.sort(foreignKey.columnChecks, new Comparator<ForeignKey.ForeignKeyColumnCheck>() {
-                        @Override
-                        public int compare(ForeignKey.ForeignKeyColumnCheck o1, ForeignKey.ForeignKeyColumnCheck o2) {
-                            if (o1.position == null || o2.position == null) {
-                                return o1.baseColumn.compareTo(o2.baseColumn);
-                            } else {
-                                return o1.position.compareTo(o2.position);
-                            }
-                        }
-                    });
                 }
 
                 return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);

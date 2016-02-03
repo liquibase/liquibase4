@@ -7,8 +7,14 @@ import java.util.*;
 
 public class ValidationErrors {
 
+    private ExtensibleObject objectToValidate;
+
     protected List<String> errorMessages = new ArrayList<String>();
     protected List<String> warningMessages = new ArrayList<String>();
+
+    public ValidationErrors(ExtensibleObject objectToValidate) {
+        this.objectToValidate = objectToValidate;
+    }
 
     public boolean hasErrors() {
         return errorMessages.size() > 0;
@@ -22,35 +28,38 @@ public class ValidationErrors {
         return warningMessages.size() > 0;
     }
 
-    public ValidationErrors checkRequiredFields(ExtensibleObject object, String... requiredFields) {
-        if (object == null || hasErrors() || requiredFields == null) {
+    public ValidationErrors checkRequiredFields(String... requiredFields) {
+        if (objectToValidate == null || hasErrors() || requiredFields == null) {
             return this;
         }
 
         for (String requiredFieldName : requiredFields) {
-            Object value = object.get(requiredFieldName, Object.class);
+            Object value = objectToValidate.get(requiredFieldName, Object.class);
 
-            String fieldPrefix = object.getClass().getSimpleName()+".";
             if (value == null) {
-                return addError(fieldPrefix+requiredFieldName + " is required");
+                if (requiredFieldName.contains(".")) { //error only if the parent was not null
+                    Object parentValue = objectToValidate.get(requiredFieldName.substring(0, requiredFieldName.lastIndexOf(".")), Object.class);
+                    if (parentValue != null) {
+                        return addError(requiredFieldName + " is required");
+                    }
+                } else {
+                    return addError(requiredFieldName + " is required");
+                }
             } else if (value instanceof Collection) {
                 if (((Collection) value).size() == 0) {
-                    return addError(fieldPrefix + requiredFieldName + " is required");
-                } else {
-                    boolean foundValue = false;
-                    for (Object obj : (Collection) value) {
-                        if (obj != null) {
-                            foundValue = true;
-                            break;
-                        }
+                    if (!requiredFieldName.contains(".")) { //ok if the collection is empty
+                        return addError(requiredFieldName + " is required");
                     }
-                    if (!foundValue) {
-                        return addError(fieldPrefix + requiredFieldName + " is required");
+                } else {
+                    for (Object obj : (Collection) value) {
+                        if (obj == null) {
+                            return addError(requiredFieldName + " is required");
+                        }
                     }
                 }
             } else if (value instanceof Object[]) {
                 if (((Object[]) value).length == 0) {
-                    return addError(fieldPrefix+requiredFieldName + " is required");
+                    return addError(requiredFieldName + " is required");
                 } else {
                     boolean foundValue = false;
                     for (Object obj : (Object[]) value) {
@@ -60,7 +69,7 @@ public class ValidationErrors {
                         }
                     }
                     if (!foundValue) {
-                        return addError(fieldPrefix + requiredFieldName + " is required");
+                        return addError(requiredFieldName + " is required");
                     }
                 }
             }
@@ -69,28 +78,28 @@ public class ValidationErrors {
         return this;
     }
 
-    public ValidationErrors checkRequiredFields(Collection<? extends ExtensibleObject> objectCollection, String... requiredFields) {
-        if (!hasErrors() && objectCollection != null) {
-            for (ExtensibleObject object : objectCollection) {
-                if (object == null) {
-                    continue;
-                }
-                checkRequiredFields(object, requiredFields);
-            }
-        }
+//    public ValidationErrors checkRequiredFields(Collection<? extends ExtensibleObject> objectCollection, String... requiredFields) {
+//        if (!hasErrors() && objectCollection != null) {
+//            for (ExtensibleObject object : objectCollection) {
+//                if (object == null) {
+//                    continue;
+//                }
+//                checkRequiredFields(object, requiredFields);
+//            }
+//        }
+//
+//        return this;
+//    }
 
-        return this;
-    }
-
-    public ValidationErrors checkRequiredFields(ExtensibleObject object, Enum... requiredFields) {
+    public ValidationErrors checkRequiredFields(Enum... requiredFields) {
         String[] fieldsNames = null;
         if (requiredFields != null) {
             fieldsNames = new String[requiredFields.length];
-            for (int i=0; i<requiredFields.length; i++) {
+            for (int i = 0; i < requiredFields.length; i++) {
                 fieldsNames[i] = requiredFields[i].name();
             }
         }
-        return checkRequiredFields(object, fieldsNames);
+        return checkRequiredFields(fieldsNames);
     }
 
     /**
@@ -100,43 +109,32 @@ public class ValidationErrors {
         ListIterator<String> it = errorMessages.listIterator();
         while (it.hasNext()) {
             String message = it.next();
-            if (message.equals(field+" is required") || message.equals(field+" is empty")) {
+            if (message.equals(field + " is required") || message.equals(field + " is empty")) {
                 it.remove();
             }
         }
         return this;
     }
 
-    public ValidationErrors removeRequiredField(Enum field) {
-        return removeRequiredField(field.name());
-
-    }
-
-    public ValidationErrors addUnsupportedError(String message, ExtensibleObject object) {
-        String className = "";
-        if (object != null) {
-            className = object.getClass().getSimpleName() + " does not support ";
-        }
-
-        addError(className + message);
+    public ValidationErrors addUnsupportedError(String message) {
+        addError(": " + (StringUtils.trimToEmpty(message) + " is not supported").trim());
         return this;
     }
 
-    public ValidationErrors checkUnsupportedFields(ExtensibleObject object, String... unsupportedFields) {
-        if (!hasErrors() && object != null) {
-            String fieldPrefix = object.getClass().getSimpleName()+".";
+    public ValidationErrors checkUnsupportedFields(String... unsupportedFields) {
+        if (!hasErrors() && objectToValidate != null) {
             for (String field : unsupportedFields) {
-                Object value = object.get(field, Object.class);
+                Object value = objectToValidate.get(field, Object.class);
                 if (value != null) {
                     if (value instanceof Collection) {
                         for (Object obj : (Collection) value) {
                             if (obj != null) {
-                                addError(fieldPrefix+field + " is not supported");
+                                addError(field + " is not supported");
                                 return this;
                             }
                         }
                     } else {
-                        addError(fieldPrefix+field + " is not supported");
+                        addError(field + " is not supported");
                     }
                 }
             }
@@ -144,15 +142,15 @@ public class ValidationErrors {
         return this;
     }
 
-    public ValidationErrors checkUnsupportedFields(ExtensibleObject object, Enum... disallowedFields) {
+    public ValidationErrors checkUnsupportedFields(Enum... disallowedFields) {
         String[] names = new String[0];
         if (disallowedFields != null) {
             names = new String[disallowedFields.length];
-            for (int i=0; i<disallowedFields.length;i++) {
+            for (int i = 0; i < disallowedFields.length; i++) {
                 names[i] = disallowedFields[i].name();
             }
         }
-        return checkUnsupportedFields(object, names);
+        return checkUnsupportedFields(names);
     }
 
     /**
@@ -177,19 +175,55 @@ public class ValidationErrors {
     }
 
     public List<String> getErrorMessages() {
-        return errorMessages;
+        List<String> returnMessages = new ArrayList<>();
+        if (objectToValidate == null) {
+            returnMessages = this.errorMessages;
+        } else {
+            String classPrefix = objectToValidate.getClass().getSimpleName();
+            String fieldPrefix = classPrefix + ".";
+
+            for (String originalMessage : this.errorMessages) {
+                if (originalMessage.startsWith(": ")) {
+                    returnMessages.add(classPrefix + originalMessage);
+                } else {
+                    returnMessages.add(fieldPrefix + originalMessage);
+                }
+            }
+        }
+        return Collections.unmodifiableList(returnMessages);
     }
 
     public List<String> getWarningMessages() {
         return warningMessages;
     }
 
-    public ValidationErrors addAll(ValidationErrors validationErrors) {
+    public ValidationErrors addAll(ValidationErrors validationErrors, String originalAadNewPrefix) {
+        return addAll(validationErrors, originalAadNewPrefix, originalAadNewPrefix);
+    }
+
+    public ValidationErrors addAll(ValidationErrors validationErrors, String originalPrefix, String newPrefix) {
         if (validationErrors == null) {
             return this;
         }
-        this.errorMessages.addAll(validationErrors.getErrorMessages());
-        this.warningMessages.addAll(validationErrors.getWarningMessages());
+        for (String message : validationErrors.errorMessages) {
+            if (newPrefix != null) {
+                if (originalPrefix == null) {
+                    message = newPrefix + message;
+                } else if (message.startsWith(originalPrefix)) {
+                    message = newPrefix + message.substring(originalPrefix.length());
+                } else if (!message.startsWith(":")) {
+                    message = newPrefix + "." + message;
+                }
+            }
+            this.errorMessages.add(message);
+        }
+
+        for (String message : validationErrors.warningMessages) {
+//            if (fieldErrorsCameFrom != null && !message.startsWith(": ")) {
+//                message = fieldErrorsCameFrom+"."+message;
+//            }
+            this.warningMessages.add(message);
+        }
         return this;
     }
 
@@ -240,10 +274,17 @@ public class ValidationErrors {
     }
 
     public ValidationErrors removeUnsupportedField(Enum field) {
-        return this;
+        return removeUnsupportedField(field.name());
     }
 
     public ValidationErrors removeUnsupportedField(String field) {
+        Iterator<String> messages = errorMessages.iterator();
+        while (messages.hasNext()) {
+            String message = messages.next();
+            if (message.equals(field+" is not supported")) {
+                messages.remove();
+            }
+        }
         return this;
     }
 
@@ -256,12 +297,12 @@ public class ValidationErrors {
         return this;
     }
 
-    public ValidationErrors checkField(ExtensibleObject object, String field, FieldCheck check) {
-        if (object == null) {
+    public ValidationErrors checkField(String field, FieldCheck check) {
+        if (objectToValidate == null) {
             return this;
         }
 
-        Object value = object.get(field, Object.class);
+        Object value = objectToValidate.get(field, Object.class);
         if (value != null) {
             if (value instanceof Collection) {
                 for (Object obj : (Collection) value) {
@@ -270,13 +311,13 @@ public class ValidationErrors {
                     }
                     String errorMessage = check.check(obj);
                     if (errorMessage != null) {
-                        this.addError(object.getClass().getSimpleName()+"."+field+" "+errorMessage);
+                        this.addError(field + " " + errorMessage);
                     }
                 }
             } else {
                 String errorMessage = check.check(value);
                 if (errorMessage != null) {
-                    this.addError(object.getClass().getSimpleName()+"."+field+" "+errorMessage);
+                    this.addError(field + " " + errorMessage);
                 }
             }
         }

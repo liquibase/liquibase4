@@ -10,6 +10,7 @@ import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Index;
+import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Sequence;
 
 import java.math.BigInteger;
@@ -456,5 +457,22 @@ public class MysqlDatabase extends AbstractJdbcDatabase {
         }
         return super.escapeStringForLike(string, forUseInSql);
     }
+
+    @Override
+    public boolean supportsNamed(Class<? extends LiquibaseObject> type) {
+        if (PrimaryKey.class.equals(type)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean supportsIndexDirection(Index.IndexDirection direction) {
+        if (Index.IndexDirection.DESC.equals(direction)) {
+            return false;
+        }
+        return true;
+    }
+
 
 }

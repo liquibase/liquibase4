@@ -1,5 +1,6 @@
 package liquibase.structure.core;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.structure.AbstractObject;
 import liquibase.structure.AbstractSchemaObject;
 import liquibase.structure.AbstractTableObject;
@@ -16,6 +17,11 @@ public class Index extends AbstractTableObject {
     public String tablespace;
     public Boolean unique;
     public Boolean clustered;
+
+    public enum IndexDirection {
+        ASC,
+        DESC,
+    }
 
     public Index() {
     }
@@ -34,6 +40,7 @@ public class Index extends AbstractTableObject {
 
     public Index(String indexName, ObjectReference table, IndexedColumn... columns) {
         this(table, indexName);
+
         if (columns != null && columns.length > 0) {
             this.columns.addAll(Arrays.asList(columns));
         }
@@ -74,36 +81,29 @@ public class Index extends AbstractTableObject {
         }
     }
 
-    public static class IndexedColumn extends AbstractTableObject {
+    public static class IndexedColumn extends AbstractExtensibleObject {
+        public String name;
         public Boolean computed;
-        public Boolean descending;
+        public IndexDirection direction;
         public Integer position;
 
         public IndexedColumn() {
         }
 
         public IndexedColumn(String name) {
-            super(name);
+            this.name = name;
         }
 
-        public IndexedColumn(ObjectReference table, String name) {
-            super(table, name);
-        }
-
-        public IndexedColumn(Column.ColumnReference column, Boolean descending) {
-            this(column);
-            this.descending = descending;
-        }
-
-        public IndexedColumn(Column.ColumnReference column) {
-            super(column.getRelation(), column.name);
+        public IndexedColumn(String name, IndexDirection direction) {
+            this(name);
+            this.direction = direction;
         }
 
         public String toString(boolean includeRelation) {
             if (includeRelation) {
                 return toString();
             } else {
-                return name  + (descending != null && descending ? " DESC" : "");
+                return name + (direction == null ? "" : " " + direction);
             }
         }
 

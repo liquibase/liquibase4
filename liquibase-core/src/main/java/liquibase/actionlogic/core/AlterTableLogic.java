@@ -20,7 +20,7 @@ public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
     @Override
     public ValidationErrors validate(AlterTableAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "table", "newDefinition");
+                .checkRequiredFields("table", "newDefinition");
     }
 
     @Override

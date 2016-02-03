@@ -20,7 +20,7 @@ public class DropIndexLogic extends AbstractActionLogic<DropIndexAction> {
     @Override
     public ValidationErrors validate(DropIndexAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields(action, "indexName");
+                .checkRequiredFields("indexName");
     }
 
 

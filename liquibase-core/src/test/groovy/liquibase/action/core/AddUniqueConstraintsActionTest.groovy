@@ -19,61 +19,101 @@ import spock.lang.Unroll
 
 public class AddUniqueConstraintsActionTest extends AbstractActionTest {
 
-    @Unroll("#featureName: add #uqName for #tableName #columnName on #conn")
-    def "Can apply single column with standard settings but complex names"() {
-        when:
-        def action = new AddUniqueConstraintsAction()
-
-        def uq = new UniqueConstraint(uqName, tableName, columnName)
-
-        action.uniqueConstraints = [uq]
-
-        then:
+    @Unroll("#featureName: #action on #conn")
+    def "Can apply single column with standard settings but complex constraint names"() {
+        expect:
         testAction([
-                uqName_asTable    : uqName.toString(),
-                tableName_asTable : tableName.toString(),
-                columnName_asTable: columnName.toString()
+                tableName_asTable: action.uniqueConstraints*.table,
+                uqName_asTable: action.uniqueConstraints*.name,
         ], action, conn, scope)
 
         where:
-        [conn, scope, columnName, tableName, uqName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
-                    getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
-                    CollectionUtil.addNull(getObjectNames(UniqueConstraint, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique()),
+                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name   : getObjectNames(UniqueConstraint, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
+                                    table  : it.allSchemas.collect({ return new ObjectReference(Table.class, it, standardCaseObjectName("table_name", Table, scope.database)) }),
+                                    columns: [[standardCaseObjectName("column_name", Column.class, scope.database)]],
+                            ]))
+                    ])
             ])
         }
     }
 
-    @Unroll("#featureName: add #uqName for #tableName #columnName on #conn")
-    def "Can apply multi-column with standard settings but complex names"() {
-        when:
-        def action = new AddUniqueConstraintsAction()
-
-        def column2 = concatConsistantCaseObjectName(columnName, "_2")
-        def uq = new UniqueConstraint(uqName, tableName, columnName, column2)
-
-        action.uniqueConstraints = [uq]
-
-        then:
+    @Unroll("#featureName: #action on #conn")
+    def "Can apply single column with standard settings but complex table names"() {
+        expect:
         testAction([
-                uqName_asTable    : uqName.toString(),
-                tableName_asTable : tableName.toString(),
-                columnName_asTable: columnName.toString()
+                tableName_asTable: action.uniqueConstraints.table,
         ], action, conn, scope)
 
         where:
-        [conn, scope, columnName, tableName, uqName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
-                    getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
-                    CollectionUtil.addNull(getObjectNames(UniqueConstraint, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique()),
+                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
+                                    table  : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
+                                    columns: [[standardCaseObjectName("column_name", Column.class, scope.database)]],
+                            ]))
+                    ])
+            ])
+        }
+    }
+
+    @Unroll("#featureName: #action on #conn")
+    def "Can apply single column with standard settings but complex column names"() {
+        expect:
+        testAction([
+                tableName_asTable: action.uniqueConstraints*.table,
+                columnName_asTable: action.uniqueConstraints.columns,
+        ], action, conn, scope)
+
+        where:
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+            return CollectionUtil.permutationsWithoutNulls([
+                    [it],
+                    [scope],
+                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
+                                    table  : it.allSchemas.collect({ return new ObjectReference(Table.class, it, standardCaseObjectName("table_name", Table, scope.database)) }),
+                                    columns: CollectionUtil.toSingletonLists(getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique()),
+                            ]))
+                    ])
+            ])
+        }
+    }
+
+    @Unroll("#featureName: add #action on #conn")
+    def "Can apply multi-column with standard settings"() {
+        expect:
+        testAction([
+                tableName_asTable: action.uniqueConstraints*.table,
+                columnName_asTable: action.uniqueConstraints*.columns
+        ], action, conn, scope)
+
+        where:
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+            return CollectionUtil.permutationsWithoutNulls([
+                    [it],
+                    [scope],
+                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
+                                    table  : it.allSchemas.collect({ return new ObjectReference(Table, it, standardCaseObjectName("table_name", Table.class, scope.database)) }),
+                                    columns: [[standardCaseObjectName("col_1", Column.class, scope.database), standardCaseObjectName("col_2", Column.class, scope.database)]],
+                            ]))
+                    ])
             ])
         }
     }
@@ -95,7 +135,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
         where:
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope)
@@ -110,6 +150,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
 
         then:
         testAction([
+                name_asTable            : uqDef.name,
                 table_asTable            : uqDef.table,
                 columns_asTable          : uqDef.columns,
                 deferrable_asTable       : uqDef.deferrable,
@@ -123,10 +164,10 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
         where:
         [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllActionPermutations(scope)
+                    createAllActionPermutations(it, scope)
             ], new ValidActionFilter(scope))
         }
     }

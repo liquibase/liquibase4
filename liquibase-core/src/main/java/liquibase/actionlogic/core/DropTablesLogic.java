@@ -26,13 +26,11 @@ public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
 
     @Override
     public ValidationErrors validate(DropTablesAction action, Scope scope) {
-        Database database = scope.getDatabase();
-
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields(action, "tableNames");
+                .checkRequiredFields("tableNames");
 
-        if (ObjectUtil.defaultIfEmpty(action.cascadeConstraints, false) && !supportsDropTableCascadeConstraints()) {
-            errors.checkUnsupportedFields(action, "cascadeConstraints");
+        if (!supportsDropTableCascadeConstraints()) {
+            errors.checkUnsupportedFields("cascadeConstraints");
         }
         return errors;
     }

@@ -27,13 +27,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
     @Override
     public ValidationErrors validate(CreateTableAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope);
-        if (!errors.hasErrors() && action.primaryKey != null) {
-            for (PrimaryKey.PrimaryKeyColumn col : action.primaryKey.columns) {
-                if (col.descending != null && col.descending) {
-                    errors.addError("Cannot specify descending primary keys on " + scope.getDatabase().getShortName());
-                }
-            }
-        }
+
         if (!errors.hasErrors()) {
             for (Column column : action.columns) {
                 if (column.autoIncrementInformation != null) {

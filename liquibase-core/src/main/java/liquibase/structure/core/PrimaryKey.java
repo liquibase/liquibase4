@@ -1,5 +1,6 @@
 package liquibase.structure.core;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.structure.AbstractObject;
 import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
@@ -34,7 +35,7 @@ public class PrimaryKey extends AbstractTableObject {
         super(table, pkName);
 
         for (String columnName : columns) {
-            this.columns.add(new PrimaryKeyColumn(new Column.ColumnReference(table, columnName)));
+            this.columns.add(new PrimaryKeyColumn(columnName));
         }
     }
 
@@ -44,39 +45,42 @@ public class PrimaryKey extends AbstractTableObject {
     }
 
     public boolean containsColumn(Column column) {
+        if (this.table != null && column.table != null && !column.table.equals(this.table, true)) {
+            return false;
+        }
         for (PrimaryKeyColumn ref : CollectionUtil.createIfNull(columns)) {
-            if (ref.toReference().equals(column.toReference(), true)) {
+            if (ref.name.equals(column.name)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static class PrimaryKeyColumn extends AbstractObject {
+    public static class PrimaryKeyColumn extends AbstractExtensibleObject {
 
+        public String name;
         /**
          * Not normally included in a snapshot because the primary key does not actually have a direction. Supported when creating a primary key, however.
          */
-        public Boolean descending;
-        public Integer position;
+        public Index.IndexDirection direction;
 
         public PrimaryKeyColumn() {
         }
 
-        public PrimaryKeyColumn(Column.ColumnReference column) {
-            super(column.name);
+        public PrimaryKeyColumn(String name) {
+            this.name = name;
         }
 
-        public PrimaryKeyColumn(Column.ColumnReference column, Boolean descending) {
-            this(column);
-            this.descending = descending;
+        public PrimaryKeyColumn(String name, Index.IndexDirection direction) {
+            this(name);
+            this.direction = direction;
         }
 
         public String toString(boolean includeRelation) {
             if (includeRelation) {
                 return toString();
             } else {
-                return name + (descending != null && descending ? " DESC" : "");
+                return name + (direction == null ? "" : " " + direction);
             }
         }
     }

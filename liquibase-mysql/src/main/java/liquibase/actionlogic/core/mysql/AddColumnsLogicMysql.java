@@ -25,8 +25,8 @@ public class AddColumnsLogicMysql extends AddColumnsLogic {
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns)
-                if (ObjectUtil.defaultIfEmpty(column.isAutoIncrement(), false) && isPrimaryKey(column, action)) {
-                    errors.addUnsupportedError("non-primary key auto-increment columns", action);
+                if (ObjectUtil.defaultIfEmpty(column.isAutoIncrement(), false) && !isPrimaryKey(column, action)) {
+                    errors.addUnsupportedError("non-primary key auto-increment columns");
                 }
         }
         return errors;

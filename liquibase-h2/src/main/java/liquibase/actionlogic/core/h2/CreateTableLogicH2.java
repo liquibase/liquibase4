@@ -23,13 +23,11 @@ public class CreateTableLogicH2 extends CreateTableLogic {
         return H2Database.class;
     }
 
-    protected boolean primaryKeyNamePreserved() {
-        return false;
-    }
-
     @Override
     public ValidationErrors validate(CreateTableAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope);
+
+        errors.removeUnsupportedField("primaryKey");
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns) {

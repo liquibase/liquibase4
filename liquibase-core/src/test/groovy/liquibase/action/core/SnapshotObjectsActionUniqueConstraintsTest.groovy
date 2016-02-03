@@ -42,7 +42,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, uqRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(UniqueConstraint, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it }),
@@ -75,7 +75,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
 
             def validationErrors = scope.getSingleton(ActionExecutor).validate(new SnapshotObjectsAction(uqNames.get(0)), scope)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     uqNames,
@@ -105,7 +105,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, uqRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ new UniqueConstraint.UniqueConstraintReference(it, null) }),
@@ -135,7 +135,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
@@ -166,7 +166,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ return new ObjectReference(Table, it, null) }),
@@ -197,7 +197,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope),
@@ -240,7 +240,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
