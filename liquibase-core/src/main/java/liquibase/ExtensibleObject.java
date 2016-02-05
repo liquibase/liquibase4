@@ -1,5 +1,6 @@
 package liquibase;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,6 +25,9 @@ public interface ExtensibleObject {
     boolean has(String attribute);
 
     boolean has(Enum attribute);
+
+
+    List getPathOfValues(String attribute, Class lastType);
 
     /**
      * Return the current value of the given attribute name, converted to the passed type.

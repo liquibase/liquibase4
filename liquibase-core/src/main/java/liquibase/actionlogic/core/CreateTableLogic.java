@@ -68,6 +68,9 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         try {
             Table snapshotTable = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(action.table.toReference()), scope).asObject(Table.class);
+            if (snapshotTable == null) {
+                return result.assertCorrect(false, "Table "+action.table.toReference()+" was not found");
+            }
             List<Column> snapshotColumns = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(Column.class, action.table.toReference()), scope).asList(Column.class);
 
             result.assertCorrect(action.table, snapshotTable);

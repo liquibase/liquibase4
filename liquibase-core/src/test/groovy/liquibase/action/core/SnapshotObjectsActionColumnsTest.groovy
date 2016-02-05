@@ -35,7 +35,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         [conn, scope, columnRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getColumnNamesWithTables(scope)
@@ -61,7 +61,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         [conn, scope, tableRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope)
@@ -79,7 +79,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
                 assert result.asList(Column).size() > 0
                 result.asList(Object).each {
                     assert it instanceof Column;
-                    assert it.table.container == schemaRef
+                    assert it.table.container.equals(schemaRef, true)
                 }
         })
 
@@ -87,7 +87,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         [conn, scope, schemaRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
@@ -115,7 +115,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas*.container.unique(),
@@ -157,7 +157,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     [true, false],
@@ -214,7 +214,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         [conn, scope, typeString] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getDataTypesToTest()
@@ -256,7 +256,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
         [conn, scope, typeAndValue] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutations([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     [
@@ -290,7 +290,7 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
     }
 
     List<Column.ColumnReference> getColumnNamesWithTables(Scope scope) {
-        getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).collectMany {
+        getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).unique().collectMany {
             def colRef = it
             return getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).collect {
                 return new Column.ColumnReference(it, colRef.name)

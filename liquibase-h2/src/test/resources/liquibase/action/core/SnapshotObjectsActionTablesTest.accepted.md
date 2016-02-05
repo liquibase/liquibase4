@@ -47,4 +47,4 @@
 | b68a2e      | true     | PUBLIC.lowertable                       | **plan**: getTables(null, PUBLIC, lowertable, [TABLE])
 | f6a54f      | true     | PUBLIC.only_in_PUBLIC                   | **plan**: getTables(null, PUBLIC, only\_in\_PUBLIC, [TABLE])
 
-# Test Version: "681526" #
+# Test Version: "b3efcf" #

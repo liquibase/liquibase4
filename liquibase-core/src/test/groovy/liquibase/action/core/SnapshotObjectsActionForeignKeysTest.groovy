@@ -17,16 +17,15 @@ import spock.lang.Unroll
 
 class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
 
-    @Unroll("#featureName: #fkRef in #schemaName on #conn")
+    @Unroll("#featureName: #fkName in #schemaName on #conn")
     def "can find fully qualified complex foreign key names"() {
-        when:
-        fkRef.container = new ObjectReference(Table, schemaName, standardCaseObjectName("test_table", Table, scope.database))
-
-        then:
+        def fkRef = new ObjectReference(ForeignKey, schemaName, standardCaseObjectName("test_table", Table, scope.database), fkName)
+        expect:
         def action = new SnapshotObjectsAction(fkRef)
 
         testAction([
-                fkName_asTable: fkRef
+                schema_asTable: schemaName,
+                fkName_asTable: fkName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
             assert results.size() == 1;
@@ -38,13 +37,13 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, fkRef, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, fkName, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope),
+                    getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope).name.unique(),
                     getObjectNames(Schema, scope),
             ])
         }
@@ -124,7 +123,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         def refColumn2 = new Column(refTable.toReference(), standardCaseObjectName("col2_ref", Column, scope.database), "int")
         def refColumn3 = new Column(refTable.toReference(), standardCaseObjectName("col3_ref", Column, scope.database), "int")
 
-        def index = new Index("ref_idx", new Index.IndexedColumn(refColumn1.toReference()), new Index.IndexedColumn(refColumn3.toReference()))
+        def index = new Index(standardCaseObjectName("ref_idx", Index, scope.database), refTable.toReference(), new Index.IndexedColumn(refColumn1.name), new Index.IndexedColumn(refColumn3.name))
         def fk = new ForeignKey(table.toReference(), refTable.toReference(), "test_fk", [column1.name, column3.name], [refColumn1.name, refColumn3.name])
 
         def snapshot = new Snapshot(scope)
@@ -195,8 +194,8 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Table(refTableName))
                 snapshot.add(new Column(refTableName, refColumn1Name, "int"))
                 snapshot.add(new Column(refTableName, refColumn2Name, "int"))
-                snapshot.add(new Index(standardCaseObjectName("idx1_"+refTableName.name, Index, scope.database), new Index.IndexedColumn(refTableName, refColumn1Name)))
-                snapshot.add(new Index(standardCaseObjectName("idx2_"+refTableName.name, Index, scope.database), new Index.IndexedColumn(refTableName, refColumn2Name)))
+                snapshot.add(new Index(standardCaseObjectName("idx1_"+refTableName.name, Index, scope.database), refTableName, new Index.IndexedColumn(refColumn1Name)))
+                snapshot.add(new Index(standardCaseObjectName("idx2_"+refTableName.name, Index, scope.database), refTableName, new Index.IndexedColumn(refColumn2Name)))
                 snapshot.add(new ForeignKey(relatedTo.container, refTableName, relatedTo.name, [baseColumn1Name], [refColumn1Name]))
                 snapshot.add(new ForeignKey(relatedTo.container, refTableName, null, [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Table)) {
@@ -211,8 +210,8 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Table(refTableName))
                 snapshot.add(new Column(refTableName, refColumn1Name, "int"))
                 snapshot.add(new Column(refTableName, refColumn2Name, "int"))
-                snapshot.add(new Index(standardCaseObjectName("idx1_$refTableName.name", Index, scope.database), new Index.IndexedColumn(refTableName, refColumn1Name)))
-                snapshot.add(new Index(standardCaseObjectName("idx2_$refTableName.name", Index, scope.database), new Index.IndexedColumn(refTableName, refColumn2Name)))
+                snapshot.add(new Index(standardCaseObjectName("idx1_$refTableName.name", Index, scope.database), refTableName, new Index.IndexedColumn( refColumn1Name)))
+                snapshot.add(new Index(standardCaseObjectName("idx2_$refTableName.name", Index, scope.database), refTableName, new Index.IndexedColumn( refColumn2Name)))
                 snapshot.add(new ForeignKey(relatedTo, refTableName, standardCaseObjectName("fk1_"+relatedTo, ForeignKey, scope.database), [baseColumn1Name], [refColumn1Name]))
                 snapshot.add(new ForeignKey(relatedTo, refTableName, standardCaseObjectName("fk2_"+relatedTo, ForeignKey, scope.database), [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Schema)) {
@@ -229,7 +228,7 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
 
             snapshot.add(new Table(refTable))
             snapshot.add(new Column(refTable, refColumn1Name, "int"))
-            snapshot.add(new Index(standardCaseObjectName("ref_idx_$i", Index, scope.database), new Index.IndexedColumn(refTable, refColumn1Name)))
+            snapshot.add(new Index(standardCaseObjectName("ref_idx_$i", Index, scope.database), refTable, new Index.IndexedColumn(refColumn1Name)))
             snapshot.add(new ForeignKey(baseTable, refTable, standardCaseObjectName("fk_"+baseTable.name, ForeignKey, scope.database), [baseColumn1Name], [refColumn1Name]))
         }
 

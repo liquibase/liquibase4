@@ -13,12 +13,12 @@ import testmd.logic.SetupResult
 class DropTablesActionTest extends Specification {
     def "empty constructor"() {
         expect:
-        new DropTablesAction().describe() == "dropTables(tableNames=[])"
+        new DropTablesAction().describe() == "dropTables()"
     }
 
     def "parametrized constructor"() {
         expect:
-        new DropTablesAction(new ObjectReference(Table, "cat", "schem", "tab")).describe() == "dropTables(tableNames=[cat.schem.tab (TABLE)])"
+        new DropTablesAction(new ObjectReference(Table, "cat", "schem", "tab")).describe() == "dropTables(tableNames=[cat.schem.tab])"
     }
 
 //    @Unroll

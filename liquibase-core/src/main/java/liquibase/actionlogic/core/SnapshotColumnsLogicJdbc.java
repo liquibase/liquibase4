@@ -70,6 +70,10 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
         String tableName = database.escapeStringForLike(nameParts.get(2), false);
         String columnName = database.escapeStringForLike(nameParts.get(3), false);
+
+        if (tableName == null) {
+            tableName = "%";
+        }
         if (nameParts.get(0) != null || database.supports(Catalog.class)) {
             return new QueryJdbcMetaDataAction("getColumns", nameParts.get(0), nameParts.get(1), tableName, columnName);
         } else {

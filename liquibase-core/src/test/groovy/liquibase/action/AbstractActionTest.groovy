@@ -291,6 +291,7 @@ abstract class AbstractActionTest extends Specification {
 
         private Scope scope
 
+        private static int totalActions = 0;
         private static int filteredActions = 0;
         private static Map<String, Integer> filteredActionsByReason = new HashMap<>()
 
@@ -300,7 +301,7 @@ abstract class AbstractActionTest extends Specification {
             Runtime.getRuntime().addShutdownHook({
                 if (filteredActions > 0) {
                     def logger = LoggerFactory.getLogger(ValidActionFilter)
-                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
+                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+" out of "+totalActions+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
                 }
             })
         }
@@ -310,6 +311,7 @@ abstract class AbstractActionTest extends Specification {
 
         @Override
         boolean include(Map obj) {
+            totalActions++;
             boolean foundAction = false;;
             for (Map.Entry entry : obj.entrySet()) {
                 if (entry.value instanceof Action) {

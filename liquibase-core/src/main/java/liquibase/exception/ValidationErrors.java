@@ -34,48 +34,93 @@ public class ValidationErrors {
         }
 
         for (String requiredFieldName : requiredFields) {
-            Object value = objectToValidate.get(requiredFieldName, Object.class);
+            List path = objectToValidate.getPathOfValues(requiredFieldName, Object.class);
 
-            if (value == null) {
-                if (requiredFieldName.contains(".")) { //error only if the parent was not null
-                    Object parentValue = objectToValidate.get(requiredFieldName.substring(0, requiredFieldName.lastIndexOf(".")), Object.class);
-                    if (parentValue != null) {
-                        return addError(requiredFieldName + " is required");
-                    }
-                } else {
-                    return addError(requiredFieldName + " is required");
+            boolean parentNull = false;
+            for (int i=0; i<path.size()-1; i++) {
+                if (!isSet(path.get(i))) {
+                    parentNull = true;
+                    break;
                 }
-            } else if (value instanceof Collection) {
-                if (((Collection) value).size() == 0) {
-                    if (!requiredFieldName.contains(".")) { //ok if the collection is empty
-                        return addError(requiredFieldName + " is required");
-                    }
-                } else {
-                    for (Object obj : (Collection) value) {
-                        if (obj == null) {
-                            return addError(requiredFieldName + " is required");
-                        }
-                    }
+            }
+
+            if (path.size() == 1 || !parentNull) {
+                Object value = path.get(path.size() - 1);
+
+                if (value instanceof Object[]) {
+                    value = Arrays.asList(value);
                 }
-            } else if (value instanceof Object[]) {
-                if (((Object[]) value).length == 0) {
-                    return addError(requiredFieldName + " is required");
-                } else {
-                    boolean foundValue = false;
-                    for (Object obj : (Object[]) value) {
-                        if (obj != null) {
-                            foundValue = true;
-                            break;
+
+                boolean fieldCorrect;
+                if (value == null) {
+                    fieldCorrect = false;
+                } else if (value instanceof Collection) {
+                    if (((Collection) value).size() == 0) {
+                        fieldCorrect = false;
+                    } else {
+                        boolean nullValueFound = false;
+                        for (Object obj : (Collection) value) {
+                            if (obj == null) {
+                                nullValueFound = true;
+                                break;
+                            }
                         }
+                        fieldCorrect = !nullValueFound;
                     }
-                    if (!foundValue) {
-                        return addError(requiredFieldName + " is required");
-                    }
+                } else {
+                    fieldCorrect = true;
+                }
+
+                if (!fieldCorrect) {
+                    return addError(requiredFieldName + " is required");
+
                 }
             }
         }
 
         return this;
+    }
+
+    protected boolean isSet(Object value) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value instanceof Object[]) {
+            value = Arrays.asList(value);
+        }
+
+
+        if (value instanceof Collection) {
+            for (Object obj : (Collection) value) {
+                if (obj != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    protected boolean hasParentValues(ExtensibleObject objectToValidate, String requiredFieldName) {
+        if (requiredFieldName.contains(".")) {
+            String[] parentFields = requiredFieldName.split("\\.");
+            String currentPath = null;
+            for (int i=0; i<parentFields.length-1; i++) { //don''t recheck current field
+                if (i==0) {
+                    currentPath = parentFields[i];
+                } else {
+                    currentPath = currentPath+"."+parentFields[i];
+                }
+                Object value = objectToValidate.get(currentPath, Object.class);
+                if (value == null || (value instanceof Collection) && ((Collection) value).size() == 0) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
 //    public ValidationErrors checkRequiredFields(Collection<? extends ExtensibleObject> objectCollection, String... requiredFields) {

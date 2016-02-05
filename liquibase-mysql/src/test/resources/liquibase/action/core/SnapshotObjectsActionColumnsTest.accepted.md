@@ -4,234 +4,234 @@
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | autoIncrement | column                                                                   | OPERATIONS
-| :---------- | :------- | :------------ | :--------------------------------------------------------------------------- | :------
-| 4b677d      | true     | false         | lbcat.4test_table.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 237cc4      | true     | false         | lbcat.4test_table.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cd5731      | true     | false         | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 692b70      | true     | false         | lbcat.4test_table.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| da2fc2      | true     | false         | lbcat.4test_table.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 2771b0      | true     | false         | lbcat.4test_table.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 248a96      | true     | false         | lbcat.anotherlowertable.4test_column (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| bf5987      | true     | false         | lbcat.anotherlowertable.anotherlowercolumn (COLUMN)                          | **plan**: Execute getColumns(lbcat, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 88e077      | true     | false         | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1253f0      | true     | false         | lbcat.anotherlowertable.lowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| c8424c      | true     | false         | lbcat.anotherlowertable.only_in_lbcat (COLUMN)                               | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1e075a      | true     | false         | lbcat.anotherlowertable.only_in_lbcat2 (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ec2893      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1bda4a      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)              | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 9d6aa8      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e68a7c      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 7e6816      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                   | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| dd9989      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1fe367      | true     | false         | lbcat.lowertable.4test_column (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 95fd54      | true     | false         | lbcat.lowertable.anotherlowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 73e128      | true     | false         | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 571698      | true     | false         | lbcat.lowertable.lowercolumn (COLUMN)                                        | **plan**: Execute getColumns(lbcat, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5236df      | true     | false         | lbcat.lowertable.only_in_lbcat (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 6c4c4a      | true     | false         | lbcat.lowertable.only_in_lbcat2 (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 65290f      | true     | false         | lbcat.only_in_lbcat.4test_column (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 92aa78      | true     | false         | lbcat.only_in_lbcat.anotherlowercolumn (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3f6646      | true     | false         | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e05dd4      | true     | false         | lbcat.only_in_lbcat.lowercolumn (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 7f98d4      | true     | false         | lbcat.only_in_lbcat.only_in_lbcat (COLUMN)                                   | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a27e0f      | true     | false         | lbcat.only_in_lbcat.only_in_lbcat2 (COLUMN)                                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a709b1      | true     | false         | lbcat2.4test_table.4test_column (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 4a324a      | true     | false         | lbcat2.4test_table.anotherlowercolumn (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| bdef27      | true     | false         | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 0bd78f      | true     | false         | lbcat2.4test_table.lowercolumn (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3fbaeb      | true     | false         | lbcat2.4test_table.only_in_lbcat (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 4af42e      | true     | false         | lbcat2.4test_table.only_in_lbcat2 (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5a06ca      | true     | false         | lbcat2.anotherlowertable.4test_column (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| faa2d0      | true     | false         | lbcat2.anotherlowertable.anotherlowercolumn (COLUMN)                         | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 55f215      | true     | false         | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 95540a      | true     | false         | lbcat2.anotherlowertable.lowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1a537e      | true     | false         | lbcat2.anotherlowertable.only_in_lbcat (COLUMN)                              | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 73856e      | true     | false         | lbcat2.anotherlowertable.only_in_lbcat2 (COLUMN)                             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 48bbd9      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 622a4e      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ec1aa9      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN) | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a1ae7b      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 4dbe58      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                  | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cebe61      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                 | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 2c17c2      | true     | false         | lbcat2.lowertable.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a27a2a      | true     | false         | lbcat2.lowertable.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 4a5cc0      | true     | false         | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e23631      | true     | false         | lbcat2.lowertable.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat2, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1019c5      | true     | false         | lbcat2.lowertable.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 11d403      | true     | false         | lbcat2.lowertable.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 414136      | true     | false         | lbcat2.only_in_lbcat2.4test_column (COLUMN)                                  | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5814bc      | true     | false         | lbcat2.only_in_lbcat2.anotherlowercolumn (COLUMN)                            | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cbd1ec      | true     | false         | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e6d574      | true     | false         | lbcat2.only_in_lbcat2.lowercolumn (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a473a3      | true     | false         | lbcat2.only_in_lbcat2.only_in_lbcat (COLUMN)                                 | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 35740b      | true     | false         | lbcat2.only_in_lbcat2.only_in_lbcat2 (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 58fd44      | true     | true          | lbcat.4test_table.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 7459b7      | true     | true          | lbcat.4test_table.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| be15b3      | true     | true          | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f71d16      | true     | true          | lbcat.4test_table.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5e4f29      | true     | true          | lbcat.4test_table.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 834d8b      | true     | true          | lbcat.4test_table.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 0a8bd6      | true     | true          | lbcat.anotherlowertable.4test_column (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ad80c9      | true     | true          | lbcat.anotherlowertable.anotherlowercolumn (COLUMN)                          | **plan**: Execute getColumns(lbcat, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ea5982      | true     | true          | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5fa9e7      | true     | true          | lbcat.anotherlowertable.lowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1fd481      | true     | true          | lbcat.anotherlowertable.only_in_lbcat (COLUMN)                               | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 57e9e2      | true     | true          | lbcat.anotherlowertable.only_in_lbcat2 (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f50913      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 826ba0      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)              | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 40421d      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d0084a      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a7c312      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                   | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| bc86d8      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ecccc0      | true     | true          | lbcat.lowertable.4test_column (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 01b8ed      | true     | true          | lbcat.lowertable.anotherlowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| dff546      | true     | true          | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| c7b728      | true     | true          | lbcat.lowertable.lowercolumn (COLUMN)                                        | **plan**: Execute getColumns(lbcat, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| efaf76      | true     | true          | lbcat.lowertable.only_in_lbcat (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 22f9aa      | true     | true          | lbcat.lowertable.only_in_lbcat2 (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d0223c      | true     | true          | lbcat.only_in_lbcat.4test_column (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5da976      | true     | true          | lbcat.only_in_lbcat.anotherlowercolumn (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1a0360      | true     | true          | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5178de      | true     | true          | lbcat.only_in_lbcat.lowercolumn (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| b7cd33      | true     | true          | lbcat.only_in_lbcat.only_in_lbcat (COLUMN)                                   | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 371abc      | true     | true          | lbcat.only_in_lbcat.only_in_lbcat2 (COLUMN)                                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ee6565      | true     | true          | lbcat2.4test_table.4test_column (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5d2d43      | true     | true          | lbcat2.4test_table.anotherlowercolumn (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d384af      | true     | true          | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a0abe9      | true     | true          | lbcat2.4test_table.lowercolumn (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f36ec4      | true     | true          | lbcat2.4test_table.only_in_lbcat (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 43ab23      | true     | true          | lbcat2.4test_table.only_in_lbcat2 (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| b1f44f      | true     | true          | lbcat2.anotherlowertable.4test_column (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| caef43      | true     | true          | lbcat2.anotherlowertable.anotherlowercolumn (COLUMN)                         | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f2540f      | true     | true          | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3497e5      | true     | true          | lbcat2.anotherlowertable.lowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f46ca8      | true     | true          | lbcat2.anotherlowertable.only_in_lbcat (COLUMN)                              | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f873bd      | true     | true          | lbcat2.anotherlowertable.only_in_lbcat2 (COLUMN)                             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 019ebe      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| aed9c1      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3d6b43      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN) | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f4e69b      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| da104a      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                  | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 728b8a      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                 | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 210589      | true     | true          | lbcat2.lowertable.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 438fae      | true     | true          | lbcat2.lowertable.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 486b72      | true     | true          | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ff5669      | true     | true          | lbcat2.lowertable.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat2, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 8887cd      | true     | true          | lbcat2.lowertable.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1e70d6      | true     | true          | lbcat2.lowertable.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| b0ac5c      | true     | true          | lbcat2.only_in_lbcat2.4test_column (COLUMN)                                  | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 32eb83      | true     | true          | lbcat2.only_in_lbcat2.anotherlowercolumn (COLUMN)                            | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 11f169      | true     | true          | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 2614d9      | true     | true          | lbcat2.only_in_lbcat2.lowercolumn (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| eb5a4b      | true     | true          | lbcat2.only_in_lbcat2.only_in_lbcat (COLUMN)                                 | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d586e1      | true     | true          | lbcat2.only_in_lbcat2.only_in_lbcat2 (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | autoIncrement | columnName                                                          | OPERATIONS
+| :---------- | :------- | :------------ | :------------------------------------------------------------------ | :------
+| 7a0102      | true     | false         | lbcat.4test_table.4test_column                                      | **plan**: getColumns(lbcat, null, 4test\_table, 4test\_column)
+| 15a621      | true     | false         | lbcat.4test_table.anotherlowercolumn                                | **plan**: getColumns(lbcat, null, 4test\_table, anotherlowercolumn)
+| 935ed1      | true     | false         | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 1f9620      | true     | false         | lbcat.4test_table.lowercolumn                                       | **plan**: getColumns(lbcat, null, 4test\_table, lowercolumn)
+| b018cb      | true     | false         | lbcat.4test_table.only_in_lbcat                                     | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat)
+| 99d4bd      | true     | false         | lbcat.4test_table.only_in_lbcat2                                    | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat2)
+| 895963      | true     | false         | lbcat.anotherlowertable.4test_column                                | **plan**: getColumns(lbcat, null, anotherlowertable, 4test\_column)
+| f41975      | true     | false         | lbcat.anotherlowertable.anotherlowercolumn                          | **plan**: getColumns(lbcat, null, anotherlowertable, anotherlowercolumn)
+| f29bed      | true     | false         | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column              | **plan**: getColumns(lbcat, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 30943a      | true     | false         | lbcat.anotherlowertable.lowercolumn                                 | **plan**: getColumns(lbcat, null, anotherlowertable, lowercolumn)
+| 03cc2d      | true     | false         | lbcat.anotherlowertable.only_in_lbcat                               | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat)
+| a3f00c      | true     | false         | lbcat.anotherlowertable.only_in_lbcat2                              | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat2)
+| 851c6d      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column                    | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| e0c422      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn              | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| 012df1      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| e978b6      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                     | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| 007acd      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                   | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| cb5607      | true     | false         | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| f63a5f      | true     | false         | lbcat.lowertable.4test_column                                       | **plan**: getColumns(lbcat, null, lowertable, 4test\_column)
+| 224a17      | true     | false         | lbcat.lowertable.anotherlowercolumn                                 | **plan**: getColumns(lbcat, null, lowertable, anotherlowercolumn)
+| 95ea66      | true     | false         | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column                     | **plan**: getColumns(lbcat, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 081053      | true     | false         | lbcat.lowertable.lowercolumn                                        | **plan**: getColumns(lbcat, null, lowertable, lowercolumn)
+| b201f5      | true     | false         | lbcat.lowertable.only_in_lbcat                                      | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat)
+| 6b81d5      | true     | false         | lbcat.lowertable.only_in_lbcat2                                     | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat2)
+| 05eab8      | true     | false         | lbcat.only_in_lbcat.4test_column                                    | **plan**: getColumns(lbcat, null, only\_in\_lbcat, 4test\_column)
+| 26a828      | true     | false         | lbcat.only_in_lbcat.anotherlowercolumn                              | **plan**: getColumns(lbcat, null, only\_in\_lbcat, anotherlowercolumn)
+| 3a573f      | true     | false         | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| efae54      | true     | false         | lbcat.only_in_lbcat.lowercolumn                                     | **plan**: getColumns(lbcat, null, only\_in\_lbcat, lowercolumn)
+| 0a4b31      | true     | false         | lbcat.only_in_lbcat.only_in_lbcat                                   | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat)
+| 088356      | true     | false         | lbcat.only_in_lbcat.only_in_lbcat2                                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat2)
+| 92d80c      | true     | false         | lbcat2.4test_table.4test_column                                     | **plan**: getColumns(lbcat2, null, 4test\_table, 4test\_column)
+| 2a8c33      | true     | false         | lbcat2.4test_table.anotherlowercolumn                               | **plan**: getColumns(lbcat2, null, 4test\_table, anotherlowercolumn)
+| 4213f2      | true     | false         | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column                   | **plan**: getColumns(lbcat2, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 2e5ca0      | true     | false         | lbcat2.4test_table.lowercolumn                                      | **plan**: getColumns(lbcat2, null, 4test\_table, lowercolumn)
+| 44515d      | true     | false         | lbcat2.4test_table.only_in_lbcat                                    | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat)
+| 9ea9a9      | true     | false         | lbcat2.4test_table.only_in_lbcat2                                   | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat2)
+| 36702e      | true     | false         | lbcat2.anotherlowertable.4test_column                               | **plan**: getColumns(lbcat2, null, anotherlowertable, 4test\_column)
+| 1c9fca      | true     | false         | lbcat2.anotherlowertable.anotherlowercolumn                         | **plan**: getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn)
+| cecd44      | true     | false         | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column             | **plan**: getColumns(lbcat2, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 2d95d8      | true     | false         | lbcat2.anotherlowertable.lowercolumn                                | **plan**: getColumns(lbcat2, null, anotherlowertable, lowercolumn)
+| cdaa2b      | true     | false         | lbcat2.anotherlowertable.only_in_lbcat                              | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat)
+| bc9421      | true     | false         | lbcat2.anotherlowertable.only_in_lbcat2                             | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat2)
+| 10bec4      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column                   | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| dbf65a      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn             | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| 469002      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| cb2e66      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                    | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| 5b4c5a      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                  | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| 8c0f4c      | true     | false         | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                 | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| e416c9      | true     | false         | lbcat2.lowertable.4test_column                                      | **plan**: getColumns(lbcat2, null, lowertable, 4test\_column)
+| 636d43      | true     | false         | lbcat2.lowertable.anotherlowercolumn                                | **plan**: getColumns(lbcat2, null, lowertable, anotherlowercolumn)
+| f3a85b      | true     | false         | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat2, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 07cf89      | true     | false         | lbcat2.lowertable.lowercolumn                                       | **plan**: getColumns(lbcat2, null, lowertable, lowercolumn)
+| 372ed1      | true     | false         | lbcat2.lowertable.only_in_lbcat                                     | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat)
+| 09da6b      | true     | false         | lbcat2.lowertable.only_in_lbcat2                                    | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat2)
+| 3f6d76      | true     | false         | lbcat2.only_in_lbcat2.4test_column                                  | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, 4test\_column)
+| 2fae1a      | true     | false         | lbcat2.only_in_lbcat2.anotherlowercolumn                            | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, anotherlowercolumn)
+| 22c7d4      | true     | false         | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 6eef81      | true     | false         | lbcat2.only_in_lbcat2.lowercolumn                                   | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, lowercolumn)
+| e48714      | true     | false         | lbcat2.only_in_lbcat2.only_in_lbcat                                 | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat)
+| 279b3b      | true     | false         | lbcat2.only_in_lbcat2.only_in_lbcat2                                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat2)
+| 553308      | true     | true          | lbcat.4test_table.4test_column                                      | **plan**: getColumns(lbcat, null, 4test\_table, 4test\_column)
+| 5b735e      | true     | true          | lbcat.4test_table.anotherlowercolumn                                | **plan**: getColumns(lbcat, null, 4test\_table, anotherlowercolumn)
+| c7f67d      | true     | true          | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 97a750      | true     | true          | lbcat.4test_table.lowercolumn                                       | **plan**: getColumns(lbcat, null, 4test\_table, lowercolumn)
+| 391ac1      | true     | true          | lbcat.4test_table.only_in_lbcat                                     | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat)
+| b96a86      | true     | true          | lbcat.4test_table.only_in_lbcat2                                    | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat2)
+| 7dc836      | true     | true          | lbcat.anotherlowertable.4test_column                                | **plan**: getColumns(lbcat, null, anotherlowertable, 4test\_column)
+| 5b9dc0      | true     | true          | lbcat.anotherlowertable.anotherlowercolumn                          | **plan**: getColumns(lbcat, null, anotherlowertable, anotherlowercolumn)
+| 952fb4      | true     | true          | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column              | **plan**: getColumns(lbcat, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 99fa0f      | true     | true          | lbcat.anotherlowertable.lowercolumn                                 | **plan**: getColumns(lbcat, null, anotherlowertable, lowercolumn)
+| 1dc368      | true     | true          | lbcat.anotherlowertable.only_in_lbcat                               | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat)
+| cd059f      | true     | true          | lbcat.anotherlowertable.only_in_lbcat2                              | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat2)
+| acb1e9      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column                    | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| 09073d      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn              | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| 4d8f7f      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 459338      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                     | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| df3179      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                   | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| 7337e5      | true     | true          | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| 99fd09      | true     | true          | lbcat.lowertable.4test_column                                       | **plan**: getColumns(lbcat, null, lowertable, 4test\_column)
+| aabd8c      | true     | true          | lbcat.lowertable.anotherlowercolumn                                 | **plan**: getColumns(lbcat, null, lowertable, anotherlowercolumn)
+| 754f1c      | true     | true          | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column                     | **plan**: getColumns(lbcat, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 9a98bb      | true     | true          | lbcat.lowertable.lowercolumn                                        | **plan**: getColumns(lbcat, null, lowertable, lowercolumn)
+| f2f4ab      | true     | true          | lbcat.lowertable.only_in_lbcat                                      | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat)
+| 2fe036      | true     | true          | lbcat.lowertable.only_in_lbcat2                                     | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat2)
+| fb8c28      | true     | true          | lbcat.only_in_lbcat.4test_column                                    | **plan**: getColumns(lbcat, null, only\_in\_lbcat, 4test\_column)
+| 991921      | true     | true          | lbcat.only_in_lbcat.anotherlowercolumn                              | **plan**: getColumns(lbcat, null, only\_in\_lbcat, anotherlowercolumn)
+| c1b90b      | true     | true          | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| ca0f2f      | true     | true          | lbcat.only_in_lbcat.lowercolumn                                     | **plan**: getColumns(lbcat, null, only\_in\_lbcat, lowercolumn)
+| f5fd55      | true     | true          | lbcat.only_in_lbcat.only_in_lbcat                                   | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat)
+| 116ca6      | true     | true          | lbcat.only_in_lbcat.only_in_lbcat2                                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat2)
+| 083818      | true     | true          | lbcat2.4test_table.4test_column                                     | **plan**: getColumns(lbcat2, null, 4test\_table, 4test\_column)
+| 43fb55      | true     | true          | lbcat2.4test_table.anotherlowercolumn                               | **plan**: getColumns(lbcat2, null, 4test\_table, anotherlowercolumn)
+| 6c5305      | true     | true          | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column                   | **plan**: getColumns(lbcat2, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| b13d40      | true     | true          | lbcat2.4test_table.lowercolumn                                      | **plan**: getColumns(lbcat2, null, 4test\_table, lowercolumn)
+| 50975e      | true     | true          | lbcat2.4test_table.only_in_lbcat                                    | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat)
+| 2b7df8      | true     | true          | lbcat2.4test_table.only_in_lbcat2                                   | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat2)
+| ea7163      | true     | true          | lbcat2.anotherlowertable.4test_column                               | **plan**: getColumns(lbcat2, null, anotherlowertable, 4test\_column)
+| f7c584      | true     | true          | lbcat2.anotherlowertable.anotherlowercolumn                         | **plan**: getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn)
+| 3b65a4      | true     | true          | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column             | **plan**: getColumns(lbcat2, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| a90e04      | true     | true          | lbcat2.anotherlowertable.lowercolumn                                | **plan**: getColumns(lbcat2, null, anotherlowertable, lowercolumn)
+| 0b25d6      | true     | true          | lbcat2.anotherlowertable.only_in_lbcat                              | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat)
+| 8437a2      | true     | true          | lbcat2.anotherlowertable.only_in_lbcat2                             | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat2)
+| 453794      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column                   | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| 54460b      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn             | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| 8486c9      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| dd1f23      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                    | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| 14d804      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                  | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| c3bd3e      | true     | true          | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                 | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| 83df52      | true     | true          | lbcat2.lowertable.4test_column                                      | **plan**: getColumns(lbcat2, null, lowertable, 4test\_column)
+| 583fa6      | true     | true          | lbcat2.lowertable.anotherlowercolumn                                | **plan**: getColumns(lbcat2, null, lowertable, anotherlowercolumn)
+| 578d64      | true     | true          | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat2, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 603383      | true     | true          | lbcat2.lowertable.lowercolumn                                       | **plan**: getColumns(lbcat2, null, lowertable, lowercolumn)
+| b23dfe      | true     | true          | lbcat2.lowertable.only_in_lbcat                                     | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat)
+| a49a42      | true     | true          | lbcat2.lowertable.only_in_lbcat2                                    | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat2)
+| e42bb3      | true     | true          | lbcat2.only_in_lbcat2.4test_column                                  | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, 4test\_column)
+| 6facc3      | true     | true          | lbcat2.only_in_lbcat2.anotherlowercolumn                            | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, anotherlowercolumn)
+| f2cf5b      | true     | true          | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| d896bb      | true     | true          | lbcat2.only_in_lbcat2.lowercolumn                                   | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, lowercolumn)
+| 68c07a      | true     | true          | lbcat2.only_in_lbcat2.only_in_lbcat                                 | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat)
+| 50a755      | true     | true          | lbcat2.only_in_lbcat2.only_in_lbcat2                                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat2)
 
 # Test: "can find all columns in a fully qualified complex table name" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | table                                    | OPERATIONS
-| :---------- | :------- | :------------------------------------------- | :------
-| e83394      | true     | lbcat.4test_table (TABLE)                    | **plan**: Execute getColumns(lbcat, null, 4test_table, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 56b06d      | true     | lbcat.anotherlowertable (TABLE)              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 45eba6      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table (TABLE)  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e0e1e5      | true     | lbcat.lowertable (TABLE)                     | **plan**: Execute getColumns(lbcat, null, lowertable, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1217fc      | true     | lbcat.only_in_lbcat (TABLE)                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| cdbe33      | true     | lbcat2.4test_table (TABLE)                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| c51a94      | true     | lbcat2.anotherlowertable (TABLE)             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 85fbd4      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table (TABLE) | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3cb8b0      | true     | lbcat2.lowertable (TABLE)                    | **plan**: Execute getColumns(lbcat2, null, lowertable, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a1779f      | true     | lbcat2.only_in_lbcat2 (TABLE)                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | tableName                            | OPERATIONS
+| :---------- | :------- | :----------------------------------- | :------
+| 6db8bb      | true     | lbcat.4test_table                    | **plan**: getColumns(lbcat, null, 4test\_table, null)
+| b2e45f      | true     | lbcat.anotherlowertable              | **plan**: getColumns(lbcat, null, anotherlowertable, null)
+| 5f0ea5      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, null)
+| 572208      | true     | lbcat.lowertable                     | **plan**: getColumns(lbcat, null, lowertable, null)
+| 58d58f      | true     | lbcat.only_in_lbcat                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, null)
+| be2547      | true     | lbcat2.4test_table                   | **plan**: getColumns(lbcat2, null, 4test\_table, null)
+| c493e5      | true     | lbcat2.anotherlowertable             | **plan**: getColumns(lbcat2, null, anotherlowertable, null)
+| 94369b      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, null)
+| 2c35e6      | true     | lbcat2.lowertable                    | **plan**: getColumns(lbcat2, null, lowertable, null)
+| 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, null)
 
 # Test: "can find all columns in a schema" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | schemaName      | OPERATIONS
-| :---------- | :------- | :-------------- | :------
-| 3cd221      | true     | lbcat (SCHEMA)  | **plan**: Execute getColumns(lbcat, null, null, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3193e6      | true     | lbcat2 (SCHEMA) | **plan**: Execute getColumns(lbcat2, null, null, null) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | schemaName | OPERATIONS
+| :---------- | :------- | :--------- | :------
+| 2a5ee3      | true     | lbcat      | **plan**: getColumns(lbcat, null, %, null)
+| 9f6418      | true     | lbcat2     | **plan**: getColumns(lbcat2, null, %, null)
 
 # Test: "can find fully qualified complex column names" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | column                                                                   | OPERATIONS
-| :---------- | :------- | :--------------------------------------------------------------------------- | :------
-| 8d0275      | true     | lbcat.4test_table.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| b47683      | true     | lbcat.4test_table.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 761b6a      | true     | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3aaa74      | true     | lbcat.4test_table.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e401b7      | true     | lbcat.4test_table.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| abc6cc      | true     | lbcat.4test_table.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| c83ad0      | true     | lbcat.anotherlowertable.4test_column (COLUMN)                                | **plan**: Execute getColumns(lbcat, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e0a592      | true     | lbcat.anotherlowertable.anotherlowercolumn (COLUMN)                          | **plan**: Execute getColumns(lbcat, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 66bc14      | true     | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| de5862      | true     | lbcat.anotherlowertable.lowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d2ffcb      | true     | lbcat.anotherlowertable.only_in_lbcat (COLUMN)                               | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 49bab2      | true     | lbcat.anotherlowertable.only_in_lbcat2 (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a2021b      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                    | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d63e4d      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)              | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 9f3d93      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 23c595      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 51c588      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                   | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 554ec0      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3dca93      | true     | lbcat.lowertable.4test_column (COLUMN)                                       | **plan**: Execute getColumns(lbcat, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 138a09      | true     | lbcat.lowertable.anotherlowercolumn (COLUMN)                                 | **plan**: Execute getColumns(lbcat, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 6505f7      | true     | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                     | **plan**: Execute getColumns(lbcat, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 97ccee      | true     | lbcat.lowertable.lowercolumn (COLUMN)                                        | **plan**: Execute getColumns(lbcat, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| ee79e0      | true     | lbcat.lowertable.only_in_lbcat (COLUMN)                                      | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5903a8      | true     | lbcat.lowertable.only_in_lbcat2 (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d49164      | true     | lbcat.only_in_lbcat.4test_column (COLUMN)                                    | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 25833e      | true     | lbcat.only_in_lbcat.anotherlowercolumn (COLUMN)                              | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 738609      | true     | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d1036e      | true     | lbcat.only_in_lbcat.lowercolumn (COLUMN)                                     | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 0ecbf6      | true     | lbcat.only_in_lbcat.only_in_lbcat (COLUMN)                                   | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 8ae252      | true     | lbcat.only_in_lbcat.only_in_lbcat2 (COLUMN)                                  | **plan**: Execute getColumns(lbcat, null, only_in_lbcat, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| bbb234      | true     | lbcat2.4test_table.4test_column (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, 4test_table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 45016a      | true     | lbcat2.4test_table.anotherlowercolumn (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, 4test_table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 3aa852      | true     | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 2f34da      | true     | lbcat2.4test_table.lowercolumn (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, 4test_table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 16df81      | true     | lbcat2.4test_table.only_in_lbcat (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e81721      | true     | lbcat2.4test_table.only_in_lbcat2 (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, 4test_table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 1a9c9e      | true     | lbcat2.anotherlowertable.4test_column (COLUMN)                               | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 0a492d      | true     | lbcat2.anotherlowertable.anotherlowercolumn (COLUMN)                         | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 66457c      | true     | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a89496      | true     | lbcat2.anotherlowertable.lowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 5a1710      | true     | lbcat2.anotherlowertable.only_in_lbcat (COLUMN)                              | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 587fc3      | true     | lbcat2.anotherlowertable.only_in_lbcat2 (COLUMN)                             | **plan**: Execute getColumns(lbcat2, null, anotherlowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 24642d      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column (COLUMN)                   | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 2aaefa      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn (COLUMN)             | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 57b417      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column (COLUMN) | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 10f398      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e5101b      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat (COLUMN)                  | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 8682da      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2 (COLUMN)                 | **plan**: Execute getColumns(lbcat2, null, crazy!@#\\\\$%^&*()_+{}[]''"table, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 268e53      | true     | lbcat2.lowertable.4test_column (COLUMN)                                      | **plan**: Execute getColumns(lbcat2, null, lowertable, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 08114a      | true     | lbcat2.lowertable.anotherlowercolumn (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, lowertable, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 6e55c2      | true     | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                    | **plan**: Execute getColumns(lbcat2, null, lowertable, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 53f19e      | true     | lbcat2.lowertable.lowercolumn (COLUMN)                                       | **plan**: Execute getColumns(lbcat2, null, lowertable, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 27277d      | true     | lbcat2.lowertable.only_in_lbcat (COLUMN)                                     | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 8d9671      | true     | lbcat2.lowertable.only_in_lbcat2 (COLUMN)                                    | **plan**: Execute getColumns(lbcat2, null, lowertable, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| d052c8      | true     | lbcat2.only_in_lbcat2.4test_column (COLUMN)                                  | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, 4test_column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| fe71e5      | true     | lbcat2.only_in_lbcat2.anotherlowercolumn (COLUMN)                            | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, anotherlowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| be97e2      | true     | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column (COLUMN)                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, crazy!@#\\\\$%^&*()_+{}[]''"column) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| e58c3c      | true     | lbcat2.only_in_lbcat2.lowercolumn (COLUMN)                                   | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, lowercolumn) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| dfd19c      | true     | lbcat2.only_in_lbcat2.only_in_lbcat (COLUMN)                                 | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 235027      | true     | lbcat2.only_in_lbcat2.only_in_lbcat2 (COLUMN)                                | **plan**: Execute getColumns(lbcat2, null, only_in_lbcat2, only_in_lbcat2) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| Permutation | Verified | columnName                                                          | OPERATIONS
+| :---------- | :------- | :------------------------------------------------------------------ | :------
+| 5d5e62      | true     | lbcat.4test_table.4test_column                                      | **plan**: getColumns(lbcat, null, 4test\_table, 4test\_column)
+| e4fbdf      | true     | lbcat.4test_table.anotherlowercolumn                                | **plan**: getColumns(lbcat, null, 4test\_table, anotherlowercolumn)
+| 2603bc      | true     | lbcat.4test_table.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 6bbe0d      | true     | lbcat.4test_table.lowercolumn                                       | **plan**: getColumns(lbcat, null, 4test\_table, lowercolumn)
+| da3d31      | true     | lbcat.4test_table.only_in_lbcat                                     | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat)
+| 8c53c7      | true     | lbcat.4test_table.only_in_lbcat2                                    | **plan**: getColumns(lbcat, null, 4test\_table, only\_in\_lbcat2)
+| 5e4c76      | true     | lbcat.anotherlowertable.4test_column                                | **plan**: getColumns(lbcat, null, anotherlowertable, 4test\_column)
+| a0d2a5      | true     | lbcat.anotherlowertable.anotherlowercolumn                          | **plan**: getColumns(lbcat, null, anotherlowertable, anotherlowercolumn)
+| 5aed99      | true     | lbcat.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column              | **plan**: getColumns(lbcat, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| c74f28      | true     | lbcat.anotherlowertable.lowercolumn                                 | **plan**: getColumns(lbcat, null, anotherlowertable, lowercolumn)
+| b7c3b2      | true     | lbcat.anotherlowertable.only_in_lbcat                               | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat)
+| 35aa45      | true     | lbcat.anotherlowertable.only_in_lbcat2                              | **plan**: getColumns(lbcat, null, anotherlowertable, only\_in\_lbcat2)
+| 8cb25b      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.4test_column                    | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| 2e61aa      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn              | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| e8f4f8      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 6e9126      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                     | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| 6d6524      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                   | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| 343b5f      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                  | **plan**: getColumns(lbcat, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| 900f33      | true     | lbcat.lowertable.4test_column                                       | **plan**: getColumns(lbcat, null, lowertable, 4test\_column)
+| 2c555e      | true     | lbcat.lowertable.anotherlowercolumn                                 | **plan**: getColumns(lbcat, null, lowertable, anotherlowercolumn)
+| a75a70      | true     | lbcat.lowertable.crazy!@#\$%^&*()_+{}[]'"column                     | **plan**: getColumns(lbcat, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| e98236      | true     | lbcat.lowertable.lowercolumn                                        | **plan**: getColumns(lbcat, null, lowertable, lowercolumn)
+| e28069      | true     | lbcat.lowertable.only_in_lbcat                                      | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat)
+| fc65dc      | true     | lbcat.lowertable.only_in_lbcat2                                     | **plan**: getColumns(lbcat, null, lowertable, only\_in\_lbcat2)
+| 3879d7      | true     | lbcat.only_in_lbcat.4test_column                                    | **plan**: getColumns(lbcat, null, only\_in\_lbcat, 4test\_column)
+| 685496      | true     | lbcat.only_in_lbcat.anotherlowercolumn                              | **plan**: getColumns(lbcat, null, only\_in\_lbcat, anotherlowercolumn)
+| 9473c9      | true     | lbcat.only_in_lbcat.crazy!@#\$%^&*()_+{}[]'"column                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 5f9422      | true     | lbcat.only_in_lbcat.lowercolumn                                     | **plan**: getColumns(lbcat, null, only\_in\_lbcat, lowercolumn)
+| 263da9      | true     | lbcat.only_in_lbcat.only_in_lbcat                                   | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat)
+| 3aff61      | true     | lbcat.only_in_lbcat.only_in_lbcat2                                  | **plan**: getColumns(lbcat, null, only\_in\_lbcat, only\_in\_lbcat2)
+| 6a62da      | true     | lbcat2.4test_table.4test_column                                     | **plan**: getColumns(lbcat2, null, 4test\_table, 4test\_column)
+| 4807f6      | true     | lbcat2.4test_table.anotherlowercolumn                               | **plan**: getColumns(lbcat2, null, 4test\_table, anotherlowercolumn)
+| f626f5      | true     | lbcat2.4test_table.crazy!@#\$%^&*()_+{}[]'"column                   | **plan**: getColumns(lbcat2, null, 4test\_table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| bb93e3      | true     | lbcat2.4test_table.lowercolumn                                      | **plan**: getColumns(lbcat2, null, 4test\_table, lowercolumn)
+| 621c78      | true     | lbcat2.4test_table.only_in_lbcat                                    | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat)
+| b184d0      | true     | lbcat2.4test_table.only_in_lbcat2                                   | **plan**: getColumns(lbcat2, null, 4test\_table, only\_in\_lbcat2)
+| 1d2dc0      | true     | lbcat2.anotherlowertable.4test_column                               | **plan**: getColumns(lbcat2, null, anotherlowertable, 4test\_column)
+| ae2f5f      | true     | lbcat2.anotherlowertable.anotherlowercolumn                         | **plan**: getColumns(lbcat2, null, anotherlowertable, anotherlowercolumn)
+| 1cf264      | true     | lbcat2.anotherlowertable.crazy!@#\$%^&*()_+{}[]'"column             | **plan**: getColumns(lbcat2, null, anotherlowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 5528b4      | true     | lbcat2.anotherlowertable.lowercolumn                                | **plan**: getColumns(lbcat2, null, anotherlowertable, lowercolumn)
+| 1fd387      | true     | lbcat2.anotherlowertable.only_in_lbcat                              | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat)
+| 0d034b      | true     | lbcat2.anotherlowertable.only_in_lbcat2                             | **plan**: getColumns(lbcat2, null, anotherlowertable, only\_in\_lbcat2)
+| 66dafd      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.4test_column                   | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, 4test\_column)
+| 2ff1e0      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.anotherlowercolumn             | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, anotherlowercolumn)
+| 3afe72      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.crazy!@#\$%^&*()_+{}[]'"column | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| e030ce      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.lowercolumn                    | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, lowercolumn)
+| 10221a      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat                  | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat)
+| 9de9a2      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table.only_in_lbcat2                 | **plan**: getColumns(lbcat2, null, crazy!@#\\$\%^&*()\_+{}[]'"table, only\_in\_lbcat2)
+| cf631e      | true     | lbcat2.lowertable.4test_column                                      | **plan**: getColumns(lbcat2, null, lowertable, 4test\_column)
+| 456321      | true     | lbcat2.lowertable.anotherlowercolumn                                | **plan**: getColumns(lbcat2, null, lowertable, anotherlowercolumn)
+| a37eed      | true     | lbcat2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: getColumns(lbcat2, null, lowertable, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 539a1b      | true     | lbcat2.lowertable.lowercolumn                                       | **plan**: getColumns(lbcat2, null, lowertable, lowercolumn)
+| 16af61      | true     | lbcat2.lowertable.only_in_lbcat                                     | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat)
+| 5f7151      | true     | lbcat2.lowertable.only_in_lbcat2                                    | **plan**: getColumns(lbcat2, null, lowertable, only\_in\_lbcat2)
+| dd2bdf      | true     | lbcat2.only_in_lbcat2.4test_column                                  | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, 4test\_column)
+| e257b2      | true     | lbcat2.only_in_lbcat2.anotherlowercolumn                            | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, anotherlowercolumn)
+| 9ef138      | true     | lbcat2.only_in_lbcat2.crazy!@#\$%^&*()_+{}[]'"column                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, crazy!@#\\$\%^&*()\_+{}[]'"column)
+| 920af4      | true     | lbcat2.only_in_lbcat2.lowercolumn                                   | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, lowercolumn)
+| 3bc903      | true     | lbcat2.only_in_lbcat2.only_in_lbcat                                 | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat)
+| ef5fdd      | true     | lbcat2.only_in_lbcat2.only_in_lbcat2                                | **plan**: getColumns(lbcat2, null, only\_in\_lbcat2, only\_in\_lbcat2)
 
 # Test: "dataType comes through correctly" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | column | type        | OPERATIONS
+| Permutation | Verified | columnName | type        | OPERATIONS
 | :---------- | :------- | :--------- | :---------- | :------
-| c9f2cc      | true     | testcol    | bigint      | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| f20a59      | true     | testcol    | double      | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| aa6a19      | true     | testcol    | float       | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 8c5fb1      | true     | testcol    | int         | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| 98d561      | true     | testcol    | smallint    | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| a07eb7      | true     | testcol    | varchar(10) | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| c9f2cc      | true     | testcol    | bigint      | **plan**: getColumns(lbcat, null, testtable, testcol)
+| f20a59      | true     | testcol    | double      | **plan**: getColumns(lbcat, null, testtable, testcol)
+| aa6a19      | true     | testcol    | float       | **plan**: getColumns(lbcat, null, testtable, testcol)
+| 8c5fb1      | true     | testcol    | int         | **plan**: getColumns(lbcat, null, testtable, testcol)
+| 98d561      | true     | testcol    | smallint    | **plan**: getColumns(lbcat, null, testtable, testcol)
+| a07eb7      | true     | testcol    | varchar(10) | **plan**: getColumns(lbcat, null, testtable, testcol)
 
 # Test: "defaultValue comes through correctly" #
 
@@ -239,7 +239,7 @@
 
 | Permutation | Verified | defaultValue | type    | OPERATIONS
 | :---------- | :------- | :----------- | :------ | :------
-| 312a8d      | true     | int          | testcol | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
-| aae650      | true     | varchar(20)  | testcol | **plan**: Execute getColumns(lbcat, null, testtable, testcol) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic
+| 312a8d      | true     | int          | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
+| aae650      | true     | varchar(20)  | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
 
-# Test Version: "58d4e0" #
+# Test Version: "353bb5" #

@@ -45,7 +45,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = null; return it }),
+                    getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).unique().collect({ it.container.name = null; return it }),
             ])
         }
     }
@@ -74,7 +74,7 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.container.name = standardCaseObjectName("known_table", Table, scope.getDatabase()); return it }),
+                    getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).unique().collect({ it.container.name = standardCaseObjectName("known_table", Table, scope.getDatabase()); return it }),
             ])
         }
     }

@@ -1,6 +1,7 @@
 package liquibase;
 
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.SmartMap;
 import liquibase.util.StringUtils;
@@ -89,45 +90,102 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
     }
 
     private <T> T get(String attribute, T defaultValue, Class<T> type) {
-        int separatorIndex = attribute.indexOf('.');
-        if (separatorIndex > 0) {
-            Object baseObject = this.get(attribute.substring(0, separatorIndex), Object.class);
-            String nextFields = attribute.substring(separatorIndex+1);
+        Object value;
+        if (attribute.contains(".")) {
+            List path = getPathOfValues(attribute, type);
+            value = path.get(path.size() - 1);
+        } else {
+            value = getFieldValue(attribute, type);
+        }
 
-            if (baseObject == null) {
-                return null;
-            } else if (baseObject instanceof ExtensibleObject) {
-                return ((ExtensibleObject) baseObject).get(nextFields, type);
-            } else if (baseObject instanceof Collection) {
-                List returnList = new ArrayList();
-                for (Object obj : (Collection) baseObject) {
-                    if (obj == null) {
-                        returnList.add(null);
+        if (value == null) {
+            return defaultValue;
+        } else {
+            return (T) value;
+        }
+    }
+
+    public List getPathOfValues(String attribute, Class lastType) {
+        List path = new ArrayList();
+
+        String baseField;
+        String remainingAttribute = null;
+        int separatorIndex = attribute.indexOf('.');
+        if (separatorIndex < 0) {
+            baseField = attribute;
+        } else {
+            baseField = attribute.substring(0, separatorIndex);
+            remainingAttribute = attribute.substring(separatorIndex + 1);
+        }
+
+        Object lastValue = this;
+
+        while (baseField != null) {
+            boolean isLastField = remainingAttribute == null;
+
+            Object newValue;
+            Class typeToGet = isLastField ? lastType : Object.class;
+
+            if (lastValue == null) {
+                newValue = null;
+            } else if (lastValue instanceof ExtensibleObject) {
+                newValue = ((ExtensibleObject) lastValue).get(baseField, typeToGet);
+            } else if (lastValue instanceof Collection) {
+                newValue = new ArrayList();
+                boolean foundNonNullValue = false;
+                for (Object object : (Collection) lastValue) {
+                    if (object == null) {
+                        ((Collection) newValue).add(null);
+                    } else if (object instanceof ExtensibleObject) {
+                        ((Collection) newValue).add(((ExtensibleObject) object).get(baseField, typeToGet));
+                        foundNonNullValue = true;
                     } else {
-                        T value = ((ExtensibleObject) obj).get(nextFields, type);
-                        if (value instanceof Collection) {
-                            returnList.addAll((Collection) value);
-                        } else {
-                            returnList.add(value);
-                        }
+                        throw new UnexpectedLiquibaseException("Cannot traverse field(s) " + baseField + " on a " + object.getClass().getName());
                     }
                 }
-                if (nextFields.contains(".")) {
-                    for (Object obj : returnList) {
-                        if (obj != null) {
-                            return (T) returnList;
-                        }
-                    }
-                    return null;
-                } else {
-                    return (T) returnList;
+                if (!foundNonNullValue) {
+                    newValue = null;
                 }
             } else {
-                throw new UnexpectedLiquibaseException("Cannot traverse field(s) " + nextFields + " on a " + baseObject.getClass().getName());
+                throw new UnexpectedLiquibaseException("Cannot traverse field(s) " + baseField + " on a " + lastValue.getClass().getName());
+            }
+
+            if (newValue instanceof Collection) {
+                List flattenedCollection = new ArrayList();
+                for (Object obj : (Collection) newValue) {
+                    if (obj instanceof Collection) {
+                        flattenedCollection.addAll((Collection) obj);
+                    } else {
+                        flattenedCollection.add(obj);
+                    }
+                }
+                newValue = flattenedCollection;
+            }
+
+            path.add(newValue);
+            lastValue = newValue;
+
+
+            if (remainingAttribute == null) {
+                baseField = null;
+            } else {
+                separatorIndex = remainingAttribute.indexOf('.');
+                if (separatorIndex < 0) {
+                    baseField = remainingAttribute;
+                    remainingAttribute = null;
+                } else {
+                    baseField = remainingAttribute.substring(0, separatorIndex);
+                    remainingAttribute = remainingAttribute.substring(separatorIndex + 1);
+                }
             }
         }
 
-        T value;
+
+        return path;
+    }
+
+    protected Object getFieldValue(String attribute, Class type) {
+        Object value;
 
         Field field = getAttributeFields().get(attribute);
         if (field == null) {
@@ -139,12 +197,8 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
                 throw new UnexpectedLiquibaseException(e);
             }
         }
-        if (value == null) {
-            return defaultValue;
-        }
         return value;
     }
-
 
     @Override
     public <T> T get(Enum attribute, Class<T> type) {

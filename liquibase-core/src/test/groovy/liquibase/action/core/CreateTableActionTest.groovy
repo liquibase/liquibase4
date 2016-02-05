@@ -163,17 +163,18 @@ class CreateTableActionTest extends AbstractActionTest {
         //column and table-field variations
         returnList.addAll(createAllPermutations(CreateTableAction, [
                 table  : createAllPermutations(Table, [
-                        name      : [tableRef],
+                        name      : [tableRef.name],
+                        schema    : [schema],
                         tablespace: ["test_tablespace"],
                         remarks   : ["Remarks Here", "Crazy '!@#\$%^&*()\""],
-                ]).each({ it.schema = schema }),
+                ]),
                 columns: columnPermutations,
         ]))
 
         //add primary key variations
         returnList.addAll(createAllPermutationsWithoutNulls(CreateTableAction, [
                 table     : createAllPermutationsWithoutNulls(Table, [
-                        name  : [tableRef],
+                        name  : [tableRef.name],
                         schema: [schema],
                 ]),
                 columns   : columnPermutations,
@@ -196,7 +197,7 @@ class CreateTableActionTest extends AbstractActionTest {
         //add unique constraint variations
         returnList.addAll(createAllPermutationsWithoutNulls(CreateTableAction, [
                 table            : createAllPermutationsWithoutNulls(Table, [
-                        name  : [tableRef],
+                        name  : [tableRef.name],
                         schema: [schema],
                 ]),
                 columns          : columnPermutations,
@@ -215,7 +216,7 @@ class CreateTableActionTest extends AbstractActionTest {
         //add fk variations without deferrable or update/delete rules
         returnList.addAll(createAllPermutationsWithoutNulls(CreateTableAction, [
                 table      : createAllPermutationsWithoutNulls(Table, [
-                        name  : [tableRef],
+                        name  : [tableRef.name],
                         schema: [schema],
                 ]),
                 columns    : columnPermutations,
@@ -236,7 +237,7 @@ class CreateTableActionTest extends AbstractActionTest {
 //        //add fk variations with deferrable
         returnList.addAll(createAllPermutationsWithoutNulls(CreateTableAction, [
                 table      : createAllPermutationsWithoutNulls(Table, [
-                        name  : [tableRef],
+                        name  : [tableRef.name],
                         schema: [schema],
                 ]),
                 columns    : columnPermutations,
@@ -255,7 +256,7 @@ class CreateTableActionTest extends AbstractActionTest {
         // add fk variations with update/delete checks
         returnList.addAll(createAllPermutationsWithoutNulls(CreateTableAction, [
                 table      : createAllPermutationsWithoutNulls(Table, [
-                        name  : [tableRef],
+                        name  : [tableRef.name],
                         schema: [schema],
                 ]),
                 columns    : columnPermutations,
