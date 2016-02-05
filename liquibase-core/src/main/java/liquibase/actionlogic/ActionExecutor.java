@@ -82,7 +82,7 @@ public class ActionExecutor {
         ActionLogic actionLogic = getActionLogic(action, scope);
 
         if (actionLogic == null) {
-            errors.addError("No supported ActionLogic implementation found for " + action.getClass().getName() + " '" + action.describe() + "' against " + scope.describe());
+            errors.addError(": no supported ActionLogic implementation found for " + action.getClass().getName() + " '" + action.describe());
             return null;
         }
 
@@ -118,7 +118,7 @@ public class ActionExecutor {
             List<Action> actions = ((DelegateResult) result).getActions();
 
             if (actions.size() == 0) {
-                errors.addError(actionLogic.getClass().getName()+" tried to handle '"+action.describe()+"' but returned no actions to run");
+                errors.addError(": "+ actionLogic.getClass().getName()+" tried to handle '"+action.describe()+"' but returned no actions to run");
                 return null;
             } else {
                 Plan.DelegateStep step = new Plan.DelegateStep(depth + 1, ((DelegateResult) result).getModifier());

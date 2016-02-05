@@ -356,7 +356,7 @@ public class ValidationErrors {
                     }
                     String errorMessage = check.check(obj);
                     if (errorMessage != null) {
-                        this.addError(field + " " + errorMessage);
+                        this.addError(field + ": " + errorMessage);
                     }
                 }
             } else {

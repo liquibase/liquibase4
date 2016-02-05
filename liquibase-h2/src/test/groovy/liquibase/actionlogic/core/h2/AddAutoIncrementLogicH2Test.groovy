@@ -9,10 +9,10 @@ class AddAutoIncrementLogicH2Test extends AddAutoIncrementLogicTest {
     def "validation failures are as expected"() {
         expect:
         collectAllValidationErrors(new AddAutoIncrementActionTest(), new H2ConnectionSupplier()) == """
+AddAutoIncrementAction.autoIncrementInformation.incrementBy is not supported
 AddAutoIncrementAction.column is required
 AddAutoIncrementAction.column.container is required
 AddAutoIncrementAction.dataType is required
-AutoIncrementInformation.incrementBy is not supported
 """.trim()
     }
 }

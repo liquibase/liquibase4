@@ -51,7 +51,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
             @Override
             public String check(PrimaryKey pk) {
                 if (pk.clustered != null && pk.clustered) {
-                    return "adding a clustered primary key";
+                    return "adding a clustered primary key is not supported";
                 }
                 return null;
             }

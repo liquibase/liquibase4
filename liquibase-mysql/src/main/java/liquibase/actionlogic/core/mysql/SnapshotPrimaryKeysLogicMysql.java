@@ -24,7 +24,7 @@ public class SnapshotPrimaryKeysLogicMysql extends SnapshotPrimaryKeysLogicJdbc 
         ValidationErrors errors = super.validate(action, scope);
         for (ObjectReference relatedTo : ((SnapshotObjectsAction) action).relatedTo) {
             if (relatedTo.instanceOf(PrimaryKey.class) && relatedTo.name != null && !relatedTo.name.equalsIgnoreCase("primary")) {
-                errors.addError("Mysql does not support primary key names");
+                errors.addError(scope.getDatabase().getShortName()+" does not support primary key names");
                 break;
             }
         }

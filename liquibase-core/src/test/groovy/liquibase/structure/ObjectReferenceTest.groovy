@@ -14,16 +14,16 @@ class ObjectReferenceTest extends Specification {
 
         where:
         objectName                                                                  | expected
-        new ObjectReference(Table)                                                  | "UNNAMED (TABLE)"
-        new ObjectReference(Table, null)                                            | "UNNAMED (TABLE)"
-        new ObjectReference(Table, "a")                                             | "a (TABLE)"
-        new ObjectReference(Table, "a", "b")                                        | "a.b (TABLE)"
-        new ObjectReference(Table, "a", "b", "c")                                   | "a.b.c (TABLE)"
-        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"))           | "a.b.UNNAMED (TABLE)"
-        new ObjectReference(Table, new ObjectReference(Table, "a", "b"))           | "a.b (TABLE)"
-        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c")      | "a.b.c (TABLE)"
-        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c", "d") | "a.b.c.d (TABLE)"
-        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), null)     | "a.b.UNNAMED (TABLE)"
+        new ObjectReference(Table)                                                  | "UNNAMED"
+        new ObjectReference(Table, null)                                            | "UNNAMED"
+        new ObjectReference(Table, "a")                                             | "a"
+        new ObjectReference(Table, "a", "b")                                        | "a.b"
+        new ObjectReference(Table, "a", "b", "c")                                   | "a.b.c"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"))           | "a.b.UNNAMED"
+        new ObjectReference(Table, new ObjectReference(Table, "a", "b"))           | "a.b"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c")      | "a.b.c"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), "c", "d") | "a.b.c.d"
+        new ObjectReference(Table, new ObjectReference(Schema, "a", "b"), null)     | "a.b.UNNAMED"
     }
 
     @Unroll("#featureName: #expected")
@@ -53,14 +53,14 @@ class ObjectReferenceTest extends Specification {
 
         where:
         objectName                                     | expected
-        new ObjectReference(Table,)                    | "UNNAMED (TABLE)"
-        new ObjectReference(Table, "abc")              | "abc (TABLE)"
-        new ObjectReference(Table, "ABC")              | "ABC (TABLE)"
-        new ObjectReference(Table, "ABC", "xyz")       | "ABC.xyz (TABLE)"
-        new ObjectReference(Table, "ABC", "XYZ", null) | "ABC.XYZ.UNNAMED (TABLE)"
-        new ObjectReference(Table, null, "XYZ")        | "XYZ (TABLE)"
-        new ObjectReference(Table, "a", "b", "c")      | "a.b.c (TABLE)"
-        new ObjectReference(Table, "a", null, "c")     | "a.UNNAMED.c (TABLE)"
+        new ObjectReference(Table,)                    | "UNNAMED"
+        new ObjectReference(Table, "abc")              | "abc"
+        new ObjectReference(Table, "ABC")              | "ABC"
+        new ObjectReference(Table, "ABC", "xyz")       | "ABC.xyz"
+        new ObjectReference(Table, "ABC", "XYZ", null) | "ABC.XYZ.UNNAMED"
+        new ObjectReference(Table, null, "XYZ")        | "XYZ"
+        new ObjectReference(Table, "a", "b", "c")      | "a.b.c"
+        new ObjectReference(Table, "a", null, "c")     | "a.UNNAMED.c"
     }
 
     @Unroll
@@ -161,17 +161,17 @@ class ObjectReferenceTest extends Specification {
 
         where:
         name                                      | length | expected
-        new ObjectReference(Table,)               | 1      | "UNNAMED (TABLE)"
-        new ObjectReference(Table,)               | 2      | "UNNAMED (TABLE)"
-        new ObjectReference(Table, "a")           | 1      | "a (TABLE)"
-        new ObjectReference(Table, "a")           | 2      | "a (TABLE)"
-        new ObjectReference(Table, "a")           | 3      | "a (TABLE)"
-        new ObjectReference(Table, "a", "b")      | 1      | "b (TABLE)"
-        new ObjectReference(Table, "a", "b")      | 2      | "a.b (TABLE)"
-        new ObjectReference(Table, "a", "b")      | 3      | "a.b (TABLE)"
-        new ObjectReference(Table, "a", "b", "c") | 1      | "c (TABLE)"
-        new ObjectReference(Table, "a", "b", "c") | 2      | "b.c (TABLE)"
-        new ObjectReference(Table, "a", "b", "c") | 3      | "a.b.c (TABLE)"
+        new ObjectReference(Table,)               | 1      | "UNNAMED"
+        new ObjectReference(Table,)               | 2      | "UNNAMED"
+        new ObjectReference(Table, "a")           | 1      | "a"
+        new ObjectReference(Table, "a")           | 2      | "a"
+        new ObjectReference(Table, "a")           | 3      | "a"
+        new ObjectReference(Table, "a", "b")      | 1      | "b"
+        new ObjectReference(Table, "a", "b")      | 2      | "a.b"
+        new ObjectReference(Table, "a", "b")      | 3      | "a.b"
+        new ObjectReference(Table, "a", "b", "c") | 1      | "c"
+        new ObjectReference(Table, "a", "b", "c") | 2      | "b.c"
+        new ObjectReference(Table, "a", "b", "c") | 3      | "a.b.c"
     }
 }
 

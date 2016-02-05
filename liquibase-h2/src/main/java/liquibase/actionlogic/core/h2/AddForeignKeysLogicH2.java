@@ -23,8 +23,8 @@ public class AddForeignKeysLogicH2 extends AddForeignKeysLogic {
             if (fk == null) {
                 continue;
             }
-            errors.addError(fk.updateRule != null && fk.updateRule == ForeignKey.ConstraintType.importedKeyNoAction, "H2 does not support ON UPDATE NO ACTION");
-            errors.addError(fk.deleteRule != null && fk.deleteRule== ForeignKey.ConstraintType.importedKeyNoAction, "H2 does not support ON DELETE NO ACTION");
+            errors.addError(fk.updateRule != null && fk.updateRule == ForeignKey.ConstraintType.importedKeyNoAction, ": ON UPDATE NO ACTION is not supported");
+            errors.addError(fk.deleteRule != null && fk.deleteRule== ForeignKey.ConstraintType.importedKeyNoAction, ": ON DELETE NO ACTION is not supported");
         }
 
             return errors;

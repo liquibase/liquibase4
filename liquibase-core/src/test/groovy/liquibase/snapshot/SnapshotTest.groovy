@@ -58,12 +58,12 @@ class SnapshotTest extends Specification {
         ])
 
         then:
-        snapshot.getAll(type, name)*.toString() == expected
+        snapshot.getAll(type, name)*.toReference()*.toString() == expected
 
         where:
         type   | name                                                         | expected
-        Column | new Column.ColumnReference("cat1", "schema-a", "table-a-1", "col-a-1-x") | ["cat1.schema-a.table-a-1.col-a-1-x (COLUMN)"]
-        Column | new Column.ColumnReference("cat1", "schema-a", "table-a-2", "col-a-2-x") | ["cat1.schema-a.table-a-2.col-a-2-x (COLUMN)"]
+        Column | new Column.ColumnReference("cat1", "schema-a", "table-a-1", "col-a-1-x") | ["cat1.schema-a.table-a-1.col-a-1-x"]
+        Column | new Column.ColumnReference("cat1", "schema-a", "table-a-2", "col-a-2-x") | ["cat1.schema-a.table-a-2.col-a-2-x"]
         Column | new Column.ColumnReference("cat1", "schema-a", "table-b-1", "col-a-1-x") | []
     }
 }
