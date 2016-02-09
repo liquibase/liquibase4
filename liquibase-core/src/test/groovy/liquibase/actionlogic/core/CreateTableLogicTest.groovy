@@ -2,12 +2,12 @@ package liquibase.actionlogic.core
 
 import liquibase.action.core.CreateTableActionTest
 import liquibase.actionlogic.AbstractLogicTest
-import liquibase.database.core.UnsupportedDatabaseSupplier
+import liquibase.database.core.GenericDatabaseSupplier
 
 class CreateTableLogicTest extends AbstractLogicTest {
     def "validation failures are as expected"() {
         expect:
-        collectAllValidationErrors(new CreateTableActionTest(), new UnsupportedDatabaseSupplier()) == """
+        collectAllValidationErrors(new CreateTableActionTest(), new GenericDatabaseSupplier()) == """
 CreateTableAction.columns is required
 CreateTableAction.columns.name is required
 CreateTableAction.columns.type is required

@@ -138,7 +138,7 @@ public class ForeignKey extends AbstractTableObject {
 
         @Override
         public String toLongString() {
-            return name + " on " + (container == null ? null : container.toLongString());
+            return name + " on " + (container == null ? null : container.toString());
         }
     }
 

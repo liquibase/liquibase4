@@ -4,18 +4,14 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
-import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
-import liquibase.database.core.UnsupportedDatabaseSupplier
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
 import liquibase.structure.core.Column
 import liquibase.structure.datatype.DataType
 import liquibase.structure.core.PrimaryKey
 import liquibase.structure.core.Table
 import liquibase.util.CollectionUtil
-import liquibase.util.StringUtils
 import spock.lang.Unroll
 
 class AddAutoIncrementActionTest extends AbstractActionTest {

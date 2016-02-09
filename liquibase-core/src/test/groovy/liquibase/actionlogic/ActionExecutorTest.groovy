@@ -6,7 +6,7 @@ import liquibase.action.*
 import liquibase.action.core.SnapshotObjectsAction
 import liquibase.database.MockJdbcConnection
 import liquibase.database.core.MockDatabase
-import liquibase.database.core.UnsupportedDatabase
+import liquibase.database.core.GenericDatabase
 import liquibase.exception.ActionPerformException
 import liquibase.exception.ValidationErrors
 import liquibase.servicelocator.MockServiceLocator
@@ -240,7 +240,7 @@ class ActionExecutorTest extends Specification {
     @Unroll
     def "plan is built correctly"() {
         expect:
-        new ActionExecutor().createPlan(action, JUnitScope.getInstance(new UnsupportedDatabase(new MockJdbcConnection()))).describe(true) == expected
+        new ActionExecutor().createPlan(action, JUnitScope.getInstance(new GenericDatabase(new MockJdbcConnection()))).describe(true) == expected
 
         where:
         action                                                                             | expected

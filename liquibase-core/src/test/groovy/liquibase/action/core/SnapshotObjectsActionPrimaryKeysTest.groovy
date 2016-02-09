@@ -177,11 +177,11 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support snapshotting PKs without a table name", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ return new ObjectReference(Table, it, null) }),
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 
@@ -208,11 +208,11 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support snapshotting PKs without a table name", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope),
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 

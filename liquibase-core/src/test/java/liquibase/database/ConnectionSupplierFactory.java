@@ -1,7 +1,7 @@
 package liquibase.database;
 
 import liquibase.Scope;
-import liquibase.database.core.UnsupportedDatabaseSupplier;
+import liquibase.database.core.GenericDatabaseSupplier;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.servicelocator.ServiceLocator;
 
@@ -30,7 +30,7 @@ public class ConnectionSupplierFactory {
                 Iterator<ConnectionSupplier> iterator = this.connectionSuppliers.iterator();
                 while (iterator.hasNext()) {
                     ConnectionSupplier supplier = iterator.next();
-                    if (supplier instanceof UnsupportedDatabaseSupplier) {
+                    if (supplier instanceof GenericDatabaseSupplier) {
                         iterator.remove();
                     }
                 }

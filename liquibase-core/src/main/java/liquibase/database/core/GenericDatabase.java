@@ -10,12 +10,12 @@ import liquibase.exception.DatabaseException;
  * SQL reference: http://savage.net.au/SQL/sql-2003-2.bnf.html
  * Database feature comparison: http://www.sql-workbench.net/dbms_comparison.html
  */
-public class UnsupportedDatabase extends AbstractJdbcDatabase {
+public class GenericDatabase extends AbstractJdbcDatabase {
 
-    public UnsupportedDatabase() {
+    public GenericDatabase() {
     }
 
-    public UnsupportedDatabase(DatabaseConnection connection) {
+    public GenericDatabase(DatabaseConnection connection) {
         setConnection(connection);
     }
 
@@ -41,7 +41,7 @@ public class UnsupportedDatabase extends AbstractJdbcDatabase {
 
     @Override
     public String getShortName() {
-        return "unsupported";
+        return "generic";
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UnsupportedDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getDefaultDatabaseProductName() {
-        return "Unsupported";
+        return "Generic Database";
     }
 
     @Override

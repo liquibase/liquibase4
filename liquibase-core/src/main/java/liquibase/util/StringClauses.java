@@ -2,7 +2,7 @@ package liquibase.util;
 
 import liquibase.Scope;
 import liquibase.database.Database;
-import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.core.GenericDatabase;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
@@ -140,7 +140,7 @@ public class StringClauses {
     public StringClauses append(List objects, Class<? extends LiquibaseObject> type, Scope scope) {
         Database database = scope.getDatabase();
         if (database == null) {
-            database = new UnsupportedDatabase();
+            database = new GenericDatabase();
         }
         for (Object obj : objects) {
             if (obj instanceof LiquibaseObject) {

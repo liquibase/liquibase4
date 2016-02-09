@@ -2,7 +2,7 @@ package liquibase.database;
 
 import liquibase.JUnitScope;
 import liquibase.Scope;
-import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
 import liquibase.structure.LiquibaseObject;
@@ -165,7 +165,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
     public Scope connect(Scope scope) throws DatabaseException {
         DatabaseConnection databaseConnection = getConnection();
         Database db = scope.getDatabase();
-        if (!(db instanceof UnsupportedDatabase) && !db.isCorrectDatabaseImplementation(databaseConnection)) {
+        if (!(db instanceof GenericDatabase) && !db.isCorrectDatabaseImplementation(databaseConnection)) {
             throw new DatabaseException("Incorrect db '" + db.getShortName() + "' for connection " + databaseConnection.getURL());
         }
         db.setConnection(databaseConnection);

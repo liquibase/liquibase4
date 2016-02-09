@@ -3291,4 +3291,4 @@
 | eb72c2      | true     | ID TO ID_REF | null       | null                  | null              | test_fk | PUBLIC.REF_TABLE    | PUBLIC.BASE_TABLE    | importedKeySetNull    | **plan**: ALTER TABLE "PUBLIC"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "PUBLIC"."REF_TABLE" ("ID_REF") ON UPDATE SET NULL
 | 48c6ff      | true     | ID TO ID_REF | null       | null                  | null              | test_fk | PUBLIC.REF_TABLE    | PUBLIC.BASE_TABLE    | null                  | **plan**: ALTER TABLE "PUBLIC"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "PUBLIC"."REF_TABLE" ("ID_REF")
 
-# Test Version: "5990cd" #
+# Test Version: "55d706" #

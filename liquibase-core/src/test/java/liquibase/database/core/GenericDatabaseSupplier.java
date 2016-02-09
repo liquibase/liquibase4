@@ -5,16 +5,16 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.MockJdbcConnection;
 import testmd.logic.SetupResult;
 
-public class UnsupportedDatabaseSupplier extends ConnectionSupplier {
+public class GenericDatabaseSupplier extends ConnectionSupplier {
 
     @Override
     public String getDatabaseShortName() {
-        return "unsupported";
+        return "generic";
     }
 
     @Override
     public String getJdbcUrl() {
-        return "jdbc:unsupported";
+        return "jdbc:generic";
     }
 
     @Override

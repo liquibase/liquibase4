@@ -1,7 +1,7 @@
 package liquibase.database;
 
 import liquibase.Scope;
-import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.ResourceAccessor;
@@ -87,7 +87,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
 
         if (foundDatabases.size() == 0) {
             log.warn("Unknown database: " + connection.getDatabaseProductName());
-            UnsupportedDatabase unsupportedDB = new UnsupportedDatabase();
+            GenericDatabase unsupportedDB = new GenericDatabase();
             unsupportedDB.setConnection(connection);
             return unsupportedDB;
         }

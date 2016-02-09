@@ -130,7 +130,6 @@ public class ActionStatus {
      */
     public ActionStatus unknown(Throwable exception) {
         this.exception = exception;
-        LoggerFactory.getLogger(getClass()).error("ActionStatus: Unknown", exception);
         return unknown(exception.getMessage() + " (" + exception.getClass().getName() + ")");
     }
 

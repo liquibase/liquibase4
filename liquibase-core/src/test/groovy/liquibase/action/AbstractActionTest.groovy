@@ -7,10 +7,9 @@ import liquibase.command.DropAllCommand
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
-import liquibase.database.core.UnsupportedDatabase
+import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
-import liquibase.exception.ValidationErrors
 import liquibase.servicelocator.AbstractServiceFactory
 import liquibase.servicelocator.Service
 import liquibase.snapshot.Snapshot
@@ -21,11 +20,9 @@ import liquibase.structure.TestObjectReferenceSupplierFactory
 import liquibase.structure.core.*
 import liquibase.test.TestObjectFactory
 import liquibase.util.CollectionUtil
-import liquibase.util.StreamUtil
 import liquibase.util.StringUtils
 import org.junit.Assert
 import org.junit.Assume
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.spockframework.runtime.SpecificationContext
 import spock.lang.Specification
@@ -50,11 +47,6 @@ abstract class AbstractActionTest extends Specification {
     }
 
     def testAction(Map parameters, Snapshot snapshot, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results ->}, Closure setupClosure = {}) {
-        if (scope.database instanceof UnsupportedDatabase) {
-            LoggerFactory.getLogger(getClass()).debug("Cannot testAction on an unsupported database")
-            return true;
-        }
-
         def executor = scope.getSingleton(ActionExecutor)
         try {
             executor.resetPlanHistory()
@@ -148,7 +140,7 @@ abstract class AbstractActionTest extends Specification {
 
     def setupDatabase(Snapshot snapshot, Closure setupClosure, ConnectionSupplier supplier, Scope scope) {
         Database database = scope.database
-        if (database instanceof UnsupportedDatabase) {
+        if (database instanceof GenericDatabase) {
             throw SetupResult.OK;
         }
 
@@ -240,8 +232,8 @@ abstract class AbstractActionTest extends Specification {
         @Override
         Permutation setup(Runnable setup) {
             super.setup({
-                if (scope.database instanceof UnsupportedDatabase) {
-                    throw new SetupResult.CannotVerify("Unsupported Database");
+                if (scope.database instanceof GenericDatabase) {
+                    throw new SetupResult.CannotVerify("Generic");
                 }
 
                 conn.connect(scope)

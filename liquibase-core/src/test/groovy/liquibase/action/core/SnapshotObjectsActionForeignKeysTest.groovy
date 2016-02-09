@@ -101,11 +101,11 @@ class SnapshotObjectsActionForeignKeysTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support schema-only snapshotting", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 

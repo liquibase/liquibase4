@@ -42,11 +42,11 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         where:
         [conn, scope, indexRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support snapshotting indexes without a table", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Index, ObjectNameStrategy.COMPLEX_NAMES, scope).unique().collect({ it.container.name = null; return it }),
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 
@@ -162,11 +162,11 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support snapshotting indexes without a table name", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ return new ObjectReference(Table, it, null) }),
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 
@@ -193,11 +193,11 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return CollectionUtil.permutationsWithoutNulls([
+            return okIfEmpty("May not support snapshotting indexes without a table", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     getObjectNames(Schema, scope),
-            ])
+            ], new ValidActionFilter(scope)))
         }
     }
 

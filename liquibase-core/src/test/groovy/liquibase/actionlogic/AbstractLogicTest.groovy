@@ -1,16 +1,11 @@
 package liquibase.actionlogic;
 
 import liquibase.JUnitScope
-import liquibase.action.AbstractActionTest;
-import liquibase.action.core.AddAutoIncrementActionTest
-import liquibase.database.ConnectionSupplier;
-import liquibase.database.core.UnsupportedDatabaseSupplier;
+import liquibase.action.AbstractActionTest
+import liquibase.database.ConnectionSupplier
 import liquibase.util.StringUtils
 import org.junit.Assert;
-import spock.lang.Specification;
-
-import java.util.SortedSet;
-import java.util.TreeSet;
+import spock.lang.Specification
 
 public abstract class AbstractLogicTest extends Specification {
 

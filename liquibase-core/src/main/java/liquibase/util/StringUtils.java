@@ -2,7 +2,7 @@ package liquibase.util;
 
 import liquibase.ExtensibleObject;
 import liquibase.database.Database;
-import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.core.GenericDatabase;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
@@ -374,7 +374,7 @@ public class StringUtils {
             this.database = database;
 
             if (this.database == null) {
-                this.database = new UnsupportedDatabase();
+                this.database = new GenericDatabase();
             }
         }
 
@@ -394,7 +394,7 @@ public class StringUtils {
             this.database = database;
 
             if (this.database == null) {
-                this.database = new UnsupportedDatabase();
+                this.database = new GenericDatabase();
             }
         }
 
@@ -414,7 +414,7 @@ public class StringUtils {
             this.database = database;
 
             if (this.database == null) {
-                this.database = new UnsupportedDatabase();
+                this.database = new GenericDatabase();
             }
         }
 

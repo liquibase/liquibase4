@@ -4,7 +4,7 @@ import liquibase.JUnitScope;
 import liquibase.Scope;
 import liquibase.database.ConnectionSupplier;
 import liquibase.database.Database;
-import liquibase.database.core.UnsupportedDatabase;
+import liquibase.database.core.GenericDatabase;
 import liquibase.servicelocator.Service;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Table;
@@ -22,7 +22,7 @@ public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> imp
 
         int objectsToCreate = 10;
 
-        Database database = ObjectUtil.defaultIfEmpty(scope.getDatabase(), new UnsupportedDatabase());
+        Database database = ObjectUtil.defaultIfEmpty(scope.getDatabase(), new GenericDatabase());
         if (database.canStoreObjectName("lower", false, type)) {
             for (int i = 1; i <= objectsToCreate; i++) {
                 returnList.add(type.getSimpleName().toLowerCase() + i);
