@@ -1,32 +1,28 @@
 package liquibase.actionlogic;
 
+import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.util.CollectionUtil;
 
 import java.util.*;
 
 /**
- * Result of an action that returns more than one {@link liquibase.actionlogic.ActionResult}.
+ * Result of {@link ActionExecutor#execute(Action, Scope)} that returns more than one {@link liquibase.actionlogic.ActionResult}.
+ * You can get a compound result if, for example, it takes multiple sub-steps to execute a higher-level action.
  */
 public class CompoundResult extends ActionResult {
 
     private List<ActionResult> results = new ArrayList<>();
 
-    public CompoundResult(Action sourceAction) {
-        super(sourceAction);
+    public CompoundResult(Action sourceAction, ActionResult... results) {
+        this(sourceAction, new ArrayList<>(Arrays.asList(CollectionUtil.createIfNull(results))));
     }
 
-    /**
-     * Creates a new CompoundResult of the given Action/ActionResult pairs.
-     */
-    public CompoundResult(List<ActionResult> results, Action sourceAction) {
+    public CompoundResult(Action sourceAction, List<ActionResult> results) {
         super(sourceAction);
-        if (results == null || results.size() == 0) {
-            throw new UnexpectedLiquibaseException("Null or empty results passed to a CompoundResult");
-        }
 
         this.results = results;
-
     }
 
     /**
@@ -54,22 +50,12 @@ public class CompoundResult extends ActionResult {
     }
 
     /**
-     * Returns the results stored in this CompoundResult, keyed by the action that generated the result.
-     * The returned Map iterator order preserves the original execution order.
-     * The returned map is unmodifiable.
+     * Adds the given ActionResult to this CompoundResult
      */
-    public ActionResult getResultsByAction(Action sourceAction) {
-        for (ActionResult result : results) {
-            if (result.getSourceAction().equals(sourceAction)) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    public void addResult(ActionResult result) {
+    public CompoundResult addResult(ActionResult result) {
         if (result != null) {
             this.results.add(result);
         }
+        return this;
     }
 }

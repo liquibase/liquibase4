@@ -9,13 +9,13 @@ public class UpdateResult extends ActionResult {
 
     private long numberAffected;
 
-    public UpdateResult(long numberAffected, Action sourceAction) {
+    public UpdateResult(Action sourceAction, long numberAffected) {
         super(sourceAction);
         this.numberAffected = numberAffected;
     }
 
-    public UpdateResult(long numberAffected, String message, Action sourceAction) {
-        super(message, sourceAction);
+    public UpdateResult(Action sourceAction, String message, long numberAffected) {
+        super(sourceAction, message);
         this.numberAffected = numberAffected;
     }
 

@@ -22,13 +22,13 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
     @Override
     public ValidationErrors validate(DropForeignKeyAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields("baseTableName", "constraintName");
+                .checkRequiredFields("foreignKey", "foreignKey.name", "foreignKey.container");
     }
 
     @Override
     public ActionResult execute(DropForeignKeyAction action, Scope scope) throws ActionPerformException {
         return new DelegateResult(action, null, new AlterTableAction(
-                action.baseTableName,
+                action.foreignKey.getTable(),
                 generateSql(action, scope)
         ));
     }
@@ -38,6 +38,6 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
         Database database = scope.getDatabase();
         return new StringClauses()
                 .append("DROP CONSTRAINT")
-                .append(database.escapeObjectName(action.constraintName, ForeignKey.class));
+                .append(database.escapeObjectName(action.foreignKey.name, ForeignKey.class));
     }
 }

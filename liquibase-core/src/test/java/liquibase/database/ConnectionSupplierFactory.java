@@ -1,13 +1,14 @@
 package liquibase.database;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.database.core.GenericDatabaseSupplier;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.servicelocator.ServiceLocator;
 
 import java.util.*;
 
-public class ConnectionSupplierFactory {
+public class ConnectionSupplierFactory implements SingletonService {
 
     private final Scope scope;
     private Set<ConnectionSupplier> connectionSuppliers;

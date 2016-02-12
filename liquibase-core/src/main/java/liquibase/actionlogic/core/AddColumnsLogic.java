@@ -22,7 +22,7 @@ import java.util.*;
 
 public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         columnName,
         dataType,
         nullable,
@@ -68,7 +68,6 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 
         if (!errors.hasErrors() && CollectionUtil.createIfNull(action.foreignKeys).size() > 0) {
             errors.addAll(scope.getSingleton(ActionExecutor.class).validate(createAddForeignKeysAction(action), scope), "foreignKeys");
-
 
             errors.checkField("foreignKeys", new ValidationErrors.FieldCheck<ForeignKey>() {
                 @Override
@@ -136,28 +135,13 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
             }
         }
 
-//        if (statement.isPrimaryKey() && (database instanceof H2Database
-//                || database instanceof DB2Database
-//                || database instanceof DerbyDatabase
-//                || database instanceof SQLiteDatabase)) {
-//            validationErrors.addError("Cannot add a primary key column");
-//        }
-//
-//        // TODO is this feature valid for other databases?
-//        if ((statement.getAddAfterColumn() != null) && !(database instanceof MySQLDatabase)) {
-//            validationErrors.addError("Cannot add column on specific position");
-//        }
-//        if ((statement.getAddBeforeColumn() != null) && !((database instanceof H2Database) || (database instanceof HsqlDatabase))) {
-//            validationErrors.addError("Cannot add column on specific position");
-//        }
-//        if ((statement.getAddAtPosition() != null) && !(database instanceof FirebirdDatabase)) {
-//            validationErrors.addError("Cannot add column on specific position");
-//        }
-
         return errors;
     }
 
     protected AddPrimaryKeysAction createAddPrimaryKeysAction(AddColumnsAction action) {
+        if (action.primaryKey == null) {
+            return null;
+        }
         return new AddPrimaryKeysAction(action.primaryKey);
     }
 
@@ -234,33 +218,28 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     }
 
 
+    /**
+     * Creates action(s) to create the columns and other needed objects.
+     * Calls out to {@link #createAddColumnsActions(AddColumnsAction, Scope, List)} etc. passing in the list of actions built up so far in case the list or other actions should be modified for performance reasons.
+     */
     @Override
     public ActionResult execute(AddColumnsAction action, Scope scope) throws ActionPerformException {
         List<Action> actions = new ArrayList<>();
 
-        for (Column column : action.columns) {
-            actions.addAll(Arrays.asList(execute(column, action, scope)));
-        }
-
-        addUniqueConstraintActions(action, scope, actions);
-        addForeignKeyActions(action, scope, actions);
-
-        if (action.primaryKey != null && action.primaryKey.columns.size() > 1) {
-            addPrimaryKeyActions(action, scope, actions);
-        }
+        createAddColumnsActions(action, scope, actions);
+        createUniqueConstraintActions(action, scope, actions);
+        createForeignKeyActions(action, scope, actions);
+        createPrimaryKeyActions(action, scope, actions);
 
         return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
-    protected Action[] execute(Column column, AddColumnsAction action, Scope scope) {
-        List<Action> returnActions = new ArrayList<>();
-        returnActions.add(new AlterTableAction(
-                column.table,
-                getColumnClause(column, action, scope)
-        ));
-
-
-        return returnActions.toArray(new Action[returnActions.size()]);
+    protected void createAddColumnsActions(AddColumnsAction action, Scope scope, List<Action> actions) {
+        for (Column column : action.columns) {
+            actions.add(new AlterTableAction(
+                    column.table,
+                    getColumnClause(column, action, scope)));
+        }
     }
 
     protected StringClauses getColumnClause(Column column, AddColumnsAction action, Scope scope) {
@@ -313,20 +292,20 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         return action.primaryKey != null && action.primaryKey.containsColumn(column);
     }
 
-    protected void addPrimaryKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
-        if (action.primaryKey != null) {
+    protected void createPrimaryKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
+        if (action.primaryKey != null && action.primaryKey.columns.size() > 1) {
             returnActions.add(new AddPrimaryKeysAction(action.primaryKey));
         }
     }
 
-    protected void addUniqueConstraintActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
+    protected void createUniqueConstraintActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
         List<UniqueConstraint> constraints = CollectionUtil.createIfNull(action.uniqueConstraints);
         for (UniqueConstraint constraint : constraints) {
             returnActions.add(new AddUniqueConstraintsAction(constraint));
         }
     }
 
-    protected void addForeignKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
+    protected void createForeignKeyActions(AddColumnsAction action, Scope scope, List<Action> returnActions) {
         List<ForeignKey> constraints = CollectionUtil.createIfNull(action.foreignKeys);
 
         for (ForeignKey fkConstraint : constraints) {

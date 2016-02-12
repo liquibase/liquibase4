@@ -18,15 +18,13 @@ class ActionStatusTest extends Specification {
         new ActionStatus().assertApplied(true, "Don't show")                                           | "Applied"
         new ActionStatus().assertApplied(true, "Don't show")                                           | "Applied"
         new ActionStatus().assertApplied(false, "Applied Error")                                       | "Not Applied: Applied Error"
-        new ActionStatus().unknown("An error")                                                         | "Unknown: An error"
+        new ActionStatus().add(ActionStatus.Status.unknown, "An error")                                                         | "Unknown: An error"
         new ActionStatus().unknown(new RuntimeException("Exception message"))                          | "Unknown: Exception message (java.lang.RuntimeException)"
-        new ActionStatus().cannotVerify("Too tired")                                                   | "Cannot Verify: Too tired"
         new ActionStatus().assertApplied(false, "Applied Error").assertApplied(false, "Another error") | "Not Applied: Another error, Applied Error"
         new ActionStatus().assertCorrect(false, "Correct Error")                                       | "Incorrect: Correct Error"
         new ActionStatus().assertCorrect(false, "Correct Error").assertApplied(false, "Applied Error") | "Not Applied: Applied Error"
         new ActionStatus().assertCorrect(false, "Correct Error").assertApplied(false, "Applied Error") | "Not Applied: Applied Error"
-        new ActionStatus().unknown("Something wrong").assertApplied(false, "Applied Error")            | "Unknown: Something wrong"
-        new ActionStatus().unknown("Something wrong").cannotVerify("Verify error")                     | "Cannot Verify: Verify error"
+        new ActionStatus().add(ActionStatus.Status.unknown, "Something wrong").assertApplied(false, "Applied Error")            | "Unknown: Something wrong"
     }
 
     @Unroll
@@ -45,7 +43,7 @@ class ActionStatusTest extends Specification {
         "prop"       | "a"          | "a"          | "Applied"
         "prop"       | "a"          | "b"          | "Incorrect: 'prop' is incorrect on AbstractExtensibleObject{prop=b} (expected 'a' got 'b')"
         "prop"       | "a"          | null         | "Incorrect: 'prop' is incorrect on AbstractExtensibleObject{} (expected 'a' got 'null')"
-        "prop"       | null         | "a"          | "Applied"
+        "prop"       | null         | "a"          | "Incorrect: 'prop' is incorrect on AbstractExtensibleObject{prop=a} (expected 'null' got 'a')"
         "prop"       | null         | null         | "Applied"
 
     }

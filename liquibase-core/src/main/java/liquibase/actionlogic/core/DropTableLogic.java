@@ -3,7 +3,7 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.ExecuteSqlAction;
-import liquibase.action.core.DropTablesAction;
+import liquibase.action.core.DropTableAction;
 import liquibase.actionlogic.AbstractActionLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
@@ -17,17 +17,17 @@ import liquibase.util.StringClauses;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
+public class DropTableLogic extends AbstractActionLogic<DropTableAction> {
 
     @Override
-    protected Class<DropTablesAction> getSupportedAction() {
-        return DropTablesAction.class;
+    protected Class<DropTableAction> getSupportedAction() {
+        return DropTableAction.class;
     }
 
     @Override
-    public ValidationErrors validate(DropTablesAction action, Scope scope) {
+    public ValidationErrors validate(DropTableAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields("tableNames");
+                .checkRequiredFields("table");
 
         if (!supportsDropTableCascadeConstraints()) {
             errors.checkUnsupportedFields("cascadeConstraints");
@@ -40,17 +40,15 @@ public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
     }
 
     @Override
-    public ActionResult execute(DropTablesAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(DropTableAction action, Scope scope) throws ActionPerformException {
         List<Action> actions = new ArrayList<>();
 
-        for (ObjectReference tableName: action.tableNames) {
-            actions.add(new ExecuteSqlAction(generateSql(tableName, action, scope)));
-        }
+            actions.add(new ExecuteSqlAction(generateSql(action.table, action, scope)));
 
         return new DelegateResult(action, null, actions.toArray(new Action[actions.size()]));
     }
 
-    protected StringClauses generateSql(ObjectReference tableName, DropTablesAction action, Scope scope) {
+    protected StringClauses generateSql(ObjectReference tableName, DropTableAction action, Scope scope) {
         Database database = scope.getDatabase();
         StringClauses clauses = new StringClauses()
                 .append("DROP TABLE")

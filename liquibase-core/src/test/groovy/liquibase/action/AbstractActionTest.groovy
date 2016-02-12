@@ -153,7 +153,7 @@ abstract class AbstractActionTest extends Specification {
                 new DropAllCommand(schema.toReference()).execute(scope);
             }
 
-            def executor = new ActionExecutor()
+            def executor = scope.getSingleton(ActionExecutor)
 
             for (def type : [Table, UniqueConstraint, Index, ForeignKey]) {
                 for (def obj : snapshot.get(type)) {

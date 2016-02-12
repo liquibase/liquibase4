@@ -11,14 +11,12 @@ import java.util.*;
 
 /**
  * Returned by {@link liquibase.actionlogic.ActionLogic#checkStatus(Action, Scope)} to describe if the action has already been applied.
- * Possible values:
- * <ul>
- * <li>Complete: The action has been fully completed</li>
- * <li>Incorrect: The action was executed, but the current state doesn't quite match. For example, a CreateTableAction was ran, but some of the column definitions don't match</li>
- * <li>Not Applied: The action was not applied</li>
- * <li>Unknown: The current state cannot be checked</li>
- * <li>Cannot Verify: The action cannot be verified</li>
- * </ul>
+ * Multiple messages can be included in this status response, but {@link #getStatus()} will roll them up into a single {@link liquibase.action.ActionStatus.Status} result.
+ * <br><br>
+ * There are multiple "assert" methods such as {@link #assertCorrect(boolean, String)} and {@link #assertCorrect(Object, Object, String)}. This object tracks if any of them have been
+ * called and will return {@link liquibase.action.ActionStatus.Status#unknown} if none have been called.
+ *
+ * @see liquibase.action.ActionStatus.Status for possible states.
  */
 public class ActionStatus {
 
@@ -28,33 +26,68 @@ public class ActionStatus {
     private boolean atLeastOneAssertion = false;
 
     public ActionStatus() {
-        messages.put(Status.cannotVerify, new TreeSet<String>());
         messages.put(Status.unknown, new TreeSet<String>());
         messages.put(Status.incorrect, new TreeSet<String>());
         messages.put(Status.notApplied, new TreeSet<String>());
     }
 
     /**
-     * Adds the given incompleteMessage to this status if the complete flag is false.
+     * Add the given message under the given Status. Message defaults to "No message" if null.
      */
-    public ActionStatus assertApplied(boolean complete, String incompleteMessage) {
-        if (!complete) {
-            messages.get(Status.notApplied).add(ObjectUtil.defaultIfEmpty(incompleteMessage, "No message"));
+    public ActionStatus add(Status status, String message) {
+        messages.get(status).add(ObjectUtil.defaultIfEmpty(message, "No message"));
+
+        return this;
+    }
+
+    /*
+     * Add the given exception as an {@link liquibase.action.ActionStatus.Status#unknown} message;
+     */
+    public ActionStatus unknown(Throwable exception) {
+        this.exception = exception;
+        return add(Status.unknown, exception.getMessage() + " (" + exception.getClass().getName() + ")");
+    }
+
+
+    /**
+     * Convience method to call {@link #add(Status, String)} using {@link Status#notApplied} if the applied flag is false.
+     */
+    public ActionStatus assertApplied(boolean applied, String notAppliedMessage) {
+        if (!applied) {
+            add(Status.notApplied, notAppliedMessage);
         }
         atLeastOneAssertion = true;
         return this;
     }
 
     /**
-     * Convenience method like {@link #assertPropertyCorrect(ExtensibleObject, ExtensibleObject, String)} but tests all properties
+     * Convience method to call {@link #add(Status, String)} using {@link Status#incorrect} if the applied flag is false.
+     */
+    public ActionStatus assertCorrect(boolean correct, String incorrectMessage) {
+        if (!correct) {
+            add(Status.incorrect, incorrectMessage);
+        }
+
+        atLeastOneAssertion = true;
+        return this;
+    }
+
+
+    /**
+     * Calls {@link #assertCorrect(Object, Object, String)} but with a standard message
      */
     public <T extends ExtensibleObject> ActionStatus assertCorrect(T correctObject, T objectToCheck) {
         return assertCorrect(correctObject, objectToCheck, (String) null);
     }
 
+    /**
+     * Compares two objects and if they are different, adds the given message under the {@link @Satatus#incorrect} status.
+     * <p/>
+     * If the passed objects are {@link ExtensibleObject}s, calls {@link #assertCorrect(ExtensibleObject, ExtensibleObject, Collection)} excluding no properties.
+     */
     public <T> ActionStatus assertCorrect(T correctObject, T objectToCheck, String invalidMessage) {
         if (invalidMessage != null) {
-            invalidMessage = invalidMessage+": ";
+            invalidMessage = invalidMessage + ": ";
         }
         if (correctObject instanceof ExtensibleObject) {
             return assertCorrect((ExtensibleObject) correctObject, (ExtensibleObject) objectToCheck, (Collection<String>) null);
@@ -62,13 +95,16 @@ public class ActionStatus {
             if (correctObject == null && objectToCheck == null) {
                 return this;
             } else if (correctObject == null || objectToCheck == null) {
-                return assertCorrect(false, invalidMessage+"expected "+correctObject+" but got "+objectToCheck);
+                return assertCorrect(false, invalidMessage + "expected " + correctObject + " but got " + objectToCheck);
             } else {
-                return assertCorrect(correctObject.equals(objectToCheck), invalidMessage+"expected "+correctObject+" but got "+objectToCheck);
+                return assertCorrect(correctObject.equals(objectToCheck), invalidMessage + "expected " + correctObject + " but got " + objectToCheck);
             }
         }
     }
 
+    /**
+     * Compares two objects and if any of the non-excludedFields are different, adds an {@link Status#incorrect} message.
+     */
     public <T extends ExtensibleObject> ActionStatus assertCorrect(T correctObject, T objectToCheck, Collection<String> excludeFields) {
         if (excludeFields == null) {
             excludeFields = new HashSet<>();
@@ -85,10 +121,9 @@ public class ActionStatus {
     }
 
     /**
-     * Convenience method for {@link #assertCorrect(boolean, String)} when you are comparing properties that are the same across two objects.
-     * If the value is defined in the correctObject, it must have the same value in objectToCheck. If the object is null in correctObject, it doesn't matter what the value is in the objectToCheck.
-     *
+     * Compares the given property in to ExtensibleObjects.
      * Does not support and therefore does not check Collection values.
+     * For {@link ObjectReference} does a "fuzzy" equals.
      */
     public ActionStatus assertPropertyCorrect(ExtensibleObject correctObject, ExtensibleObject objectToCheck, String propertyName) {
         Object correctValue = correctObject.get(propertyName, Object.class);
@@ -98,56 +133,24 @@ public class ActionStatus {
             return this;
         }
 
-        boolean correct = correctValue == null || (correctValue instanceof ObjectReference ? ((ObjectReference) correctValue).equals((ObjectReference) checkValue, true) : correctValue.equals(checkValue));
-
-        return assertCorrect(correct, "'" + propertyName + "' is incorrect on "+objectToCheck.describe()+" (expected '" + correctValue + "' got '" + checkValue + "')");
-    }
-
-    /**
-     * Adds the given incorrectMessage to this status if the correct flag is false.
-     */
-    public ActionStatus assertCorrect(boolean correct, String incorrectMessage) {
-        if (!correct) {
-            messages.get(Status.incorrect).add(ObjectUtil.defaultIfEmpty(incorrectMessage, "No message"));
+        boolean correct;
+        if (correctValue == null) {
+            correct = checkValue == null;
+        } else {
+            if (correctValue instanceof ObjectReference) {
+                correct = ((ObjectReference) correctValue).equals((ObjectReference) checkValue, true);
+            } else {
+                correct = correctValue.equals(checkValue);
+            }
         }
-
-        atLeastOneAssertion = true;
-        return this;
-    }
-
-
-    /**
-     * Marks this status as unknown because of the given message.
-     */
-    public ActionStatus unknown(String message) {
-        messages.get(Status.unknown).add(ObjectUtil.defaultIfEmpty(message, "No message"));
-
-        return this;
-    }
-
-    /**
-     * Marks this status as unknown because of the given exception.
-     */
-    public ActionStatus unknown(Throwable exception) {
-        this.exception = exception;
-        return unknown(exception.getMessage() + " (" + exception.getClass().getName() + ")");
-    }
-
-    /**
-     * Marks this status as unable to verify because of the given message.
-     */
-    public ActionStatus cannotVerify(String message) {
-        messages.get(Status.cannotVerify).add(ObjectUtil.defaultIfEmpty(message, "No message"));
-
-        return this;
+        return assertCorrect(correct, "'" + propertyName + "' is incorrect on " + objectToCheck.describe() + " (expected '" + correctValue + "' got '" + checkValue + "')");
     }
 
     /**
      * Returns the {@link liquibase.action.ActionStatus.Status} enum value based on what has been set on this object.
      * The priority order for a response is:
      * <ol>
-     * <li>Nothing previously set: return unknown</li>
-     * <li>Cannot verify message(s)</li>
+     * <li>Nothing previously set: return Unknown</li>
      * <li>Unknown message(s)</li>
      * <li>Not applied message(s)</li>
      * <li>Incorrect message(s)</li>
@@ -155,9 +158,7 @@ public class ActionStatus {
      * </ol>
      */
     public Status getStatus() {
-        if (messages.get(Status.cannotVerify).size() > 0) {
-            return Status.cannotVerify;
-        } else if (messages.get(Status.unknown).size() > 0) {
+        if (messages.get(Status.unknown).size() > 0) {
             return Status.unknown;
         } else if (messages.get(Status.notApplied).size() > 0) {
             return Status.notApplied;
@@ -172,6 +173,10 @@ public class ActionStatus {
         }
     }
 
+    /**
+     * Return messages for the status returned by {@link #getStatus()}. If more than one message, they are returned comma separated.
+     * Returns null if there are no messages.
+     */
     public String getMessage() {
         Status status = getStatus();
         if (status == Status.applied) {
@@ -193,6 +198,9 @@ public class ActionStatus {
         return getStatus() == Status.applied;
     }
 
+    /**
+     * Return the last exception set using {@link #unknown(Throwable)}
+     */
     public Throwable getException() {
         return exception;
     }
@@ -209,6 +217,9 @@ public class ActionStatus {
         return out;
     }
 
+    /**
+     * Adds the given statuses to this object. Overwrites the exception if any of the passed statuses contains one.
+     */
     public void addAll(ActionStatus status) {
         for (Map.Entry<ActionStatus.Status, SortedSet<String>> entry : status.messages.entrySet()) {
             this.messages.get(entry.getKey()).addAll(entry.getValue());
@@ -218,17 +229,36 @@ public class ActionStatus {
             this.atLeastOneAssertion = true;
         }
         if (status.exception != null) {
-            this.exception = exception;
+            this.exception = status.exception;
         }
 
     }
 
+    /**
+     * Enumeration of possible {@link ActionStatus} states
+     */
     public enum Status {
+        /**
+         * The action has been fully completed
+         */
         applied("Applied"),
+
+        /**
+         * The action was executed, but the current state doesn't quite match. For example, a CreateTableAction was ran, but some of the column definitions don't match
+         */
         incorrect("Incorrect"),
+
+        /**
+         * The action was not applied
+         */
         notApplied("Not Applied"),
-        unknown("Unknown"),
-        cannotVerify("Cannot Verify");
+
+        /*
+        The current state cannot be checked.
+        Return this if there was an exception checking or, an unexpected state is encountered, or if you cannot access needed environments.
+         */
+        unknown("Unknown");
+
 
         private String name;
 

@@ -1,6 +1,7 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
@@ -13,14 +14,19 @@ import java.util.*;
 /**
  * This class is used to execute {@link liquibase.action.Action} objects using the registered {@link liquibase.actionlogic.ActionLogic} implementations.
  */
-public class ActionExecutor {
+public class ActionExecutor implements SingletonService {
 
     private List<String> executedPlans = new ArrayList<>();
 
+    protected ActionExecutor() {
+    }
+
     /**
      * Executes an action.
-     * Default implementation creates a {@link liquibase.actionlogic.ActionExecutor.Plan} for the given action and executes it.
+     * Default implementation calls {@link #createPlan(Action, Scope)} for the given action and executes the returned Plan.
      * Will return a single ActionResult if there is a single Action that is executed, but can return a {@link liquibase.actionlogic.CompoundResult} if multiple actions end up being executed to perform the starting action.
+     * Throws {@link ActionPerformException} if there are validation errors.
+     * Tracks all executed actions in {@link #getExecutedPlans()}
      */
     public ActionResult execute(Action action, Scope scope) throws ActionPerformException {
         Plan plan = createPlan(action, scope);
@@ -35,41 +41,49 @@ public class ActionExecutor {
      * Convenience version of {@link #execute(Action, Scope)} for performing a query
      */
     public QueryResult query(Action action, Scope scope) throws ActionPerformException {
-        Plan plan = createPlan(action, scope);
-        if (plan.getValidationErrors().hasErrors()) {
-            throw new ActionPerformException(plan.getValidationErrors().toString());
-        }
-
-        executedPlans.add(plan.describe(true));
-        return (QueryResult) plan.execute(scope);
+        return (QueryResult) execute(action, scope);
     }
 
+    /**
+     * Returns an unmodifiableList of all the plans executed by this ActionExector. For performance reasons, it only stores a description of the plan, not the original Plan object.
+     * History can be reset with {@link #resetPlanHistory()}
+     */
     public List<String> getExecutedPlans() {
         return Collections.unmodifiableList(executedPlans);
     }
 
-    public void resetPlanHistory() {
+    /**
+     * Clears the history that would have been returned by {@link #getExecutedPlans()}
+     */
+    public ActionExecutor resetPlanHistory() {
         executedPlans.clear();
+        return this;
     }
 
+    /**
+     * Returns the {@link ActionStatus} for whether the given action has been executed or not.
+     */
     public ActionStatus checkStatus(Action action, Scope scope) {
         ActionLogic logic = getActionLogic(action, scope);
 
         if (logic == null) {
-            return new ActionStatus().unknown("No ActionLogic implementation for "+action.describe()+" for "+scope.describe());
+            return new ActionStatus().add(ActionStatus.Status.unknown, "No ActionLogic implementation for "+action.describe()+" for "+scope.describe());
         }
 
         return logic.checkStatus(action, scope);
     }
 
+    /**
+     * Returns the {@link ValidationErrors} for the given action.
+     */
     public ValidationErrors validate(Action action, Scope scope) {
        return createPlan(action, scope).getValidationErrors();
     }
 
     /**
-     * Generates a Plan listing the Actions and corresponding ActionLogic implementations that will interact with external systems.
+     * Generates a {@link liquibase.actionlogic.ActionExecutor.Plan} describing how the action will will interact with external systems.
      * Normally {@link #execute(liquibase.action.Action, liquibase.Scope)} should be called, but this method is public for logging and testing purposes.
-     * The Steps in the Plan will contain {@link liquibase.actionlogic.ActionLogic.InteractsExternally} implementations.
+     * The Steps in the Plan will contain implementations that return true for {@link ActionLogic#executeInteractsExternally(Action, Scope)}.
      */
     public Plan createPlan(Action action, Scope scope) {
         ValidationErrors errors = new ValidationErrors(action);
@@ -103,7 +117,7 @@ public class ActionExecutor {
             return null;
         }
 
-        if (actionLogic instanceof ActionLogic.InteractsExternally && ((ActionLogic.InteractsExternally) actionLogic).interactsExternally(action, scope)) {
+        if (actionLogic.executeInteractsExternally(action, scope)) {
             return new Plan.ActionStep(action, actionLogic);
         }
 
@@ -121,7 +135,7 @@ public class ActionExecutor {
                 errors.addError(": "+ actionLogic.getClass().getName()+" tried to handle '"+action.describe()+"' but returned no actions to run");
                 return null;
             } else {
-                Plan.DelegateStep step = new Plan.DelegateStep(depth + 1, ((DelegateResult) result).getModifier());
+                Plan.CompoundStep step = new Plan.CompoundStep(depth + 1, ((DelegateResult) result).getModifier());
                 for (Action rewroteAction : actions) {
                     step.addStep(buildStep(depth + 1, rewroteAction, errors, scope));
                 }
@@ -139,7 +153,7 @@ public class ActionExecutor {
     }
 
     /**
-     * An execution plan.
+     * Describes what {@link liquibase.actionlogic.ActionExecutor.Plan.Step}(s) will be executed and any validation errors
      */
     public static class Plan {
 
@@ -150,14 +164,23 @@ public class ActionExecutor {
             this.step = step;
         }
 
+        /**
+         * Returns the root step to this plan.
+         */
         public Step getStep() {
             return step;
         }
 
+        /**
+         * Returns the ValidationErrors object attached to this Plan.
+         */
         public ValidationErrors getValidationErrors() {
             return validationErrors;
         }
 
+        /**
+         * Describes the plan, optionally including the ActionLogic class that executes each step.
+         */
         public String describe(boolean includeLogicDescription) {
             if (step == null) {
                 return "No steps";
@@ -171,6 +194,9 @@ public class ActionExecutor {
             return describe(true);
         }
 
+        /**
+         * Executes the plan. Throws {@link ActionPerformException} if no steps are defined.
+         */
         public ActionResult execute(Scope scope) throws ActionPerformException {
             if (step == null) {
                 throw new ActionPerformException("No steps in action plan");
@@ -180,42 +206,49 @@ public class ActionExecutor {
 
         }
 
+        /**
+         * Base class for plan steps.
+         * It can include an {@link DelegateResult.Modifier} to modify the result as part of the {@link #execute(Action, Scope)} method.
+         */
         public static abstract class Step {
 
-            private ActionResult.Modifier modifier;
+            private DelegateResult.Modifier modifier;
 
             public Step() {
             }
 
-            public Step(ActionResult.Modifier modifier) {
+            public Step(DelegateResult.Modifier modifier) {
                 this.modifier = modifier;
             }
 
-            public ActionResult.Modifier getModifier() {
+            public DelegateResult.Modifier getModifier(Scope scope) {
                 return modifier;
             }
 
-            public abstract ActionResult execute(Scope scope) throws ActionPerformException;
-
-            public abstract String describe(boolean includeLogicDescription);
+            /**
+             * The logic for executing this step. Called by {@link #execute(Scope)} before passing the result through the Modifier
+             */
+            protected abstract ActionResult executeImpl(Scope scope) throws ActionPerformException;
 
             /**
-             * If the passed result is a CompoundResult with just a single result, return just the nested result.
+             * Describe the step. If longDescription is true, return a more vebose but complete description.
              */
-            protected ActionResult flattenCompoundResult(ActionResult result) {
-//                if (result instanceof CompoundResult && ((CompoundResult) result).getFlatResults().size() == 1) {
-//                    return flattenCompoundResult(((CompoundResult) result).getFlatResults().get(0));
-//                } else {
-                    return result;
-//                }
+            public abstract String describe(boolean longDescription);
+
+            public final ActionResult execute(Scope scope) throws ActionPerformException {
+                ActionResult result = executeImpl(scope);
+                DelegateResult.Modifier modifier = this.getModifier(scope);
+                if (modifier != null) {
+                    result = modifier.rewrite(result);
+                }
+
+                return result;
             }
-
-
         }
 
         /**
-         * A step in a {@link liquibase.actionlogic.ActionExecutor.Plan}.
-         * The step contains an Action to run, the ActionLogic to execute it, and a Deque of Modifiers to adjust the result.
+         * A Step that executes an Action
+         * The step contains the Action to run and the ActionLogic to execute it.
          */
         public static class ActionStep extends Step {
 
@@ -236,33 +269,31 @@ public class ActionExecutor {
             }
 
             @Override
-            public String describe(boolean includeLogicDescription) {
-                if (includeLogicDescription) {
+            public String describe(boolean longDescription) {
+                if (longDescription) {
                     return "Execute "+action.describe()+" with "+logic.getClass().getName();
                 } else {
                     return action.describe();
                 }
             }
 
-            public ActionResult execute(Scope scope) throws ActionPerformException {
-                ActionResult result = this.getLogic().execute(action, scope);
-                if (this.getModifier() != null) {
-                    result = getModifier().rewrite(flattenCompoundResult(result));
-                }
-
-                return flattenCompoundResult(result);
+            protected ActionResult executeImpl(Scope scope) throws ActionPerformException {
+                return this.getLogic().execute(action, scope);
             }
         }
 
-        public static class DelegateStep extends Step {
+        /**
+         * A Step made up of multiple Steps. All will be executed and returned as a {@link CompoundResult}
+         */
+        public static class CompoundStep extends Step {
             private List<Step> steps = new ArrayList<>();
             int depth;
 
-            public DelegateStep(int depth) {
+            public CompoundStep(int depth) {
                 this.depth = depth;
             }
 
-            public DelegateStep(int depth, ActionResult.Modifier modifier) {
+            public CompoundStep(int depth, DelegateResult.Modifier modifier) {
                 super(modifier);
                 this.depth = depth;
             }
@@ -272,31 +303,24 @@ public class ActionExecutor {
             }
 
             @Override
-            public String describe(final boolean includeLogicDescription) {
+            public String describe(final boolean longDescription) {
                 return StringUtils.pad(StringUtils.join(steps, "\n", new StringUtils.StringUtilsFormatter<Step>() {
                     @Override
                     public String toString(Step step) {
-                        return step.describe(includeLogicDescription);
+                        return step.describe(longDescription);
                     }
                 }), depth*4);
             }
 
 
             @Override
-            public ActionResult execute(Scope scope) throws ActionPerformException {
+            protected ActionResult executeImpl(Scope scope) throws ActionPerformException {
                 CompoundResult result = new CompoundResult(null);
                 for (Step step : getSteps()) {
                     result.addResult(step.execute(scope));
                 }
 
-                ActionResult returnResult;
-                if (this.getModifier() == null) {
-                    returnResult = result;
-                } else {
-                    returnResult = getModifier().rewrite(flattenCompoundResult(result));
-                }
-
-                return flattenCompoundResult(returnResult);
+                return result;
             }
 
             public void addStep(Step step) {

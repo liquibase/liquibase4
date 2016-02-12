@@ -7,16 +7,21 @@ import liquibase.util.ObjectUtil;
 import java.sql.ResultSet;
 import java.util.*;
 
+/**
+ * A {@link QueryResult} that contains object(s).
+ * If there is just one object, you can either use {@link #asObject(Class)} or {@link #asList(Class)} but if there are more than one object, you must use {@link #asList(Class)}.
+ * If the result is a collection of rows, not objects use {@link RowBasedQueryResult}
+ */
 public class ObjectBasedQueryResult extends QueryResult {
 
     private List resultSet;
 
-    public ObjectBasedQueryResult(Object result, Action sourceAction) {
-        this(result, null, sourceAction);
+    public ObjectBasedQueryResult(Action sourceAction, Object result) {
+        this(sourceAction, null, result);
     }
 
-    public ObjectBasedQueryResult(Object result, String message, Action sourceAction) {
-        super(message, sourceAction);
+    public ObjectBasedQueryResult(Action sourceAction, String message, Object result) {
+        super(sourceAction, message);
         if (result == null) {
             this.resultSet = Collections.unmodifiableList(new ArrayList());
             return;
@@ -36,15 +41,6 @@ public class ObjectBasedQueryResult extends QueryResult {
     @Override
     public <T> T asObject(Class<T> requiredType) throws IllegalArgumentException {
         return ObjectUtil.convert(getSingleEntry(), requiredType);
-    }
-
-    @Override
-    public <T> T asObject(T defaultValue) throws IllegalArgumentException {
-        T obj = (T) asObject(defaultValue.getClass());
-        if (obj == null) {
-            return defaultValue;
-        }
-        return obj;
     }
 
     @Override

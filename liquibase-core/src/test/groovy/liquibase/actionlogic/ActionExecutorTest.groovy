@@ -29,7 +29,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute when null actionLogic"() {
         when:
-        new ActionExecutor().execute(new MockAction(), scope) == null
+        scope.getSingleton(ActionExecutor).execute(new MockAction(), scope) == null
 
         then:
         def e = thrown(ActionPerformException)
@@ -47,7 +47,7 @@ class ActionExecutorTest extends Specification {
             }
         })
 
-        new ActionExecutor().execute(new MockAction(), scope)
+        scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         then:
         def e = thrown(ActionPerformException)
@@ -57,10 +57,10 @@ class ActionExecutorTest extends Specification {
     def "execute update logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new UpdateResult(12, "update logic ran", it);
+            return new UpdateResult(it, "update logic ran", 12);
         }))
 
-        def result = new ActionExecutor().execute(new MockAction(), scope)
+        def result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         then:
         result instanceof UpdateResult
@@ -71,10 +71,10 @@ class ActionExecutorTest extends Specification {
     def "execute 'execute' logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new ExecuteResult("execute logic ran", it);
+            return new ExecuteResult(it, "execute logic ran");
         }))
 
-        def result = new ActionExecutor().execute(new MockAction(), scope)
+        def result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         then:
         result instanceof ExecuteResult
@@ -84,10 +84,10 @@ class ActionExecutorTest extends Specification {
     def "execute 'query' logic"() {
         when:
         serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
-            return new RowBasedQueryResult("DATA", "query logic ran", it);
+            return new RowBasedQueryResult(it, "query logic ran", "DATA");
         }))
 
-        def result = new ActionExecutor().execute(new MockAction(), scope)
+        def result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         then:
         result instanceof QueryResult
@@ -100,7 +100,7 @@ class ActionExecutorTest extends Specification {
             return new DelegateResult(it, null);
         }))
 
-        def result = new ActionExecutor().execute(new MockAction(), scope)
+        def result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         then:
         def e = thrown(ActionPerformException)
@@ -115,12 +115,12 @@ class ActionExecutorTest extends Specification {
         serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+                return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
         then:
-        def result = new ActionExecutor().execute(new MockAction(), scope)
+        def result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         result instanceof CompoundResult
         ((CompoundResult) result).flatResults.size() == 1
@@ -141,12 +141,12 @@ class ActionExecutorTest extends Specification {
         serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+                return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
         then:
-        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+        CompoundResult result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         result.flatResults.size() == 2
         result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
@@ -164,7 +164,7 @@ class ActionExecutorTest extends Specification {
         serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+                return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
@@ -176,7 +176,7 @@ class ActionExecutorTest extends Specification {
         })
 
         then:
-        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+        CompoundResult result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         result.flatResults.size() == 4
         result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
@@ -195,7 +195,7 @@ class ActionExecutorTest extends Specification {
     def "execute 'rewrite' logic with multiple levels of DelegateResults and a top level modifier"() {
         when:
         serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
-            return new DelegateResult(it, new ActionResult.Modifier() {
+            return new DelegateResult(it, new DelegateResult.Modifier() {
                 @Override
                 ActionResult rewrite(ActionResult result) throws ActionPerformException {
                     if (result instanceof ExecuteResult) {
@@ -208,7 +208,7 @@ class ActionExecutorTest extends Specification {
         serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
-                return new ExecuteResult("executed sql: " + ((AbstractSqlAction) action).sql, action);
+                return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
@@ -220,7 +220,7 @@ class ActionExecutorTest extends Specification {
         })
 
         then:
-        CompoundResult result = new ActionExecutor().execute(new MockAction(), scope)
+        CompoundResult result = scope.getSingleton(ActionExecutor).execute(new MockAction(), scope)
 
         result.flatResults.size() == 4
         result.flatResults[0].sourceAction == new UpdateSqlAction("sql action 1")
@@ -240,7 +240,7 @@ class ActionExecutorTest extends Specification {
     @Unroll
     def "plan is built correctly"() {
         expect:
-        new ActionExecutor().createPlan(action, JUnitScope.getInstance(new GenericDatabase(new MockJdbcConnection()))).describe(true) == expected
+        scope.getSingleton(ActionExecutor).createPlan(action, JUnitScope.getInstance(new GenericDatabase(new MockJdbcConnection()))).describe(true) == expected
 
         where:
         action                                                                             | expected

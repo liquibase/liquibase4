@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Add foreign keys to a database. {@link liquibase.actionlogic.ActionLogic} implementations that handle this should handle the case when there are keys added to multiple tables.
+ */
 public class AddForeignKeysAction extends AbstractAction {
 
     public List<ForeignKey> foreignKeys = new ArrayList<>();

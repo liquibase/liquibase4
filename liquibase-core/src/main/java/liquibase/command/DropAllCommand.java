@@ -2,7 +2,7 @@ package liquibase.command;
 
 import liquibase.Scope;
 import liquibase.action.core.DropForeignKeyAction;
-import liquibase.action.core.DropTablesAction;
+import liquibase.action.core.DropTableAction;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.ForeignKey;
@@ -38,11 +38,11 @@ public class DropAllCommand extends AbstractCommand {
         SnapshotCommand.SnapshotCommandResult snapshotResult = snapshotCommand.execute(scope);
 
         for (ForeignKey foreignKey : snapshotResult.snapshot.get(ForeignKey.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction(foreignKey.name, foreignKey.table), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction((ForeignKey.ForeignKeyReference) foreignKey.toReference()), scope);
         }
 
         for (Table table : snapshotResult.snapshot.get(Table.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropTablesAction(table.toReference()), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropTableAction(table.toReference()), scope);
         }
 
         return new CommandResult();

@@ -4,6 +4,7 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogic;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
@@ -25,10 +26,10 @@ import java.util.List;
 /**
  * Logic to snapshot database column(s). Delegates to {@link QueryJdbcMetaDataAction} getColumns().
  */
-public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
+public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<Column> {
 
     @Override
-    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
+    protected Class<Column> getTypeToSnapshot() {
         return Column.class;
     }
 
@@ -87,7 +88,7 @@ public class SnapshotColumnsLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
 
     @Override
-    protected LiquibaseObject convertToObject(Object result, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Column convertToObject(Object result, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) result;
         Database database = scope.getDatabase();
 

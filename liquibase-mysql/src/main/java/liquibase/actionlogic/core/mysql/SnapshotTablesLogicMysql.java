@@ -2,15 +2,14 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.core.SnapshotTablesLogicJdbc;
+import liquibase.actionlogic.core.SnapshotTablesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.structure.ObjectReference;
 
-public class SnapshotTablesLogicMysql extends SnapshotTablesLogicJdbc {
+public class SnapshotTablesLogicMysql extends SnapshotTablesLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {

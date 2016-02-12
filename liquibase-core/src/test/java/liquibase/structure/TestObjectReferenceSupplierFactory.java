@@ -1,11 +1,12 @@
 package liquibase.structure;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.servicelocator.AbstractServiceFactory;
 
-public class TestObjectReferenceSupplierFactory extends AbstractServiceFactory<TestObjectReferenceSupplier> {
+public class TestObjectReferenceSupplierFactory extends AbstractServiceFactory<TestObjectReferenceSupplier> implements SingletonService {
 
-    public TestObjectReferenceSupplierFactory(Scope scope) {
+    protected TestObjectReferenceSupplierFactory(Scope scope) {
         super(scope);
     }
 

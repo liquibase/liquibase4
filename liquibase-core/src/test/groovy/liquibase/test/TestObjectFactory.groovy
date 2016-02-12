@@ -1,9 +1,13 @@
 package liquibase.test
 
 import liquibase.ExtensibleObject
+import liquibase.SingletonService
 import liquibase.util.CollectionUtil
 
-public class TestObjectFactory {
+public class TestObjectFactory implements SingletonService {
+
+    protected TestObjectFactory() {
+    }
 
     public <T extends ExtensibleObject> List<T> createAllPermutationsWithoutNulls(Class<T> type, Map<String, List<Object>> defaultValues) throws Exception {
         return createAllPermutations(type, defaultValues, false)

@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.core.SnapshotPrimaryKeysLogicJdbc;
+import liquibase.actionlogic.core.SnapshotPrimaryKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ValidationErrors;
@@ -12,7 +12,7 @@ import liquibase.structure.ObjectReference;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.util.StringClauses;
 
-public class SnapshotPrimaryKeysLogicMysql extends SnapshotPrimaryKeysLogicJdbc {
+public class SnapshotPrimaryKeysLogicMysql extends SnapshotPrimaryKeysLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
@@ -20,9 +20,9 @@ public class SnapshotPrimaryKeysLogicMysql extends SnapshotPrimaryKeysLogicJdbc 
     }
 
     @Override
-    public ValidationErrors validate(Action action, Scope scope) {
+    public ValidationErrors validate(SnapshotObjectsAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope);
-        for (ObjectReference relatedTo : ((SnapshotObjectsAction) action).relatedTo) {
+        for (ObjectReference relatedTo : action.relatedTo) {
             if (relatedTo.instanceOf(PrimaryKey.class) && relatedTo.name != null && !relatedTo.name.equalsIgnoreCase("primary")) {
                 errors.addError(scope.getDatabase().getShortName()+" does not support primary key names");
                 break;

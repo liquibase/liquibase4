@@ -4,6 +4,7 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogic;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
@@ -20,10 +21,10 @@ import java.util.List;
 /**
  * Logic to snapshot database table(s). Delegates to {@link QueryJdbcMetaDataAction} getTables().
  */
-public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
+public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Table> {
 
     @Override
-    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
+    protected Class<Table> getTypeToSnapshot() {
         return Table.class;
     }
 
@@ -71,7 +72,7 @@ public class SnapshotTablesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Table convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String rawTableName = row.get("TABLE_NAME", String.class);

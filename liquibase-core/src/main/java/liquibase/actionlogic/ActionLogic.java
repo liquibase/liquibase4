@@ -6,44 +6,44 @@ import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.servicelocator.Service;
+import liquibase.structure.LiquibaseObject;
 
 /**
  * Implementations of this interface contain the logic to handle an {@link liquibase.action.Action} object.
  * Which ActionLogic implementation is used will be based on which returns the highest value from {@link #getPriority(liquibase.action.Action, liquibase.Scope)}.
  * For convenience, consider extending {@link AbstractActionLogic}.
- * If this ActionLogic interacts with an external system, implement {@link liquibase.actionlogic.ActionLogic.InteractsExternally}
+ * If this ActionLogic interacts with an external system, return true from {@link liquibase.actionlogic.ActionLogic#executeInteractsExternally(Action, Scope)}.
+ * ActionLogic implementations are used as singletons, so do not class variables.
  */
-public interface ActionLogic<T extends Action> extends Service {
+public interface ActionLogic<ActionType extends Action> extends Service {
 
     /**
      * Returns the priority for this ActionLogic implementation for the given Action and Scope.
      * If this ActionLogic does not apply, return {@link #PRIORITY_NOT_APPLICABLE}.
      */
-    int getPriority(T action, Scope scope);
+    int getPriority(ActionType action, Scope scope);
 
     /**
      * Validates the given action. Validation can include both errors and warnings.
      */
-    ValidationErrors validate(T action, Scope scope);
+    ValidationErrors validate(ActionType action, Scope scope);
 
     /**
      * Check if the action has already been executed against the given scope. Return {@link liquibase.action.ActionStatus.Status#unknown} if it is impossible to test.
      */
-    ActionStatus checkStatus(T action, Scope scope);
+    ActionStatus checkStatus(ActionType action, Scope scope);
 
-
-    ActionResult execute(T action, Scope scope) throws ActionPerformException;
 
     /**
-     * All ActionLogic implementations that (potentially) interact with external systems should implement this interface.
-     * Implementations of this interface are used by {@link liquibase.actionlogic.ActionExecutor.Plan} to know when to stop decomposing actions as well as for logging.
+     * Returns true if this ActionLogic implementation will interact with an external system (database, server, etc.) for the given action and scope on {@link #execute(Action, Scope)}.
+     * If true, execute can be safely called any number of times and it will probably return {@link DelegateResult}.
+     * Even if a DelegateResult is returned but external systems are accessed to determine what goes into the DelegateResult, still return true;
      */
-    interface InteractsExternally<T extends Action> {
+    boolean executeInteractsExternally(ActionType action, Scope scope);
 
-        /**
-         * Returns true if this ActionLogic implementation will interact with an external system (database, server, etc.) for the given action and scope.
-         */
-        boolean interactsExternally(T action, Scope scope);
-    }
+    /**
+     * Execute the given action.
+     */
+    ActionResult execute(ActionType action, Scope scope) throws ActionPerformException;
 
 }

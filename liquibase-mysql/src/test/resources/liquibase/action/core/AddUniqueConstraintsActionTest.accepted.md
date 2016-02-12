@@ -88,4 +88,4 @@
 | b9448c      | true     | col_name1, col_name2 | uq_test | lbcat  | **plan**: ALTER TABLE `lbcat` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
 | 07ee83      | true     | col_name1, col_name2 | uq_test | lbcat2 | **plan**: ALTER TABLE `lbcat2` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
 
-# Test Version: "adfb6b" #
+# Test Version: "021ba9" #

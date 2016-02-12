@@ -1,10 +1,11 @@
 package liquibase.servicelocator;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 
 import java.util.*;
 
-public class ServiceLocator {
+public class ServiceLocator implements SingletonService {
 
     private Map<Class, Set> services = new HashMap<>();
 

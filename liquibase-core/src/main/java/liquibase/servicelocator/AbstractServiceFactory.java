@@ -1,11 +1,12 @@
 package liquibase.servicelocator;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 
 import java.util.Comparator;
 import java.util.TreeSet;
 
-public abstract class AbstractServiceFactory<T extends Service> {
+public abstract class AbstractServiceFactory<T extends Service> implements SingletonService {
 
     private final Scope rootScope;
 

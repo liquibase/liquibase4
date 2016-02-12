@@ -12,8 +12,8 @@ public class ExecuteResult extends ActionResult {
         super(sourceAction);
     }
 
-    public ExecuteResult(String message, Action sourceAction) {
-        super(message, sourceAction);
+    public ExecuteResult(Action sourceAction, String message) {
+        super(sourceAction, message);
     }
 
     @Override

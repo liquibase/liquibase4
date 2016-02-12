@@ -27,7 +27,7 @@ import java.util.List;
 
 public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         constraintName, columnNames, tablespace,
     }
 

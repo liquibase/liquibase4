@@ -1,11 +1,7 @@
 package liquibase.action;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.structure.ObjectReference;
 import liquibase.util.StringUtils;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Convenience standard implementation of {@link liquibase.action.Action}.
@@ -40,6 +36,9 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
         return this.describe().hashCode();
     }
 
+    /**
+     * Default implementation returns output from {@link #describe()}
+     */
     @Override
     public String toString() {
         return this.describe();

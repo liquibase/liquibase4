@@ -14,7 +14,7 @@ import liquibase.util.StringClauses;
 
 public class AlterColumnLogic extends AbstractActionLogic<AlterColumnAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         tableName,
         columnName,
         newDefinition,

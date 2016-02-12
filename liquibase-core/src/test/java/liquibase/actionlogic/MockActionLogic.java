@@ -32,7 +32,7 @@ public class MockActionLogic extends AbstractActionLogic {
     @Override
     public ActionResult execute(Action action, Scope scope) throws ActionPerformException {
         if (executeLogic == null) {
-            return new ExecuteResult("Executed "+toString(), action);
+            return new ExecuteResult(action, "Executed "+toString());
         } else {
             return (ActionResult) executeLogic.call(action);
         }

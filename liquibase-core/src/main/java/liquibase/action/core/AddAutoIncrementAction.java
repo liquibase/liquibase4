@@ -4,6 +4,9 @@ import liquibase.action.AbstractAction;
 import liquibase.structure.core.Column;
 import liquibase.structure.datatype.DataType;
 
+/**
+ * Makes a column an auto-increment AKA identity column.
+ */
 public class AddAutoIncrementAction extends AbstractAction {
 
     public Column.ColumnReference column;

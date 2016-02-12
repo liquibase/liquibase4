@@ -6,20 +6,21 @@ import liquibase.action.ActionStatus;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.ValidationErrors;
+import liquibase.structure.LiquibaseObject;
 
 /**
  * Convenience base class for {@link liquibase.actionlogic.ActionLogic} implementations.
  */
-public abstract class AbstractActionLogic<T extends Action> implements ActionLogic<T> {
+public abstract class AbstractActionLogic<ActionType extends Action> implements ActionLogic<ActionType> {
 
     /**
      * Returns the Action class supported by this ActionLogic implementation. Used by {@link AbstractActionLogic#getPriority(liquibase.action.Action, liquibase.Scope)}
      */
-    protected abstract Class<? extends T> getSupportedAction();
+    protected abstract Class<? extends ActionType> getSupportedAction();
 
     /**
      * Return the type of {@link Database} this this ActionLogic requires.
-     * Return liquibase.database.Database if any database is supported, but one is required (default).
+     * Should return liquibase.database.Database if any database is supported, but one is required (default).
      * Return null if no database is required.
      * Used by {@link #supportsScope(liquibase.Scope)}. If more complex logic is required than just one Database subclass, override supportsScope(Scope).
      */
@@ -60,8 +61,12 @@ public abstract class AbstractActionLogic<T extends Action> implements ActionLog
         return true;
     }
 
+    /**
+     * Implementation relies on {@link #getSupportedAction()} and {@link #supportsScope(Scope)} to determine the priority to return.
+     * Normally, you should only need to override one or both of those methods and not override this. It is not final, however, so it can be overridden if need be.
+     */
     @Override
-    public int getPriority(T action, Scope scope) {
+    public int getPriority(ActionType action, Scope scope) {
         if (!action.getClass().isAssignableFrom(getSupportedAction())) {
             return PRIORITY_NOT_APPLICABLE;
         }
@@ -81,17 +86,23 @@ public abstract class AbstractActionLogic<T extends Action> implements ActionLog
      * Standard implementation returns an empty ValidationErrors
      */
     @Override
-    public ValidationErrors validate(T action, Scope scope) {
+    public ValidationErrors validate(ActionType action, Scope scope) {
         return new ValidationErrors(action);
     }
 
     /**
-     * Default implementation of {@link ActionLogic#checkStatus(Action, Scope)} returns an {@link liquibase.action.ActionStatus.Status#unknown}.
+     * Default implementation returns an {@link liquibase.action.ActionStatus.Status#unknown} message of "No checkStatus logic defined".
      */
     @Override
-    public ActionStatus checkStatus(T action, Scope scope) {
-        return new ActionStatus().unknown("No checkStatus logic defined");
+    public ActionStatus checkStatus(ActionType action, Scope scope) {
+        return new ActionStatus().add(ActionStatus.Status.unknown, "No checkStatus logic defined");
     }
 
-
+    /**
+     * Default implementation returns "false"
+     */
+    @Override
+    public boolean executeInteractsExternally(ActionType action, Scope scope) {
+        return false;
+    }
 }

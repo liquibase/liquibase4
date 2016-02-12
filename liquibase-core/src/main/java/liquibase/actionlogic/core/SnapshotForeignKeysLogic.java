@@ -4,9 +4,7 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.ActionResult;
-import liquibase.actionlogic.ObjectBasedQueryResult;
-import liquibase.actionlogic.RowBasedQueryResult;
+import liquibase.actionlogic.*;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.structure.LiquibaseObject;
@@ -17,10 +15,10 @@ import liquibase.util.Validate;
 import java.sql.DatabaseMetaData;
 import java.util.*;
 
-public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
+public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLogic<ForeignKey> {
 
     @Override
-    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
+    protected Class<ForeignKey> getTypeToSnapshot() {
         return ForeignKey.class;
     }
 
@@ -71,7 +69,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
     }
 
     @Override
-    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected ForeignKey convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String relatedToForeignKeyName = null;
@@ -175,8 +173,8 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
 }
 
     @Override
-    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
-        return new SnapshotModifier(relatedTo, originalAction, scope) {
+    protected DelegateResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
+        return new RowsToObjectsModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
                 List<ForeignKey> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(ForeignKey.class);
@@ -190,7 +188,7 @@ public class SnapshotForeignKeysLogicJdbc extends AbstractSnapshotObjectsLogicJd
                     }
                 }
 
-                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);
+                return new ObjectBasedQueryResult(originalAction, new ArrayList(combinedResults.values()));
             }
         };
     }

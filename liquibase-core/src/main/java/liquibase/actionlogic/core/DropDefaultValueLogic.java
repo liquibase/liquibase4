@@ -26,7 +26,7 @@ public class DropDefaultValueLogic extends AbstractSqlBuilderLogic<DropDefaultVa
     @Override
     public ActionResult execute(DropDefaultValueAction action, Scope scope) throws ActionPerformException {
         return new DelegateResult(action, null, new AlterColumnAction(
-                action.columnName,
+                action.column,
                 generateSql(action, scope)));
     }
 

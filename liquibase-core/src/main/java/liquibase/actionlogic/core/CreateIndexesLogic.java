@@ -24,7 +24,7 @@ import java.util.List;
 
 public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         indexName,
         columns,
         tableName,

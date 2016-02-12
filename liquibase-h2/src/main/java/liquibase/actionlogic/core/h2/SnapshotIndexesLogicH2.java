@@ -3,12 +3,12 @@ package liquibase.actionlogic.core.h2;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.actionlogic.core.SnapshotIndexesLogicJdbc;
+import liquibase.actionlogic.core.SnapshotIndexesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.util.StringClauses;
 
-public class SnapshotIndexesLogicH2 extends SnapshotIndexesLogicJdbc {
+public class SnapshotIndexesLogicH2 extends SnapshotIndexesLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {

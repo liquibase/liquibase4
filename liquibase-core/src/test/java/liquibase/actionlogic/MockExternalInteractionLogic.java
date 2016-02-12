@@ -4,7 +4,7 @@ import groovy.lang.Closure;
 import liquibase.Scope;
 import liquibase.action.Action;
 
-public class MockExternalInteractionLogic extends MockActionLogic implements ActionLogic.InteractsExternally {
+public class MockExternalInteractionLogic extends MockActionLogic {
 
     public MockExternalInteractionLogic(String name, int priority, Class<? extends Action> supportedAction) {
         super(name, priority, supportedAction);
@@ -15,7 +15,7 @@ public class MockExternalInteractionLogic extends MockActionLogic implements Act
     }
 
     @Override
-    public boolean interactsExternally(Action action, Scope scope) {
+    public boolean executeInteractsExternally(Action action, Scope scope) {
         return true;
     }
 }

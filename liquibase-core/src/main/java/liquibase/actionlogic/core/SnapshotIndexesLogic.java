@@ -16,10 +16,10 @@ import liquibase.util.Validate;
 import java.sql.DatabaseMetaData;
 import java.util.*;
 
-public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
+public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<Index> {
 
     @Override
-    protected Class<? extends LiquibaseObject> getTypeToSnapshot() {
+    protected Class<Index> getTypeToSnapshot() {
         return Index.class;
     }
 
@@ -32,21 +32,6 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
                 Schema.class,
                 Catalog.class
         };
-    }
-
-    @Override
-    public ActionResult execute(SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-        List<Action> pkActions = new ArrayList<>();
-        for (ObjectReference relatedTo : action.relatedTo) {
-            if (relatedTo.instanceOf(PrimaryKey.class)) {
-                pkActions.add(new SnapshotObjectsAction(relatedTo));
-            }
-        }
-        ActionResult result = super.execute(action, scope);
-//        if (pkActions.size() > 0) {
-//            result = new DelegateResult(action, null, (DelegateResult) result, pkActions.toArray(new Action[pkActions.size()]));
-//        }
-        return result;
     }
 
     @Override
@@ -100,7 +85,7 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Index convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         short type = row.get("TYPE", Short.class);
@@ -163,8 +148,8 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
     }
 
     @Override
-    protected ActionResult.Modifier createModifier(final ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
-        return new SnapshotModifier(relatedTo, originalAction, scope) {
+    protected DelegateResult.Modifier createModifier(final ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
+        return new RowsToObjectsModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
                 if (result instanceof ObjectBasedQueryResult) {
@@ -199,12 +184,12 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
 
                 }
 
-                return new ObjectBasedQueryResult(new ArrayList(combinedResults.values()), originalAction);
+                return new ObjectBasedQueryResult(originalAction, new ArrayList(combinedResults.values()));
             }
         };
     }
 
-    private static class PrimaryKeyIndexModifier implements ActionResult.Modifier {
+    private static class PrimaryKeyIndexModifier implements DelegateResult.Modifier {
         private SnapshotObjectsAction originalAction;
 
         public PrimaryKeyIndexModifier(SnapshotObjectsAction originalAction) {
@@ -238,7 +223,7 @@ public class SnapshotIndexesLogicJdbc extends AbstractSnapshotObjectsLogicJdbc {
                 }
             }
 
-            return new ObjectBasedQueryResult(finalResults, originalAction);
+            return new ObjectBasedQueryResult(originalAction, finalResults);
         }
 
         protected boolean isBackingIndex(Index index, PrimaryKey primaryKey) {

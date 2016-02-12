@@ -65,7 +65,7 @@ public class CreateTableLogicH2 extends CreateTableLogic {
             String columnRemarks = column.remarks;
             if (columnRemarks != null) {
                 SetColumnRemarksAction remarksAction = new SetColumnRemarksAction();
-                remarksAction.columnName = new Column.ColumnReference(action.table.name, column.name);
+                remarksAction.column = new Column.ColumnReference(action.table.name, column.name);
                 remarksAction.remarks = columnRemarks;
                 result.addActions(remarksAction);
             }

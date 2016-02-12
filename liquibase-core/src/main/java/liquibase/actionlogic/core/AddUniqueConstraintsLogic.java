@@ -24,7 +24,7 @@ import java.util.List;
 
 public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueConstraintsAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         constraintName,
         columnNames,
     }

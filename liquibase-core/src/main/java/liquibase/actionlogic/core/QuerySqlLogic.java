@@ -2,6 +2,7 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.QuerySqlAction;
+import liquibase.actionlogic.AbstractSqlLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
@@ -30,7 +31,7 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
 
             Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
             Statement stmt = jdbcConnection.createStatement();
-            return new RowBasedQueryResult(JdbcUtils.extract(stmt.executeQuery(sql)), action);
+            return new RowBasedQueryResult(action, JdbcUtils.extract(stmt.executeQuery(sql)));
         } catch (SQLException e) {
             throw new ActionPerformException("Error executing query '"+ sql +"'"+e);
         }

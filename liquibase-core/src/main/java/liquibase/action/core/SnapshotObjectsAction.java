@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Action describing objects to snapshot.
+ * Snapshot objects.
  * The {@link SnapshotObjectsAction#typeToSnapshot} parameter contains the type of object to snapshot.
  * The {@link SnapshotObjectsAction#relatedTo} parameter contains the object for which all the given typeToSnapshot objects should be related to.
  * For example, if relatedTo is the table public.test_table and relatedTo is Column.class, the ActionResult will be a list of columns in the table public.test_table.

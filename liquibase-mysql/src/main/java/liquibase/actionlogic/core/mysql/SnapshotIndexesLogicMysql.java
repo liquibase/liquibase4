@@ -3,12 +3,12 @@ package liquibase.actionlogic.core.mysql;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.actionlogic.core.SnapshotIndexesLogicJdbc;
+import liquibase.actionlogic.core.SnapshotIndexesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.util.StringClauses;
 
-public class SnapshotIndexesLogicMysql extends SnapshotIndexesLogicJdbc {
+public class SnapshotIndexesLogicMysql extends SnapshotIndexesLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {

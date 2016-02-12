@@ -2,6 +2,7 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.ExecuteSqlAction;
+import liquibase.actionlogic.AbstractSqlLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ExecuteResult;
 import liquibase.database.AbstractJdbcDatabase;
@@ -14,7 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction>  {
+public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
 
     @Override
     protected Class<ExecuteSqlAction> getSupportedAction() {

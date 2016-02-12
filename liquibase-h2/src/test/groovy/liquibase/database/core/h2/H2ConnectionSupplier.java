@@ -31,7 +31,7 @@ public class H2ConnectionSupplier extends ConnectionSupplier {
 
     protected void initConnection(Scope scope) {
         try {
-            new ActionExecutor().execute(new ExecuteSqlAction("CREATE SCHEMA "+getAlternateSchema()), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new ExecuteSqlAction("CREATE SCHEMA "+getAlternateSchema()), scope);
         } catch (ActionPerformException e) {
             throw new UnexpectedLiquibaseException(e);
         }

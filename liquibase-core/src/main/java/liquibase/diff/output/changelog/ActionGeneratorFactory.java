@@ -1,6 +1,7 @@
 package liquibase.diff.output.changelog;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.action.Action;
 import liquibase.servicelocator.AbstractServiceFactory;
 import liquibase.snapshot.Snapshot;
@@ -8,7 +9,7 @@ import liquibase.structure.LiquibaseObject;
 
 import java.util.List;
 
-public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerator> {
+public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerator> implements SingletonService {
 
     /**
      * Protected because should be a singleton

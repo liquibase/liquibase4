@@ -26,7 +26,7 @@ import java.util.List;
 
 public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysAction> {
 
-    public static enum Clauses {
+    public enum Clauses {
         constraintName,
         baseColumnNames, referencedTableName, referencedColumnNames,
     }

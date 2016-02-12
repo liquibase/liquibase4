@@ -1,6 +1,7 @@
 package liquibase.snapshot;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.actionlogic.QueryResult;
@@ -10,18 +11,18 @@ import liquibase.structure.ObjectReference;
 
 import java.util.List;
 
-public class SnapshotFactory {
+public class SnapshotFactory implements SingletonService {
 
     protected SnapshotFactory() {
     }
 
     public boolean has(ObjectReference object, Scope scope) throws ActionPerformException {
-        QueryResult result = (QueryResult) new ActionExecutor().execute(new SnapshotObjectsAction(object), scope);
+        QueryResult result = (QueryResult) scope.getSingleton(ActionExecutor.class).execute(new SnapshotObjectsAction(object), scope);
         return result.size() > 0;
     }
 
     public <T extends LiquibaseObject> T snapshot(ObjectReference object, Scope scope) throws ActionPerformException {
-        QueryResult result = (QueryResult) new ActionExecutor().execute(new SnapshotObjectsAction(object), scope);
+        QueryResult result = (QueryResult) scope.getSingleton(ActionExecutor.class).execute(new SnapshotObjectsAction(object), scope);
 
         return (T) result.asObject(object.type);
     }

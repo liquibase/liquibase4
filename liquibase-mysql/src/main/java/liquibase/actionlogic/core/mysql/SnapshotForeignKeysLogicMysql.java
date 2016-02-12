@@ -5,7 +5,7 @@ import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
-import liquibase.actionlogic.core.SnapshotForeignKeysLogicJdbc;
+import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
@@ -16,7 +16,7 @@ import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import liquibase.util.StringClauses;
 
-public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc {
+public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
@@ -65,10 +65,10 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogicJdbc 
     }
 
     @Override
-    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected ForeignKey convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
-        ForeignKey fk = (ForeignKey) super.convertToObject(object, relatedTo, originalAction, scope);
+        ForeignKey fk = super.convertToObject(object, relatedTo, originalAction, scope);
 
         String updateRule = row.get("UPDATE_RULE_STRING", String.class);
         if (updateRule != null) {

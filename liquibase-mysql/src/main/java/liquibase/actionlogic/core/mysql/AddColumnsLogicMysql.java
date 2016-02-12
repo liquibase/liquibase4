@@ -33,8 +33,8 @@ public class AddColumnsLogicMysql extends AddColumnsLogic {
     }
 
     @Override
-    public ActionResult execute(AddColumnsAction action, Scope scope) throws ActionPerformException {
-        return super.execute(action, scope);
+    public ActionResult createAddColumnAction(AddColumnsAction action, Scope scope) throws ActionPerformException {
+        return super.createAddColumnAction(action, scope);
 //todo: support multiple columns in a single alter table
 //        String alterTable = generateSingleColumBaseSQL(columns.get(0), database);
 //        for (int i = 0; i < columns.size(); i++) {

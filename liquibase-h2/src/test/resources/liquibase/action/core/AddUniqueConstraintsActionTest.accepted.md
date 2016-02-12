@@ -124,4 +124,4 @@
 | 2bd5e6      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | LBSCHEMA2 | **plan**: ALTER TABLE "LBSCHEMA2" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
 | bc94a0      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | PUBLIC    | **plan**: ALTER TABLE "PUBLIC" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
 
-# Test Version: "ca557a" #
+# Test Version: "021ba9" #

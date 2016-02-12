@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * Add indexes to a database. {@link liquibase.actionlogic.ActionLogic} implementations that handle this should handle the case when there are indexes added to multiple tables.
+ */
 public class CreateIndexesAction extends AbstractAction {
 
     public List<Index> indexes = new ArrayList<>();

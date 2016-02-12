@@ -1,18 +1,17 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
+import liquibase.SingletonService;
 import liquibase.action.Action;
 import liquibase.servicelocator.AbstractServiceFactory;
 import liquibase.servicelocator.Service;
 
 /**
  * Factory/registry for looking up the correct ActionLogic implementation. Should normally be accessed using {@link Scope#getSingleton(Class)}, not constructed directly.
+ * Even better, normally use {@link ActionExecutor} which is a higher level class.
  */
 public class ActionLogicFactory  extends AbstractServiceFactory<ActionLogic> {
 
-    /**
-     * Constructor is protected because it should be used as a singleton.
-     */
     protected ActionLogicFactory(Scope scope) {
         super(scope);
     }

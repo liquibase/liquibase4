@@ -4,24 +4,20 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.ActionResult;
-import liquibase.actionlogic.ObjectBasedQueryResult;
+import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.RowBasedQueryResult;
-import liquibase.actionlogic.core.SnapshotForeignKeysLogicJdbc;
-import liquibase.actionlogic.core.SnapshotUniqueConstraintsLogicJdbc;
+import liquibase.actionlogic.core.SnapshotUniqueConstraintsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
-import liquibase.util.StringClauses;
 import org.apache.velocity.util.StringUtils;
 
 import java.util.Arrays;
-import java.util.List;
 
-public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsLogicJdbc {
+public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsLogic {
 
 
     @Override
@@ -48,15 +44,15 @@ public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsL
     }
 
     @Override
-    protected LiquibaseObject convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
-        UniqueConstraint returnObject = (UniqueConstraint) super.convertToObject(object, relatedTo, originalAction, scope);
+    protected UniqueConstraint convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+        UniqueConstraint returnObject = super.convertToObject(object, relatedTo, originalAction, scope);
 
         returnObject.columns = Arrays.asList(StringUtils.split(((RowBasedQueryResult.Row) object).get("COLUMN_LIST", String.class), ","));
 
         return returnObject;
     }
 
-    protected ActionResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, final Scope scope) {
-        return new SnapshotModifier(relatedTo, originalAction, scope);
+    protected DelegateResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, final Scope scope) {
+        return new RowsToObjectsModifier(relatedTo, originalAction, scope);
     }
 }

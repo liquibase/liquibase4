@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
 import liquibase.action.core.SnapshotObjectsAction;
-import liquibase.actionlogic.core.SnapshotForeignKeysLogicJdbc;
+import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
@@ -14,7 +14,7 @@ import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import liquibase.util.StringClauses;
 
-public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogicJdbc {
+public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
 
 
     @Override

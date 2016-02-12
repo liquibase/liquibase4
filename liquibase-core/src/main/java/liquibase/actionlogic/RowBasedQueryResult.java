@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.util.*;
 
 /**
- * Implementation of QueryResult designed for databases and other systems that return row-based query results.
+ * Implementation of QueryResult designed for result sets and other row-based query results.
  * If more complex or memory-efficient logic is needed, it can be subclassed.
  */
 public class RowBasedQueryResult extends QueryResult {
@@ -22,8 +22,8 @@ public class RowBasedQueryResult extends QueryResult {
      * <li>If the result is a collection of Maps, it stored as a collection with each Map converted to a Row</li>
      * <li>If the result is a collection of Non-Maps, it stored as a collection with each row containing a single-key Row with the value stored at key "value"</li>
      */
-    public RowBasedQueryResult(Object result, String message, Action sourceAction) {
-        super(message, sourceAction);
+    public RowBasedQueryResult(Action sourceAction, String message, Object result) {
+        super(sourceAction, message);
         if (result == null) {
             this.resultSet = Collections.unmodifiableList(new ArrayList<Row>());
             return;
@@ -53,16 +53,11 @@ public class RowBasedQueryResult extends QueryResult {
         this.resultSet = Collections.unmodifiableList(convertedResultSet);
     }
 
-    public RowBasedQueryResult(Object singleValue, Action souceAction) {
-        this(singleValue, null, souceAction);
+    public RowBasedQueryResult(Action souceAction, Object singleValue) {
+        this(souceAction, null, singleValue);
     }
 
 
-    /**
-     * Return a single object of the given type. Throws exception if there are more than one row in this QueryResult or
-     * if there is more than one value in the row. Returns null if this QueryResult is empty or the single row is empty.
-     * Will convert the requiredType if needed via {@link liquibase.util.ObjectUtil#convert(Object, Class)}
-     */
     public <T> T asObject(Class<T> requiredType) throws IllegalArgumentException {
         Row singleRow = getSingleRow();
         if (singleRow == null) {
@@ -71,22 +66,6 @@ public class RowBasedQueryResult extends QueryResult {
         return singleRow.getSingleValue(requiredType);
     }
 
-    /**
-     * Returns a single object of the given type. Returns the passed defaultValue if the value is null
-     */
-    public <T> T asObject(T defaultValue) throws IllegalArgumentException {
-        Row singleRow = getSingleRow();
-        if (singleRow == null) {
-            return defaultValue;
-        }
-        return singleRow.getSingleValue(defaultValue);
-    }
-
-    /**
-     * Return a list of objects of the given type. Throws exception if there is more than one value in the row.
-     * Returns an empty if this QueryResult was originally passed a null collection.
-     * Will convert the requiredType if needed via {@link liquibase.util.ObjectUtil#convert(Object, Class)}
-     */
     public <T> List<T> asList(Class<T> elementType) throws IllegalArgumentException {
         List returnList = new ArrayList();
         for (Row row : resultSet) {
@@ -105,9 +84,9 @@ public class RowBasedQueryResult extends QueryResult {
 
     /**
      * Extract a single row from this QueryResult. Returns null if the original collection was null or empty.
-     * Throws exception if there is more than one row.
+     * Throws IllegalArgumentException exception if there is more than one row.
      */
-    protected Row getSingleRow() throws IllegalArgumentException {
+    public Row getSingleRow() throws IllegalArgumentException {
         if (resultSet.size() == 0) {
             return null;
         }
@@ -121,26 +100,39 @@ public class RowBasedQueryResult extends QueryResult {
         return resultSet.size();
     }
 
+    /**
+     * Container object for each row in the results.
+     * Column names are stored case sensitively.
+     */
     public static class Row {
 
         private SortedMap<String, Object> data;
 
         public Row(Map<String, ?> data) {
             if (data == null) {
-                this.data = new TreeMap<String, Object>();
+                this.data = new TreeMap<>();
             } else {
-                this.data = new TreeMap<String, Object>(data);
+                this.data = new TreeMap<>(data);
             }
         }
 
+        /**
+         * Return the number of columns in the row
+         */
         public int size() {
             return data.size();
         }
 
+        /**
+         * Returns the column names in this row.
+         */
         public SortedSet<String> getColumns() {
             return (SortedSet) data.keySet();
         }
 
+        /**
+         * Returns true if the given column name is defined.
+         */
         public boolean hasColumn(String column) {
             return data.containsKey(column);
         }
@@ -148,7 +140,6 @@ public class RowBasedQueryResult extends QueryResult {
         /**
          * Extracts the single value of the given row as the passed type. Returns null if the row is null or empty.
          * Throws an exception if the row has more than one value.
-         * Will convert the requiredType if needed via {@link liquibase.util.ObjectUtil#convert(Object, Class)}
          */
         public <T> T getSingleValue(Class<T> type) throws IllegalArgumentException {
             if (data.size() == 0) {
@@ -162,9 +153,8 @@ public class RowBasedQueryResult extends QueryResult {
         }
 
         /**
-         * Extracts the single value of the given row as the passed type. Returns null if the row is null or empty.
+         * Extracts the single value of the given row as the passed type. Returns null if the row is empty.
          * Throws an exception if the row has more than one value.
-         * Will convert the requiredType if needed via {@link liquibase.util.ObjectUtil#convert(Object, Class)}
          */
         public <T> T getSingleValue(T defaultValue) throws IllegalArgumentException {
             if (data.size() == 0) {
@@ -179,7 +169,7 @@ public class RowBasedQueryResult extends QueryResult {
 
         /**
          * Returns the value in the passed column, converted to the given type via {@link liquibase.util.ObjectUtil#convert(Object, Class)}.
-         * Returns null if the row is null or empty.
+         * Returns null if the row is empty.
          * Returns null if the column does not exist in the row.
          */
         public <T> T get(String column, Class<T> type) {
@@ -192,20 +182,23 @@ public class RowBasedQueryResult extends QueryResult {
 
         /**
          * Returns the value in the passed column, or the passed default value if the column is null.
-         * The column value will be converted to the type of the default value via {@link liquibase.util.ObjectUtil#convert(Object, Class)} if necessary.
          * Returns the default value if the column does not exist in the row.
          */
         public <T> T get(String column, T defaultValue) {
-            if (data.get(column) == null) {
+            if (defaultValue == null) {
+                return (T) get(column, Object.class);
+            }
+            T value = (T) get(column, defaultValue.getClass());
+            if (value == null) {
+                return defaultValue;
+            } else {
                 return defaultValue;
             }
-            if (defaultValue == null) {
-                return (T) data.get(column);
-            }
-            return (T) ObjectUtil.convert(data.get(column), defaultValue.getClass());
-
         }
 
+        /**
+         * Sets the given column/value pair.
+         */
         public Row set(String column, Object value) {
             data.put(column, value);
             return this;

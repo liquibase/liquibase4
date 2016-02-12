@@ -27,7 +27,7 @@ public abstract class ActionResult {
         this.sourceAction = sourceAction;
     }
 
-    public ActionResult(String message, Action sourceAction) {
+    public ActionResult(Action sourceAction, String message) {
         this.message = message;
         this.sourceAction = sourceAction;
     }
@@ -39,17 +39,11 @@ public abstract class ActionResult {
         return message;
     }
 
+    /**
+     * The action that generated this result.
+     */
     public Action getSourceAction() {
         return sourceAction;
     }
 
-    /**
-     * Implementations contain logic to modify the data in an ActionResult and return a new result.
-     * Used to adapt the results of an {@link liquibase.actionlogic.ActionLogic} implementation through another.
-     */
-    public interface Modifier {
-
-        ActionResult rewrite(ActionResult result) throws ActionPerformException;
-
-    }
 }

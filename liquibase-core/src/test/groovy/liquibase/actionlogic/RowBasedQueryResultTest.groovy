@@ -6,12 +6,12 @@ import spock.lang.Specification
 class RowBasedQueryResultTest extends Specification {
 
     def "constructor with null value"() {
-        expect: new RowBasedQueryResult(null, new MockAction()).size() == 0
+        expect: new RowBasedQueryResult(new MockAction(), null).size() == 0
     }
 
     def "constructor with single value"() {
         when:
-        def result = new RowBasedQueryResult("42", new MockAction())
+        def result = new RowBasedQueryResult(new MockAction(), "42")
 
         then:
         result.size() == 1
@@ -24,7 +24,7 @@ class RowBasedQueryResultTest extends Specification {
 
     def "constructor with collection of numbers"() {
         when:
-        def result = new RowBasedQueryResult(["42", "43", "44"], new MockAction())
+        def result = new RowBasedQueryResult(new MockAction(), ["42", "43", "44"])
 
         then:
         result.size() == 3
@@ -35,10 +35,10 @@ class RowBasedQueryResultTest extends Specification {
 
     def "constructor with collection of maps"() {
         when:
-        def result = new RowBasedQueryResult([
+        def result = new RowBasedQueryResult(new MockAction(), [
                 [col1: "42", col2: "cat"],
-                [col1:"43", col2: "-1"],
-                [col1:"44", col2: "dog", col3: "special"]], new MockAction())
+                [col1: "43", col2: "-1"],
+                [col1: "44", col2: "dog", col3: "special"]])
 
         then:
         result.size() == 3
@@ -50,7 +50,7 @@ class RowBasedQueryResultTest extends Specification {
 
     def "asObject with collection of numbers"() {
         when:
-        def result = new RowBasedQueryResult(["42", "43", "44"], new MockAction())
+        def result = new RowBasedQueryResult(new MockAction(), ["42", "43", "44"])
         result.asObject(String)
 
         then:
@@ -60,10 +60,10 @@ class RowBasedQueryResultTest extends Specification {
 
     def "asObject with collection of maps"() {
         when:
-        def result = new RowBasedQueryResult([
+        def result = new RowBasedQueryResult(new MockAction(), [
                 [col1: "42", col2: "cat"],
-                [col1:"43", col2: "-1"],
-                [col1:"44", col2: "dog", col3: "special"]], new MockAction())
+                [col1: "43", col2: "-1"],
+                [col1: "44", col2: "dog", col3: "special"]])
         result.asObject(String)
 
         then:
@@ -73,10 +73,10 @@ class RowBasedQueryResultTest extends Specification {
 
     def "asList with collection of maps"() {
         when:
-        def result = new RowBasedQueryResult([
+        def result = new RowBasedQueryResult(new MockAction(), [
                 [col1: "42", col2: "cat"],
-                [col1:"43", col2: "-1"],
-                [col1:"44", col2: "dog", col3: "special"]], new MockAction())
+                [col1: "43", col2: "-1"],
+                [col1: "44", col2: "dog", col3: "special"]])
         result.asList(String)
 
         then:

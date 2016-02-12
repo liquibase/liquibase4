@@ -8,6 +8,10 @@ import liquibase.util.CollectionUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Creates a table along with the specified columns, primary key, foreignKeys, and uniqueConstraints.
+ * ActionLogic implementations may create everything in a single statement or multiple statements as they see fit.
+ */
 public class CreateTableAction extends AbstractAction {
 
     public Table table;

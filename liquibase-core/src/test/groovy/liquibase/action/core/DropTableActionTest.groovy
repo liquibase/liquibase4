@@ -10,15 +10,15 @@ import spock.lang.Unroll
 import testmd.TestMD
 import testmd.logic.SetupResult
 
-class DropTablesActionTest extends Specification {
+class DropTableActionTest extends Specification {
     def "empty constructor"() {
         expect:
-        new DropTablesAction().describe() == "dropTables()"
+        new DropTableAction().describe() == "dropTable()"
     }
 
     def "parametrized constructor"() {
         expect:
-        new DropTablesAction(new ObjectReference(Table, "cat", "schem", "tab")).describe() == "dropTables(tableNames=[cat.schem.tab])"
+        new DropTableAction(new ObjectReference(Table, "cat", "schem", "tab")).describe() == "dropTable(table=cat.schem.tab)"
     }
 
 //    @Unroll
@@ -34,7 +34,7 @@ class DropTablesActionTest extends Specification {
 //
 //
 //            def scope = JUnitScope.getInstance(conn.getDatabase())
-//            def plan = new ActionExecutor().createPlan(action, scope)
+//            def plan = scope.getSingleton(ActionExecutor).createPlan(action, scope)
 //
 //            TestMD.test(this.class, "create simple table ${conn.databaseShortName}", conn.getDatabase().class)
 //                    .withPermutation([connection: conn, catalogName_asTable: catalogName, schemaName_asTable: schemaName, tableName_asTable: table])
@@ -43,7 +43,7 @@ class DropTablesActionTest extends Specification {
 //                conn.connect(scope)
 //
 //                def table = new Table(new ObjectReference(Table, catalogName, schemaName, table))
-//                new ActionExecutor().execute(new CreateTableAction(table.addColumn("id", "int"), scope))
+//                scope.getSingleton(ActionExecutor).execute(new CreateTableAction(table.addColumn("id", "int"), scope))
 //                throw SetupResult.OK
 //            })
 //                    .run({

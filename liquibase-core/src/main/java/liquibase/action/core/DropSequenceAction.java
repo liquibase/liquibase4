@@ -8,5 +8,14 @@ import liquibase.structure.ObjectReference;
  */
 public class DropSequenceAction extends AbstractAction {
 
-    public ObjectReference sequenceName;
+    public ObjectReference sequence;
+
+    public DropSequenceAction(ObjectReference sequence) {
+        this.sequence = sequence;
+    }
+
+    public DropSequenceAction() {
+
+
+    }
 }
