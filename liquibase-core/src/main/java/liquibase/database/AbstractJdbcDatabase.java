@@ -1,5 +1,6 @@
 package liquibase.database;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
@@ -13,71 +14,44 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 
 /**
- * AbstractJdbcDatabase is extended by all supported databases as a facade to the underlying database.
- * The physical connection can be retrieved from the AbstractJdbcDatabase implementation, as well as any
- * database-specific characteristics such as the datatype for "boolean" fields.
+ * Convenience base class for Database implementations that describe a standard SQL/JDBC based database.
+ * This base class should follow SQL standard as closely as possible.
+ * <br><br>
+ * SQL reference: http://savage.net.au/SQL/sql-2003-2.bnf.html
+ * Database feature comparison: http://www.sql-workbench.net/dbms_comparison.html
  */
-public abstract class AbstractJdbcDatabase implements Database {
+public abstract class AbstractJdbcDatabase extends AbstractExtensibleObject implements Database {
 
-    private static final Pattern startsWithNumberPattern = Pattern.compile("^[0-9].*");
-
+    /**
+     * Kept private to force use of {@link #setConnection(DatabaseConnection, Scope)}
+     */
     private DatabaseConnection connection;
 
-    protected String quotingStartCharacter = "\"";
-    protected String quotingEndCharacter = "\"";
-    protected String quotingEndReplacement = "\"\"";
+    public String identifierStartQuote = "\"";
+    public String identifierEndQuote = "\"";
+    public IdentifierCaseHandling quotedIdentifierCaseHandling;
+    public IdentifierCaseHandling unquotedIdentifierCaseHandling;
 
-    private Boolean previousAutoCommit;
+    public String currentDateTimeFunction = "CURRENT_TIMESTAMP(2)";
 
-    protected BigInteger defaultAutoIncrementStartWith = BigInteger.ONE;
-    protected BigInteger defaultAutoIncrementBy = BigInteger.ONE;
-    // most databases either lowercase or uppercase unuqoted objects such as table and column names.
-    protected Boolean unquotedObjectsAreUppercased = null;
-    // whether object names should be quoted
+    //Automatically populated with values in block at end of this file
+    public Set<String> reservedWords = new HashSet<>();
 
-    private final Set<String> reservedWords = new HashSet<String>();
-
-    protected Boolean caseSensitive;
-
-    private Boolean storesLowerCaseIdentifiers;
-    private Boolean storesLowerCaseQuotedIdentifiers;
-    private Boolean storesMixedCaseIdentifiers;
-    private Boolean storesMixedCaseQuotedIdentifiers;
-    private Boolean storesUpperCaseIdentifiers;
-    private Boolean storesUpperCaseQuotedIdentifiers;
-    protected String currentDateTimeFunction;
-
+    /**
+     * Default implementation returns PRIORITY_DEFAULT
+     */
     @Override
     public int getPriority(Scope scope) {
         return PRIORITY_DEFAULT;
     }
-
-    public String getName() {
-        return toString();
-    }
-
-    @Override
-    public boolean requiresPassword() {
-        return true;
-    }
-
-    @Override
-    public boolean requiresUsername() {
-        return true;
-    }
-
-    public LiquibaseObject[] getContainingObjects() {
-        return null;
-    }
-
-    // ------- DATABASE INFORMATION METHODS ---- //
 
     @Override
     public DatabaseConnection getConnection() {
@@ -85,485 +59,200 @@ public abstract class AbstractJdbcDatabase implements Database {
     }
 
     @Override
-    public void setConnection(final DatabaseConnection conn) {
+    public void setConnection(final DatabaseConnection conn, Scope scope) {
         if (this.connection != null && this.connection.equals(conn)) {
             return;
         }
-        LoggerFactory.getLogger(getClass()).debug("Connected to " + conn.toString());
         this.connection = conn;
-        try {
-            boolean autoCommit = conn.getAutoCommit();
-            if (autoCommit == getAutoCommitMode()) {
-                // Don't adjust the auto-commit mode if it's already what the database wants it to be.
-//                LoggerFactory.getLogger(getClass()).debug("Not adjusting the auto commit mode; it is already " + autoCommit);
-            } else {
-                // Store the previous auto-commit mode, because the connection needs to be restored to it when this
-                // AbstractDatabase type is closed. This is important for systems which use connection pools.
-                previousAutoCommit = autoCommit;
-
-                LoggerFactory.getLogger(getClass()).debug("Setting auto commit to " + getAutoCommitMode() + " from " + autoCommit);
-                connection.setAutoCommit(getAutoCommitMode());
-
-            }
-        } catch (DatabaseException e) {
-            LoggerFactory.getLogger(getClass()).warn("Cannot set auto commit to " + getAutoCommitMode() + " on connection");
-        }
-
-        this.connection.attached(this);
     }
 
     /**
-     * Auto-commit mode to run in
+     * Default implementation returns the {@link Feature#getSupportedByDefault()} value for the feature.
      */
     @Override
-    public boolean getAutoCommitMode() {
-        return !supportsDDLInTransaction();
+    public boolean supports(Feature feature, Scope scope) {
+        return feature.getSupportedByDefault();
     }
 
     /**
-     * By default databases should support DDL within a transaction.
+     * If featureKey matches a {@link liquibase.database.Database.Feature} then call {@link #supports(Feature, Scope)}. Otherwise, return false.
      */
     @Override
-    public boolean supportsDDLInTransaction() {
-        return true;
-    }
-
-    /**
-     * Returns the name of the database product according to the underlying database.
-     */
-    @Override
-    public String getDatabaseProductName() {
-        if (connection == null) {
-            return getDefaultDatabaseProductName();
-        }
-
+    public boolean supports(String featureKey, Scope scope) {
         try {
-            return connection.getDatabaseProductName();
-        } catch (DatabaseException e) {
-            throw new RuntimeException("Cannot get database name");
-        }
-    }
-
-    protected abstract String getDefaultDatabaseProductName();
-
-
-    @Override
-    public String getDatabaseProductVersion() throws DatabaseException {
-        if (connection == null) {
-            return null;
-        }
-
-        try {
-            return connection.getDatabaseProductVersion();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public int getDatabaseMajorVersion() throws DatabaseException {
-        if (connection == null) {
-            return 999;
-        }
-        try {
-            return connection.getDatabaseMajorVersion();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public int getDatabaseMinorVersion() throws DatabaseException {
-        if (connection == null) {
-            return -1;
-        }
-        try {
-            return connection.getDatabaseMinorVersion();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
+            return supports(Feature.valueOf(featureKey), scope);
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
     /**
-     * Returns system (undroppable) views.
+     * Default implementation returns true for all object types except {@link Catalog}
      */
-    protected Set<String> getSystemTables() {
-        return new HashSet<String>();
-    }
-
-    protected Set<String> getSystemViews() {
-        return new HashSet<String>();
-    }
-
-
     @Override
-    public boolean supports(Class<? extends LiquibaseObject> type) {
+    public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {
         if (type.isAssignableFrom(Catalog.class)) {
             return false;
         }
         return true;
     }
 
+    /**
+     * Returns a SQL-standard datetime literal
+     */
     @Override
-    public boolean supportsAutoIncrement() {
-        return true;
+    public String getDateTimeString(Date date, Scope scope) {
+        return "TIMESTAMP '" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(date) + "'";
     }
 
-    // ------- DATABASE-SPECIFIC SQL METHODS ---- //
-
+    /**
+     * Returns a SQL-standard date literal
+     */
     @Override
-    public void setCurrentDateTimeFunction(final String function) {
-        if (function != null) {
-            this.currentDateTimeFunction = function;
+    public String getDateString(Date date, Scope scope) {
+        return "DATE '" + new SimpleDateFormat("yyyy-MM-dd").format(date) + "'";
+    }
+
+    /**
+     * Returns a SQL-standard time literal
+     */
+    @Override
+    public String getTimeString(Date date, Scope scope) {
+        return "TIME '" + new SimpleDateFormat("HH:mm:ss.SSS").format(date) + "'";
+    }
+
+    /**
+     * Default implementation returns "-- "
+     */
+    @Override
+    public String getLineComment(Scope scope) {
+        return "-- ";
+    }
+
+    /**
+     * Always returns true if willQuote is true. Otherwise, require the name to start with a non-number and not be a reserved word.
+     */
+    @Override
+    public boolean isValidObjectName(String objectName, boolean willQuote, Class<? extends LiquibaseObject> type, Scope scope) {
+        if (willQuote) {
+            return true;
+        } else {
+            return !(!objectName.matches("[a-zA-Z]\\w+") || isReservedWord(objectName, scope));
         }
     }
 
     /**
-     * Return a date literal with the same value as a string formatted using ISO 8601.
-     * <p/>
-     * Note: many databases accept date literals in ISO8601 format with the 'T' replaced with
-     * a space. Only databases which do not accept these strings should need to override this
-     * method.
-     * <p/>
-     * Implementation restriction:
-     * Currently, only the following subsets of ISO8601 are supported:
-     * yyyy-MM-dd
-     * hh:mm:ss
-     * yyyy-MM-ddThh:mm:ss
+     * Uses the {@link #quotedIdentifierCaseHandling} and {@link #unquotedIdentifierCaseHandling} if set, otherwise checks the connection's metadata.
+     * If connection is not set or is not a {@link JdbcConnection}, returns {@link liquibase.database.Database.IdentifierCaseHandling#CASE_SENSITIVE} if quoted and {@link liquibase.database.Database.IdentifierCaseHandling#UPPERCASE} for unquoted names
      */
-    public String getDateLiteral(final String isoDate) {
-        if (isDateOnly(isoDate) || isTimeOnly(isoDate)) {
-            return "'" + isoDate + "'";
-        } else if (isDateTime(isoDate)) {
-//            StringBuffer val = new StringBuffer();
-//            val.append("'");
-//            val.append(isoDate.substring(0, 10));
-//            val.append(" ");
-////noinspection MagicNumber
-//            val.append(isoDate.substring(11));
-//            val.append("'");
-//            return val.toString();
-            return "'" + isoDate.replace('T', ' ') + "'";
+    @Override
+    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope) {
+        IdentifierCaseHandling DEFAULT_QUOTED_HANDLING = IdentifierCaseHandling.CASE_SENSITIVE;
+        IdentifierCaseHandling DEFAULT_UNQUOTED_HANDLING = IdentifierCaseHandling.UPPERCASE;
+
+        if (quoted && quotedIdentifierCaseHandling != null) {
+            return quotedIdentifierCaseHandling;
+        } else if (!quoted && unquotedIdentifierCaseHandling != null) {
+            return unquotedIdentifierCaseHandling;
+        }
+
+        if (connection == null) {
+            if (quoted) {
+                return DEFAULT_QUOTED_HANDLING;
+            } else {
+                return DEFAULT_UNQUOTED_HANDLING;
+            }
+        }
+
+        if (connection instanceof JdbcConnection) {
+            try {
+                Connection underlyingConnection = ((JdbcConnection) connection).getUnderlyingConnection();
+                if (underlyingConnection == null) {
+                    if (quoted) {
+                        return DEFAULT_QUOTED_HANDLING;
+                    } else {
+                        return DEFAULT_UNQUOTED_HANDLING;
+                    }
+                }
+
+                DatabaseMetaData metaData = underlyingConnection.getMetaData();
+                if (metaData == null) {
+                    if (quoted) {
+                        return DEFAULT_QUOTED_HANDLING;
+                    } else {
+                        return DEFAULT_UNQUOTED_HANDLING;
+                    }
+                }
+
+                if (quoted) {
+                    if (metaData.supportsMixedCaseQuotedIdentifiers()) {
+                        this.quotedIdentifierCaseHandling = IdentifierCaseHandling.CASE_SENSITIVE;
+                    } else if (metaData.storesLowerCaseQuotedIdentifiers()) {
+                        this.quotedIdentifierCaseHandling = IdentifierCaseHandling.LOWERCASE;
+                    } else {
+                        this.quotedIdentifierCaseHandling = IdentifierCaseHandling.UPPERCASE;
+                    }
+
+                    return this.quotedIdentifierCaseHandling;
+                } else {
+                    if (metaData.supportsMixedCaseIdentifiers()) {
+                        this.unquotedIdentifierCaseHandling = IdentifierCaseHandling.CASE_SENSITIVE;
+                    } else if (metaData.storesLowerCaseIdentifiers()) {
+                        this.unquotedIdentifierCaseHandling = IdentifierCaseHandling.LOWERCASE;
+                    } else {
+                        this.unquotedIdentifierCaseHandling = IdentifierCaseHandling.UPPERCASE;
+                    }
+
+                    return this.unquotedIdentifierCaseHandling;
+                }
+            } catch (SQLException e) {
+                LoggerFactory.getLogger(getClass()).warn("Cannot determine case sensitivity from JDBC driver", e);
+            }
+        }
+
+        if (quoted) {
+            return DEFAULT_QUOTED_HANDLING;
         } else {
-            return "BAD_DATE_FORMAT:" + isoDate;
+            return DEFAULT_UNQUOTED_HANDLING;
         }
     }
-
-
-    @Override
-    public String getDateTimeLiteral(final java.sql.Timestamp date) {
-        return getDateLiteral(new ISODateFormat().format(date).replaceFirst("^'", "").replaceFirst("'$", ""));
-    }
-
-    @Override
-    public String getDateLiteral(final java.sql.Date date) {
-        return getDateLiteral(new ISODateFormat().format(date).replaceFirst("^'", "").replaceFirst("'$", ""));
-    }
-
-    @Override
-    public String getTimeLiteral(final java.sql.Time date) {
-        return getDateLiteral(new ISODateFormat().format(date).replaceFirst("^'", "").replaceFirst("'$", ""));
-    }
-
-    @Override
-    public String getDateLiteral(final Date date) {
-        if (date instanceof java.sql.Date) {
-            return getDateLiteral(((java.sql.Date) date));
-        } else if (date instanceof java.sql.Time) {
-            return getTimeLiteral(((java.sql.Time) date));
-        } else if (date instanceof java.sql.Timestamp) {
-            return getDateTimeLiteral(((java.sql.Timestamp) date));
-        } else {
-            throw new RuntimeException("Unexpected type: " + date.getClass().getName());
-        }
-    }
-
-    protected boolean isDateOnly(final String isoDate) {
-        return isoDate.length() == "yyyy-MM-dd".length();
-    }
-
-    protected boolean isDateTime(final String isoDate) {
-        return isoDate.length() >= "yyyy-MM-ddThh:mm:ss".length();
-    }
-
-    protected boolean isTimeOnly(final String isoDate) {
-        return isoDate.length() == "hh:mm:ss".length();
-    }
-
 
     /**
-     * Returns database-specific line comment string.
+     * Checks an upper-case version of the word against the values in {@link #reservedWords}
      */
     @Override
-    public String getLineComment() {
-        return "--";
+    public boolean isReservedWord(final String word, Scope scope) {
+        return reservedWords.contains(word.toUpperCase());
     }
 
-    protected String getAutoIncrementClause() {
-        return "GENERATED BY DEFAULT AS IDENTITY";
-    }
-
-    protected boolean generateAutoIncrementStartWith(final BigInteger startWith) {
-        return startWith != null
-                && !startWith.equals(defaultAutoIncrementStartWith);
-    }
-
-    protected boolean generateAutoIncrementBy(final BigInteger incrementBy) {
-        return incrementBy != null
-                && !incrementBy.equals(defaultAutoIncrementBy);
-    }
-
-    protected String getAutoIncrementOpening() {
-        return " (";
-    }
-
-    protected String getAutoIncrementClosing() {
-        return ")";
-    }
-
-    protected String getAutoIncrementStartWithClause() {
-        return "START WITH %d";
-    }
-
-    protected String getAutoIncrementByClause() {
-        return "INCREMENT BY %d";
-    }
-
-    public boolean storesLowerCaseIdentifiers() {
-        if (storesLowerCaseIdentifiers == null) {
-            final boolean DEFAULT_VALUE = false;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesLowerCaseIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesLowerCaseIdentifiers = metaData.storesLowerCaseIdentifiers();
-                    }
-                } else {
-                    storesLowerCaseIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesLowerCaseIdentifiers", e);
-                storesLowerCaseIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesLowerCaseIdentifiers;
-    }
-
-    public boolean storesLowerCaseQuotedIdentifiers() {
-        if (storesLowerCaseQuotedIdentifiers == null) {
-            final boolean DEFAULT_VALUE = false;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesLowerCaseQuotedIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesLowerCaseQuotedIdentifiers = metaData.storesLowerCaseQuotedIdentifiers();
-                    }
-                } else {
-                    storesLowerCaseQuotedIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesLowerCaseQuotedIdentifiers", e);
-                storesLowerCaseQuotedIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesLowerCaseQuotedIdentifiers;
-    }
-
-    public boolean storesMixedCaseIdentifiers() {
-        if (storesMixedCaseIdentifiers == null) {
-            final boolean DEFAULT_VALUE = false;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesMixedCaseIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesMixedCaseIdentifiers = metaData.storesMixedCaseIdentifiers();
-                    }
-                } else {
-                    storesMixedCaseIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesMixedCaseIdentifiers", e);
-                storesMixedCaseIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesMixedCaseIdentifiers;
-    }
-
-    public boolean storesMixedCaseQuotedIdentifiers() {
-        if (storesMixedCaseQuotedIdentifiers == null) {
-            final boolean DEFAULT_VALUE = false;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesMixedCaseQuotedIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesMixedCaseQuotedIdentifiers = metaData.storesMixedCaseQuotedIdentifiers();
-                    }
-                } else {
-                    storesMixedCaseQuotedIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesMixedCaseQuotedIdentifiers", e);
-                storesMixedCaseQuotedIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesMixedCaseQuotedIdentifiers;
-    }
-
-    public boolean storesUpperCaseIdentifiers() {
-        if (storesUpperCaseIdentifiers == null) {
-            final boolean DEFAULT_VALUE = true;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesUpperCaseIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesUpperCaseIdentifiers = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData().storesUpperCaseIdentifiers();
-                    }
-                } else {
-                    storesUpperCaseIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesUpperCaseIdentifiers", e);
-                storesUpperCaseIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesUpperCaseIdentifiers;
-    }
-
-    public boolean storesUpperCaseQuotedIdentifiers() {
-        if (storesUpperCaseQuotedIdentifiers == null) {
-            final boolean DEFAULT_VALUE = true;
-            try {
-                if (getConnection() != null && getConnection() instanceof JdbcConnection && ((JdbcConnection) getConnection()).getUnderlyingConnection() != null) {
-                    DatabaseMetaData metaData = ((JdbcConnection) getConnection()).getUnderlyingConnection().getMetaData();
-                    if (metaData == null) {
-                        storesUpperCaseQuotedIdentifiers = DEFAULT_VALUE;
-                    } else {
-                        storesUpperCaseQuotedIdentifiers = metaData.storesUpperCaseQuotedIdentifiers();
-                    }
-                } else {
-                    storesUpperCaseQuotedIdentifiers = DEFAULT_VALUE;
-                }
-            } catch (SQLException e) {
-                LoggerFactory.getLogger(getClass()).warn("Cannot look up storesUpperCaseQuotedIdentifiers", e);
-                storesUpperCaseQuotedIdentifiers = DEFAULT_VALUE;
-            }
-        }
-        return storesUpperCaseQuotedIdentifiers;
-    }
-
-    public boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type) {
-        return canStoreObjectName(name, false, type) || canStoreObjectName(name, true, type);
-    }
-
-    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type) {
-        if (name.matches("[a-z_0-9]+")) {
-            if (quoted) {
-                return storesLowerCaseQuotedIdentifiers();
-            } else {
-                return storesLowerCaseIdentifiers();
-            }
-        } else if (name.matches("[A-Z_0-9]+")) {
-            if (quoted) {
-                return storesUpperCaseQuotedIdentifiers();
-            } else {
-                return storesUpperCaseIdentifiers();
-            }
-        } else if (name.matches("[a-zA-Z_0-9]+")) {
-            if (quoted) {
-                return storesMixedCaseQuotedIdentifiers();
-            } else {
-                return storesMixedCaseIdentifiers();
-            }
-        } else {
-            return quoted;
-        }
-    }
-
+    /**
+     * Walks up the object's container hierarchy and returns true if any match {@link #isSystemSchema(String, Scope)}.
+     * Normally subclasses only need to override {@link #isSystemSchema(String, Scope)}
+     */
     @Override
-    public boolean isCaseSensitive(Class<? extends LiquibaseObject> type) {
-        final boolean DEFAULT_CASE_SENSITIVE = true;
-
-        if (caseSensitive == null) {
-            if (connection != null && connection instanceof JdbcConnection) {
-                try {
-                    Connection underlyingConnection = ((JdbcConnection) connection).getUnderlyingConnection();
-                    if (underlyingConnection == null) {
-                        caseSensitive = DEFAULT_CASE_SENSITIVE;
-                    } else {
-                        DatabaseMetaData metaData = underlyingConnection.getMetaData();
-                        if (metaData == null) {
-                            caseSensitive = DEFAULT_CASE_SENSITIVE;
-                        } else {
-                            caseSensitive = metaData.supportsMixedCaseIdentifiers();
-                        }
-                    }
-                } catch (SQLException e) {
-                    LoggerFactory.getLogger(getClass()).warn("Cannot determine case sensitivity from JDBC driver", e);
-                }
-            }
-        }
-
-    	if (caseSensitive == null) {
-            return DEFAULT_CASE_SENSITIVE;
-    	} else {
-    		return caseSensitive.booleanValue();
-    	}
-    }
-
-    public void setCaseSensitive(Boolean caseSensitive) {
-        this.caseSensitive = caseSensitive;
-    }
-
-    @Override
-    public boolean isReservedWord(final String string) {
-        return reservedWords.contains(string.toUpperCase());
-    }
-
-    /*
-    * Check if given string starts with numeric values that may cause problems and should be escaped.
-    */
-    protected boolean startsWithNumeric(final String objectName) {
-        return startsWithNumberPattern.matcher(objectName).matches();
-    }
-
-// ------- DATABASE OBJECT DROPPING METHODS ---- //
-
-    @Override
-    public boolean requiresDefiningColumnsAsNull() {
-        return false;
-    }
-
-    @Override
-    public boolean isSystemObject(final ObjectReference example) {
-        if (example == null) {
+    public boolean isSystemObject(ObjectReference object, Scope scope) {
+        if (object == null) {
             return false;
         }
-        if (example.container != null && example.container.name != null && example.container.name.equalsIgnoreCase("information_schema")) {
-            return true;
-        }
-        if (example.instanceOf(Table.class) && getSystemTables().contains(example.name)) {
-            return true;
-        }
 
-        if (example.instanceOf(View.class) && getSystemViews().contains(example.name)) {
-            return true;
+        while (object != null) {
+            if (object.name != null && isSystemSchema(object.name, scope)) {
+                return true;
+            }
+            object = object.container;
         }
-
         return false;
     }
 
+    /**
+     * Used by {@link #isSystemObject(ObjectReference, Scope)}. Default implementation returns true for "information_schema"
+     */
+    protected boolean isSystemSchema(String schemaName, Scope scope) {
+        return schemaName.equalsIgnoreCase("information_schema");
+    }
+
     @Override
-    public boolean isLiquibaseObject(final ObjectReference object) {
+    public boolean isLiquibaseObject(final ObjectReference object, Scope scope) {
 //        if (Table.class.isAssignableFrom(object.type)) {
 //            Schema liquibaseSchema = new Schema(new ObjectReference(getLiquibaseCatalogName()), getLiquibaseSchemaName());
 ////            if (DatabaseObjectComparatorFactory.getInstance().isSameObject(object, new Table(new ObjectName(getDatabaseChangeLogTableName())).setSchema(liquibaseSchema), this)) {
@@ -586,24 +275,41 @@ public abstract class AbstractJdbcDatabase implements Database {
     @Override
     public String toString() {
         if (getConnection() == null) {
-            return getShortName() + " Database";
+            return getClass().getName();
         }
 
-        return getClass().getName()+" " +getConnection().toString();
+        return getClass().getName() + " " + getConnection().toString();
     }
 
 
+    /**
+     * Surrounds objectName with {@link #identifierStartQuote} and {@link #identifierEndQuote}.
+     * If quoting char is ", replace quotes in object name with double quotes. Otherwise, replace identifierStartQuote and identifierEndQuote chars with backslashed versions.
+     */
     @Override
-    public String escapeObjectName(String objectName, final Class<? extends LiquibaseObject> objectType) {
+    public String quoteObjectName(String objectName, final Class<? extends LiquibaseObject> objectType, Scope scope) {
         if (objectName == null) {
             return null;
-        } else {
-            return quoteObject(objectName.trim(), objectType);
         }
+
+        if (identifierStartQuote.equals("\"")) {
+            objectName = objectName.replace(identifierStartQuote, "\"\"");
+        } else {
+            objectName = objectName.replace(identifierStartQuote, "\\" + identifierStartQuote);
+            objectName = objectName.replace(identifierEndQuote, "\\" + identifierEndQuote);
+        }
+
+        return identifierStartQuote
+                + objectName
+                + identifierEndQuote;
     }
 
+    /**
+     * Uses {@link #quoteObjectName(String, Class, Scope)} to quote all levels of the objectReference.
+     * Only quotes levels in the objectReference up to the length returned by {@link #getMaxObjectPathLength(Class, Scope)}
+     */
     @Override
-    public String escapeObjectName(ObjectReference objectReference) {
+    public String quoteObjectName(ObjectReference objectReference, Scope scope) {
         if (objectReference == null) {
             return null;
         }
@@ -612,67 +318,38 @@ public abstract class AbstractJdbcDatabase implements Database {
             objectType = LiquibaseObject.class;
         }
 
-        if (Column.class.isAssignableFrom(objectType) || PrimaryKey.class.isAssignableFrom(objectType)  || UniqueConstraint.class.isAssignableFrom(objectType)) {
-            return escapeObjectName(objectReference.name, objectType);
-        }
-
-        int length = 1;
-        if (supports(Schema.class)) {
-            length++;
-        }
-        if (supports(Catalog.class)) {
-            length++;
-        }
-        return StringUtils.join(objectReference.truncate(length).asList(), ".", new StringUtils.ObjectStringNameFormatter(objectType, this));
+        return StringUtils.join(objectReference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtils.ObjectNameFormatter(objectType, scope));
     }
 
-    protected boolean mustQuoteObjectName(String objectName, Class<? extends LiquibaseObject> objectType) {
-        return objectName.contains("-") || startsWithNumeric(objectName) || isReservedWord(objectName) || objectName.matches(".*\\W.*") || (!canStoreObjectName(objectName, false, objectType) && canStoreObjectName(objectName, true, objectType));
-    }
 
-    public String quoteObject(final String objectName, final Class<? extends LiquibaseObject> objectType) {
-        if (objectName == null) {
-            return null;
+    /**
+     * If the objectType is a Column, PrimaryKey or UniqueConstraint then return 1. Otherwise, checks if the database supports Catalogs and/or Schemas to determine the length.
+     * Used by {@link #quoteObjectName(ObjectReference, Scope)}
+     */
+    protected int getMaxObjectPathLength(Class<? extends LiquibaseObject> objectType, Scope scope) {
+        if (Column.class.isAssignableFrom(objectType) || PrimaryKey.class.isAssignableFrom(objectType) || UniqueConstraint.class.isAssignableFrom(objectType)) {
+            return 1;
+        } else {
+            int length = 1;
+            if (supports(Schema.class, scope)) {
+                length++;
+            }
+            if (supports(Catalog.class, scope)) {
+                length++;
+            }
+            return length;
         }
-
-        return quotingStartCharacter
-                + objectName.replace(quotingEndCharacter, quotingEndReplacement)
-                + quotingEndCharacter;
     }
 
-    public boolean jdbcCallsCatalogsSchemas() {
-        return false;
-    }
-
+    /**
+     * Default implementation surrounds with ' chars, and escapes ' as ''.
+     */
     @Override
-    public String generatePrimaryKeyName(final String tableName) {
-        return "PK_" + tableName.toUpperCase();
-    }
-
-    @Override
-    public String escapeString(final String string) {
+    public String quoteString(final String string, Scope scope) {
         if (string == null) {
             return null;
         }
-        return string.replaceAll("'", "''");
-    }
-
-    @Override
-    public void commit() throws DatabaseException {
-        try {
-            getConnection().commit();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public void rollback() throws DatabaseException {
-        try {
-            getConnection().rollback();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
+        return "'" + string.replaceAll("'", "''") + "'";
     }
 
     @Override
@@ -680,134 +357,287 @@ public abstract class AbstractJdbcDatabase implements Database {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AbstractJdbcDatabase that = (AbstractJdbcDatabase) o;
-
-        if (connection == null) {
-            if (that.connection == null) {
-                return this == that;
-            } else {
-                return false;
-            }
-        } else {
-            return connection.equals(that.connection);
-        }
+        return this.toString().equals(o.toString());
     }
 
     @Override
     public int hashCode() {
-        return (connection != null ? connection.hashCode() : super.hashCode());
+        return toString().hashCode();
     }
 
     @Override
-    public void close() throws DatabaseException {
-        DatabaseConnection connection = getConnection();
-        if (connection != null) {
-            if (previousAutoCommit != null) {
-                try {
-                    connection.setAutoCommit(previousAutoCommit);
-                } catch (DatabaseException e) {
-                    LoggerFactory.getLogger(getClass()).warn("Failed to restore the auto commit to " + previousAutoCommit);
-
-                    throw e;
-                }
-            }
-            connection.close();
-        }
-//        ExecutorService.getInstance().clearExecutor(this);
-    }
-
-    @Override
-    public boolean supportsRestrictForeignKeys() {
-        return true;
-    }
-
-    @Override
-    public boolean isAutoCommit() throws DatabaseException {
-        try {
-            return getConnection().getAutoCommit();
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public void setAutoCommit(final boolean b) throws DatabaseException {
-        try {
-            getConnection().setAutoCommit(b);
-        } catch (DatabaseException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public boolean supportsForeignKeyDisable() {
-        return false;
-    }
-
-    @Override
-    public boolean disableForeignKeyChecks() throws DatabaseException {
-        throw new DatabaseException("ForeignKeyChecks Management not supported");
-    }
-
-    @Override
-    public void enableForeignKeyChecks() throws DatabaseException {
-        throw new DatabaseException("ForeignKeyChecks Management not supported");
-    }
-
-    @Override
-    public boolean createsIndexesForForeignKeys() {
-        return false;
-    }
-
-    @Override
-    public String getCurrentDateTimeFunction() {
+    public String getCurrentDateTimeFunction(Scope scope) {
         return currentDateTimeFunction;
     }
 
-    @Override
-    public String escapeDataTypeName(String dataTypeName) {
-        return dataTypeName;
-    }
-
-
-    @Override
-    public boolean supportsClustered(Class<? extends LiquibaseObject> objectType) {
-        return false;
-    }
-
-    @Override
-    public boolean supportsIndexDirection(Index.IndexDirection direction) {
-        return true;
-    }
-
-    @Override
-    public boolean supportsNamed(Class<? extends LiquibaseObject> type) {
-        return true;
-
-
-    }
-
-    public boolean looksLikeFunctionCall(String value) {
-        return value.startsWith("\"SYSIBM\"") || value.startsWith("to_date(") || value.equalsIgnoreCase(getCurrentDateTimeFunction());
-    }
-
+    /**
+     * @return return true if the "schema" level is returned in catalog columns when calling jdbc metadata.
+     */
     public boolean metaDataCallsSchemasCatalogs() {
         return false;
     }
 
     /**
-     * Escape a string to be used in a like statement.
-     *
-     * @param forUseInSql if true, do additional processing required to use the string concatenated into SQL (escape quotes, etc).
+     * Escape any like-function wildcards in a string.
+     * Does not quote the string or do any processing to make it quote-ready. If you that is needed, use {@link #quoteString(String, Scope)}
      */
-    public String escapeStringForLike(String string, boolean forUseInSql) {
+    public String escapeStringForLike(String string) {
         if (string == null) {
             return null;
         }
         string = string.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
-        if (forUseInSql) {
-            string = string.replace("'", "''");
-        }
+
         return string;
+    }
+
+    {
+        //list from http://savage.net.au/SQL/sql-2003-2.bnf.html#reserved word
+        reservedWords.addAll(Arrays.asList(
+                "ADD",
+                "ALL",
+                "ALLOCATE",
+                "ALTER",
+                "AND",
+                "ANY",
+                "ARE",
+                "ARRAY",
+                "AS",
+                "ASENSITIVE",
+                "ASYMMETRIC",
+                "AT",
+                "ATOMIC",
+                "AUTHORIZATION",
+                "BEGIN",
+                "BETWEEN",
+                "BIGINT",
+                "BINARY",
+                "BLOB",
+                "BOOLEAN",
+                "BOTH",
+                "BY",
+                "CALL",
+                "CALLED",
+                "CASCADED",
+                "CASE",
+                "CAST",
+                "CHAR",
+                "CHARACTER",
+                "CHECK",
+                "CLOB",
+                "CLOSE",
+                "COLLATE",
+                "COLUMN",
+                "COMMIT",
+                "CONNECT",
+                "CONSTRAINT",
+                "CONTINUE",
+                "CORRESPONDING",
+                "CREATE",
+                "CROSS",
+                "CUBE",
+                "CURRENT",
+                "CURRENT_DATE",
+                "CURRENT_DEFAULT_TRANSFORM_GROUP",
+                "CURRENT_PATH",
+                "CURRENT_ROLE",
+                "CURRENT_TIME",
+                "CURRENT_TIMESTAMP",
+                "CURRENT_TRANSFORM_GROUP_FOR_TYPE",
+                "CURRENT_USER",
+                "CURSOR",
+                "CYCLE",
+                "DATE",
+                "DAY",
+                "DEALLOCATE",
+                "DEC",
+                "DECIMAL",
+                "DECLARE",
+                "DEFAULT",
+                "DELETE",
+                "DEREF",
+                "DESCRIBE",
+                "DETERMINISTIC",
+                "DISCONNECT",
+                "DISTINCT",
+                "DOUBLE",
+                "DROP",
+                "DYNAMIC",
+                "EACH",
+                "ELEMENT",
+                "ELSE",
+                "END",
+                "END-EXEC",
+                "ESCAPE",
+                "EXCEPT",
+                "EXEC",
+                "EXECUTE",
+                "EXISTS",
+                "EXTERNAL",
+                "FALSE",
+                "FETCH",
+                "FILTER",
+                "FLOAT",
+                "FOR",
+                "FOREIGN",
+                "FREE",
+                "FROM",
+                "FULL",
+                "FUNCTION",
+                "GET",
+                "GLOBAL",
+                "GRANT",
+                "GROUP",
+                "GROUPING",
+                "HAVING",
+                "HOLD",
+                "HOUR",
+                "IDENTITY",
+                "IMMEDIATE",
+                "IN",
+                "INDICATOR",
+                "INNER",
+                "INOUT",
+                "INPUT",
+                "INSENSITIVE",
+                "INSERT",
+                "INT",
+                "INTEGER",
+                "INTERSECT",
+                "INTERVAL",
+                "INTO",
+                "IS",
+                "ISOLATION",
+                "JOIN",
+                "LANGUAGE",
+                "LARGE",
+                "LATERAL",
+                "LEADING",
+                "LEFT",
+                "LIKE",
+                "LOCAL",
+                "LOCALTIME",
+                "LOCALTIMESTAMP",
+                "MATCH",
+                "MEMBER",
+                "MERGE",
+                "METHOD",
+                "MINUTE",
+                "MODIFIES",
+                "MODULE",
+                "MONTH",
+                "MULTISET",
+                "NATIONAL",
+                "NATURAL",
+                "NCHAR",
+                "NCLOB",
+                "NEW",
+                "NO",
+                "NONE",
+                "NOT",
+                "NULL",
+                "NUMERIC",
+                "OF",
+                "OLD",
+                "ON",
+                "ONLY",
+                "OPEN",
+                "OR",
+                "ORDER",
+                "OUT",
+                "OUTER",
+                "OUTPUT",
+                "OVER",
+                "OVERLAPS",
+                "PARAMETER",
+                "PARTITION",
+                "PRECISION",
+                "PREPARE",
+                "PRIMARY",
+                "PROCEDURE",
+                "RANGE",
+                "READS",
+                "REAL",
+                "RECURSIVE",
+                "REF",
+                "REFERENCES",
+                "REFERENCING",
+                "REGR_AVGX",
+                "REGR_AVGY",
+                "REGR_COUNT",
+                "REGR_INTERCEPT",
+                "REGR_R2",
+                "REGR_SLOPE",
+                "REGR_SXX",
+                "REGR_SXY",
+                "REGR_SYY",
+                "RELEASE",
+                "RESULT",
+                "RETURN",
+                "RETURNS",
+                "REVOKE",
+                "RIGHT",
+                "ROLLBACK",
+                "ROLLUP",
+                "ROW",
+                "ROWS",
+                "SAVEPOINT",
+                "SCROLL",
+                "SEARCH",
+                "SECOND",
+                "SELECT",
+                "SENSITIVE",
+                "SESSION_USER",
+                "SET",
+                "SIMILAR",
+                "SMALLINT",
+                "SOME",
+                "SPECIFIC",
+                "SPECIFICTYPE",
+                "SQL",
+                "SQLEXCEPTION",
+                "SQLSTATE",
+                "SQLWARNING",
+                "START",
+                "STATIC",
+                "SUBMULTISET",
+                "SYMMETRIC",
+                "SYSTEM",
+                "SYSTEM_USER",
+                "TABLE",
+                "THEN",
+                "TIME",
+                "TIMESTAMP",
+                "TIMEZONE_HOUR",
+                "TIMEZONE_MINUTE",
+                "TO",
+                "TRAILING",
+                "TRANSLATION",
+                "TREAT",
+                "TRIGGER",
+                "TRUE",
+                "UESCAPE",
+                "UNION",
+                "UNIQUE",
+                "UNKNOWN",
+                "UNNEST",
+                "UPDATE",
+                "UPPER",
+                "USER",
+                "USING",
+                "VALUE",
+                "VALUES",
+                "VAR_POP",
+                "VAR_SAMP",
+                "VARCHAR",
+                "VARYING",
+                "WHEN",
+                "WHENEVER",
+                "WHERE",
+                "WIDTH_BUCKET",
+                "WINDOW",
+                "WITH",
+                "WITHIN",
+                "WITHOUT",
+                "YEAR"));
     }
 }

@@ -83,7 +83,7 @@ class SnapshotObjectsActionPrimaryKeysTest extends AbstractActionTest {
                     CollectionUtil.permutationsWithoutNulls([
                             it.allSchemas,
                             getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope)
-                    ]).each({
+                    ]).collect({
                         def ref = it[1]
                         ref.container.name = tableName
                         ref.container.container = it[0]

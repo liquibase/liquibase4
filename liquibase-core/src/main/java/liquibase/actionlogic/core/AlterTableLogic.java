@@ -27,7 +27,7 @@ public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
     public ActionResult execute(AlterTableAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
         return new DelegateResult(action, null, new ExecuteSqlAction("ALTER TABLE "
-                + database.escapeObjectName(action.table)
+                + database.quoteObjectName(action.table, scope)
                 + " "
                 + action.newDefinition.toString().trim()));
     }

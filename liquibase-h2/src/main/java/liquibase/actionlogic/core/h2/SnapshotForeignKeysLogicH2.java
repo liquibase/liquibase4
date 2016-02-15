@@ -43,17 +43,17 @@ public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
         if (relatedTo.instanceOf(ForeignKey.class)) {
             if (relatedTo.name== null) {
                 ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
-                query.append("WHERE FKTABLE_SCHEMA='" + database.escapeString(baseTable.container.name) + "'")
-                        .append("AND FKTABLE_NAME='" + database.escapeString(baseTable.name) + "'");
+                query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope))
+                        .append("AND FKTABLE_NAME=" + database.quoteString(baseTable.name, scope));
             } else {
-                query.append("WHERE FK_NAME='" + database.escapeString(relatedTo.name) + "'")
-                        .append("AND FKTABLE_SCHEMA='" + database.escapeString(relatedTo.container.container.name) + "'");
+                query.append("WHERE FK_NAME=" + database.quoteString(relatedTo.name, scope))
+                        .append("AND FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
             }
         } else if (relatedTo.instanceOf(Table.class)) {
-            query.append("WHERE FKTABLE_SCHEMA='" + database.escapeString(relatedTo.container.name) + "'")
-                    .append("AND FKTABLE_NAME='" + database.escapeString(relatedTo.name) + "'");
+            query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope))
+                    .append("AND FKTABLE_NAME=" + database.quoteString(relatedTo.name, scope));
         } else if (relatedTo.instanceOf(Schema.class)) {
-            query.append("WHERE FKTABLE_SCHEMA='" + database.escapeString(relatedTo.name) + "'");
+            query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.name, scope));
         } else {
             throw new ActionPerformException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }

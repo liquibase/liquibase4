@@ -48,7 +48,7 @@ public class SnapshotCommand extends AbstractCommand<SnapshotCommand.SnapshotCom
     }
 
     @Override
-    public CommandValidationErrors validate() {
+    public CommandValidationErrors validate(Scope scope) {
         return new CommandValidationErrors(this);
     }
 

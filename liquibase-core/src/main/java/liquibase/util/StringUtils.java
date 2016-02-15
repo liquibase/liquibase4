@@ -1,6 +1,7 @@
 package liquibase.util;
 
 import liquibase.ExtensibleObject;
+import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.core.GenericDatabase;
 import liquibase.structure.LiquibaseObject;
@@ -364,14 +365,16 @@ public class StringUtils {
         }
     }
 
-    public static class ObjectNameFormatter implements StringUtilsFormatter<ObjectReference> {
+    public static class ObjectNameFormatter implements StringUtilsFormatter {
 
         private Database database;
         private Class<? extends LiquibaseObject> objectType;
+        private Scope scope;
 
-        public ObjectNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
+        public ObjectNameFormatter(Class<? extends LiquibaseObject> objectType, Scope scope) {
             this.objectType = objectType;
-            this.database = database;
+            this.database = scope.getDatabase();
+            this.scope = scope;
 
             if (this.database == null) {
                 this.database = new GenericDatabase();
@@ -379,48 +382,14 @@ public class StringUtils {
         }
 
         @Override
-        public String toString(ObjectReference obj) {
-            return database.escapeObjectName(obj);
-        }
-    }
-
-    public static class ObjectSimpleNameFormatter implements StringUtilsFormatter<ObjectReference> {
-
-        private Database database;
-        private Class<? extends LiquibaseObject> objectType;
-
-        public ObjectSimpleNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
-            this.objectType = objectType;
-            this.database = database;
-
-            if (this.database == null) {
-                this.database = new GenericDatabase();
+        public String toString(Object obj) {
+            if (obj == null) {
+                return null;
+            } else if (obj instanceof ObjectReference) {
+                return database.quoteObjectName((ObjectReference) obj, scope);
+            } else {
+                return database.quoteObjectName(obj.toString(), objectType, scope);
             }
-        }
-
-        @Override
-        public String toString(ObjectReference obj) {
-            return database.escapeObjectName(obj.name, objectType);
-        }
-    }
-
-    public static class ObjectStringNameFormatter implements StringUtilsFormatter<String> {
-
-        private Database database;
-        private Class<? extends LiquibaseObject> objectType;
-
-        public ObjectStringNameFormatter(Class<? extends LiquibaseObject> objectType, Database database) {
-            this.objectType = objectType;
-            this.database = database;
-
-            if (this.database == null) {
-                this.database = new GenericDatabase();
-            }
-        }
-
-        @Override
-        public String toString(String obj) {
-            return database.escapeObjectName(obj, objectType);
         }
     }
 

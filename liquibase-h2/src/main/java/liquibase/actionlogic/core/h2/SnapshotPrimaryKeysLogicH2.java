@@ -20,13 +20,13 @@ public class SnapshotPrimaryKeysLogicH2 extends SnapshotPrimaryKeysLogic {
         Database database = scope.getDatabase();
         StringClauses whereClauses = new StringClauses(" AND ");
         if (jdbcCatalogName != null) {
-            whereClauses.append("TABLE_CATALOG='"+database.escapeString(jdbcCatalogName)+"'");
+            whereClauses.append("TABLE_CATALOG="+database.quoteString(jdbcCatalogName, scope));
         }
         if (jdbcSchemaName != null) {
-            whereClauses.append("TABLE_SCHEMA='"+database.escapeString(jdbcSchemaName )+"'");
+            whereClauses.append("TABLE_SCHEMA="+database.quoteString(jdbcSchemaName, scope));
         }
         if (tableName != null) {
-            whereClauses.append("TABLE_NAME='"+database.escapeString(tableName )+"'");
+            whereClauses.append("TABLE_NAME="+database.quoteString(tableName, scope));
         }
         whereClauses.append("PRIMARY_KEY=TRUE");
 

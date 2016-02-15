@@ -69,13 +69,13 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
         List<String> nameParts = columnRef.asList(4);
 
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        String tableName = database.escapeStringForLike(nameParts.get(2), false);
-        String columnName = database.escapeStringForLike(nameParts.get(3), false);
+        String tableName = database.escapeStringForLike(nameParts.get(2));
+        String columnName = database.escapeStringForLike(nameParts.get(3));
 
         if (tableName == null) {
             tableName = "%";
         }
-        if (nameParts.get(0) != null || database.supports(Catalog.class)) {
+        if (nameParts.get(0) != null || database.supports(Catalog.class, scope)) {
             return new QueryJdbcMetaDataAction("getColumns", nameParts.get(0), nameParts.get(1), tableName, columnName);
         } else {
             if (database.metaDataCallsSchemasCatalogs()) {
@@ -107,7 +107,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
             column.table = new ObjectReference(Table.class, rawCatalogName, rawTableName);
             column.name = rawColumnName;
         } else {
-            if (database.supports(Catalog.class)) {
+            if (database.supports(Catalog.class, scope)) {
                 column.table = new ObjectReference(Table.class, rawCatalogName, rawSchemaName, rawTableName);
             } else {
                 column.table = new ObjectReference(Table.class, rawSchemaName, rawTableName);
@@ -137,7 +137,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
         }
 //        }
 
-        if (database.supportsAutoIncrement()) {
+        if (database.supports(Database.Feature.AUTO_INCREMENT, scope)) {
 //            if (table instanceof Table) {
             if (row.get("IS_AUTOINCREMENT", Object.class) != null) {
                 String isAutoincrement = row.get("IS_AUTOINCREMENT", String.class);

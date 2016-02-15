@@ -25,6 +25,7 @@ public class Scope {
     public enum Attr {
         resourceAccessor,
         database,
+        quotingStrategy,
     }
 
     private Scope parent;

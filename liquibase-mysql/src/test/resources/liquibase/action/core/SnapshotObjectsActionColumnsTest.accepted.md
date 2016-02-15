@@ -242,4 +242,4 @@
 | 312a8d      | true     | int          | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
 | aae650      | true     | varchar(20)  | testcol | **plan**: getColumns(lbcat, null, testtable, testcol)
 
-# Test Version: "1d5c7f" #
+# Test Version: "cad189" #

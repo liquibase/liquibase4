@@ -18,7 +18,6 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
-import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
 
         final Database database = scope.getDatabase();
 
-        if (!database.supportsTablespaces()) {
+        if (!database.supports(Database.Feature.TABLESPACES, scope)) {
             errors.checkUnsupportedFields("primaryKeys.tablespace");
         }
 
@@ -61,10 +60,16 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
         errors.checkField("primaryKeys.columns", new ValidationErrors.FieldCheck<PrimaryKey.PrimaryKeyColumn>() {
             @Override
             public String check(PrimaryKey.PrimaryKeyColumn col) {
-                if (col.direction != null && !database.supportsIndexDirection(col.direction)) {
-                    return "'" + col.direction + "'";
+                if (col.direction == null) {
+                    return null;
                 }
-                return null;
+                switch (col.direction) {
+                    case ASC:
+                        return database.supports(Database.Feature.INDEXES_ASC, scope) ? null : "'" + col.direction + "'";
+                    case DESC:
+                        return database.supports(Database.Feature.INDEXES_DESC, scope) ? null : "'" + col.direction + "'";
+                }
+                return "'" + col.direction + "'";
             }
         });
 
@@ -88,7 +93,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
                     if (actionPK.clustered == null || !actionPK.clustered) {
                         ignoreList.add("clustered");
                     }
-                    if (!scope.getDatabase().supportsNamed(PrimaryKey.class)) {
+                    if (!scope.getDatabase().supports(Database.Feature.NAMED_PRIMARY_KEYS, scope)) {
                         ignoreList.add("name");
                     }
 
@@ -154,12 +159,12 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
 
         clauses.append("ADD");
         clauses.append("CONSTRAINT");
-        clauses.append(Clauses.constraintName, database.escapeObjectName(pk.getName(), PrimaryKey.class));
+        clauses.append(Clauses.constraintName, database.quoteObjectName(pk.getName(), PrimaryKey.class, scope));
         clauses.append("PRIMARY KEY");
 
         StringClauses columns = new StringClauses("(", ", ", ")");
         for (PrimaryKey.PrimaryKeyColumn col : pk.columns) {
-            String colDef = scope.getDatabase().escapeObjectName(col.name, Column.class);
+            String colDef = scope.getDatabase().quoteObjectName(col.name, Column.class, scope);
             if (col.direction != null) {
                 colDef += " "+col.direction;
             }
@@ -169,7 +174,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
         clauses.append(Clauses.columnNames, columns);
 
         String tablespace = pk.tablespace;
-        if (tablespace != null && database.supportsTablespaces()) {
+        if (tablespace != null && database.supports(Database.Feature.TABLESPACES, scope)) {
             clauses.append(Clauses.tablespace, "USING INDEX TABLESPACE " + tablespace);
         }
 

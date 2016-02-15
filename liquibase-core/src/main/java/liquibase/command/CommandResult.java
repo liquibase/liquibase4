@@ -2,6 +2,9 @@ package liquibase.command;
 
 import liquibase.AbstractExtensibleObject;
 
+/**
+ * Holds results of a {@link LiquibaseCommand} execution, including a message and whether the command succeeded or not.
+ */
 public class CommandResult extends AbstractExtensibleObject {
 
     public String message;

@@ -22,16 +22,16 @@ public class SnapshotIndexesLogicH2 extends SnapshotIndexesLogic {
         StringClauses whereClauses = new StringClauses(" AND ");
 
         if (jdbcCatalogName != null) {
-            whereClauses.append("TABLE_CATALOG='" + database.escapeString(jdbcCatalogName)+"'");
+            whereClauses.append("TABLE_CATALOG=" + database.quoteString(jdbcCatalogName, scope));
         }
         if (jdbcSchemaName != null) {
-            whereClauses.append("TABLE_SCHEMA='" + database.escapeString(jdbcSchemaName)+"'");
+            whereClauses.append("TABLE_SCHEMA=" + database.quoteString(jdbcSchemaName, scope));
         }
         if (tableName != null) {
-            whereClauses.append("TABLE_NAME='" + database.escapeString(tableName)+"'");
+            whereClauses.append("TABLE_NAME=" + database.quoteString(tableName, scope));
         }
         if (indexName != null) {
-            whereClauses.append("INDEX_NAME='" + database.escapeString(indexName)+"'");
+            whereClauses.append("INDEX_NAME=" + database.quoteString(indexName, scope));
         }
         if (unique) {
             whereClauses.append("NON_UNIQUE=FALSE");

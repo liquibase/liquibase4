@@ -1,5 +1,6 @@
 package liquibase.database.core;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -7,17 +8,14 @@ import liquibase.database.InternalDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Index;
 import liquibase.structure.core.Schema;
 import liquibase.util.StringUtils;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockDatabase implements Database, InternalDatabase {
+public class MockDatabase extends AbstractExtensibleObject implements Database, InternalDatabase {
 
     private DatabaseConnection connection;
 
@@ -40,11 +38,6 @@ public class MockDatabase implements Database, InternalDatabase {
         return "Mock Database";
     }
 
-    @Override
-    public Integer getDefaultPort() {
-        return null;
-    }
-
     public LiquibaseObject[] getContainingObjects() {
         return null;
     }
@@ -53,24 +46,27 @@ public class MockDatabase implements Database, InternalDatabase {
         return otherObject.getName().equalsIgnoreCase(this.getName());
     }
 
-
     @Override
-    public boolean requiresUsername() {
+    public boolean supports(final DatabaseConnection conn, Scope scope) throws DatabaseException {
         return false;
     }
 
     @Override
-    public boolean requiresPassword() {
-        return false;
+    public boolean supports(Feature feature, Scope scope) {
+        return feature.getSupportedByDefault();
     }
 
     @Override
-    public boolean isCorrectDatabaseImplementation(final DatabaseConnection conn) throws DatabaseException {
-        return false;
+    public boolean supports(String featureKey, Scope scope) {
+        try {
+            return supports(Feature.valueOf(featureKey), scope);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     @Override
-    public String getDefaultDriver(final String url) {
+    public String getDefaultDriver(final String url, Scope scope) {
         return null;
     }
 
@@ -80,69 +76,22 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public void setConnection(final DatabaseConnection conn) {
+    public void setConnection(final DatabaseConnection conn, Scope scope) {
         this.connection = conn;
     }
 
     @Override
-    public boolean getAutoCommitMode() {
-        return false;
+    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope) {
+        return IdentifierCaseHandling.CASE_SENSITIVE;
     }
 
     @Override
-    public boolean isAutoCommit() throws DatabaseException {
-        return false;
-    }
-
-
-    @Override
-    public boolean isCaseSensitive(Class<? extends LiquibaseObject> type) {
-        return caseSensitive;
-    }
-
-    @Override
-    public boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type) {
-        return true;
-    }
-
-    @Override
-    public boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type) {
+    public boolean isValidObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type, Scope scope) {
         return true;
     }
 
     public void setCaseSensitive(boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
-    }
-
-    @Override
-    public void setAutoCommit(final boolean b) throws DatabaseException {
-
-    }
-
-    @Override
-    public boolean supportsDDLInTransaction() {
-        return false;
-    }
-
-    @Override
-    public String getDatabaseProductName() {
-        return null;
-    }
-
-    @Override
-    public String getDatabaseProductVersion() throws DatabaseException {
-        return null;
-    }
-
-
-    @Override
-    public int getDatabaseMajorVersion() throws DatabaseException {
-        return 0;
-    }
-
-    @Override
-    public int getDatabaseMinorVersion() throws DatabaseException {
-        return 0;
     }
 
     @Override
@@ -163,62 +112,42 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public boolean supportsInitiallyDeferrableColumns() {
-        return false;
-    }
-
-
-    @Override
-    public String getDateLiteral(final java.sql.Date date) {
+    public String getDateString(Date date, Scope scope) {
         return date.toString();
     }
 
     @Override
-    public String getTimeLiteral(final Time time) {
+    public String getTimeString(Date time, Scope scope) {
         return time.toString();
     }
 
     @Override
-    public String getDateTimeLiteral(final Timestamp timeStamp) {
-        return timeStamp.toString();
+    public String getDateTimeString(Date date, Scope scope) {
+        return date.toString();
     }
 
     @Override
-    public String getCurrentDateTimeFunction() {
+    public String getCurrentDateTimeFunction(Scope scope) {
         return "DATETIME()";
     }
 
     @Override
-    public void setCurrentDateTimeFunction(final String function) {
-    }
-
-    @Override
-    public String getLineComment() {
+    public String getLineComment(Scope scope) {
         return null;
     }
 
     @Override
-    public boolean isSystemObject(final ObjectReference example) {
+    public boolean isSystemObject(final ObjectReference object, Scope scope) {
         return false;
     }
 
     @Override
-    public boolean isLiquibaseObject(final ObjectReference object) {
+    public boolean isLiquibaseObject(final ObjectReference object, Scope scope) {
         return false;
     }
 
     @Override
-    public boolean supportsTablespaces() {
-        return false;
-    }
-
-    @Override
-    public String getDateLiteral(final Date defaultDateValue) {
-        return defaultDateValue.toString();
-    }
-
-    @Override
-    public boolean supports(Class<? extends LiquibaseObject> type) {
+    public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {
         if (supports.containsKey(type)) {
             return supports.get(type);
         }
@@ -231,109 +160,31 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
-    public boolean supportsAutoIncrement() {
-        return supportsAutoIncrement;
-    }
-
-    public void setSupportsAutoIncrement(boolean supportsAutoIncrement) {
-        this.supportsAutoIncrement = supportsAutoIncrement;
-    }
-
-    @Override
-    public String generatePrimaryKeyName(final String tableName) {
-        return "PK_" + tableName;
-    }
-
-    @Override
-    public void commit() {
-        ;
-    }
-
-    @Override
-    public void rollback() {
-        ;
-    }
-
-    @Override
-    public void close() throws DatabaseException {
-        ;
-    }
-
-    @Override
-    public boolean supportsRestrictForeignKeys() {
-        return true;
-    }
-
-    @Override
-    public String escapeObjectName(final String objectName, final Class<? extends LiquibaseObject> objectType) {
+    public String quoteObjectName(final String objectName, final Class<? extends LiquibaseObject> objectType, Scope scope) {
         return "`" + objectName + "`";
     }
 
     @Override
-    public String escapeObjectName(ObjectReference objectReference) {
-        return StringUtils.join(objectReference.asList(), ".", new StringUtils.ObjectNameFormatter(objectReference.type, this));
+    public String quoteObjectName(ObjectReference objectReference, Scope scope) {
+        return StringUtils.join(objectReference.asList(), ".", new StringUtils.ObjectNameFormatter(objectReference.type, scope));
     }
 
     @Override
-    public String escapeString(String string) {
+    public String quoteString(String string, Scope scope) {
         if (string == null) {
             return null;
         }
-        return string.replaceAll("'", "''");    }
-
-    @Override
-    public boolean supportsForeignKeyDisable() {
-        return false;
+        return "'" + string.replaceAll("'", "''") + "'";
     }
 
     @Override
-    public boolean disableForeignKeyChecks() throws DatabaseException {
-        return false;
-    }
-
-    @Override
-    public void enableForeignKeyChecks() throws DatabaseException {
-
-    }
-
-    @Override
-    public boolean isReservedWord(final String string) {
-        return false;
-    }
-
-    @Override
-    public boolean createsIndexesForForeignKeys() {
+    public boolean isReservedWord(final String string, Scope scope) {
         return false;
     }
 
     @Override
     public String toString() {
         return "Mock database";
-    }
-
-    @Override
-    public boolean supportsClustered(Class<? extends LiquibaseObject> objectType) {
-        return true;
-    }
-
-    @Override
-    public boolean requiresDefiningColumnsAsNull() {
-        return false;
-    }
-
-    @Override
-    public String escapeDataTypeName(String dataTypeName) {
-        return dataTypeName;
-    }
-
-    @Override
-    public boolean supportsNamed(Class<? extends LiquibaseObject> type) {
-        return true;
-    }
-
-    @Override
-    public boolean supportsIndexDirection(Index.IndexDirection direction) {
-        return true;
     }
 
 }

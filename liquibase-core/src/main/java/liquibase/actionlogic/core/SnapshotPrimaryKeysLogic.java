@@ -36,7 +36,7 @@ public class SnapshotPrimaryKeysLogic extends AbstractSnapshotDatabaseObjectsLog
 
         PrimaryKey.PrimaryKeyReference objectReference;
         if (relatedTo.instanceOf(Catalog.class)) {
-            if (!scope.getDatabase().supports(Catalog.class)) {
+            if (!scope.getDatabase().supports(Catalog.class, scope)) {
                 throw new ActionPerformException("Cannot snapshot catalogs on " + scope.getDatabase().getShortName());
             }
             objectReference = new PrimaryKey.PrimaryKeyReference(new ObjectReference(Table.class, relatedTo.name, null, null), null);
@@ -52,7 +52,7 @@ public class SnapshotPrimaryKeysLogic extends AbstractSnapshotDatabaseObjectsLog
 
         List<String> nameParts = objectReference.asList(4);
 
-        if (scope.getDatabase().supports(Catalog.class)) {
+        if (scope.getDatabase().supports(Catalog.class, scope)) {
             return createSnapshotAction(nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3), scope);
         } else {
             if (((AbstractJdbcDatabase) scope.getDatabase()).metaDataCallsSchemasCatalogs()) {

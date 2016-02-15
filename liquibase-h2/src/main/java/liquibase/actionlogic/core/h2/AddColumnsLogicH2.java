@@ -8,7 +8,6 @@ import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.Column;
 import liquibase.structure.datatype.DataType;
-import liquibase.util.CollectionUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
 
@@ -42,7 +41,7 @@ public class AddColumnsLogicH2 extends AddColumnsLogic {
         StringClauses clauses = super.getColumnClause(column, action, scope);
 
         if (StringUtils.trimToNull(column.remarks) != null) {
-            clauses.insertAfter(Clauses.primaryKey, "COMMENT '"+scope.getDatabase().escapeString(column.remarks)+"'");
+            clauses.insertAfter(Clauses.primaryKey, "COMMENT "+scope.getDatabase().quoteString(column.remarks, scope));
         }
 
         return clauses;

@@ -262,7 +262,7 @@ class SnapshotObjectsActionUniqueConstraintsTest extends AbstractActionTest {
 
                 def tableName = relatedTo.container
                 if (tableName == null || tableName.name == null) {
-                    tableName = new ObjectReference(Table, standardCaseObjectName("test_table", Table, scope.database))
+                    tableName = new ObjectReference(Table, relatedTo.container.container, standardCaseObjectName("test_table", Table, scope.database))
                 }
 
                 snapshot.add(new Table(tableName))

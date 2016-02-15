@@ -495,4 +495,4 @@
 | c3e197      | true     | only_in_lbcat2                 | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD `only_in_lbcat2` INTEGER NULL
 | d49bbd      | true     | only_in_lbcat2                 | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD `only_in_lbcat2` INTEGER NULL
 
-# Test Version: "034470" #
+# Test Version: "6409f0" #

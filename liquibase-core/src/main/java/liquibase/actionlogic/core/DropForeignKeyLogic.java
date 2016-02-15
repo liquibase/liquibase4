@@ -38,6 +38,6 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
         Database database = scope.getDatabase();
         return new StringClauses()
                 .append("DROP CONSTRAINT")
-                .append(database.escapeObjectName(action.foreignKey.name, ForeignKey.class));
+                .append(database.quoteObjectName(action.foreignKey.name, ForeignKey.class, scope));
     }
 }

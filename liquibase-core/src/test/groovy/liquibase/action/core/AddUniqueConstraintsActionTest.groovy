@@ -179,7 +179,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
         return createAllPermutations(AddUniqueConstraintsAction, [
                 uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutations(UniqueConstraint, [
                         name             : [null, standardCaseObjectName("uq_test", UniqueConstraint, scope.database)],
-                        table            : CollectionUtil.addNull(connectionSupplier.allSchemas.each({ return new ObjectReference(Table, it, tableName) })),
+                        table            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new ObjectReference(Table, it, tableName) })),
                         deferrable       : [null, true, false],
                         initiallyDeferred: [null, true, false],
                         disabled         : [null, true, false],

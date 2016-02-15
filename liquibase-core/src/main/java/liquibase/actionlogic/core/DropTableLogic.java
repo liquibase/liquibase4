@@ -52,7 +52,7 @@ public class DropTableLogic extends AbstractActionLogic<DropTableAction> {
         Database database = scope.getDatabase();
         StringClauses clauses = new StringClauses()
                 .append("DROP TABLE")
-                .append(database.escapeObjectName(tableName));
+                .append(database.quoteObjectName(tableName, scope));
 
         if (ObjectUtil.defaultIfEmpty(action.cascadeConstraints, false)) {
             clauses.append("CASCADE");

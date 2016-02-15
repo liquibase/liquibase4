@@ -56,9 +56,9 @@ public class CreateTableLogicH2 extends CreateTableLogic {
                 new ExecuteSqlAction(generateSql(action, scope).toString()),
                 action.table.remarks == null ? null : new ExecuteSqlAction(new StringClauses(" ")
                         .append("COMMENT ON TABLE")
-                        .append(scope.getDatabase().escapeObjectName(action.table.toReference()))
+                        .append(scope.getDatabase().quoteObjectName(action.table.toReference(), scope))
                         .append("IS")
-                        .append("'" + scope.getDatabase().escapeString(action.table.remarks) + "'"))
+                        .append(scope.getDatabase().quoteString(action.table.remarks, scope)))
         );
 
         for (Column column : CollectionUtil.createIfNull(action.columns)) {

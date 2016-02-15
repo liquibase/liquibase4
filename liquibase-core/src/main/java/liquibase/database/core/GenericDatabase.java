@@ -6,17 +6,15 @@ import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 
 /**
- * Fallback database when no others match. Should follow SQL standard as closely as possible.
- * SQL reference: http://savage.net.au/SQL/sql-2003-2.bnf.html
- * Database feature comparison: http://www.sql-workbench.net/dbms_comparison.html
+ * Fallback database when no others match.
  */
 public class GenericDatabase extends AbstractJdbcDatabase {
 
     public GenericDatabase() {
     }
 
-    public GenericDatabase(DatabaseConnection connection) {
-        setConnection(connection);
+    public GenericDatabase(DatabaseConnection connection, Scope scope) {
+        setConnection(connection, scope);
     }
 
     @Override
@@ -25,17 +23,12 @@ public class GenericDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public void setConnection(DatabaseConnection conn) {
-        super.setConnection(conn);
-    }
-
-    @Override
-    public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
+    public boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException {
         return false;
     }
 
     @Override
-    public String getDefaultDriver(String url) {
+    public String getDefaultDriver(String url, Scope scope) {
         return null;
     }    
 
@@ -44,29 +37,10 @@ public class GenericDatabase extends AbstractJdbcDatabase {
         return "generic";
     }
 
-    @Override
-    public Integer getDefaultPort() {
-        return null;
-    }
 
     @Override
-    protected String getDefaultDatabaseProductName() {
-        return "Generic Database";
-    }
-
-    @Override
-    public boolean supportsInitiallyDeferrableColumns() {
-        return false;
-    }
-
-    @Override
-    public String getCurrentDateTimeFunction() {
+    public String getCurrentDateTimeFunction(Scope scope) {
         return currentDateTimeFunction;
-    }
-
-    @Override
-    public boolean supportsTablespaces() {
-        return false;
     }
 
 }

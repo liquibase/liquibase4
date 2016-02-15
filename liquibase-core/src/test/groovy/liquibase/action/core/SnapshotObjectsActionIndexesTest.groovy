@@ -7,6 +7,7 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.database.Database
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
@@ -256,7 +257,19 @@ class SnapshotObjectsActionIndexesTest extends AbstractActionTest {
         index.columns = [
                 new Index.IndexedColumn(columnAsc.name, Index.IndexDirection.ASC),
                 new Index.IndexedColumn(columnDesc.name, Index.IndexDirection.DESC)
-        ].findAll { scope.getDatabase().supportsIndexDirection(it.direction) }
+        ].findAll {
+            def database = scope.getDatabase();
+
+            if (it.direction == null) {
+                return true;
+            }
+            switch (it.direction) {
+                case Index.IndexDirection.ASC:
+                    return database.supports(Database.Feature.INDEXES_ASC, scope) ? true : false;
+                case Index.IndexDirection.DESC:
+                    return database.supports(Database.Feature.INDEXES_DESC, scope) ? true : false;
+            }
+        }
 
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table, columnAsc, columnDesc, index])

@@ -8,23 +8,16 @@ class MysqlDatabaseTest extends Specification {
     @Unroll
     def "escapeForLike"() {
         expect:
-        new MysqlDatabase().escapeStringForLike(input, forUseinSql) == expected
+        new MysqlDatabase().escapeStringForLike(input) == expected
 
         where:
-        input         | expected              | forUseinSql
-        null          | null                  | true
-        null          | null                  | false
-        "a"           | "a"                   | true
-        "a"           | "a"                   | false
-        "   space   " | "   space   "         | true
-        "   space   " | "   space   "         | false
-        "%"           | "\\%"                 | true
-        "%"           | "\\%"                 | false
-        "_"           | "\\_"                 | true
-        "_"           | "\\_"                 | false
-        "a%_%_a"      | "a\\%\\_\\%\\_a"      | true
-        "a%_%_a"      | "a\\%\\_\\%\\_a"      | false
-        "\\%\\"       | "\\\\\\\\\\%\\\\\\\\" | true
-        "\\%\\"       | "\\\\\\%\\\\"         | false
+        input         | expected
+        null          | null
+        "a"           | "a"
+        "   space   " | "   space   "
+        "%"           | "\\%"
+        "_"           | "\\_"
+        "a%_%_a"      | "a\\%\\_\\%\\_a"
+        "\\%\\"       | "\\\\\\%\\\\"
     }
 }

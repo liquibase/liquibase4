@@ -120,10 +120,11 @@ abstract class AbstractActionTest extends Specification {
         if (name == null) {
             return null;
         }
-        if (database.canStoreObjectName("lowercase", false, type)) {
-            return name.toLowerCase();
-        } else {
-            return name.toUpperCase();
+
+        switch(database.getIdentifierCaseHandling(type, false, JUnitScope.instance)) {
+            case Database.IdentifierCaseHandling.LOWERCASE: return name.toLowerCase();
+            case Database.IdentifierCaseHandling.UPPERCASE: return name.toUpperCase();
+            default: return name;
         }
     }
 

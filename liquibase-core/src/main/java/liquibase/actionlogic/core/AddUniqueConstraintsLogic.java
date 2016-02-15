@@ -43,10 +43,10 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
         validationErrors.checkUnsupportedFields("uniqueConstraints.disabled", "uniqueConstraints.backingIndex");
 
         Database database = scope.getDatabase();
-        if (!database.supportsInitiallyDeferrableColumns()) {
+        if (!database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope)) {
             validationErrors.checkUnsupportedFields("uniqueConstraints.initiallyDeferred", "uniqueConstraints.deferrable");
         }
-        if (!scope.getDatabase().supportsTablespaces()) {
+        if (!scope.getDatabase().supports(Database.Feature.TABLESPACES, scope)) {
             validationErrors.checkUnsupportedFields("uniqueConstraints.tablespace");
         }
 
@@ -137,10 +137,10 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
     }
 
 
-    public StringClauses generateConstraintClause(UniqueConstraint uniqueConstraint, AddUniqueConstraintsAction action, Scope scope) {
+    public StringClauses generateConstraintClause(UniqueConstraint uniqueConstraint, AddUniqueConstraintsAction action, final Scope scope) {
         final Database database = scope.getDatabase();
 
-        String constrantName = supportsSeparateConstraintSchema() ? database.escapeObjectName(uniqueConstraint.name, UniqueConstraint.class) : database.escapeObjectName(uniqueConstraint.getName(), UniqueConstraint.class);
+        String constrantName = supportsSeparateConstraintSchema() ? database.quoteObjectName(uniqueConstraint.name, UniqueConstraint.class, scope) : database.quoteObjectName(uniqueConstraint.getName(), UniqueConstraint.class, scope);
 
         StringClauses clauses = new StringClauses()
                 .append("ADD")
@@ -150,7 +150,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 .append(Clauses.columnNames, "(" + StringUtils.join(uniqueConstraint.columns, ", ", new StringUtils.StringUtilsFormatter<String>() {
                     @Override
                     public String toString(String obj) {
-                        return database.escapeObjectName(obj, Column.class);
+                        return database.quoteObjectName(obj, Column.class, scope);
                     }
                 }) + ")");
 

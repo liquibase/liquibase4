@@ -57,7 +57,7 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
             throw Validate.failure("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
 
-        if (scope.getDatabase().supports(Catalog.class)) {
+        if (scope.getDatabase().supports(Catalog.class, scope)) {
             return new QueryJdbcMetaDataAction("getImportedKeys", catalogName, schemaName, tableName);
         } else {
             if (((AbstractJdbcDatabase) scope.getDatabase()).metaDataCallsSchemasCatalogs()) {

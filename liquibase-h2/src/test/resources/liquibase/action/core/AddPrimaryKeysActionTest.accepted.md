@@ -76,4 +76,4 @@
 | b68a2e      | true     | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" ADD PRIMARY KEY ("COL_NAME")
 | f6a54f      | true     | PUBLIC.only_in_PUBLIC                   | **plan**: ALTER TABLE "PUBLIC"."only_in_PUBLIC" ADD PRIMARY KEY ("COL_NAME")
 
-# Test Version: "3435e4" #
+# Test Version: "0be418" #

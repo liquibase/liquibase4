@@ -31,9 +31,9 @@ public class DropIndexLogicMysql extends DropIndexLogic {
 
         return new DelegateResult(action, null, new ExecuteSqlAction(
                 "DROP INDEX "
-                        + database.escapeObjectName(action.index.name, Index.class)
+                        + database.quoteObjectName(action.index.name, Index.class, scope)
                         + " ON "
-                        + database.escapeObjectName(action.index.getTable())));
+                        + database.quoteObjectName(action.index.getTable(), scope)));
 
     }
 }

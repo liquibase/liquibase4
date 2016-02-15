@@ -27,7 +27,7 @@ public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrem
 
     @Override
     protected boolean supportsScope(Scope scope) {
-        return super.supportsScope(scope) && scope.getDatabase().supportsAutoIncrement();
+        return super.supportsScope(scope) && scope.getDatabase().supports(Database.Feature.AUTO_INCREMENT, scope);
     }
 
     @Override

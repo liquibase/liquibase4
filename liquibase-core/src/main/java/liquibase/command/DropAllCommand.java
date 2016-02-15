@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Drops all objects in the given {@link #containers}.
+ */
 public class DropAllCommand extends AbstractCommand {
 
     public Set<ObjectReference> containers = new HashSet<>();
@@ -49,7 +52,7 @@ public class DropAllCommand extends AbstractCommand {
     }
 
     @Override
-    public CommandValidationErrors validate() {
+    public CommandValidationErrors validate(Scope scope) {
         return new CommandValidationErrors(this);
     }
 

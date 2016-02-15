@@ -1,5 +1,6 @@
 package liquibase.database.core;
 
+import liquibase.Scope;
 import liquibase.database.ConnectionSupplier;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.MockJdbcConnection;
@@ -18,7 +19,7 @@ public class GenericDatabaseSupplier extends ConnectionSupplier {
     }
 
     @Override
-    public DatabaseConnection getConnection() throws SetupResult {
+    public DatabaseConnection getConnection(Scope scope) throws SetupResult {
         return new MockJdbcConnection();
     }
 }

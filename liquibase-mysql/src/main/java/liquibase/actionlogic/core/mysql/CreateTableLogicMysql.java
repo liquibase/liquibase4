@@ -75,7 +75,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
         StringClauses clauses = super.generateSql(action, scope);
         String remarks = action.table.remarks;
         if (remarks != null) {
-            clauses.append("COMMENT='" + database.escapeString(remarks) + "'");
+            clauses.append("COMMENT=" + database.quoteString(remarks, scope));
         }
 
         return clauses;
@@ -89,7 +89,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
         String remarks = column.remarks;
 
         if (remarks != null) {
-            clauses.append("COMMENT '" + database.escapeString(remarks) + "'");
+            clauses.append("COMMENT " + database.quoteString(remarks, scope));
         }
 
 

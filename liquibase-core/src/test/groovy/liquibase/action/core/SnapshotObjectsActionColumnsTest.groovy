@@ -7,6 +7,7 @@ import liquibase.action.Action
 import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.database.Database
 import liquibase.snapshot.Snapshot
 import liquibase.snapshot.SnapshotFactory
 import liquibase.structure.ObjectNameStrategy
@@ -111,9 +112,9 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
         where:
         [conn, scope, catalogRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            Assume.assumeTrue("Database does not support catalogs", it.database.supports(Catalog));
-
             def scope = JUnitScope.getInstance(it)
+
+            Assume.assumeTrue("Database does not support catalogs", it.database.supports(Catalog, scope));
 
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
@@ -153,9 +154,9 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
 
         where:
         [conn, scope, autoIncrement, columnRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            Assume.assumeTrue("Database does not support autoIncrement", it.database.supportsAutoIncrement());
-
             def scope = JUnitScope.getInstance(it)
+
+            Assume.assumeTrue("Database does not support autoIncrement", it.database.supports(Database.Feature.AUTO_INCREMENT, (Scope) scope));
 
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
@@ -290,10 +291,10 @@ class SnapshotObjectsActionColumnsTest extends AbstractActionTest {
     }
 
     List<Column.ColumnReference> getColumnNamesWithTables(Scope scope) {
-        getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).unique().collectMany {
-            def colRef = it
+        getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique().collectMany {
+            def colName = it
             return getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).collect {
-                return new Column.ColumnReference(it, colRef.name)
+                return new Column.ColumnReference(it, colName)
             }
         }
     }

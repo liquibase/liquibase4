@@ -9,7 +9,6 @@ import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Schema;
@@ -47,17 +46,17 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
         if (relatedTo.instanceOf(ForeignKey.class)) {
             if (relatedTo.name == null) {
                 ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
-                query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(baseTable.name) + "'");
-                query.append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(baseTable.container.name) + "'");
+                query.append("AND KEY_COL.TABLE_NAME=" + database.quoteString(baseTable.name, scope));
+                query.append("AND KEY_COL.TABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope));
             } else {
-                query.append("AND KEY_COL.CONSTRAINT_NAME='" + database.escapeString(relatedTo.name) + "'");
-                query.append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.container.container.name) + "'");
+                query.append("AND KEY_COL.CONSTRAINT_NAME=" + database.quoteString(relatedTo.name, scope));
+                query.append("AND KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
             }
         } else if (relatedTo.instanceOf(Table.class)) {
-            query.append("AND KEY_COL.TABLE_NAME='" + database.escapeString(relatedTo.name) + "'")
-                    .append("AND KEY_COL.TABLE_SCHEMA='" + database.escapeString(relatedTo.container.name) + "'");
+            query.append("AND KEY_COL.TABLE_NAME=" + database.quoteString(relatedTo.name, scope))
+                    .append("AND KEY_COL.TABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope));
         } else if (relatedTo.instanceOf(Schema.class)) {
-            query.append("AND KEY_COL.CONSTRAINT_SCHEMA='" + database.escapeString(relatedTo.name) + "'");
+            query.append("AND KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.name, scope));
         } else {
             throw new ActionPerformException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }

@@ -866,4 +866,4 @@
 | ea7aca      | true     | int          | TESTCOL | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 | ec8f59      | true     | varchar(20)  | TESTCOL | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 
-# Test Version: "1d5c7f" #
+# Test Version: "cad189" #

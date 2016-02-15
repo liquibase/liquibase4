@@ -28,7 +28,7 @@ public class DropIndexLogic extends AbstractActionLogic<DropIndexAction> {
     @Override
     public ActionResult execute(DropIndexAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
-        return new DelegateResult(action, null, new ExecuteSqlAction("DROP INDEX " + database.escapeObjectName(action.index.name, Index.class)));
+        return new DelegateResult(action, null, new ExecuteSqlAction("DROP INDEX " + database.quoteObjectName(action.index.name, Index.class, scope)));
     }
 
 }

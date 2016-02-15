@@ -40,9 +40,9 @@ public class AlterColumnLogic extends AbstractActionLogic<AlterColumnAction> {
         Database database = scope.getDatabase();
         return new StringClauses(" ")
                 .append("ALTER TABLE")
-                .append(Clauses.tableName, database.escapeObjectName(action.column.container))
+                .append(Clauses.tableName, database.quoteObjectName(action.column.container, scope))
                 .append("ALTER COLUMN")
-                .append(Clauses.columnName, database.escapeObjectName(action.column.name, Column.class))
+                .append(Clauses.columnName, database.quoteObjectName(action.column.name, Column.class, scope))
                 .append(Clauses.newDefinition, action.newDefinition.toString().trim());
     }
 }

@@ -79,7 +79,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
                     foundDatabases.add(implementedDatabase);
                 }
             } else {
-                if (implementedDatabase.isCorrectDatabaseImplementation(connection)) {
+                if (implementedDatabase.supports(connection, getRootScope())) {
                     foundDatabases.add(implementedDatabase);
                 }
             }
@@ -88,7 +88,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
         if (foundDatabases.size() == 0) {
             log.warn("Unknown database: " + connection.getDatabaseProductName());
             GenericDatabase unsupportedDB = new GenericDatabase();
-            unsupportedDB.setConnection(connection);
+            unsupportedDB.setConnection(connection, getRootScope());
             return unsupportedDB;
         }
 
@@ -106,7 +106,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
             throw new UnexpectedLiquibaseException(e);
         }
 
-        returnDatabase.setConnection(connection);
+        returnDatabase.setConnection(connection, getRootScope());
         return returnDatabase;
     }
 
@@ -227,7 +227,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
 
     public String findDefaultDriver(String url) {
         for (Database database : this.getImplementedDatabases()) {
-            String defaultDriver = database.getDefaultDriver(url);
+            String defaultDriver = database.getDefaultDriver(url, getRootScope());
             if (defaultDriver != null) {
                 return defaultDriver;
             }
@@ -255,7 +255,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
         } catch (DatabaseException e) {
             throw new UnexpectedLiquibaseException(e);
         }
-        returnDatabase.setConnection(conn);
+        returnDatabase.setConnection(conn, getRootScope());
 
         return returnDatabase;
     }

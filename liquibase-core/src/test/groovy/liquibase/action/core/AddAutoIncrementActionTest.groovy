@@ -31,7 +31,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
                             column  : createAllPermutationsWithoutNulls(Column.ColumnReference, [
-                                    name     : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).each({ it.name }).unique(),
+                                    name     : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.name }).unique(),
                                     container: getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
                             ]),
                             dataType: [new DataType(DataType.StandardType.INTEGER)]

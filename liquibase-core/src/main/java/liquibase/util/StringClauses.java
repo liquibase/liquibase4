@@ -144,9 +144,9 @@ public class StringClauses {
         }
         for (Object obj : objects) {
             if (obj instanceof LiquibaseObject) {
-                this.append(database.escapeObjectName(((LiquibaseObject) obj).getName(), type));
+                this.append(database.quoteObjectName(((LiquibaseObject) obj).getName(), type, scope));
             } else if (obj instanceof ObjectReference) {
-                this.append(database.escapeObjectName(((ObjectReference) obj)));
+                this.append(database.quoteObjectName(((ObjectReference) obj), scope));
             } else if (obj instanceof StringClauses) {
                 this.append(obj.toString(), ((StringClauses) obj));
             } else {

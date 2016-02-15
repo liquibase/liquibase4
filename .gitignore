@@ -19,3 +19,5 @@ derby.log
 .DS_Store
 /tmp
 /.metadata/
+
+/tmp.txt

@@ -1,5 +1,6 @@
 package liquibase.database.core.h2
 
+import liquibase.JUnitScope
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.Table
 import spock.lang.Specification
@@ -10,7 +11,7 @@ class H2DatabaseTest extends Specification {
     @Unroll
     def "escapeObjectName"() {
         expect:
-        new H2Database().escapeObjectName(ref) == expected
+        new H2Database().quoteObjectName(ref, JUnitScope.instance) == expected
 
         where:
         ref                                      | expected

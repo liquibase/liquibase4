@@ -51,7 +51,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
 
         Index.IndexReference objectReference;
         if (relatedTo.instanceOf(Catalog.class)) {
-            if (!scope.getDatabase().supports(Catalog.class)) {
+            if (!scope.getDatabase().supports(Catalog.class, scope)) {
                 throw new ActionPerformException("Cannot snapshot catalogs on " + scope.getDatabase().getShortName());
             }
             objectReference = new Index.IndexReference(new ObjectReference(Schema.class, relatedTo, null), null);
@@ -69,7 +69,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
 
         List<String> nameParts = objectReference.asList(4);
 
-        if (scope.getDatabase().supports(Catalog.class)) {
+        if (scope.getDatabase().supports(Catalog.class, scope)) {
             return createSnapshotAction(nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM, scope);
         } else {
             if (((AbstractJdbcDatabase) scope.getDatabase()).metaDataCallsSchemasCatalogs()) {

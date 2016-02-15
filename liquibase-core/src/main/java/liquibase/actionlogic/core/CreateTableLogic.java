@@ -7,6 +7,7 @@ import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.*;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
+import liquibase.database.ObjectQuotingStrategy;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.*;
@@ -50,15 +51,18 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
                 .checkUnsupportedFields("table.tablespace");
 
         if (!errors.hasErrors()) {
-            AddColumnsAction addColumnsAction = new AddColumnsAction();
-            addColumnsAction.columns = action.columns;
-            addColumnsAction.primaryKey = action.primaryKey;
-            addColumnsAction.uniqueConstraints = action.uniqueConstraints;
-            addColumnsAction.foreignKeys = action.foreignKeys;
-
-            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(addColumnsAction, scope), null);
+            errors.addAll(scope.getSingleton(ActionExecutor.class).validate(createAddColumnsAction(action), scope), null);
         }
         return errors;
+    }
+
+    protected AddColumnsAction createAddColumnsAction(CreateTableAction action) {
+        AddColumnsAction addColumnsAction = new AddColumnsAction();
+        addColumnsAction.columns = action.columns;
+        addColumnsAction.primaryKey = action.primaryKey;
+        addColumnsAction.uniqueConstraints = action.uniqueConstraints;
+        addColumnsAction.foreignKeys = action.foreignKeys;
+        return addColumnsAction;
     }
 
     @Override
@@ -96,7 +100,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         StringClauses createTable = new StringClauses(" ");
         createTable.append("CREATE TABLE");
-        createTable.append(Clauses.tableName, database.escapeObjectName(action.table.toReference()));
+        createTable.append(Clauses.tableName, database.quoteObjectName(action.table.toReference(), scope));
 
         List<Column> columns = CollectionUtil.createIfNull(action.columns);
 //        for (Column column : columns) {
@@ -126,20 +130,17 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         if (action.primaryKey != null) {
             StringClauses primaryKey = new StringClauses(" ");
-            if (database.supportsNamed(PrimaryKey.class)) {
+            if (database.supports(Database.Feature.NAMED_PRIMARY_KEYS, scope)) {
                 String pkName = action.primaryKey.getName();
-                if (pkName == null) {
-                    pkName = database.generatePrimaryKeyName(action.table.getName());
-                }
                 if (pkName != null) {
                     primaryKey.append("CONSTRAINT");
-                    primaryKey.append(database.escapeObjectName(pkName, Index.class));
+                    primaryKey.append(database.quoteObjectName(pkName, Index.class, scope));
                 }
             }
             primaryKey.append("PRIMARY KEY");
             StringClauses columnClauses = new StringClauses("(", ", ", ")");
             for (PrimaryKey.PrimaryKeyColumn col : action.primaryKey.columns) {
-                String colDef = scope.getDatabase().escapeObjectName(col.name, Column.class);
+                String colDef = scope.getDatabase().quoteObjectName(col.name, Column.class, scope);
                 if (col.direction!= null) {
                     colDef += " "+col.direction;
                 }
@@ -192,7 +193,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         createTable.append(Clauses.columnsClause, tableDefinition);
 
         String tablespace = action.table.tablespace;
-        if (tablespace != null && database.supportsTablespaces()) {
+        if (tablespace != null && database.supports(Database.Feature.TABLESPACES, scope)) {
             createTable.append(Clauses.tablespace, "TABLESPACE " + tablespace);
         }
 
@@ -205,7 +206,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         String constraintName = uniqueConstraint.getName();
 
         if (constraintName != null) {
-            clauses.append(UniqueConstraintClauses.constraintName, "CONSTRAINT " + database.escapeObjectName(constraintName, Index.class));
+            clauses.append(UniqueConstraintClauses.constraintName, "CONSTRAINT " + database.quoteObjectName(constraintName, Index.class, scope));
         }
 
         clauses.append("UNIQUE");
@@ -225,7 +226,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         Database database = scope.getDatabase();
 
         String columnName = column.getName();
-        StringClauses columnClause = new StringClauses().append(database.escapeObjectName(columnName, Column.class));
+        StringClauses columnClause = new StringClauses().append(database.quoteObjectName(columnName, Column.class, scope));
         columnClause.append(column.type.toString());
 
         Column.AutoIncrementInformation autoIncrementInformation = column.autoIncrementInformation;
@@ -259,7 +260,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 
         if (autoIncrementInformation != null) {
             // TODO: check if database supports auto increment on non primary key column
-            if (database.supportsAutoIncrement()) {
+            if (database.supports(Database.Feature.AUTO_INCREMENT, scope)) {
                 BigInteger startWith = autoIncrementInformation.startWith;
                 BigInteger incrementBy = autoIncrementInformation.incrementBy;
                 ActionLogic addAutoIncrementLogic = scope.getSingleton(ActionLogicFactory.class).getActionLogic(new AddAutoIncrementAction(), scope);
@@ -284,7 +285,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, true); //ObjectUtil.defaultIfEmpty(column.isPrimaryKey, false) || ObjectUtil.defaultIfEmpty(column.nullable, false);
 
         if (nullable) {
-            if (database.requiresDefiningColumnsAsNull()) {
+            if (((AddColumnsLogic) scope.getSingleton(ActionLogicFactory.class).getActionLogic(createAddColumnsAction(action), scope)).requiresDefiningColumnsAsNull()) {
                 columnClause.append(ColumnClauses.nullable, "NULL");
             }
         } else {

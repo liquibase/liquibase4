@@ -133,7 +133,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
                 "Alternate Tablespace: " + getAlternateTablespace() + "\n";
     }
 
-    protected DatabaseConnection getConnection() throws SetupResult {
+    protected DatabaseConnection getConnection(Scope scope) throws SetupResult {
         if (connection == null && connectionResult == null) {
             LoggerFactory.getLogger(getClass()).info("Opening connection as "+this.getDatabaseUsername()+" to "+this.getJdbcUrl());
             try {
@@ -141,7 +141,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
                 connection = new JdbcConnection(dbConn);
 
                 Database initDb = JUnitScope.getInstance().getSingleton(DatabaseFactory.class).findCorrectDatabaseImplementation(connection);
-                initDb.setConnection(connection);
+                initDb.setConnection(connection, scope);
                 initConnection(JUnitScope.getInstance(initDb));
             } catch (Exception e) {
                 connectionResult = new SetupResult.CannotVerify("Cannot open connection: " + e.getMessage());
@@ -163,24 +163,24 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
     }
 
     public Scope connect(Scope scope) throws DatabaseException {
-        DatabaseConnection databaseConnection = getConnection();
+        DatabaseConnection databaseConnection = getConnection(scope);
         Database db = scope.getDatabase();
-        if (!(db instanceof GenericDatabase) && !db.isCorrectDatabaseImplementation(databaseConnection)) {
+        if (!(db instanceof GenericDatabase) && !db.supports(databaseConnection, scope)) {
             throw new DatabaseException("Incorrect db '" + db.getShortName() + "' for connection " + databaseConnection.getURL());
         }
-        db.setConnection(databaseConnection);
+        db.setConnection(databaseConnection, scope);
 
         return scope;
     }
 
     public List<ObjectReference> getAllSchemas() {
-        if (getDatabase().supports(Catalog.class)) {
+        if (getDatabase().supports(Catalog.class, JUnitScope.getInstance())) {
             return Arrays.asList(new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getPrimarySchema()),
                     new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getAlternateSchema()),
                     new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getAlternateCatalog()), getPrimarySchema()),
                     new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getAlternateCatalog()), getAlternateSchema()));
 
-        } else if (getDatabase().supports(Schema.class)) {
+        } else if (getDatabase().supports(Schema.class, JUnitScope.getInstance())) {
             return Arrays.asList(new ObjectReference(Schema.class, getPrimarySchema()), new ObjectReference(Schema.class, getAlternateSchema()));
         } else {
             return Arrays.asList();

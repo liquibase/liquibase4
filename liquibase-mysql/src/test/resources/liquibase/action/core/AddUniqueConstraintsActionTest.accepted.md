@@ -77,15 +77,15 @@
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | columns              | name    | table  | OPERATIONS
-| :---------- | :------- | :------------------- | :------ | :----- | :------
-| 27c7dc      | true     | col_name             |         | lbcat  | **plan**: ALTER TABLE `lbcat` ADD CONSTRAINT UNIQUE (`col_name`)
-| 0d78d5      | true     | col_name             |         | lbcat2 | **plan**: ALTER TABLE `lbcat2` ADD CONSTRAINT UNIQUE (`col_name`)
-| 0d4e0f      | true     | col_name             | uq_test | lbcat  | **plan**: ALTER TABLE `lbcat` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
-| 61fb0c      | true     | col_name             | uq_test | lbcat2 | **plan**: ALTER TABLE `lbcat2` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
-| 199789      | true     | col_name1, col_name2 |         | lbcat  | **plan**: ALTER TABLE `lbcat` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
-| e84fb7      | true     | col_name1, col_name2 |         | lbcat2 | **plan**: ALTER TABLE `lbcat2` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
-| b9448c      | true     | col_name1, col_name2 | uq_test | lbcat  | **plan**: ALTER TABLE `lbcat` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
-| 07ee83      | true     | col_name1, col_name2 | uq_test | lbcat2 | **plan**: ALTER TABLE `lbcat2` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
+| Permutation | Verified | columns              | name    | table             | OPERATIONS
+| :---------- | :------- | :------------------- | :------ | :---------------- | :------
+| 71c152      | true     | col_name             |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`col_name`)
+| 71e686      | true     | col_name             |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`col_name`)
+| cf177f      | true     | col_name             | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
+| ad93bf      | true     | col_name             | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
+| da840e      | true     | col_name1, col_name2 |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
+| 2b3736      | true     | col_name1, col_name2 |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
+| 8ca3da      | true     | col_name1, col_name2 | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
+| 900a36      | true     | col_name1, col_name2 | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
 
-# Test Version: "021ba9" #
+# Test Version: "49ee98" #

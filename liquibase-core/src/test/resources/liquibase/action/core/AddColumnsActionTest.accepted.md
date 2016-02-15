@@ -871,4 +871,4 @@
 | 54bdda      | Generic  | only_in_LBSCHEMA2              | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ADD "only_in_LBSCHEMA2" INTEGER
 | ed5ecc      | Generic  | only_in_LBSCHEMA2              | LBSCHEMA2.only_in_LBSCHEMA2             | **plan**: ALTER TABLE "LBSCHEMA2"."only_in_LBSCHEMA2" ADD "only_in_LBSCHEMA2" INTEGER
 
-# Test Version: "034470" #
+# Test Version: "6409f0" #

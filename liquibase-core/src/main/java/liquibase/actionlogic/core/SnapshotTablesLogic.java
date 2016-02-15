@@ -59,8 +59,8 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
         }
 
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        tableName = database.escapeStringForLike(tableName, false);
-        if (database.supports(Catalog.class)) {
+        tableName = database.escapeStringForLike(tableName);
+        if (database.supports(Catalog.class, scope)) {
             return new QueryJdbcMetaDataAction("getTables", catalogName, schemaName, tableName, new String[]{"TABLE"});
         } else {
             if (database.metaDataCallsSchemasCatalogs()) {
@@ -84,9 +84,9 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
         }
 
         ObjectReference container;
-        if (!scope.getDatabase().supports(Schema.class)) {
+        if (!scope.getDatabase().supports(Schema.class, scope)) {
             container = null;
-        } else if (!scope.getDatabase().supports(Catalog.class)) {
+        } else if (!scope.getDatabase().supports(Catalog.class, scope)) {
             if (rawCatalogName != null && rawSchemaName == null) {
                 container = new ObjectReference(Schema.class, rawCatalogName);
             } else {

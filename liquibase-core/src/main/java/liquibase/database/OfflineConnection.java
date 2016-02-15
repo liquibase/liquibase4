@@ -20,7 +20,10 @@ public class OfflineConnection implements DatabaseConnection {
     private Snapshot snapshot = null;
     private OutputLiquibaseSql outputLiquibaseSql = OutputLiquibaseSql.NONE;
     private String changeLogFile = "databasechangelog.csv";
-    private boolean caseSensitive = false;
+
+    private Database.IdentifierCaseHandling quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.CASE_SENSITIVE;
+    private Database.IdentifierCaseHandling unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.UPPERCASE;
+
     private String productName;
     private String productVersion;
     private int databaseMajorVersion = 999;
@@ -71,8 +74,10 @@ public class OfflineConnection implements DatabaseConnection {
                 this.productName = paramEntry.getValue();
             } else if (paramEntry.getKey().equals("catalog")) {
                 this.catalog = this.params.get("catalog");
-            } else if (paramEntry.getKey().equals("caseSensitive")) {
-                 this.caseSensitive = Boolean.parseBoolean(paramEntry.getValue());
+            } else if (paramEntry.getKey().equals("quotedIdentifierCaseHandling")) {
+                 this.quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
+            } else if (paramEntry.getKey().equals("unquotedIdentifierCaseHandling")) {
+                this.unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
             } else if (paramEntry.getKey().equals("changeLogFile")) {
                 this.changeLogFile = paramEntry.getValue();
             } else if (paramEntry.getKey().equals("outputLiquibaseSql")) {
@@ -114,7 +119,8 @@ public class OfflineConnection implements DatabaseConnection {
             }
         }
         if (database instanceof AbstractJdbcDatabase) {
-            ((AbstractJdbcDatabase) database).setCaseSensitive(this.caseSensitive);
+            ((AbstractJdbcDatabase) database).quotedIdentifierCaseHandling = this.quotedIdentifierCaseHandling;
+            ((AbstractJdbcDatabase) database).unquotedIdentifierCaseHandling = this.unquotedIdentifierCaseHandling;
         }
 
 //        ChangeLogHistoryServiceFactory.getInstance().register(createChangeLogHistoryService(database));
@@ -262,11 +268,19 @@ public class OfflineConnection implements DatabaseConnection {
         this.sendsStringParametersAsUnicode = sendsStringParametersAsUnicode;
     }
 
-    public boolean isCaseSensitive() {
-        return caseSensitive;
+    public Database.IdentifierCaseHandling getQuotedIdentifierCaseHandling() {
+        return quotedIdentifierCaseHandling;
     }
 
-    public void setCaseSensitive(boolean caseSensitive) {
-        this.caseSensitive = caseSensitive;
+    public void setQuotedIdentifierCaseHandling(Database.IdentifierCaseHandling quotedIdentifierCaseHandling) {
+        this.quotedIdentifierCaseHandling = quotedIdentifierCaseHandling;
+    }
+
+    public Database.IdentifierCaseHandling getUnquotedIdentifierCaseHandling() {
+        return unquotedIdentifierCaseHandling;
+    }
+
+    public void setUnquotedIdentifierCaseHandling(Database.IdentifierCaseHandling unquotedIdentifierCaseHandling) {
+        this.unquotedIdentifierCaseHandling = unquotedIdentifierCaseHandling;
     }
 }

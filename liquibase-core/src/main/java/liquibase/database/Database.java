@@ -1,144 +1,182 @@
 package liquibase.database;
 
+import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Index;
 
-import java.io.DataOutput;
 import java.util.Date;
 
-public interface Database extends Service {
+/**
+ * Implementations of this interface describe the idiosyncrasies of a particular database.
+ * Instances of this interface can contain connections to online and offline databases.
+ * Normally consider extending {@link AbstractJdbcDatabase} rather than this interface directly.
+ * Implements {@link Service} so that extensions can override standard implementations if needed.
+ */
+@SuppressWarnings("unused")
+public interface Database extends Service, ExtensibleObject {
 
     int getPriority(Scope scope);
 
     /**
-     * Is this AbstractDatabase subclass the correct one to use for the given connection.
-     */
-    boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException;
-
-    /**
-     * If this database understands the given url, return the default driver class name.  Otherwise return null.
-     */
-    String getDefaultDriver(String url);
-
-    DatabaseConnection getConnection();
-
-    void setConnection(DatabaseConnection conn);
-
-    boolean requiresUsername();
-
-    boolean requiresPassword();
-
-    /**
-     * Auto-commit mode to run in
-     */
-    boolean getAutoCommitMode();
-
-    /**
-     * Determines if the database supports DDL within a transaction or not.
-     *
-     * @return True if the database supports DDL within a transaction, otherwise false.
-     */
-    boolean supportsDDLInTransaction();
-
-    String getDatabaseProductName();
-
-    String getDatabaseProductVersion() throws DatabaseException;
-
-    int getDatabaseMajorVersion() throws DatabaseException;
-
-    int getDatabaseMinorVersion() throws DatabaseException;
-
-    /**
-     * Returns an all-lower-case short name of the product.  Used for end-user selecting of database type
-     * such as the DBMS precondition.
+     * Returns an all-lower-case short name of this database.  Used for end-user selecting of database type such as the DBMS precondition.
+     * Database implementations are grouped by this value then sorted by {@link #getPriority(Scope)}
      */
     String getShortName();
 
-    Integer getDefaultPort();
+    /**
+     * Return true if this subclass supports the given connection.
+     */
+    boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException;
 
     /**
-     * Returns whether this database support initially deferrable columns.
+     * Return the default driver class name.  If no default, return null.
      */
-    boolean supportsInitiallyDeferrableColumns();
+    String getDefaultDriver(String url, Scope scope);
+
+    /**
+     * Return the current connection on this Database, or null if not set.
+     */
+    DatabaseConnection getConnection();
+
+    /**
+     * Sets the current connection for this Database. This implementation may make configurations changes to the connection in this method if needed.
+     */
+    void setConnection(DatabaseConnection conn, Scope scope);
+
+    /**
+     * Return true if the database supports the given feature.
+     * This method and {@link #supports(String, Scope)} must return the same value for featureKeys that match a {@link liquibase.database.Database.Feature}.
+     */
+    boolean supports(Database.Feature feature, Scope scope);
+
+    /**
+     * Return true if the database supports the given feature.
+     * This method and {@link #supports(liquibase.database.Database.Feature, Scope)} must return the same value for featureKeys that match a {@link liquibase.database.Database.Feature}.
+     */
+    boolean supports(String featureKey, Scope scope);
+
+    /**
+     * Returns true if the database supports the given object type
+     */
+    boolean supports(Class<? extends LiquibaseObject> type, Scope scope);
 
     /**
      * Returns database-specific function for generating the current date/time.
      */
-    String getCurrentDateTimeFunction();
-
-    void setCurrentDateTimeFunction(String function);
-
-    String getLineComment();
-
-    boolean isSystemObject(ObjectReference example);
-
-    boolean isLiquibaseObject(ObjectReference object);
-
-    String getDateLiteral(java.sql.Date date);
-
-    String getTimeLiteral(java.sql.Time time);
-
-    String getDateTimeLiteral(java.sql.Timestamp timeStamp);
-
-    String getDateLiteral(Date defaultDateValue);
-
-    String escapeObjectName(String objectName, Class<? extends LiquibaseObject> objectType);
-
-    String escapeObjectName(ObjectReference objectReference);
-
-    boolean supportsTablespaces();
-
-    String generatePrimaryKeyName(String tableName);
-
-    void commit() throws DatabaseException;
-
-    void rollback() throws DatabaseException;
-
-    String escapeString(String string);
-
-    void close() throws DatabaseException;
-
-    boolean supportsRestrictForeignKeys();
-
-    boolean isAutoCommit() throws DatabaseException;
-
-    void setAutoCommit(boolean b) throws DatabaseException;
-
-    boolean supportsForeignKeyDisable();
-
-    boolean disableForeignKeyChecks() throws DatabaseException;
-
-    void enableForeignKeyChecks() throws DatabaseException;
-
-    boolean isCaseSensitive(Class<? extends LiquibaseObject> type);
+    String getCurrentDateTimeFunction(Scope scope);
 
     /**
-     * Return true if the database is able to store the given name as is.
+     * Returns string used as line comment prefix
      */
-    boolean canStoreObjectName(String name, Class<? extends LiquibaseObject> type);
+    String getLineComment(Scope scope);
 
-    boolean canStoreObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type);
+    /**
+     * Return true if the given object is a system object. System objects should not be included in snapshots
+     */
+    boolean isSystemObject(ObjectReference object, Scope scope);
 
-    boolean isReservedWord(String string);
+    /**
+     * Return true if the given object is used by liquibase. Examples include the databasechangelog and databasechangeloglock tables.
+     */
+    boolean isLiquibaseObject(ObjectReference object, Scope scope);
 
-    boolean createsIndexesForForeignKeys();
+    /**
+     * Return true if the given string is a reserved word
+     */
+    boolean isReservedWord(String string, Scope scope);
 
-    String escapeDataTypeName(String dataTypeName);
+    /**
+     * Return the given date as a string containing just the date to be passed to the database. String should be quoted as needed.
+     */
+    String getDateString(Date date, Scope scope);
 
-    boolean requiresDefiningColumnsAsNull();
+    /**
+     * Return the given date as a string containing just the time to be passed to the database. String should be quoted as needed.
+     */
+    String getTimeString(Date time, Scope scope);
 
-    boolean supportsClustered(Class<? extends LiquibaseObject> objectType);
+    /**
+     * Return the given date as a string containing the date and time to be passed to the database.  String should be quoted as needed.
+     */
+    String getDateTimeString(Date timeStamp, Scope scope);
 
-    boolean supports(Class<? extends LiquibaseObject> type);
+    /**
+     * Quote the given object name.
+     * The name is assumed to be a simple object name, it is not parsed or checked for existing quoting or schema separators etc.
+     * Method should check {@link liquibase.Scope.Attr#quotingStrategy} to determine how to quote the object.
+     */
+    String quoteObjectName(String objectName, Class<? extends LiquibaseObject> objectType, Scope scope);
 
-    boolean supportsAutoIncrement();
+    /**
+     * Quote the given object reference.
+     * Normally include all container levels quoted as well, unless the database in scope doesn't support fully qualified names for that object type.
+     * Method should check {@link liquibase.Scope.Attr#quotingStrategy} to determine how to quote the object.
+     */
+    String quoteObjectName(ObjectReference objectReference, Scope scope);
 
-    boolean supportsNamed(Class<? extends LiquibaseObject> type);
+    /**
+     * Return the given string quoted, with any special characters within the string handled.
+     */
+    String quoteString(String string, Scope scope);
 
-    boolean supportsIndexDirection(Index.IndexDirection direction);
+    /**
+     * Return how identifiers are handled, based on the passed quoting strategy.
+     */
+    IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope);
+
+    /**
+     * Return true if the given type's name is a valid object name format.
+     * The object's case is not taken into account with this check, that is handled with {@link #getIdentifierCaseHandling(Class, boolean, Scope)}.
+     * There is no checking if the object exists, only if it is valid as a name.
+     */
+    boolean isValidObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type, Scope scope);
+
+    /**
+     * Enum containing standard features used in {@link #supports(Feature, Scope)}
+     */
+    enum Feature {
+
+        DDL_IN_TRANSACTION(true, "True if the database supports DDL within a transaction. This doesn't specify whether the database auto-commits DDL statements, just whether an error will be thrown if there is an active transaction when a DDL statement is executed"),
+        DEFERRABLE_CONSTRAINTS(false, "True if the database supports deferrable constraints"),
+        AUTO_INCREMENT(true, "True if the database supports auto-increment/identity columns"),
+        CLUSTERED_INDEXES(false, "True if the database supports creating clustered indexes, regardless of what they call them."),
+        DISABLING_FOREIGN_KEYS(false, "True if foreign keys can be temporarily disabled"),
+        TABLESPACES(false, "True if tablespaces can be defined"),
+        NAMED_PRIMARY_KEYS(true, "True if primary keys can have unique names"),
+        INDEXES_DESC(true, "True if indexes can be defined as descending"),
+        INDEXES_ASC(true, "True if indexes can be defined as ascending"),
+        AUTO_CREATES_INDEXES_FOR_FOREIGN_KEYS(false, "True if indexes are automatically created when a foreign key is created")
+        ;
+
+        private boolean supportedByDefault;
+        private String description;
+
+        Feature(boolean supportedByDefault, String description) {
+            this.supportedByDefault = supportedByDefault;
+            this.description = description;
+        }
+
+        public boolean getSupportedByDefault() {
+            return supportedByDefault;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    /**
+     * Enum used by {@link #getIdentifierCaseHandling(Class, boolean, Scope)}
+     */
+    enum IdentifierCaseHandling {
+
+        UPPERCASE,
+        LOWERCASE,
+        CASE_SENSITIVE,
+
+    }
 }
 

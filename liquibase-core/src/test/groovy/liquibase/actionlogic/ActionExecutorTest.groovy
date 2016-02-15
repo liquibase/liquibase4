@@ -24,7 +24,7 @@ class ActionExecutorTest extends Specification {
     def setup() {
         serviceLocator = new MockServiceLocator()
         scope = JUnitScope.getInstance(new MockDatabase()).overrideSingleton(ServiceLocator, serviceLocator)
-        this.scope.database.setConnection(new MockJdbcConnection())
+        this.scope.database.setConnection(new MockJdbcConnection(), scope)
     }
 
     def "execute when null actionLogic"() {
@@ -240,7 +240,7 @@ class ActionExecutorTest extends Specification {
     @Unroll
     def "plan is built correctly"() {
         expect:
-        scope.getSingleton(ActionExecutor).createPlan(action, JUnitScope.getInstance(new GenericDatabase(new MockJdbcConnection()))).describe(true) == expected
+        scope.getSingleton(ActionExecutor).createPlan(action, JUnitScope.getInstance(new GenericDatabase(new MockJdbcConnection(), JUnitScope.instance))).describe(true) == expected
 
         where:
         action                                                                             | expected

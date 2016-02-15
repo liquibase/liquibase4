@@ -17,13 +17,13 @@ public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> imp
 
     abstract int getPriority(Class<? extends LiquibaseObject> type, Scope scope);
 
-    List<String> getSimpleObjectNames(Class<T> type, Scope  scope) {
+    List<String> getSimpleObjectNames(Class<T> type, Scope scope) {
         List<String> returnList = new ArrayList<>();
 
         int objectsToCreate = 10;
 
         Database database = ObjectUtil.defaultIfEmpty(scope.getDatabase(), new GenericDatabase());
-        if (database.canStoreObjectName("lower", false, type)) {
+        if (database.getIdentifierCaseHandling(type, false, scope) == Database.IdentifierCaseHandling.LOWERCASE) {
             for (int i = 1; i <= objectsToCreate; i++) {
                 returnList.add(type.getSimpleName().toLowerCase() + i);
             }
@@ -78,27 +78,25 @@ public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> imp
             }
         }
 
-        if (!scope.getDatabase().isCaseSensitive(type)) {
-            if (scope.getDatabase().canStoreObjectName("lowername", Table.class)) {
-                returnList = CollectionUtil.select(returnList, new CollectionUtil.CollectionFilter<ObjectReference>() {
-                    @Override
-                    public boolean include(ObjectReference obj) {
-                        return !obj.name.matches(".*[A-Z].*");
-                    }
-                });
-            } else {
-                returnList = CollectionUtil.select(returnList, new CollectionUtil.CollectionFilter<ObjectReference>() {
-                    @Override
-                    public boolean include(ObjectReference obj) {
-                        return !obj.name.matches(".*[a-z].*");
-                    }
-                });
-            }
+        if (scope.getDatabase().getIdentifierCaseHandling(type, true, scope) == Database.IdentifierCaseHandling.LOWERCASE) {
+            returnList = CollectionUtil.select(returnList, new CollectionUtil.CollectionFilter<ObjectReference>() {
+                @Override
+                public boolean include(ObjectReference obj) {
+                    return !obj.name.matches(".*[A-Z].*");
+                }
+            });
+        } else if (scope.getDatabase().getIdentifierCaseHandling(type, true, scope) == Database.IdentifierCaseHandling.UPPERCASE) {
+            returnList = CollectionUtil.select(returnList, new CollectionUtil.CollectionFilter<ObjectReference>() {
+                @Override
+                public boolean include(ObjectReference obj) {
+                    return !obj.name.matches(".*[a-z].*");
+                }
+            });
         }
 
         if (AbstractTableObject.class.isAssignableFrom(type)) { //add in a null table name placeholder
             for (ObjectReference ref : returnList) {
-                ref.container = new ObjectReference(LiquibaseObject.class, ref.container, null);
+                ref.container = new ObjectReference(LiquibaseObject.class, ref.container, (String) null);
             }
         }
 

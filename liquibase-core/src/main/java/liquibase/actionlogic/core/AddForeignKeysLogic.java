@@ -15,7 +15,6 @@ import liquibase.exception.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;
-import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -45,7 +44,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
 
         Database database = scope.getDatabase();
 
-        if (!database.supportsInitiallyDeferrableColumns()) {
+        if (!database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope)) {
             validationErrors.checkUnsupportedFields("foreignKeys.initiallyDeferred", "foreignKeys.deferrable");
         }
 
@@ -115,10 +114,10 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
     }
 
 
-    public StringClauses generateConstraintClause(ForeignKey foreignKey, AddForeignKeysAction action, Scope scope) {
+    public StringClauses generateConstraintClause(ForeignKey foreignKey, AddForeignKeysAction action, final Scope scope) {
         final Database database = scope.getDatabase();
 
-        String constrantName = supportsSeparateConstraintSchema() ? database.escapeObjectName(foreignKey.name, ForeignKey.class) : database.escapeObjectName(foreignKey.getName(), ForeignKey.class);
+        String constrantName = supportsSeparateConstraintSchema() ? database.quoteObjectName(foreignKey.name, ForeignKey.class, scope) : database.quoteObjectName(foreignKey.getName(), ForeignKey.class, scope);
 
         StringClauses clauses = new StringClauses()
                 .append("ADD")
@@ -128,15 +127,15 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                 .append(Clauses.baseColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
-                        return database.escapeObjectName(obj.baseColumn, Column.class);
+                        return database.quoteObjectName(obj.baseColumn, Column.class, scope);
                     }
                 }) + ")")
                 .append("REFERENCES")
-                .append(Clauses.referencedTableName, database.escapeObjectName(foreignKey.referencedTable))
+                .append(Clauses.referencedTableName, database.quoteObjectName(foreignKey.referencedTable, scope))
                 .append(Clauses.referencedColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
-                        return database.escapeObjectName(obj.referencedColumn, Column.class);
+                        return database.quoteObjectName(obj.referencedColumn, Column.class, scope);
                     }
                 }) + ")");
 

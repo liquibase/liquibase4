@@ -37,10 +37,10 @@ public class SnapshotPrimaryKeysLogicMysql extends SnapshotPrimaryKeysLogic {
         StringClauses whereClauses = new StringClauses(" AND ");
         whereClauses.append("INDEX_NAME='PRIMARY'");
         if (jdbcCatalogName != null) {
-            whereClauses.append("TABLE_SCHEMA='" + database.escapeString(jdbcCatalogName)+"'");
+            whereClauses.append("TABLE_SCHEMA=" + database.quoteString(jdbcCatalogName, scope));
         }
         if (tableName != null) {
-            whereClauses.append("TABLE_NAME='" + database.escapeString(tableName)+"'");
+            whereClauses.append("TABLE_NAME=" + database.quoteString(tableName, scope));
         }
 
 

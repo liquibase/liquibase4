@@ -113,15 +113,15 @@
 
 - **connection:** h2[config:standard]
 
-| Permutation | Verified | columns              | name    | table     | OPERATIONS
-| :---------- | :------- | :------------------- | :------ | :-------- | :------
-| 95f00b      | true     | COL_NAME             |         | LBSCHEMA2 | **plan**: ALTER TABLE "LBSCHEMA2" ADD UNIQUE ("COL_NAME")
-| bbe0d3      | true     | COL_NAME             |         | PUBLIC    | **plan**: ALTER TABLE "PUBLIC" ADD UNIQUE ("COL_NAME")
-| bb5f83      | true     | COL_NAME             | UQ_TEST | LBSCHEMA2 | **plan**: ALTER TABLE "LBSCHEMA2" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME")
-| 0d7c84      | true     | COL_NAME             | UQ_TEST | PUBLIC    | **plan**: ALTER TABLE "PUBLIC" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME")
-| 6217fc      | true     | COL_NAME1, COL_NAME2 |         | LBSCHEMA2 | **plan**: ALTER TABLE "LBSCHEMA2" ADD UNIQUE ("COL_NAME1", "COL_NAME2")
-| f16fe3      | true     | COL_NAME1, COL_NAME2 |         | PUBLIC    | **plan**: ALTER TABLE "PUBLIC" ADD UNIQUE ("COL_NAME1", "COL_NAME2")
-| 2bd5e6      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | LBSCHEMA2 | **plan**: ALTER TABLE "LBSCHEMA2" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
-| bc94a0      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | PUBLIC    | **plan**: ALTER TABLE "PUBLIC" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
+| Permutation | Verified | columns              | name    | table                | OPERATIONS
+| :---------- | :------- | :------------------- | :------ | :------------------- | :------
+| 839c9f      | true     | COL_NAME             |         | LBSCHEMA2.TEST_TABLE | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ADD UNIQUE ("COL_NAME")
+| 81b512      | true     | COL_NAME             |         | PUBLIC.TEST_TABLE    | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ADD UNIQUE ("COL_NAME")
+| 7bdf90      | true     | COL_NAME             | UQ_TEST | LBSCHEMA2.TEST_TABLE | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME")
+| de7221      | true     | COL_NAME             | UQ_TEST | PUBLIC.TEST_TABLE    | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME")
+| eff9f4      | true     | COL_NAME1, COL_NAME2 |         | LBSCHEMA2.TEST_TABLE | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ADD UNIQUE ("COL_NAME1", "COL_NAME2")
+| 963023      | true     | COL_NAME1, COL_NAME2 |         | PUBLIC.TEST_TABLE    | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ADD UNIQUE ("COL_NAME1", "COL_NAME2")
+| f381d9      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | LBSCHEMA2.TEST_TABLE | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
+| 549e7a      | true     | COL_NAME1, COL_NAME2 | UQ_TEST | PUBLIC.TEST_TABLE    | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ADD CONSTRAINT "UQ_TEST" UNIQUE ("COL_NAME1", "COL_NAME2")
 
-# Test Version: "021ba9" #
+# Test Version: "49ee98" #

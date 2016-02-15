@@ -16,6 +16,6 @@ public class StringDataTypeLogic extends DataTypeLogic {
         if (value == null) {
             return "NULL";
         }
-        return "'" + scope.getDatabase().escapeString(value.toString()) +"'";
+        return scope.getDatabase().quoteString(value.toString(), scope);
     }
 }

@@ -42,7 +42,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                 .checkRequiredFields("columns", "columns.name", "columns.type",
                         "columns.table", "columns.table.name");
 
-        if (!database.supportsAutoIncrement()) {
+        if (!database.supports(Database.Feature.AUTO_INCREMENT, scope)) {
             errors.checkUnsupportedFields("columns.autoIncrement");
         }
 
@@ -254,7 +254,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 //        String addAfterColumn = column.addAfterColumn;
 
         clauses.append("ADD")
-                .append(Clauses.columnName, database.escapeObjectName(columnName.name, Column.class))
+                .append(Clauses.columnName, database.quoteObjectName(columnName.name, Column.class, scope))
                 .append(Clauses.dataType, scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(columnType, scope))
                 .append(getDefaultValueClause(column, action, scope));
 
@@ -268,7 +268,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         }
 
         if (nullable) {
-            if (database.requiresDefiningColumnsAsNull()) {
+            if (requiresDefiningColumnsAsNull()) {
                 clauses.append(Clauses.nullable, "NULL");
             }
         } else {
@@ -278,10 +278,14 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         clauses.append(Clauses.primaryKey, markPrimaryKey ? "PRIMARY KEY" : null);
 
 //        if (addAfterColumn != null) {
-//            clauses.append("AFTER " + database.escapeObjectName(addAfterColumn, Column.class));
+//            clauses.append("AFTER " + database.quoteObjectName(addAfterColumn, Column.class));
 //        }
 
         return clauses;
+    }
+
+    public boolean requiresDefiningColumnsAsNull() {
+        return false;
     }
 
     protected boolean canInlinePrimaryKey(AddColumnsAction action) {
