@@ -42,7 +42,7 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
         try {
             Table missingTable = (Table) missingObject;
 
-            Scope referenceOfflineDatabaseScope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).fromSnapshot(referenceSnapshot));
+            Scope referenceOfflineDatabaseScope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).fromSnapshot(referenceSnapshot, scope));
 
             SnapshotFactory snapshotFactory = scope.getSingleton(SnapshotFactory.class);
 

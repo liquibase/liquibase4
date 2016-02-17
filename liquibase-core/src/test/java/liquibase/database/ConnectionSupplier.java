@@ -140,7 +140,7 @@ public abstract class ConnectionSupplier implements Cloneable, Service {
                 Connection dbConn = DriverManager.getConnection(this.getJdbcUrl(), this.getDatabaseUsername(), this.getDatabasePassword());
                 connection = new JdbcConnection(dbConn);
 
-                Database initDb = JUnitScope.getInstance().getSingleton(DatabaseFactory.class).findCorrectDatabaseImplementation(connection);
+                Database initDb = JUnitScope.getInstance().getSingleton(DatabaseFactory.class).getDatabase(connection, scope);
                 initDb.setConnection(connection, scope);
                 initConnection(JUnitScope.getInstance(initDb));
             } catch (Exception e) {

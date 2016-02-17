@@ -1,50 +1,60 @@
 package liquibase.database;
 
+import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.util.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
- * A ConnectionWrapper implementation which delegates completely to an
- * underlying java.sql.connection.
- *
- * @author <a href="mailto:csuml@yahoo.co.uk">Paul Keeble</a>
+ * A DatabaseConnection for JDBC databases.
+ * Wraps and exposes most java.sql.Connection methods for easier calling and potential logic overriding, so use methods on this object rather than calling {@link #getUnderlyingConnection()} when possible.
+ * That being said, to simplify this class, not all java.sql.Connection methods are wrapped, only the major ones Liquibase and extension will probably use.
  */
-public class JdbcConnection implements DatabaseConnection {
-    private Connection con;
+public class JdbcConnection extends AbstractExtensibleObject implements DatabaseConnection {
+    private Connection connection;
 
     public JdbcConnection(Connection connection) {
-        this.con = connection;
+        if (connection == null) {
+            throw new UnexpectedLiquibaseException("JdbcConnection cannot be passed a null connection");
+        }
+        this.connection = connection;
     }
 
-
-    @Override
-    public void attached(Database database) {
-//        try {
-//            database.addReservedWords(Arrays.asList(this.getWrappedConnection().getMetaData().getSQLKeywords().toUpperCase().split(",\\s*")));
-//        } catch (SQLException e) {
-//            LoggerFactory.getLogger(getClass()).info("Error fetching reserved words list from JDBC driver", e);
-//        }
-
+    /**
+     * Returns the underlying connection wrapped by this class.
+     */
+    public Connection getUnderlyingConnection() {
+        return connection;
     }
 
     @Override
-    public String getDatabaseProductName() throws DatabaseException {
+    public void configureDatabase(Database database, Scope scope) {
         try {
-            return con.getMetaData().getDatabaseProductName();
+            if (database instanceof AbstractJdbcDatabase) {
+                ((AbstractJdbcDatabase) database).reservedWords.addAll(StringUtils.splitAndTrim(getMetaData().getSQLKeywords().toUpperCase(), ","));
+            }
+        } catch (Exception e) {
+            LoggerFactory.getLogger(getClass()).warn("Error fetching reserved words list from JDBC driver", e);
+        }
+    }
+
+    @Override
+    public String getDatabaseProductName() {
+        try {
+            return connection.getMetaData().getDatabaseProductName();
         } catch (SQLException e) {
-            throw new DatabaseException(e);
+            throw new UnexpectedLiquibaseException(e);
         }
     }
 
     @Override
     public String getDatabaseProductVersion() throws DatabaseException {
         try {
-            return con.getMetaData().getDatabaseProductVersion();
+            return connection.getMetaData().getDatabaseProductVersion();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -53,7 +63,7 @@ public class JdbcConnection implements DatabaseConnection {
     @Override
     public int getDatabaseMajorVersion() throws DatabaseException {
         try {
-            return con.getMetaData().getDatabaseMajorVersion();
+            return connection.getMetaData().getDatabaseMajorVersion();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -62,7 +72,7 @@ public class JdbcConnection implements DatabaseConnection {
     @Override
     public int getDatabaseMinorVersion() throws DatabaseException {
         try {
-            return con.getMetaData().getDatabaseMinorVersion();
+            return connection.getMetaData().getDatabaseMinorVersion();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -71,35 +81,87 @@ public class JdbcConnection implements DatabaseConnection {
     @Override
     public String getURL() {
         try {
-            return con.getMetaData().getURL();
+            return connection.getMetaData().getURL();
         } catch (SQLException e) {
             throw new UnexpectedLiquibaseException(e);
         }
     }
 
     @Override
-    public String getConnectionUserName() {
+    public boolean isReadOnly() throws DatabaseException {
         try {
-            return con.getMetaData().getUserName();
+            return connection.isReadOnly();
         } catch (SQLException e) {
-            throw new UnexpectedLiquibaseException(e);
+            throw new DatabaseException(e);
         }
     }
 
-    /**
-     * Returns the connection that this Delegate is using.
-     *
-     * @return The connection originally passed in the constructor
-     */
-    public Connection getWrappedConnection() {
-        return con;
-    }
 
-    public void clearWarnings() throws DatabaseException {
+    @Override
+    public boolean getAutoCommit() throws DatabaseException {
         try {
-            con.clearWarnings();
+            return connection.getAutoCommit();
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public void setAutoCommit(boolean autoCommit) throws DatabaseException {
+        try {
+            if (connection.getAutoCommit() != autoCommit) { //sometimes databases don't allow setting autocommit to the same value as before. Ex: sybase jConnect driver throws DatabaseException(JZ016: The AutoCommit option is already set to false)
+                connection.setAutoCommit(autoCommit);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+
+    @Override
+    public String getCatalog() throws DatabaseException {
+        try {
+            return connection.getCatalog();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public void setCatalog(String catalog) throws DatabaseException {
+        try {
+            connection.setCatalog(catalog);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+
+    @Override
+    public String getSchema() throws DatabaseException {
+        try {
+            return connection.getSchema();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public void setSchema(String schema) throws DatabaseException {
+        try {
+            connection.setSchema(schema);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+
+    @Override
+    public String getConnectionUserName() {
+        try {
+            return connection.getMetaData().getUserName();
+        } catch (SQLException e) {
+            throw new UnexpectedLiquibaseException(e);
         }
     }
 
@@ -107,104 +169,7 @@ public class JdbcConnection implements DatabaseConnection {
     public void close() throws DatabaseException {
         rollback();
         try {
-            con.close();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public void commit() throws DatabaseException {
-        try {
-            if (!con.getAutoCommit()) {
-                con.commit();
-            }
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Statement createStatement() throws DatabaseException {
-        try {
-            return con.createStatement();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Statement createStatement(int resultSetType,
-                                     int resultSetConcurrency, int resultSetHoldability)
-            throws DatabaseException {
-        try {
-            return con.createStatement(resultSetType, resultSetConcurrency,
-                    resultSetHoldability);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Statement createStatement(int resultSetType, int resultSetConcurrency)
-            throws DatabaseException {
-        try {
-            return con.createStatement(resultSetType, resultSetConcurrency);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public boolean getAutoCommit() throws DatabaseException {
-        try {
-            return con.getAutoCommit();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public String getCatalog() throws DatabaseException {
-        try {
-            return con.getCatalog();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public int getHoldability() throws DatabaseException {
-        try {
-            return con.getHoldability();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public DatabaseMetaData getMetaData() throws DatabaseException {
-        try {
-            return con.getMetaData();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public int getTransactionIsolation() throws DatabaseException {
-        try {
-            return con.getTransactionIsolation();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Map<String, Class<?>> getTypeMap() throws DatabaseException {
-        try {
-            return con.getTypeMap();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public SQLWarning getWarnings() throws DatabaseException {
-        try {
-            return con.getWarnings();
+            connection.close();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -213,115 +178,18 @@ public class JdbcConnection implements DatabaseConnection {
     @Override
     public boolean isClosed() throws DatabaseException {
         try {
-            return con.isClosed();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public boolean isReadOnly() throws DatabaseException {
-        try {
-            return con.isReadOnly();
+            return connection.isClosed();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
     @Override
-    public String nativeSQL(String sql) throws DatabaseException {
+    public void commit() throws DatabaseException {
         try {
-            return con.nativeSQL(sql);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency, int resultSetHoldability)
-            throws DatabaseException {
-        try {
-            return con.prepareCall(sql, resultSetType, resultSetConcurrency,
-                    resultSetHoldability);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public CallableStatement prepareCall(String sql, int resultSetType,
-                                         int resultSetConcurrency) throws DatabaseException {
-        try {
-            return con.prepareCall(sql, resultSetType, resultSetConcurrency);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public CallableStatement prepareCall(String sql) throws DatabaseException {
-        try {
-            return con.prepareCall(sql);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                              int resultSetConcurrency, int resultSetHoldability)
-            throws DatabaseException {
-        try {
-            return con.prepareStatement(sql, resultSetType, resultSetConcurrency,
-                    resultSetHoldability);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql, int resultSetType,
-                                              int resultSetConcurrency) throws DatabaseException {
-        try {
-            return con.prepareStatement(sql, resultSetType, resultSetConcurrency);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys)
-            throws DatabaseException {
-        try {
-            return con.prepareStatement(sql, autoGeneratedKeys);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql, int[] columnIndexes)
-            throws DatabaseException {
-        try {
-            return con.prepareStatement(sql, columnIndexes);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql, String[] columnNames)
-            throws DatabaseException {
-        try {
-            return con.prepareStatement(sql, columnNames);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public PreparedStatement prepareStatement(String sql) throws DatabaseException {
-        try {
-            return con.prepareStatement(sql);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public void releaseSavepoint(Savepoint savepoint) throws DatabaseException {
-        try {
-            con.releaseSavepoint(savepoint);
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -330,106 +198,80 @@ public class JdbcConnection implements DatabaseConnection {
     @Override
     public void rollback() throws DatabaseException {
         try {
-            if (!con.getAutoCommit() && !con.isClosed()) {
-                con.rollback();
+            if (!connection.getAutoCommit() && !connection.isClosed()) {
+                connection.rollback();
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public void rollback(Savepoint savepoint) throws DatabaseException {
+
+    public void clearWarnings() throws DatabaseException {
         try {
-            if (!con.getAutoCommit()) {
-                con.rollback(savepoint);
-            }
+            connection.clearWarnings();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    @Override
-    public void setAutoCommit(boolean autoCommit) throws DatabaseException {
-        // Fix for Sybase jConnect JDBC driver bug.
-        // Which throws DatabaseException(JZ016: The AutoCommit option is already set to false)
-        // if con.setAutoCommit(false) called twise or more times with value 'false'.
-//        if (con.getAutoCommit() != autoCommit) {
-        try {
-            con.setAutoCommit(autoCommit);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-//        }
-    }
 
-    public void setCatalog(String catalog) throws DatabaseException {
+    public Statement createStatement() throws DatabaseException {
         try {
-            con.setCatalog(catalog);
+            return connection.createStatement();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public void setHoldability(int holdability) throws DatabaseException {
+    public DatabaseMetaData getMetaData() throws DatabaseException {
         try {
-            con.setHoldability(holdability);
+            return connection.getMetaData();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public void setReadOnly(boolean readOnly) throws DatabaseException {
+    public int getTransactionIsolation() throws DatabaseException {
         try {
-            con.setReadOnly(readOnly);
+            return connection.getTransactionIsolation();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public Savepoint setSavepoint() throws DatabaseException {
+    public SQLWarning getWarnings() throws DatabaseException {
         try {
-            return con.setSavepoint();
+            return connection.getWarnings();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public Savepoint setSavepoint(String name) throws DatabaseException {
+    public CallableStatement prepareCall(String sql) throws DatabaseException {
         try {
-            return con.setSavepoint(name);
+            return connection.prepareCall(sql);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    public void setTransactionIsolation(int level) throws DatabaseException {
+    public PreparedStatement prepareStatement(String sql) throws DatabaseException {
         try {
-            con.setTransactionIsolation(level);
+            return connection.prepareStatement(sql);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    public void setTypeMap(Map<String, Class<?>> map) throws DatabaseException {
-        try {
-            con.setTypeMap(map);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    public Connection getUnderlyingConnection() {
-        return con;
     }
 
     @Override
     public String toString() {
-        return getConnectionUserName()+"@"+getURL();
+        return getConnectionUserName() + "@" + getURL();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null  && obj instanceof JdbcConnection && this.toString().equals(obj.toString());
+        return obj != null && obj instanceof JdbcConnection && this.toString().equals(obj.toString());
 
     }
 

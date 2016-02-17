@@ -3,7 +3,6 @@ package liquibase.database.core.h2;
 import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
 
 import java.util.Arrays;
@@ -31,12 +30,7 @@ public class H2Database extends AbstractJdbcDatabase {
     }
 
     @Override
-    public String getDefaultDriver(String url, Scope scope) {
-        return "org.h2.Driver";
-    }
-
-    @Override
-    public boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException {
+    public boolean supports(DatabaseConnection conn, Scope scope) {
         return "H2".equals(conn.getDatabaseProductName());
     }
 

@@ -390,4 +390,4 @@
 | 2c35e6      | true     | lbcat2.lowertable                    | **plan**: CREATE TABLE `lbcat2`.`lowertable` (`col_name` INTEGER NULL)
 | 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: CREATE TABLE `lbcat2`.`only_in_lbcat2` (`col_name` INTEGER NULL)
 
-# Test Version: "888468" #
+# Test Version: "778ff1" #

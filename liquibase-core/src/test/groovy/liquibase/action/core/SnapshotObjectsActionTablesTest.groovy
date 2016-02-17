@@ -6,6 +6,7 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.database.DatabaseConnection
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
@@ -99,7 +100,7 @@ class SnapshotObjectsActionTablesTest extends AbstractActionTest {
         testAction([catalogName_asTable: catalogRef], action, conn, scope, {
             plan, result ->
                 def expected = result.asList(Table).grep({
-                    it.schema.catalog == catalogRef
+                    DatabaseConnection.getCatalog == catalogRef
                 })
 
                 assertThat result.asList(Table), containsInAnyOrder(expected.toArray())

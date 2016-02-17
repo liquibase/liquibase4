@@ -1,24 +1,25 @@
 package liquibase.database;
 
 import liquibase.Scope;
-import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.ResourceAccessor;
 import liquibase.servicelocator.AbstractServiceFactory;
 import liquibase.servicelocator.Service;
-import liquibase.servicelocator.ServiceLocator;
 import liquibase.snapshot.Snapshot;
 import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.DriverManager;
 import java.util.*;
 
+/**
+ * ServiceFactory to create the correct Database implementation based on available extensions.
+ */
 public class DatabaseFactory extends AbstractServiceFactory<Database> {
     private Logger log;
 
@@ -32,231 +33,152 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
         return Database.class;
     }
 
+    /**
+     * Takes either a {@link DatabaseConnection} as the first arg or a Database shortName.
+     */
     @Override
     protected int getPriority(Database obj, Scope scope, Object... args) {
-        String databaseName = (String) args[0];
+        if (args[0] instanceof String) {
+            String databaseName = (String) args[0];
 
-        if (obj.getShortName().equals(databaseName)) {
-            return obj.getPriority(scope);
-        } else {
-            return Service.PRIORITY_NOT_APPLICABLE;
-        }
-    }
-
-    /**
-     * Returns instances of all implemented database types.
-     */
-    public List<Database> getImplementedDatabases() {
-        List<Database> returnList = new ArrayList<>();
-        for (Database db : getRootScope().getSingleton(ServiceLocator.class).findAllServices(Database.class)) {
-            if (!(db instanceof InternalDatabase)) {
-                returnList.add(db);
+            if (obj.getShortName().equals(databaseName)) {
+                return obj.getPriority(scope);
+            } else {
+                return Service.PRIORITY_NOT_APPLICABLE;
             }
-        }
-        return returnList;
-    }
-
-    /**
-     * Returns instances of all "internal" database types.
-     */
-    public List<Database> getInternalDatabases() {
-        List<Database> returnList = new ArrayList<>();
-        for (Database db : getRootScope().getSingleton(ServiceLocator.class).findAllServices(Database.class)) {
-            if (db instanceof InternalDatabase) {
-                returnList.add(db);
-            }
-        }
-        return returnList;
-    }
-
-    public Database findCorrectDatabaseImplementation(DatabaseConnection connection) throws DatabaseException {
-
-        List<Database> foundDatabases = new ArrayList<>();
-
-        for (Database implementedDatabase : getImplementedDatabases()) {
+        } else if (args[0] instanceof DatabaseConnection) {
+            DatabaseConnection connection = (DatabaseConnection) args[0];
             if (connection instanceof OfflineConnection) {
-                if (((OfflineConnection) connection).isCorrectDatabaseImplementation(implementedDatabase)) {
-                    foundDatabases.add(implementedDatabase);
+                if (((OfflineConnection) connection).supports(obj, scope)) {
+                    return obj.getPriority(scope);
+                } else {
+                    return Service.PRIORITY_NOT_APPLICABLE;
                 }
             } else {
-                if (implementedDatabase.supports(connection, getRootScope())) {
-                    foundDatabases.add(implementedDatabase);
+                if (obj.supports(connection, scope)) {
+                    return obj.getPriority(scope);
+                } else {
+                    return Service.PRIORITY_NOT_APPLICABLE;
                 }
             }
+        } else {
+            throw new UnexpectedLiquibaseException("Unknown argument type: " + args[0].getClass());
         }
+    }
 
-        if (foundDatabases.size() == 0) {
-            log.warn("Unknown database: " + connection.getDatabaseProductName());
-            GenericDatabase unsupportedDB = new GenericDatabase();
-            unsupportedDB.setConnection(connection, getRootScope());
-            return unsupportedDB;
-        }
 
-        Database returnDatabase;
+    /**
+     * Returns the correct {@link Database} implementation for the passed connection. Each call will return a new Database instance.
+     * The returned database has {@link Database#setConnection(DatabaseConnection, Scope)} configured and {@link DatabaseConnection#configureDatabase(Database, Scope)} called.
+     */
+    public Database getDatabase(DatabaseConnection connection, Scope scope) throws DatabaseException {
+        Database database = getService(scope, connection);
         try {
-            Collections.sort(foundDatabases, new Comparator<Database>() {
-                @Override
-                public int compare(Database o1, Database o2) {
-                    return Integer.valueOf(o1.getPriority(getRootScope())).compareTo(o2.getPriority(getRootScope()));
-                }
-            });
-
-            returnDatabase = foundDatabases.iterator().next().getClass().newInstance();
+            database = database.getClass().newInstance();
         } catch (Exception e) {
             throw new UnexpectedLiquibaseException(e);
         }
 
-        returnDatabase.setConnection(connection, getRootScope());
-        return returnDatabase;
+        database.setConnection(connection, scope);
+        connection.configureDatabase(database, scope);
+
+        return database;
     }
 
-    public Database openDatabase(String url,
-                            String username,
-                            String password,
-                            String propertyProviderClass,
-                            ResourceAccessor resourceAccessor) throws DatabaseException {
-        return openDatabase(url, username, password, null, null, null, propertyProviderClass, resourceAccessor);
-    }
 
-    public Database openDatabase(String url,
+    public Database connect(String url,
                             String username,
                             String password,
-                            String driver,
+                            String driverClass,
                             String databaseClass,
-                            String driverPropertiesFile,
-                            String propertyProviderClass,
-                            ResourceAccessor resourceAccessor) throws DatabaseException {
-        return this.findCorrectDatabaseImplementation(openConnection(url, username, password, driver, databaseClass, driverPropertiesFile, propertyProviderClass, resourceAccessor));
-    }
-
-    public DatabaseConnection openConnection(String url,
-                                             String username,
-                                             String password,
-                                             String propertyProvider,
-                                             ResourceAccessor resourceAccessor) throws DatabaseException {
-
-        return openConnection(url, username, password, null, null, null, propertyProvider, resourceAccessor);
-    }
-
-    public DatabaseConnection openConnection(String url,
-                                             String username,
-                                             String password,
-                                             String driver,
-                                             String databaseClass,
-                                             String driverPropertiesFile,
-                                             String propertyProviderClass,
-                                             ResourceAccessor resourceAccessor) throws DatabaseException {
-        if (url.startsWith("offline:")) {
-            return new OfflineConnection(url, resourceAccessor);
-        }
-
-        driver = StringUtils.trimToNull(driver);
-        if (driver == null) {
-            driver = this.findDefaultDriver(url);
-        }
-
+                            String driverPropertiesClass,
+                            String additionalDriverPropertiesPath,
+                            ResourceAccessor resourceAccessor,
+                            Scope scope) throws DatabaseException {
+        DatabaseConnection connection = null;
         try {
-            Driver driverObject;
-//            if (databaseClass != null) {
-//                this.clearRegistry();
-//                this.register((Database) Class.forName(databaseClass, true, resourceAccessor.toClassLoader()).newInstance());
-//            }
-
-            try {
-                if (driver == null) {
-                    driver = this.findDefaultDriver(url);
-                }
-
-                if (driver == null) {
-                    throw new RuntimeException("Driver class was not specified and could not be determined from the url (" + url + ")");
-                }
-
-                driverObject = (Driver) Class.forName(driver, true, resourceAccessor.toClassLoader()).newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException("Cannot find database driver: " + e.getMessage());
-            }
-
-            Properties driverProperties;
-            if (propertyProviderClass == null) {
-                driverProperties = new Properties();
+            if (url.startsWith("offline:")) {
+                connection = new OfflineConnection(url, resourceAccessor);
             } else {
-                driverProperties = (Properties) Class.forName(propertyProviderClass, true, resourceAccessor.toClassLoader()).newInstance();
-            }
 
-            if (username != null) {
-                driverProperties.put("user", username);
-            }
-            if (password != null) {
-                driverProperties.put("password", password);
-            }
-            if (null != driverPropertiesFile) {
-                File propertiesFile = new File(driverPropertiesFile);
-                if (propertiesFile.exists()) {
-//                    System.out.println("Loading properties from the file:'" + driverPropertiesFile + "'");
-                    FileInputStream inputStream = new FileInputStream(propertiesFile);
-                    try {
-                        driverProperties.load(inputStream);
-                    } finally {
-                        inputStream.close();
-                    }
+               Properties driverProperties;
+                if (driverPropertiesClass == null) {
+                    driverProperties = new Properties();
                 } else {
-                    throw new RuntimeException("Can't open JDBC Driver specific properties from the file: '"
-                            + driverPropertiesFile + "'");
+                    driverProperties = (Properties) Class.forName(driverPropertiesClass, true, resourceAccessor.toClassLoader()).newInstance();
                 }
+
+                if (username != null) {
+                    driverProperties.put("user", username);
+                }
+                if (password != null) {
+                    driverProperties.put("password", password);
+                }
+                if (additionalDriverPropertiesPath != null) {
+                    Set<InputStream> propertiesStreams = resourceAccessor.getResourcesAsStream(additionalDriverPropertiesPath);
+                    if (propertiesStreams == null) {
+                        throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + additionalDriverPropertiesPath + "'");
+                    } else {
+                        for (InputStream stream : propertiesStreams)
+                            try {
+                                driverProperties.load(stream);
+                            } finally {
+                                stream.close();
+                            }
+                    }
+                }
+
+                Connection jdbcConnection;
+                try {
+                    if (driverClass == null) {
+                        jdbcConnection =  DriverManager.getConnection(url, driverProperties);
+                    } else {
+                        Driver driver = (Driver) Class.forName(driverClass, true, resourceAccessor.toClassLoader()).newInstance();
+                        jdbcConnection = driver.connect(url, driverProperties);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Cannot find database driver: " + e.getMessage());
+                }
+
+                LoggerFactory.getLogger(getClass()).debug("Connection to " + url + " successful");
+
+                connection = new JdbcConnection(jdbcConnection);
             }
 
+            if (databaseClass == null) {
+                return getDatabase(connection, scope);
+            } else {
+                Database database = (Database) Class.forName(databaseClass, true, resourceAccessor.toClassLoader()).newInstance();
+                database.setConnection(connection, scope);
+                connection.configureDatabase(database, scope);
 
-//            System.out.println("Properties:");
-//            for (Map.Entry entry : driverProperties.entrySet()) {
-//                System.out.println("Key:'"+entry.getKey().toString()+"' Value:'"+entry.getValue().toString()+"'");
-//            }
-
-
-//            System.out.println("Connecting to the URL:'"+url+"' using driver:'"+driverObject.getClass().getName()+"'");
-            Connection connection = driverObject.connect(url, driverProperties);
-//            System.out.println("Connection has been created");
-            if (connection == null) {
-                throw new DatabaseException("Connection could not be created to " + url + " with driver " + driverObject.getClass().getName() + ".  Possibly the wrong driver for the given database URL");
+                return database;
             }
-
-            return new JdbcConnection(connection);
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
     }
 
-    public String findDefaultDriver(String url) {
-        for (Database database : this.getImplementedDatabases()) {
-            String defaultDriver = database.getDefaultDriver(url, getRootScope());
-            if (defaultDriver != null) {
-                return defaultDriver;
-            }
-        }
-
-        return null;
-    }
-
     public Database getDatabase(String shortName) {
         return getService(getRootScope(), shortName);
+    }
 
+    public Database getDatabaseForUrl(String url) {
+        return getService(getRootScope(), url);
     }
 
     /**
      * Creates a new Database instance with an offline connection pointing to the given snapshot
      */
-    public Database fromSnapshot(Snapshot snapshot) {
+    public Database fromSnapshot(Snapshot snapshot, Scope scope) {
         Database database = snapshot.getScope().getDatabase();
 
         DatabaseConnection conn = new OfflineConnection("offline:" + database.getShortName(), snapshot, snapshot.getScope().getResourceAccessor());
 
-        Database returnDatabase = null;
         try {
-            returnDatabase = findCorrectDatabaseImplementation(conn);
+            return getDatabase(conn, scope);
         } catch (DatabaseException e) {
             throw new UnexpectedLiquibaseException(e);
         }
-        returnDatabase.setConnection(conn, getRootScope());
-
-        return returnDatabase;
     }
 }

@@ -5,17 +5,13 @@ import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
-import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.Sequence;
 
 import java.sql.Connection;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MysqlDatabase extends AbstractJdbcDatabase {
 
@@ -40,15 +36,9 @@ public class MysqlDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException {
+    public boolean supports(DatabaseConnection conn, Scope scope) {
         return "MySQL".equalsIgnoreCase(conn.getDatabaseProductName());
     }
-
-    @Override
-    public String getDefaultDriver(String url, Scope scope) {
-        return "com.mysql.jdbc.Driver";
-    }
-
 
     @Override
     public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {

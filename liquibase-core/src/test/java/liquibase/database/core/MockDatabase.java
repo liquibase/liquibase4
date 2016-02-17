@@ -4,7 +4,6 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.database.InternalDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
@@ -15,7 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockDatabase extends AbstractExtensibleObject implements Database, InternalDatabase {
+public class MockDatabase extends AbstractExtensibleObject implements Database {
 
     private DatabaseConnection connection;
 
@@ -26,7 +25,7 @@ public class MockDatabase extends AbstractExtensibleObject implements Database, 
 
     @Override
     public int getPriority(Scope scope) {
-        return PRIORITY_DEFAULT;
+        return PRIORITY_NOT_APPLICABLE;
     }
 
 
@@ -47,7 +46,7 @@ public class MockDatabase extends AbstractExtensibleObject implements Database, 
     }
 
     @Override
-    public boolean supports(final DatabaseConnection conn, Scope scope) throws DatabaseException {
+    public boolean supports(final DatabaseConnection conn, Scope scope) {
         return false;
     }
 
@@ -63,11 +62,6 @@ public class MockDatabase extends AbstractExtensibleObject implements Database, 
         } catch (IllegalArgumentException e) {
             return false;
         }
-    }
-
-    @Override
-    public String getDefaultDriver(final String url, Scope scope) {
-        return null;
     }
 
     @Override

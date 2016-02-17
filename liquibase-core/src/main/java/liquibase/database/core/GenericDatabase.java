@@ -3,10 +3,9 @@ package liquibase.database.core;
 import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
-import liquibase.exception.DatabaseException;
 
 /**
- * Fallback database when no others match.
+ * Fallback database when no others match. Follows SQL standard.
  */
 public class GenericDatabase extends AbstractJdbcDatabase {
 
@@ -23,14 +22,9 @@ public class GenericDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException {
+    public boolean supports(DatabaseConnection conn, Scope scope) {
         return false;
     }
-
-    @Override
-    public String getDefaultDriver(String url, Scope scope) {
-        return null;
-    }    
 
     @Override
     public String getShortName() {

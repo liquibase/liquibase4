@@ -1,38 +1,64 @@
 package liquibase.database;
 
+import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.ResourceAccessor;
 import liquibase.snapshot.Snapshot;
-import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OfflineConnection implements DatabaseConnection {
-    private final String url;
-    private final String databaseShortName;
-    private final Map<String, String> params = new HashMap<String, String>();
-    private Snapshot snapshot = null;
-    private OutputLiquibaseSql outputLiquibaseSql = OutputLiquibaseSql.NONE;
-    private String changeLogFile = "databasechangelog.csv";
+/**
+ * {@link DatabaseConnection} implementation for when there is no direct connection to a database.
+ * Connection URL is the format "offline:shortname?param1=x&param2=y" where shortname corresponds to a {@link Database} implementation's shortName.
+ * <br><br>
+ * Besides the properties defined on this object, you can use the following parameters:
+ * <ul>
+ *     <li>productName</li>
+ *     <li>version</li>
+ * </ul>
+ */
+@SuppressWarnings("UnusedParameters")
+public class OfflineConnection extends AbstractExtensibleObject implements DatabaseConnection {
 
-    private Database.IdentifierCaseHandling quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.CASE_SENSITIVE;
-    private Database.IdentifierCaseHandling unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.UPPERCASE;
+    //kept private so it is not as changable once the "connection" has been made
+    private String url;
 
-    private String productName;
-    private String productVersion;
-    private int databaseMajorVersion = 999;
-    private int databaseMinorVersion = 999;
-    private String catalog;
-    private boolean sendsStringParametersAsUnicode = true;
+    public String databaseShortName;
+    public String connectionUserName;
+    public String catalog;
+    public String schema;
 
-    private final Map<String, String> databaseParams = new HashMap<String, String>();
-    private String connectionUserName;
+    public String databaseProductName;
+    public String databaseProductVersion;
+
+    /**
+     *  Version defaults to a high number to support newest features by default.
+     */
+    public int databaseMajorVersion = 999;
+
+    /**
+     *  Version defaults to a high number to support newest features by default.
+     */
+    public int databaseMinorVersion = 999;
+
+    //kept private in case subclasses need to handle snapshot creation differently
+    private Snapshot snapshot;
+
+    public OutputLiquibaseSql outputLiquibaseSql = OutputLiquibaseSql.NONE;
+    public String changeLogFile = "databasechangelog.csv";
+
+    public Database.IdentifierCaseHandling quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.CASE_SENSITIVE;
+    public Database.IdentifierCaseHandling unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.UPPERCASE;
+
+    public boolean sendsStringParametersAsUnicode = true;
 
     public OfflineConnection(String url, Snapshot snapshot, ResourceAccessor resourceAccessor) {
         this(url, resourceAccessor);
@@ -43,47 +69,55 @@ public class OfflineConnection implements DatabaseConnection {
         this.url = url;
         Matcher matcher = Pattern.compile("offline:(\\w+)\\??(.*)").matcher(url);
         if (!matcher.matches()) {
-            throw new UnexpectedLiquibaseException("Could not parse offline url "+url);
+            throw new UnexpectedLiquibaseException("Could not parse offline url " + url);
         }
         this.databaseShortName = matcher.group(1).toLowerCase();
-        String params = StringUtils.trimToNull(matcher.group(2));
-        if (params != null) {
-            String[] keyValues = params.split("&");
+        String paramString = StringUtils.trimToNull(matcher.group(2));
+        Map<String, String> params = new HashMap<>();
+        if (paramString != null) {
+            String[] keyValues = paramString.split("&");
             for (String param : keyValues) {
                 String[] split = param.split("=");
-                this.params.put(split[0], split[1]);
+                params.put(split[0], split[1]);
             }
         }
 
 
-        this.productName = "Offline "+databaseShortName;
-        for (Map.Entry<String, String> paramEntry : this.params.entrySet()) {
-
-            if (paramEntry.getKey().equals("version")) {
-                this.productVersion = paramEntry.getValue();
-                String[] versionParts = productVersion.split("\\.");
-                try {
-                    this.databaseMajorVersion = Integer.valueOf(versionParts[0]);
-                    if (versionParts.length > 1) {
-                        this.databaseMinorVersion = Integer.valueOf(versionParts[1]);
+        this.databaseProductName = "Offline " + databaseShortName;
+        for (Map.Entry<String, String> paramEntry : params.entrySet()) {
+            switch (paramEntry.getKey()) {
+                case "version":
+                    this.databaseProductVersion = paramEntry.getValue();
+                    String[] versionParts = this.databaseProductVersion.split("\\.");
+                    try {
+                        this.databaseMajorVersion = Integer.valueOf(versionParts[0]);
+                        if (versionParts.length > 1) {
+                            this.databaseMinorVersion = Integer.valueOf(versionParts[1]);
+                        }
+                    } catch (NumberFormatException e) {
+                        LoggerFactory.getLogger(getClass()).warn("Cannot parse database version " + databaseProductVersion);
                     }
-                } catch (NumberFormatException e) {
-                    LoggerFactory.getLogger(getClass()).warn("Cannot parse database version " + productVersion);
-                }
-            } else if (paramEntry.getKey().equals("productName")) {
-                this.productName = paramEntry.getValue();
-            } else if (paramEntry.getKey().equals("catalog")) {
-                this.catalog = this.params.get("catalog");
-            } else if (paramEntry.getKey().equals("quotedIdentifierCaseHandling")) {
-                 this.quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
-            } else if (paramEntry.getKey().equals("unquotedIdentifierCaseHandling")) {
-                this.unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
-            } else if (paramEntry.getKey().equals("changeLogFile")) {
-                this.changeLogFile = paramEntry.getValue();
-            } else if (paramEntry.getKey().equals("outputLiquibaseSql")) {
-                this.outputLiquibaseSql = OutputLiquibaseSql.fromString(paramEntry.getValue());
-            } else if (paramEntry.getKey().equals("snapshot")) {
-                String snapshotFile = paramEntry.getValue();
+                    break;
+                case "productName":
+                    this.databaseProductName = paramEntry.getValue();
+                    break;
+                case "catalog":
+                    this.catalog = paramEntry.getValue();
+                    break;
+                case "quotedIdentifierCaseHandling":
+                    this.quotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
+                    break;
+                case "unquotedIdentifierCaseHandling":
+                    this.unquotedIdentifierCaseHandling = Database.IdentifierCaseHandling.valueOf(paramEntry.getValue());
+                    break;
+                case "changeLogFile":
+                    this.changeLogFile = paramEntry.getValue();
+                    break;
+                case "outputLiquibaseSql":
+                    this.outputLiquibaseSql = OutputLiquibaseSql.fromString(paramEntry.getValue());
+                    break;
+                case "snapshot":
+//                    String snapshotFile = paramEntry.getValue();
 //                try {
 //                    SnapshotParser parser = SnapshotParserFactory.getInstance().getParser(snapshotFile, resourceAccessor);
 //                    this.snapshot = parser.parse(snapshotFile, resourceAccessor);
@@ -97,32 +131,46 @@ public class OfflineConnection implements DatabaseConnection {
 //                } catch (LiquibaseException e) {
 //                    throw new UnexpectedLiquibaseException("Cannot parse snapshot " + url, e);
 //                }
-            } else if (paramEntry.getKey().equals("sendsStringParametersAsUnicode")) {
-                this.sendsStringParametersAsUnicode = Boolean.parseBoolean(paramEntry.getValue());
-            } else {
-                this.databaseParams.put(paramEntry.getKey(), paramEntry.getValue());
+                    break;
+                case "sendsStringParametersAsUnicode":
+                    this.sendsStringParametersAsUnicode = Boolean.parseBoolean(paramEntry.getValue());
+                    break;
+                default:
+                    this.set(paramEntry.getKey(), paramEntry.getValue());
             }
         }
     }
 
-    public boolean isCorrectDatabaseImplementation(Database database) {
+    /**
+     * Returns true if this connection's shortName equals the database's shortName
+     */
+    public boolean supports(Database database, Scope scope) {
         return database.getShortName().equalsIgnoreCase(databaseShortName);
     }
 
+    /**
+     * Always returns true.
+     */
     @Override
-    public void attached(Database database) {
-        for (Map.Entry<String, String> param : this.databaseParams.entrySet()) {
-            try {
-                ObjectUtil.setProperty(database, param.getKey(), param.getValue());
-            } catch (Throwable e) {
-                LoggerFactory.getLogger(getClass()).warn("Error setting database parameter " + param.getKey() + ": " + e.getMessage(), e);
+    public boolean isReadOnly() throws DatabaseException {
+        return true;
+    }
+
+    /**
+     * Copies all properties on this object onto the passed database, as long as the same property exists on the database class.
+     */
+    @Override
+    public void configureDatabase(Database database, Scope scope) {
+        Set<String> standardDatabaseAttributes = database.getStandardAttributeNames();
+        for (String paramName : this.getAttributeNames()) {
+            if (standardDatabaseAttributes.contains(paramName)) {
+                try {
+                database.set(paramName, this.get(paramName, Object.class));
+                } catch (Throwable e) {
+                    LoggerFactory.getLogger(getClass()).warn("Error setting database parameter " + paramName + ": " + e.getMessage(), e);
+                }
             }
         }
-        if (database instanceof AbstractJdbcDatabase) {
-            ((AbstractJdbcDatabase) database).quotedIdentifierCaseHandling = this.quotedIdentifierCaseHandling;
-            ((AbstractJdbcDatabase) database).unquotedIdentifierCaseHandling = this.unquotedIdentifierCaseHandling;
-        }
-
 //        ChangeLogHistoryServiceFactory.getInstance().register(createChangeLogHistoryService(database));
     }
 
@@ -137,16 +185,25 @@ public class OfflineConnection implements DatabaseConnection {
         return snapshot;
     }
 
+    /**
+     * No-op since there is nothing to close.
+     */
     @Override
     public void close() throws DatabaseException {
         //nothing
     }
 
+    /**
+     * No-op since there is nothing to commit.
+     */
     @Override
     public void commit() throws DatabaseException {
         //nothing
     }
 
+    /**
+     * Always returns false
+     */
     @Override
     public boolean getAutoCommit() throws DatabaseException {
         return false;
@@ -158,49 +215,49 @@ public class OfflineConnection implements DatabaseConnection {
     }
 
     @Override
-    public String nativeSQL(String sql) throws DatabaseException {
-        return sql;
+    public void setCatalog(String catalogName) throws DatabaseException {
+        this.catalog = catalogName;
     }
 
+    @Override
+    public String getSchema() throws DatabaseException {
+        return schema;
+    }
+
+    @Override
+    public void setSchema(String schema) throws DatabaseException {
+        this.schema = schema;
+    }
+
+    /**
+     * No-op since there are no transactions.
+     */
     @Override
     public void rollback() throws DatabaseException {
 
     }
 
+    /**
+     * No-op since there are no transactions.
+     */
     @Override
     public void setAutoCommit(boolean autoCommit) throws DatabaseException {
 
     }
 
     @Override
-    public String getDatabaseProductName() throws DatabaseException {
-        return productName;
+    public String getDatabaseProductName() {
+        return databaseProductName;
     }
 
     @Override
     public String getDatabaseProductVersion() throws DatabaseException {
-        return productVersion;
+        return databaseProductVersion;
     }
 
     @Override
     public int getDatabaseMajorVersion() throws DatabaseException {
         return databaseMajorVersion;
-    }
-
-    public void setDatabaseMajorVersion(int databaseMajorVersion) {
-        this.databaseMajorVersion = databaseMajorVersion;
-    }
-
-    public void setDatabaseMinorVersion(int databaseMinorVersion) {
-        this.databaseMinorVersion = databaseMinorVersion;
-    }
-
-    public void setProductVersion(String productVersion) {
-        this.productVersion = productVersion;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
     }
 
     @Override
@@ -218,19 +275,18 @@ public class OfflineConnection implements DatabaseConnection {
         return connectionUserName;
     }
 
-    public void setConnectionUserName(String connectionUserName) {
-        this.connectionUserName = connectionUserName;
-    }
-
+    /**
+     * Always returns false
+     */
     @Override
     public boolean isClosed() throws DatabaseException {
         return false;
     }
 
     /**
-     * Output Liquibase SQL
+     * Enumeration of options for how Liquibase-related should be handled.
      */
-    private static enum OutputLiquibaseSql {
+    public enum OutputLiquibaseSql {
         /**
          * Don't output anything
          */
@@ -244,43 +300,22 @@ public class OfflineConnection implements DatabaseConnection {
          */
         ALL;
 
+        /**
+         * For backward compatibility true is translated in ALL and false in NONE
+         */
         public static OutputLiquibaseSql fromString(String s) {
             if (s == null) {
                 return null;
             }
-            s = s.toUpperCase();
-            // For backward compatibility true is translated in ALL and false in NONE
-            if (s.equals("TRUE")) {
-                return ALL;
-            } else if (s.equals("FALSE")) {
-                return NONE;
-            } else {
-                return valueOf(s);
+
+            switch (s.toUpperCase()) {
+                case "TRUE":
+                    return ALL;
+                case "FALSE":
+                    return NONE;
+                default:
+                    return valueOf(s);
             }
         }
-    }
-
-    public boolean getSendsStringParametersAsUnicode() {
-        return sendsStringParametersAsUnicode;
-    }
-
-    public void setSendsStringParametersAsUnicode(boolean sendsStringParametersAsUnicode) {
-        this.sendsStringParametersAsUnicode = sendsStringParametersAsUnicode;
-    }
-
-    public Database.IdentifierCaseHandling getQuotedIdentifierCaseHandling() {
-        return quotedIdentifierCaseHandling;
-    }
-
-    public void setQuotedIdentifierCaseHandling(Database.IdentifierCaseHandling quotedIdentifierCaseHandling) {
-        this.quotedIdentifierCaseHandling = quotedIdentifierCaseHandling;
-    }
-
-    public Database.IdentifierCaseHandling getUnquotedIdentifierCaseHandling() {
-        return unquotedIdentifierCaseHandling;
-    }
-
-    public void setUnquotedIdentifierCaseHandling(Database.IdentifierCaseHandling unquotedIdentifierCaseHandling) {
-        this.unquotedIdentifierCaseHandling = unquotedIdentifierCaseHandling;
     }
 }

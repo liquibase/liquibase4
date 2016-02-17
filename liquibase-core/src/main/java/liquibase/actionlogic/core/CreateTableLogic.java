@@ -7,7 +7,6 @@ import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.*;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
-import liquibase.database.ObjectQuotingStrategy;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.ValidationErrors;
 import liquibase.structure.core.*;

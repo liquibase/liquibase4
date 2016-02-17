@@ -2,7 +2,6 @@ package liquibase.database;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
-import liquibase.exception.DatabaseException;
 import liquibase.servicelocator.Service;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
@@ -29,12 +28,7 @@ public interface Database extends Service, ExtensibleObject {
     /**
      * Return true if this subclass supports the given connection.
      */
-    boolean supports(DatabaseConnection conn, Scope scope) throws DatabaseException;
-
-    /**
-     * Return the default driver class name.  If no default, return null.
-     */
-    String getDefaultDriver(String url, Scope scope);
+    boolean supports(DatabaseConnection conn, Scope scope);
 
     /**
      * Return the current connection on this Database, or null if not set.
@@ -176,6 +170,22 @@ public interface Database extends Service, ExtensibleObject {
         UPPERCASE,
         LOWERCASE,
         CASE_SENSITIVE,
+
+    }
+
+    /**
+     * Strategy regards quoting object names e.g. table, column, index names etc.
+     */
+    enum QuotingStrategy {
+        /**
+         * Every object gets quoted. E.g. person becomes "person"
+         */
+        QUOTE_ALL_OBJECTS,
+
+        /**
+         * Only quote objects that need to be quoted, such as reserved words and names with special characters.
+         */
+        QUOTE_ONLY_REQUIRED
 
     }
 }
