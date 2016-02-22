@@ -5,15 +5,16 @@ import liquibase.Scope;
 import liquibase.database.ConnectionSupplier;
 import liquibase.database.Database;
 import liquibase.database.core.GenericDatabase;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.AbstractPlugin;
 import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.Table;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> implements Service {
+public abstract class TestObjectReferenceSupplier<T extends LiquibaseObject> extends AbstractPlugin {
 
     abstract int getPriority(Class<? extends LiquibaseObject> type, Scope scope);
 

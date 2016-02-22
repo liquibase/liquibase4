@@ -1,9 +1,9 @@
 package liquibase.structure.datatype;
 
 import liquibase.Scope;
-import liquibase.servicelocator.AbstractServiceFactory;
+import liquibase.plugin.AbstractPluginFactory;
 
-public class DataTypeLogicFactory extends AbstractServiceFactory<DataTypeLogic> {
+public class DataTypeLogicFactory extends AbstractPluginFactory<DataTypeLogic> {
 
     /**
      * Constructor is protected because it should be used as a singleton.
@@ -13,7 +13,7 @@ public class DataTypeLogicFactory extends AbstractServiceFactory<DataTypeLogic> 
     }
 
     @Override
-    protected Class<DataTypeLogic> getServiceClass() {
+    protected Class<DataTypeLogic> getPluginClass() {
         return DataTypeLogic.class;
     }
 
@@ -24,6 +24,6 @@ public class DataTypeLogicFactory extends AbstractServiceFactory<DataTypeLogic> 
     }
 
     public DataTypeLogic getDataTypeLogic(DataType type, Scope scope) {
-        return this.getService(scope, type);
+        return this.getPlugin(scope, type);
     }
 }

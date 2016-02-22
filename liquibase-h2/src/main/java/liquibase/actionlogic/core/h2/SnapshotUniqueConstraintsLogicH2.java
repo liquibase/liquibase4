@@ -10,9 +10,8 @@ import liquibase.actionlogic.core.SnapshotUniqueConstraintsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
+import liquibase.structure.core.UniqueConstraint;
 import org.apache.velocity.util.StringUtils;
 
 import java.util.Arrays;

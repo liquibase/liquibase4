@@ -2,7 +2,6 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.action.core.DisableForeignKeyChecksAction;
-import liquibase.action.core.EnableForeignKeyChecksAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;

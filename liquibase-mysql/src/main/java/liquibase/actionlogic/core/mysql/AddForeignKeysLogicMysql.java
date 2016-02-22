@@ -1,11 +1,11 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.AddForeignKeysAction;
 import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.ForeignKey;
 
 public class AddForeignKeysLogicMysql extends AddForeignKeysLogic {

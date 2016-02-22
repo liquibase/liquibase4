@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.AlterTableAction;
 import liquibase.action.core.DropForeignKeyAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
@@ -8,7 +9,6 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.ForeignKey;
 import liquibase.util.StringClauses;
 

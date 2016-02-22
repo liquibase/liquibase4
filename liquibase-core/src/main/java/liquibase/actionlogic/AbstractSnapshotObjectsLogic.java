@@ -3,16 +3,18 @@ package liquibase.actionlogic;
 import liquibase.Scope;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.exception.ActionPerformException;
+import liquibase.plugin.Plugin;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Convenience abstract base class for {@link SnapshotObjectsAction} related logic.
  * Implementations should not directly execute the metadata read, but instead return a {@link liquibase.actionlogic.DelegateResult} that returns simple lower-level actions.
  * This pattern is built into this methods {@link #execute(liquibase.action.Action, liquibase.Scope)} method.
- * Returns {@link liquibase.servicelocator.Service#PRIORITY_NOT_APPLICABLE} if {@link SnapshotObjectsAction#relatedTo} has multiple values which are of different types.
+ * Returns {@link Plugin#PRIORITY_NOT_APPLICABLE} if {@link SnapshotObjectsAction#relatedTo} has multiple values which are of different types.
  */
 public abstract class AbstractSnapshotObjectsLogic<Action extends SnapshotObjectsAction, ObjectType extends LiquibaseObject> extends AbstractActionLogic<Action> {
 

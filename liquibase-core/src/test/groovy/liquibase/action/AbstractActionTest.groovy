@@ -10,8 +10,9 @@ import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
-import liquibase.servicelocator.AbstractServiceFactory
-import liquibase.servicelocator.Service
+import liquibase.plugin.AbstractPlugin
+import liquibase.plugin.AbstractPluginFactory
+import liquibase.plugin.Plugin
 import liquibase.snapshot.Snapshot
 import liquibase.structure.LiquibaseObject
 import liquibase.structure.ObjectNameStrategy
@@ -244,23 +245,23 @@ abstract class AbstractActionTest extends Specification {
         }
     }
 
-    public static class TestDetails implements Service {
+    public static class TestDetails extends AbstractPlugin {
 
     }
 
-    public static class TestDetailsFactory<T extends AbstractActionTest.TestDetails> extends AbstractServiceFactory<T> {
+    public static class TestDetailsFactory<T extends AbstractActionTest.TestDetails> extends AbstractPluginFactory<T> {
 
         public TestDetailsFactory(Scope scope) {
             super(scope);
         }
 
         @Override
-        protected Class<T> getServiceClass() {
+        protected Class<T> getPluginClass() {
             return (Class<T>) AbstractActionTest.TestDetails.class;
         }
 
         public T getTestDetails(AbstractActionTest test, Scope scope) {
-            return getService(scope, test);
+            return getPlugin(scope, test);
         }
 
         @Override
@@ -270,11 +271,11 @@ abstract class AbstractActionTest extends Specification {
             Class testDetails = obj.getClass();
 
             if ((testName.getName() + '$TestDetails').equals(testDetails.getName())) {
-                return Service.PRIORITY_DEFAULT;
+                return Plugin.PRIORITY_DEFAULT;
             } else if ((testName.getSimpleName() + "Details" + scope.getDatabase().getShortName()).equalsIgnoreCase(testDetails.getSimpleName())) {
-                return Service.PRIORITY_SPECIALIZED;
+                return Plugin.PRIORITY_SPECIALIZED;
             } else {
-                return Service.PRIORITY_NOT_APPLICABLE;
+                return Plugin.PRIORITY_NOT_APPLICABLE;
             }
         }
 
@@ -294,7 +295,7 @@ abstract class AbstractActionTest extends Specification {
             Runtime.getRuntime().addShutdownHook({
                 if (filteredActions > 0) {
                     def logger = LoggerFactory.getLogger(ValidActionFilter)
-                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+" out of "+totalActions+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
+                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+" out of "+NumberFormat.instance.format(totalActions)+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
                 }
             })
         }

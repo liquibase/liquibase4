@@ -1,10 +1,10 @@
-package liquibase.actionlogic;
+package liquibase.actionlogic
 
 import liquibase.JUnitScope
 import liquibase.action.AbstractActionTest
 import liquibase.database.ConnectionSupplier
 import liquibase.util.StringUtils
-import org.junit.Assert;
+import org.junit.Assert
 import spock.lang.Specification
 
 public abstract class AbstractLogicTest extends Specification {

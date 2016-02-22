@@ -5,7 +5,6 @@ import liquibase.Scope;
 import liquibase.structure.ObjectReference;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 

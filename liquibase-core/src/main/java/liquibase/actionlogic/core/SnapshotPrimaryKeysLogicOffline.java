@@ -1,7 +1,6 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.Action;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogicOffline;
 import liquibase.exception.UnexpectedLiquibaseException;

@@ -1,16 +1,13 @@
 package liquibase.database;
 
-import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
-import liquibase.exception.DatabaseException;
+import liquibase.plugin.AbstractPlugin;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.*;
-import liquibase.util.ISODateFormat;
 import liquibase.util.StringUtils;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -28,7 +25,7 @@ import java.util.Set;
  * SQL reference: http://savage.net.au/SQL/sql-2003-2.bnf.html
  * Database feature comparison: http://www.sql-workbench.net/dbms_comparison.html
  */
-public abstract class AbstractJdbcDatabase extends AbstractExtensibleObject implements Database {
+public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Database {
 
     /**
      * Kept private to force use of {@link #setConnection(DatabaseConnection, Scope)}

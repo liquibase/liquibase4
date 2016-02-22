@@ -1,7 +1,6 @@
 package liquibase.structure;
 
 import liquibase.Scope;
-import liquibase.snapshot.Snapshot;
 import liquibase.structure.core.Schema;
 import liquibase.util.ObjectUtil;
 

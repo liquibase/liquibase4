@@ -4,7 +4,6 @@ import liquibase.Scope;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StreamUtil;
 import liquibase.util.StringUtils;
 
 import java.util.*;

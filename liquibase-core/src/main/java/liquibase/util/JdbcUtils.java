@@ -1,8 +1,6 @@
 package liquibase.util;
 
-import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.core.Column;
 
 import java.sql.*;
 import java.util.ArrayList;

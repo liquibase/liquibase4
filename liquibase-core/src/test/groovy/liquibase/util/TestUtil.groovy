@@ -35,7 +35,7 @@ class TestUtil {
                         }
                         Class clazz = Class.forName("$relativeName/$sub.name".replace("/", ".").replaceFirst(/\.class$/, ""));
 
-                        if (!isValidService(clazz)) {
+                        if (!isValidClass(clazz)) {
                             continue;
                         }
 
@@ -80,7 +80,7 @@ class TestUtil {
 
     }
 
-    private static isValidService(Class<?> clazz) {
+    private static isValidClass(Class<?> clazz) {
         if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()) || clazz.isSynthetic() || clazz.isAnonymousClass()) {
             return false;
         }

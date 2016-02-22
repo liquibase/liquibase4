@@ -1,7 +1,6 @@
 package liquibase.action;
 
 import liquibase.ExtensibleObject;
-import liquibase.Scope;
 
 /**
  * Implementations of Action describe interactions to perform against the outside environment.

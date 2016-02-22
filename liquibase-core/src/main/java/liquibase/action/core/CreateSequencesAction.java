@@ -1,11 +1,8 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Index;
 import liquibase.structure.core.Sequence;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

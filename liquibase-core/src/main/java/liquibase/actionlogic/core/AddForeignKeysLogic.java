@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.action.core.AddForeignKeysAction;
@@ -11,7 +12,6 @@ import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;

@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.core.CreateTableAction;
 import liquibase.action.core.SetColumnRemarksAction;
@@ -10,7 +11,6 @@ import liquibase.actionlogic.core.CreateTableLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.util.CollectionUtil;

@@ -1,8 +1,8 @@
 package liquibase.util
 
-import liquibase.SingletonService
+import liquibase.SingletonObject
 import liquibase.database.DatabaseFactory
-import liquibase.servicelocator.AbstractServiceFactory
+import liquibase.plugin.AbstractPluginFactory
 import liquibase.test.TestObjectFactory
 import spock.lang.Specification
 
@@ -10,11 +10,11 @@ class TestUtilTest extends Specification {
 
     def "getClasses should find subclasses as well"() {
         when:
-        def classes = TestUtil.getClasses(SingletonService)
+        def classes = TestUtil.getClasses(SingletonObject)
 
         then:
         assert classes.contains(TestObjectFactory)
-        assert !classes.contains(AbstractServiceFactory)
+        assert !classes.contains(AbstractPluginFactory)
         assert classes.contains(DatabaseFactory)
     }
 }

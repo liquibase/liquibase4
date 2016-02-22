@@ -1,14 +1,8 @@
 package liquibase.action.core
 
-import liquibase.JUnitScope
-import liquibase.actionlogic.ActionExecutor
-import liquibase.database.ConnectionSupplierFactory
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.Table
 import spock.lang.Specification
-import spock.lang.Unroll
-import testmd.TestMD
-import testmd.logic.SetupResult
 
 class DropTableActionTest extends Specification {
     def "empty constructor"() {

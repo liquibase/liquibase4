@@ -5,6 +5,7 @@ import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.OfflineConnection;
 import liquibase.exception.ActionPerformException;
+import liquibase.plugin.Plugin;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
@@ -25,7 +26,7 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
     }
 
     /**
-     * Besides standard logic, will return {@link liquibase.servicelocator.Service#PRIORITY_NOT_APPLICABLE} if it is an offline connection.
+     * Besides standard logic, will return {@link Plugin#PRIORITY_NOT_APPLICABLE} if it is an offline connection.
      */
     @Override
     public int getPriority(SnapshotObjectsAction action, Scope scope) {

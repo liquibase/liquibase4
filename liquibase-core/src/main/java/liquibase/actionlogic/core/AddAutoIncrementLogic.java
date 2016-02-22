@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.ActionStatus;
 import liquibase.action.core.AddAutoIncrementAction;
 import liquibase.action.core.AlterColumnAction;
@@ -9,7 +10,6 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.core.Column;
 import liquibase.util.StringClauses;

@@ -70,7 +70,7 @@ public class JUnitScope extends Scope {
     }
 
     @Override
-    public <T extends SingletonService> T getSingleton(Class<T> type) {
+    public <T extends SingletonObject> T getSingleton(Class<T> type) {
         T singleton = this.singletons.get(type.getName(), type);
         if (singleton == null) {
             return super.getSingleton(type);

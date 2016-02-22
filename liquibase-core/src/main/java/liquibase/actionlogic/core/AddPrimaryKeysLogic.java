@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.action.core.AddPrimaryKeysAction;
@@ -10,7 +11,6 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;

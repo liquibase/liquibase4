@@ -2,15 +2,13 @@ package liquibase.actionlogic
 
 import liquibase.JUnitScope
 import liquibase.Scope
+import liquibase.ValidationErrors
 import liquibase.action.*
 import liquibase.action.core.SnapshotObjectsAction
 import liquibase.database.MockJdbcConnection
-import liquibase.database.core.MockDatabase
 import liquibase.database.core.GenericDatabase
+import liquibase.database.core.MockDatabase
 import liquibase.exception.ActionPerformException
-import liquibase.ValidationErrors
-import liquibase.servicelocator.MockServiceLocator
-import liquibase.servicelocator.ServiceLocator
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.Table
 import spock.lang.Specification
@@ -18,13 +16,20 @@ import spock.lang.Unroll
 
 class ActionExecutorTest extends Specification {
 
-    MockServiceLocator serviceLocator
     Scope scope;
+    List<? extends ActionLogic> actionLogicImpls
 
     def setup() {
-        serviceLocator = new MockServiceLocator()
-        scope = JUnitScope.getInstance(new MockDatabase()).overrideSingleton(ServiceLocator, serviceLocator)
-        this.scope.database.setConnection(new MockJdbcConnection(), scope)
+        this.actionLogicImpls = []
+
+        this.scope = JUnitScope.getInstance(new MockDatabase())
+        this.scope = ((JUnitScope) scope).overrideSingleton(ActionLogicFactory, new ActionLogicFactory(scope) {
+            @Override
+            protected synchronized Collection<ActionLogic> findAllInstances() {
+                return actionLogicImpls
+            }
+        })
+        this.scope.database.setConnection(new MockJdbcConnection(), this.scope)
     }
 
     def "execute when null actionLogic"() {
@@ -38,7 +43,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute when validation fails with errors"() {
         when:
-        serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction) {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock logic", 1, MockAction) {
 
             ValidationErrors validate(Action action, Scope scope) {
                 return new ValidationErrors()
@@ -56,7 +61,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute update logic"() {
         when:
-        serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
             return new UpdateResult(it, "update logic ran", 12);
         }))
 
@@ -70,7 +75,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'execute' logic"() {
         when:
-        serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
             return new ExecuteResult(it, "execute logic ran");
         }))
 
@@ -83,7 +88,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'query' logic"() {
         when:
-        serviceLocator.addService(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock logic", 1, MockAction, {
             return new RowBasedQueryResult(it, "query logic ran", "DATA");
         }))
 
@@ -96,7 +101,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'rewrite' logic with an empty rewrite action list throws an exception"() {
         when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockActionLogic("mock logic", 1, MockAction, {
             return new DelegateResult(it, null);
         }))
 
@@ -109,10 +114,10 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'rewrite' logic with a single rewrite action"() {
         when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockActionLogic("mock logic", 1, MockAction, {
             return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"));
         }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
@@ -135,10 +140,10 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'rewrite' logic with multiple delegate results"() {
         when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockActionLogic("mock logic", 1, MockAction, {
             return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"), new UpdateSqlAction("sql action 2"));
         }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
@@ -158,17 +163,17 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'rewrite' logic with multiple levels of DelegateResults"() {
         when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockActionLogic("mock logic", 1, MockAction, {
             return new DelegateResult(it, null, new UpdateSqlAction("sql action 1"), new ExecuteSqlAction("exec sql action"), new UpdateSqlAction("sql action 2"));
         }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
-        serviceLocator.addService(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
+        actionLogicImpls.add(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new DelegateResult(action, null, new UpdateSqlAction("nested 1"), new UpdateSqlAction("nested 2"));
@@ -194,7 +199,7 @@ class ActionExecutorTest extends Specification {
 
     def "execute 'rewrite' logic with multiple levels of DelegateResults and a top level modifier"() {
         when:
-        serviceLocator.addService(new MockActionLogic("mock logic", 1, MockAction, {
+        actionLogicImpls.add(new MockActionLogic("mock logic", 1, MockAction, {
             return new DelegateResult(it, new DelegateResult.Modifier() {
                 @Override
                 ActionResult rewrite(ActionResult result) throws ActionPerformException {
@@ -205,14 +210,14 @@ class ActionExecutorTest extends Specification {
                 }
             }, new UpdateSqlAction("sql action 1"), new ExecuteSqlAction("exec sql action"), new UpdateSqlAction("sql action 2"));
         }))
-        serviceLocator.addService(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
+        actionLogicImpls.add(new MockExternalInteractionLogic("mock sql", 1, UpdateSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new ExecuteResult(action, "executed sql: " + ((AbstractSqlAction) action).sql);
             }
         })
 
-        serviceLocator.addService(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
+        actionLogicImpls.add(new MockActionLogic("mock execute sql", 1, ExecuteSqlAction) {
             @Override
             ActionResult execute(Action action, Scope scope) throws ActionPerformException {
                 return new DelegateResult(action, null, new UpdateSqlAction("nested 1"), new UpdateSqlAction("nested 2"));

@@ -1,8 +1,6 @@
 package liquibase.structure.core;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.structure.AbstractObject;
-import liquibase.structure.AbstractSchemaObject;
 import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 

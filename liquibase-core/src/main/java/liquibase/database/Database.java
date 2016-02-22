@@ -2,7 +2,7 @@ package liquibase.database;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.Plugin;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 
@@ -12,10 +12,10 @@ import java.util.Date;
  * Implementations of this interface describe the idiosyncrasies of a particular database.
  * Instances of this interface can contain connections to online and offline databases.
  * Normally consider extending {@link AbstractJdbcDatabase} rather than this interface directly.
- * Implements {@link Service} so that extensions can override standard implementations if needed.
+ * Implements {@link Plugin} so that extensions can override standard implementations if needed.
  */
 @SuppressWarnings("unused")
-public interface Database extends Service, ExtensibleObject {
+public interface Database extends Plugin, ExtensibleObject {
 
     int getPriority(Scope scope);
 

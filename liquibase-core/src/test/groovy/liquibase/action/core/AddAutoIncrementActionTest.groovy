@@ -8,9 +8,9 @@ import liquibase.database.ConnectionSupplier
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.core.Column
-import liquibase.structure.datatype.DataType
 import liquibase.structure.core.PrimaryKey
 import liquibase.structure.core.Table
+import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 

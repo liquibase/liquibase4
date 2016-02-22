@@ -12,7 +12,10 @@ import liquibase.snapshot.Snapshot
 import liquibase.snapshot.SnapshotFactory
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
-import liquibase.structure.core.*
+import liquibase.structure.core.Catalog
+import liquibase.structure.core.Column
+import liquibase.structure.core.PrimaryKey
+import liquibase.structure.core.Table
 import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import org.junit.Assume

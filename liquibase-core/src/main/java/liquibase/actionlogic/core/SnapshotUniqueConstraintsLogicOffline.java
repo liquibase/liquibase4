@@ -1,16 +1,15 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.Action;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogicOffline;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
-import liquibase.structure.core.UniqueConstraint;
 import liquibase.structure.core.Relation;
 import liquibase.structure.core.Schema;
+import liquibase.structure.core.UniqueConstraint;
 
 public class SnapshotUniqueConstraintsLogicOffline extends AbstractSnapshotDatabaseObjectsLogicOffline<UniqueConstraint> {
 

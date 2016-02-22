@@ -4,8 +4,10 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.exception.LiquibaseException;
 import liquibase.util.CollectionUtil;
 
-import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * A {@link liquibase.resource.ResourceAccessor} that contains multiple sub-accessors and combines the results of all of them.

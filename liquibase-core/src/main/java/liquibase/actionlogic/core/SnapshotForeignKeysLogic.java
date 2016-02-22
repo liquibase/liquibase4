@@ -13,7 +13,10 @@ import liquibase.structure.core.*;
 import liquibase.util.Validate;
 
 import java.sql.DatabaseMetaData;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLogic<ForeignKey> {
 

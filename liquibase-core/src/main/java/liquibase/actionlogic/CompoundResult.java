@@ -2,10 +2,12 @@ package liquibase.actionlogic;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.CollectionUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Result of {@link ActionExecutor#execute(Action, Scope)} that returns more than one {@link liquibase.actionlogic.ActionResult}.

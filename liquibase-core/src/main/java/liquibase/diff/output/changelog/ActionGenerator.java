@@ -1,7 +1,7 @@
 package liquibase.diff.output.changelog;
 
 import liquibase.Scope;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.Plugin;
 import liquibase.snapshot.Snapshot;
 import liquibase.structure.LiquibaseObject;
 
@@ -11,7 +11,7 @@ import liquibase.structure.LiquibaseObject;
  *
  * @see MissingObjectActionGenerator
  */
-public interface ActionGenerator extends Service {
+public interface ActionGenerator extends Plugin {
 
     int getPriority(Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
 

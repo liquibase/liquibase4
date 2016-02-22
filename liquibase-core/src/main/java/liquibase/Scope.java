@@ -138,7 +138,7 @@ public class Scope {
      * Looks up the singleton object of the given type. If the singleton has not been created yet, it will be instantiated.
      * The singleton is a singleton based on the root scope and the same object will be returned for all child scopes of the root.
      */
-    public <T extends SingletonService> T getSingleton(Class<T> type) {
+    public <T extends SingletonObject> T getSingleton(Class<T> type) {
         if (getParent() != null) {
             return getParent().getSingleton(type);
         }

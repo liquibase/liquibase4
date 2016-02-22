@@ -1,16 +1,17 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.ValidationErrors;
+import liquibase.plugin.AbstractPlugin;
 
 /**
  * Convenience base class for {@link liquibase.actionlogic.ActionLogic} implementations.
  */
-public abstract class AbstractActionLogic<ActionType extends Action> implements ActionLogic<ActionType> {
+public abstract class AbstractActionLogic<ActionType extends Action> extends AbstractPlugin implements ActionLogic<ActionType> {
 
     /**
      * Returns the Action class supported by this ActionLogic implementation. Used by {@link AbstractActionLogic#getPriority(liquibase.action.Action, liquibase.Scope)}

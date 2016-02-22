@@ -1,12 +1,11 @@
 package liquibase.util;
 
 import liquibase.Scope;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ResourceAccessor;
 
-import java.io.*;
-import java.util.List;
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Utilities for working with streams.

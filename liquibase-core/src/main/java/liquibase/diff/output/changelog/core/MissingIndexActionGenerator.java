@@ -6,7 +6,9 @@ import liquibase.action.core.CreateIndexesAction;
 import liquibase.diff.output.changelog.MissingObjectActionGenerator;
 import liquibase.snapshot.Snapshot;
 import liquibase.structure.LiquibaseObject;
-import liquibase.structure.core.*;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.Index;
+import liquibase.structure.core.Table;
 
 import java.util.ArrayList;
 import java.util.List;

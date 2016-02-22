@@ -1,8 +1,6 @@
 package liquibase.actionlogic;
 
-import liquibase.AbstractExtensibleObject;
 import liquibase.action.Action;
-import liquibase.exception.ActionPerformException;
 
 /**
  * Base class for results of {@link ActionLogic#execute(liquibase.action.Action, liquibase.Scope)}.

@@ -1,12 +1,12 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.core.AddColumnsAction;
 import liquibase.actionlogic.core.AddColumnsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.Column;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;

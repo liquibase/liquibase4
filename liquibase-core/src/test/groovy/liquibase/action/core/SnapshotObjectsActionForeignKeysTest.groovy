@@ -11,7 +11,6 @@ import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
 import liquibase.structure.core.*
-import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 

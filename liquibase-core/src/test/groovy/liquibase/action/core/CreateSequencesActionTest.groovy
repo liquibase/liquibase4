@@ -1,6 +1,5 @@
 package liquibase.action.core
 
-import liquibase.structure.ObjectReference
 import liquibase.structure.core.Sequence
 import spock.lang.Specification
 import spock.lang.Unroll

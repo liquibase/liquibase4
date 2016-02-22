@@ -1,26 +1,37 @@
 package liquibase.database;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
 import liquibase.database.core.GenericDatabaseSupplier;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.servicelocator.ServiceLocator;
+import liquibase.plugin.AbstractPluginFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-public class ConnectionSupplierFactory implements SingletonService {
+public class ConnectionSupplierFactory extends AbstractPluginFactory<ConnectionSupplier> {
 
-    private final Scope scope;
     private Set<ConnectionSupplier> connectionSuppliers;
 
     protected ConnectionSupplierFactory(Scope scope) {
-        this.scope = scope;
+        super(scope);
 
+    }
+
+    @Override
+    protected Class<ConnectionSupplier> getPluginClass() {
+        return ConnectionSupplier.class;
+    }
+
+    @Override
+    protected int getPriority(ConnectionSupplier obj, Scope scope, Object... args) {
+        throw new UnexpectedLiquibaseException("Not used");
     }
 
     public Set<ConnectionSupplier> getConnectionSuppliers() {
         if (this.connectionSuppliers == null) {
-            Set<ConnectionSupplier> suppliers = scope.getSingleton(ServiceLocator.class).findAllServices(ConnectionSupplier.class);
+            Collection<ConnectionSupplier> suppliers = findAllInstances();
 
             if (suppliers.size() == 0) {
                 throw new UnexpectedLiquibaseException("Could not find ConnectionSupplier implementations");

@@ -3,8 +3,6 @@ package liquibase.resource;
 import liquibase.ExtensibleObject;
 import liquibase.exception.LiquibaseException;
 
-import java.io.InputStream;
-import java.util.List;
 import java.util.SortedSet;
 
 /**

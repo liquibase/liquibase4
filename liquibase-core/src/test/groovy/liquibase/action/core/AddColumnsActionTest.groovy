@@ -5,21 +5,12 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
-import liquibase.exception.UnexpectedLiquibaseException
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.ForeignKey
-import liquibase.structure.core.Index
-import liquibase.structure.core.Schema
-import liquibase.structure.core.UniqueConstraint
+import liquibase.structure.core.*
 import liquibase.structure.datatype.DataType
-import liquibase.structure.core.PrimaryKey
-import liquibase.structure.core.Table
 import liquibase.util.CollectionUtil
-import org.junit.Assert
-import org.junit.Assume
 import spock.lang.Unroll
 
 class AddColumnsActionTest extends AbstractActionTest {

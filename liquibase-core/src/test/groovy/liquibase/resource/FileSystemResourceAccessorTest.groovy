@@ -73,7 +73,7 @@ AbstractExtensibleObject.class
 ExtensibleObject.class
 Scope\$Attr.class
 Scope.class
-SingletonService.class
+SingletonObject.class
 ValidationErrors\$1.class
 ValidationErrors\$ErrorCheck.class
 ValidationErrors\$FieldCheck.class

@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.AlterTableAction;
 import liquibase.actionlogic.AbstractActionLogic;
@@ -8,7 +9,6 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 
 public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
 

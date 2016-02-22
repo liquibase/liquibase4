@@ -1,14 +1,7 @@
 package liquibase.database.core.mysql;
 
 
-import liquibase.Scope;
-import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.ConnectionSupplier;
-import liquibase.database.Database;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 
 public class MysqlConnectionSupplier extends ConnectionSupplier {
 

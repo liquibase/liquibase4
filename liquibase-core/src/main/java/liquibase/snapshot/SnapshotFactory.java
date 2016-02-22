@@ -1,7 +1,7 @@
 package liquibase.snapshot;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
+import liquibase.SingletonObject;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.actionlogic.QueryResult;
@@ -11,7 +11,7 @@ import liquibase.structure.ObjectReference;
 
 import java.util.List;
 
-public class SnapshotFactory implements SingletonService {
+public class SnapshotFactory implements SingletonObject {
 
     protected SnapshotFactory() {
     }

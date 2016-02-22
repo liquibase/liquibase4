@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.action.ExecuteSqlAction;
@@ -8,7 +9,6 @@ import liquibase.action.core.*;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.*;
 import liquibase.structure.datatype.DataTypeLogicFactory;
 import liquibase.util.CollectionUtil;

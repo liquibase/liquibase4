@@ -6,16 +6,10 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.database.DatabaseConnection
 import liquibase.snapshot.Snapshot
 import liquibase.structure.ObjectNameStrategy
 import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.ForeignKey
-import liquibase.structure.core.Index
-import liquibase.structure.core.PrimaryKey
-import liquibase.structure.core.Table
-import liquibase.structure.core.UniqueConstraint
+import liquibase.structure.core.*
 import liquibase.structure.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll

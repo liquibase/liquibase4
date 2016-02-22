@@ -1,23 +1,22 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
 import liquibase.action.Action;
-import liquibase.servicelocator.AbstractServiceFactory;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.AbstractPluginFactory;
+import liquibase.plugin.Plugin;
 
 /**
  * Factory/registry for looking up the correct ActionLogic implementation. Should normally be accessed using {@link Scope#getSingleton(Class)}, not constructed directly.
  * Even better, normally use {@link ActionExecutor} which is a higher level class.
  */
-public class ActionLogicFactory  extends AbstractServiceFactory<ActionLogic> {
+public class ActionLogicFactory  extends AbstractPluginFactory<ActionLogic> {
 
     protected ActionLogicFactory(Scope scope) {
         super(scope);
     }
 
     @Override
-    protected Class<ActionLogic> getServiceClass() {
+    protected Class<ActionLogic> getPluginClass() {
         return ActionLogic.class;
     }
 
@@ -25,7 +24,7 @@ public class ActionLogicFactory  extends AbstractServiceFactory<ActionLogic> {
      * Returns the highest priority {@link liquibase.actionlogic.ActionLogic} implementation that supports the given action/scope pair.
      */
     public ActionLogic getActionLogic(final Action action, final Scope scope) {
-        return getService(scope, action);
+        return getPlugin(scope, action);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class ActionLogicFactory  extends AbstractServiceFactory<ActionLogic> {
         Action action = (Action) args[0];
         try {
             if (obj instanceof AbstractActionLogic && !action.getClass().isAssignableFrom(((AbstractActionLogic) obj).getSupportedAction())) {
-                return Service.PRIORITY_NOT_APPLICABLE;
+                return Plugin.PRIORITY_NOT_APPLICABLE;
             }
         } catch (NullPointerException e) {
             throw e;

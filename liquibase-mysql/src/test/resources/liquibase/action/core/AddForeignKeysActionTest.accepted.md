@@ -483,4 +483,4 @@
 | 0ac0be      | true     | id TO id_ref | null       | null                | null              | test_fk | lbcat2.ref_table | lbcat2.base_table | importedKeySetNull  | **plan**: ALTER TABLE `lbcat2`.`base_table` ADD CONSTRAINT `test_fk` FOREIGN KEY (`id`) REFERENCES `lbcat2`.`ref_table` (`id_ref`) ON UPDATE SET NULL
 | 822cef      | true     | id TO id_ref | null       | null                | null              | test_fk | lbcat2.ref_table | lbcat2.base_table | null                | **plan**: ALTER TABLE `lbcat2`.`base_table` ADD CONSTRAINT `test_fk` FOREIGN KEY (`id`) REFERENCES `lbcat2`.`ref_table` (`id_ref`)
 
-# Test Version: "73db60" #
+# Test Version: "6796f1" #

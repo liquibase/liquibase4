@@ -67,4 +67,4 @@
 | 2c35e6      | true     | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD CONSTRAINT PRIMARY KEY (`col_name`)
 | 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD CONSTRAINT PRIMARY KEY (`col_name`)
 
-# Test Version: "0be418" #
+# Test Version: "880114" #

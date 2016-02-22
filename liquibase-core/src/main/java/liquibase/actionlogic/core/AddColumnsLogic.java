@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.action.core.*;
@@ -8,17 +9,21 @@ import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.ValidationErrors;
+import liquibase.structure.ObjectReference;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.ForeignKey;
+import liquibase.structure.core.PrimaryKey;
+import liquibase.structure.core.UniqueConstraint;
 import liquibase.structure.datatype.DataType;
 import liquibase.structure.datatype.DataTypeLogicFactory;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
 

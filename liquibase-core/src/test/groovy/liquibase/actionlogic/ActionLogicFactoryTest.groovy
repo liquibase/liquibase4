@@ -6,18 +6,22 @@ import liquibase.action.UpdateSqlAction
 import liquibase.action.core.CreateSequencesAction
 import liquibase.action.core.DropSequenceAction
 import liquibase.database.core.MockDatabase
-import liquibase.servicelocator.MockServiceLocator
-import liquibase.servicelocator.ServiceLocator
 import spock.lang.Specification
 
 class ActionLogicFactoryTest extends Specification {
 
-    MockServiceLocator serviceLocator
-    Scope scope
+    List<? extends ActionLogic> actionLogicImpls;
+    JUnitScope scope
 
     def setup() {
-        serviceLocator = new MockServiceLocator()
-        scope = JUnitScope.getInstance(new MockDatabase()).overrideSingleton(ServiceLocator, serviceLocator)
+        actionLogicImpls = []
+        scope = JUnitScope.getInstance(new MockDatabase())
+        scope = scope.overrideSingleton(ActionLogicFactory, new ActionLogicFactory(scope) {
+            @Override
+            protected synchronized Collection<ActionLogic> findAllInstances() {
+                return actionLogicImpls;
+            }
+        })
     }
 
     def "getActionLogic when empty"() {
@@ -27,12 +31,12 @@ class ActionLogicFactoryTest extends Specification {
 
     def "getActionLogic"() {
         when:
-        serviceLocator.addService(new MockActionLogic("create 1", 1, CreateSequencesAction))
-        serviceLocator.addService(new MockActionLogic("create 2", 2, CreateSequencesAction))
+        actionLogicImpls.add(new MockActionLogic("create 1", 1, CreateSequencesAction))
+        actionLogicImpls.add(new MockActionLogic("create 2", 2, CreateSequencesAction))
 
-        serviceLocator.addService(new MockActionLogic("drop 3", 3, DropSequenceAction))
-        serviceLocator.addService(new MockActionLogic("drop 2", 2, DropSequenceAction))
-        serviceLocator.addService(new MockActionLogic("drop 1", 1, DropSequenceAction))
+        actionLogicImpls.add(new MockActionLogic("drop 3", 3, DropSequenceAction))
+        actionLogicImpls.add(new MockActionLogic("drop 2", 2, DropSequenceAction))
+        actionLogicImpls.add(new MockActionLogic("drop 1", 1, DropSequenceAction))
 
         def scope = scope.child(Scope.Attr.database, new MockDatabase())
 
@@ -45,6 +49,7 @@ class ActionLogicFactoryTest extends Specification {
 
     def "Automatically finds action classes"() {
         expect:
-        JUnitScope.instance.getSingleton(ServiceLocator).findAllServices(ActionLogic.class).size() > 1
+        scope.overrideSingleton(ActionLogicFactory, null)
+        JUnitScope.instance.getSingleton(ActionLogicFactory).findAllInstances().size() > 1
     }
 }

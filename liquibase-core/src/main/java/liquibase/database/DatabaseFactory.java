@@ -3,25 +3,24 @@ package liquibase.database;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.plugin.AbstractPluginFactory;
+import liquibase.plugin.Plugin;
 import liquibase.resource.InputStreamList;
 import liquibase.resource.ResourceAccessor;
-import liquibase.servicelocator.AbstractServiceFactory;
-import liquibase.servicelocator.Service;
 import liquibase.snapshot.Snapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.Properties;
 
 /**
- * ServiceFactory to create the correct Database implementation based on available extensions.
+ * PluginFactory to create the correct Database implementation based on available extensions.
  */
-public class DatabaseFactory extends AbstractServiceFactory<Database> {
+public class DatabaseFactory extends AbstractPluginFactory<Database> {
     private Logger log;
 
     protected DatabaseFactory(Scope scope) {
@@ -30,7 +29,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
     }
 
     @Override
-    protected Class<Database> getServiceClass() {
+    protected Class<Database> getPluginClass() {
         return Database.class;
     }
 
@@ -45,7 +44,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
             if (obj.getShortName().equals(databaseName)) {
                 return obj.getPriority(scope);
             } else {
-                return Service.PRIORITY_NOT_APPLICABLE;
+                return Plugin.PRIORITY_NOT_APPLICABLE;
             }
         } else if (args[0] instanceof DatabaseConnection) {
             DatabaseConnection connection = (DatabaseConnection) args[0];
@@ -53,13 +52,13 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
                 if (((OfflineConnection) connection).supports(obj, scope)) {
                     return obj.getPriority(scope);
                 } else {
-                    return Service.PRIORITY_NOT_APPLICABLE;
+                    return Plugin.PRIORITY_NOT_APPLICABLE;
                 }
             } else {
                 if (obj.supports(connection, scope)) {
                     return obj.getPriority(scope);
                 } else {
-                    return Service.PRIORITY_NOT_APPLICABLE;
+                    return Plugin.PRIORITY_NOT_APPLICABLE;
                 }
             }
         } else {
@@ -73,7 +72,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
      * The returned database has {@link Database#setConnection(DatabaseConnection, Scope)} configured and {@link DatabaseConnection#configureDatabase(Database, Scope)} called.
      */
     public Database getDatabase(DatabaseConnection connection, Scope scope) throws DatabaseException {
-        Database database = getService(scope, connection);
+        Database database = getPlugin(scope, connection);
         try {
             database = database.getClass().newInstance();
         } catch (Exception e) {
@@ -159,11 +158,11 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
     }
 
     public Database getDatabase(String shortName) {
-        return getService(getRootScope(), shortName);
+        return getPlugin(getFactoryScope(), shortName);
     }
 
     public Database getDatabaseForUrl(String url) {
-        return getService(getRootScope(), url);
+        return getPlugin(getFactoryScope(), url);
     }
 
     /**

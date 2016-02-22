@@ -1,9 +1,9 @@
 package liquibase.diff.output.changelog;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
+import liquibase.SingletonObject;
 import liquibase.action.Action;
-import liquibase.servicelocator.AbstractServiceFactory;
+import liquibase.plugin.AbstractPluginFactory;
 import liquibase.snapshot.Snapshot;
 import liquibase.structure.LiquibaseObject;
 
@@ -12,14 +12,14 @@ import java.util.List;
 /**
  * Factory for creating and executing the correct {@link ActionGenerator} implementations for given missing/unexpected/changed objects.
  */
-public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerator> implements SingletonService {
+public class ActionGeneratorFactory extends AbstractPluginFactory<ActionGenerator> implements SingletonObject {
 
     protected ActionGeneratorFactory(Scope scope) {
         super(scope);
     }
 
     @Override
-    protected Class<ActionGenerator> getServiceClass() {
+    protected Class<ActionGenerator> getPluginClass() {
         return ActionGenerator.class;
     }
 
@@ -38,7 +38,7 @@ public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerat
     }
 
     protected MissingObjectActionGenerator getGenerator(Class<? extends ActionGenerator> generatorType, Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
-        return (MissingObjectActionGenerator) getService(scope, generatorType, objectType, referenceSnapshot);
+        return (MissingObjectActionGenerator) getPlugin(scope, generatorType, objectType, referenceSnapshot);
     }
 
 }

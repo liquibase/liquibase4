@@ -14,7 +14,6 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package liquibase.structure.datatype;
 
 import liquibase.Scope;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.AbstractPlugin;
 
-public abstract class DataTypeLogic implements Service {
+public abstract class DataTypeLogic extends AbstractPlugin {
 
     public abstract int getPriority(DataType type, Scope scope);
 

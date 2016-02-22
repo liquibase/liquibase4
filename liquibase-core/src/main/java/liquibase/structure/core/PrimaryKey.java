@@ -1,11 +1,9 @@
 package liquibase.structure.core;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.structure.AbstractObject;
 import liquibase.structure.AbstractTableObject;
 import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

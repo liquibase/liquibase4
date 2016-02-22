@@ -4,7 +4,7 @@ import liquibase.JUnitScope;
 import liquibase.Scope;
 import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.Plugin;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.Catalog;
@@ -14,9 +14,11 @@ import testmd.logic.SetupResult;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public abstract class ConnectionSupplier implements Cloneable, Service {
+public abstract class ConnectionSupplier implements Cloneable, Plugin {
 
     public static final String CONFIG_NAME_STANDARD = "standard";
 

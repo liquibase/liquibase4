@@ -1,10 +1,10 @@
 package liquibase.test
 
 import liquibase.ExtensibleObject
-import liquibase.SingletonService
+import liquibase.SingletonObject
 import liquibase.util.CollectionUtil
 
-public class TestObjectFactory implements SingletonService {
+public class TestObjectFactory implements SingletonObject {
 
     protected TestObjectFactory() {
     }

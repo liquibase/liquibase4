@@ -4,11 +4,7 @@ import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.CreateTableAction
 import liquibase.action.core.DropTableAction
 import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.ForeignKey
-import liquibase.structure.core.Schema
-import liquibase.structure.core.Table
-import liquibase.structure.core.UniqueConstraint
+import liquibase.structure.core.*
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsInAnyOrder

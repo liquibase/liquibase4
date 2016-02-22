@@ -1,11 +1,11 @@
 package liquibase.actionlogic.core.h2;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.AddColumnsAction;
 import liquibase.actionlogic.core.AddColumnsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.Column;
 import liquibase.structure.datatype.DataType;
 import liquibase.util.StringClauses;

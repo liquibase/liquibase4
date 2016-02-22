@@ -1,20 +1,22 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
+import liquibase.SingletonObject;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.ValidationErrors;
 import liquibase.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class is used to execute {@link liquibase.action.Action} objects using the registered {@link liquibase.actionlogic.ActionLogic} implementations.
  */
-public class ActionExecutor implements SingletonService {
+public class ActionExecutor implements SingletonObject {
 
     private List<String> executedPlans = new ArrayList<>();
 

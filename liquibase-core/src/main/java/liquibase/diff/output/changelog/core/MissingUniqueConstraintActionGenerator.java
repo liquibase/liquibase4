@@ -8,8 +8,8 @@ import liquibase.snapshot.Snapshot;
 import liquibase.structure.LiquibaseObject;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
-import liquibase.structure.core.UniqueConstraint;
 import liquibase.structure.core.Table;
+import liquibase.structure.core.UniqueConstraint;
 
 import java.util.ArrayList;
 import java.util.List;

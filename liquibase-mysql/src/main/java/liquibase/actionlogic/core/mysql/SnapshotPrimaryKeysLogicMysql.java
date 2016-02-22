@@ -1,13 +1,13 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
 import liquibase.action.core.SnapshotObjectsAction;
 import liquibase.actionlogic.core.SnapshotPrimaryKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.ValidationErrors;
 import liquibase.structure.ObjectReference;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.util.StringClauses;

@@ -1,11 +1,11 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.CreateIndexesAction;
 import liquibase.actionlogic.core.CreateIndexesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.ValidationErrors;
 
 public class CreateIndexesLogicMysql extends CreateIndexesLogic {
 

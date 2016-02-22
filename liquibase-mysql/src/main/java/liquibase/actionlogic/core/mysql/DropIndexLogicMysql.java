@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.DropIndexAction;
 import liquibase.actionlogic.ActionResult;
@@ -9,7 +10,6 @@ import liquibase.actionlogic.core.DropIndexLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.Index;
 
 public class DropIndexLogicMysql extends DropIndexLogic {

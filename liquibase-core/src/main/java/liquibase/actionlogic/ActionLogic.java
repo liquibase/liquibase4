@@ -1,11 +1,11 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
-import liquibase.ValidationErrors;
-import liquibase.servicelocator.Service;
+import liquibase.plugin.Plugin;
 
 /**
  * Implementations of this interface contain the logic to handle an {@link liquibase.action.Action} object.
@@ -14,7 +14,7 @@ import liquibase.servicelocator.Service;
  * If this ActionLogic interacts with an external system, return true from {@link liquibase.actionlogic.ActionLogic#executeInteractsExternally(Action, Scope)}.
  * ActionLogic implementations are used as singletons, so do not class variables.
  */
-public interface ActionLogic<ActionType extends Action> extends Service {
+public interface ActionLogic<ActionType extends Action> extends Plugin {
 
     /**
      * Returns the priority for this ActionLogic implementation for the given Action and Scope.

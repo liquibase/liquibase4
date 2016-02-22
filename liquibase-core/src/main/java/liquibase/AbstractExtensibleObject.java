@@ -1,7 +1,6 @@
 package liquibase;
 
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.SmartMap;
 import liquibase.util.StringUtils;

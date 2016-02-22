@@ -1,17 +1,17 @@
 package liquibase.structure;
 
 import liquibase.Scope;
-import liquibase.SingletonService;
-import liquibase.servicelocator.AbstractServiceFactory;
+import liquibase.SingletonObject;
+import liquibase.plugin.AbstractPluginFactory;
 
-public class TestObjectReferenceSupplierFactory extends AbstractServiceFactory<TestObjectReferenceSupplier> implements SingletonService {
+public class TestObjectReferenceSupplierFactory extends AbstractPluginFactory<TestObjectReferenceSupplier> implements SingletonObject {
 
     protected TestObjectReferenceSupplierFactory(Scope scope) {
         super(scope);
     }
 
     @Override
-    protected Class<TestObjectReferenceSupplier> getServiceClass() {
+    protected Class<TestObjectReferenceSupplier> getPluginClass() {
         return TestObjectReferenceSupplier.class;
     }
 
@@ -22,6 +22,6 @@ public class TestObjectReferenceSupplierFactory extends AbstractServiceFactory<T
     }
 
     public <T extends LiquibaseObject> TestObjectReferenceSupplier<T> getObjectReferenceSupplier(Class<T> objectType, Scope scope) {
-        return getService(scope, objectType);
+        return getPlugin(scope, objectType);
     }
 }

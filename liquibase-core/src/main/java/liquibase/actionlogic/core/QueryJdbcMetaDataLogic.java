@@ -1,6 +1,7 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.QueryJdbcMetaDataAction;
 import liquibase.actionlogic.AbstractActionLogic;
 import liquibase.actionlogic.ActionResult;
@@ -10,7 +11,6 @@ import liquibase.database.Database;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.DatabaseException;
-import liquibase.ValidationErrors;
 import liquibase.util.JdbcUtils;
 
 import java.sql.Connection;

@@ -1,10 +1,10 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.RenameViewAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
 import liquibase.database.Database;
-import liquibase.ValidationErrors;
 import liquibase.structure.core.View;
 import liquibase.util.StringClauses;
 
