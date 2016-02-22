@@ -3,14 +3,15 @@ package liquibase.database;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.resource.InputStreamList;
 import liquibase.resource.ResourceAccessor;
 import liquibase.servicelocator.AbstractServiceFactory;
 import liquibase.servicelocator.Service;
 import liquibase.snapshot.Snapshot;
-import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -105,7 +106,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
                 if (driverPropertiesClass == null) {
                     driverProperties = new Properties();
                 } else {
-                    driverProperties = (Properties) Class.forName(driverPropertiesClass, true, resourceAccessor.toClassLoader()).newInstance();
+                    driverProperties = (Properties) Class.forName(driverPropertiesClass, true, scope.getClassLoader(true)).newInstance();
                 }
 
                 if (username != null) {
@@ -115,16 +116,14 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
                     driverProperties.put("password", password);
                 }
                 if (additionalDriverPropertiesPath != null) {
-                    Set<InputStream> propertiesStreams = resourceAccessor.getResourcesAsStream(additionalDriverPropertiesPath);
-                    if (propertiesStreams == null) {
-                        throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + additionalDriverPropertiesPath + "'");
-                    } else {
-                        for (InputStream stream : propertiesStreams)
-                            try {
+                    try(InputStreamList propertiesFiles = resourceAccessor.openStreams(additionalDriverPropertiesPath)) {
+                        if (propertiesFiles == null) {
+                            throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + additionalDriverPropertiesPath + "'");
+                        } else {
+                            for (InputStream stream : propertiesFiles) {
                                 driverProperties.load(stream);
-                            } finally {
-                                stream.close();
                             }
+                        }
                     }
                 }
 
@@ -133,7 +132,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
                     if (driverClass == null) {
                         jdbcConnection =  DriverManager.getConnection(url, driverProperties);
                     } else {
-                        Driver driver = (Driver) Class.forName(driverClass, true, resourceAccessor.toClassLoader()).newInstance();
+                        Driver driver = (Driver) Class.forName(driverClass, true, scope.getClassLoader(true)).newInstance();
                         jdbcConnection = driver.connect(url, driverProperties);
                     }
                 } catch (Exception e) {
@@ -148,7 +147,7 @@ public class DatabaseFactory extends AbstractServiceFactory<Database> {
             if (databaseClass == null) {
                 return getDatabase(connection, scope);
             } else {
-                Database database = (Database) Class.forName(databaseClass, true, resourceAccessor.toClassLoader()).newInstance();
+                Database database = (Database) Class.forName(databaseClass, true, scope.getClassLoader(true)).newInstance();
                 database.setConnection(connection, scope);
                 connection.configureDatabase(database, scope);
 

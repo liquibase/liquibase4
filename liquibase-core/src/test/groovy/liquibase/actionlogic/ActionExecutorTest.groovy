@@ -8,7 +8,7 @@ import liquibase.database.MockJdbcConnection
 import liquibase.database.core.MockDatabase
 import liquibase.database.core.GenericDatabase
 import liquibase.exception.ActionPerformException
-import liquibase.exception.ValidationErrors
+import liquibase.ValidationErrors
 import liquibase.servicelocator.MockServiceLocator
 import liquibase.servicelocator.ServiceLocator
 import liquibase.structure.ObjectReference

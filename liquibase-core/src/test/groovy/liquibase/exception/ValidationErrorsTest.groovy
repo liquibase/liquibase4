@@ -1,5 +1,6 @@
 package liquibase.exception
 
+import liquibase.ValidationErrors
 import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.AddColumnsAction
 import liquibase.action.core.AddUniqueConstraintsAction

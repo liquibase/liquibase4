@@ -4,9 +4,8 @@ import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.servicelocator.Service;
-import liquibase.structure.LiquibaseObject;
 
 /**
  * Implementations of this interface contain the logic to handle an {@link liquibase.action.Action} object.

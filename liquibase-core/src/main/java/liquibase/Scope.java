@@ -24,6 +24,7 @@ public class Scope {
 
     public enum Attr {
         resourceAccessor,
+        classLoader,
         database,
         quotingStrategy,
     }
@@ -166,6 +167,18 @@ public class Scope {
 
     public Database getDatabase() {
         return get(Attr.database, Database.class);
+    }
+
+    public ClassLoader getClassLoader() {
+        return get(Attr.classLoader, ClassLoader.class);
+    }
+
+    public ClassLoader getClassLoader(boolean fallbackToContextClassLoader) {
+        ClassLoader classLoader = getClassLoader();
+        if (classLoader == null && fallbackToContextClassLoader) {
+            return Thread.currentThread().getContextClassLoader();
+        }
+        return classLoader;
     }
 
     public ResourceAccessor getResourceAccessor() {

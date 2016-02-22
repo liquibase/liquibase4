@@ -5,8 +5,6 @@ package liquibase.exception;
  */
 public class LiquibaseException extends Exception{
 
-    private static final long serialVersionUID = 1L;
-
     public LiquibaseException() {
     }
 

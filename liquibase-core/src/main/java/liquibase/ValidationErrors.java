@@ -1,10 +1,12 @@
-package liquibase.exception;
+package liquibase;
 
-import liquibase.ExtensibleObject;
 import liquibase.util.StringUtils;
 
 import java.util.*;
 
+/**
+ * Contains errors and warnings from validation logic. Used by both {@link liquibase.actionlogic.ActionLogic} and {@link liquibase.command.LiquibaseCommand}.
+ */
 public class ValidationErrors {
 
     private ExtensibleObject objectToValidate;

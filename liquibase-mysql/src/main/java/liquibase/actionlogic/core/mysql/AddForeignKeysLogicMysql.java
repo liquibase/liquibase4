@@ -5,7 +5,7 @@ import liquibase.action.core.AddForeignKeysAction;
 import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.structure.core.ForeignKey;
 
 public class AddForeignKeysLogicMysql extends AddForeignKeysLogic {

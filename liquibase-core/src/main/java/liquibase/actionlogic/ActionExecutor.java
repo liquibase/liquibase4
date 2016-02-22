@@ -6,7 +6,7 @@ import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.util.StringUtils;
 
 import java.util.*;

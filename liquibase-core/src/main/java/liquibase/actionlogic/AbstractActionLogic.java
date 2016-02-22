@@ -5,8 +5,7 @@ import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.exception.ValidationErrors;
-import liquibase.structure.LiquibaseObject;
+import liquibase.ValidationErrors;
 
 /**
  * Convenience base class for {@link liquibase.actionlogic.ActionLogic} implementations.

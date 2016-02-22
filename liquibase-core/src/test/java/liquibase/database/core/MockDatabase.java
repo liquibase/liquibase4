@@ -25,7 +25,7 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
 
     @Override
     public int getPriority(Scope scope) {
-        return PRIORITY_NOT_APPLICABLE;
+        return PRIORITY_DEFAULT;
     }
 
 

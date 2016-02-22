@@ -1,9 +1,10 @@
 package liquibase.exception;
 
+/**
+ * Exception thrown when interacting directly with a database.
+ */
 public class DatabaseException extends LiquibaseException {
 
-    private static final long serialVersionUID = 1L;
-    
     public DatabaseException() {
     }
 

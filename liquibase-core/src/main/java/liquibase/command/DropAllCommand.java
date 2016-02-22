@@ -1,6 +1,7 @@
 package liquibase.command;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.action.core.DropForeignKeyAction;
 import liquibase.action.core.DropTableAction;
 import liquibase.actionlogic.ActionExecutor;
@@ -52,8 +53,8 @@ public class DropAllCommand extends AbstractCommand {
     }
 
     @Override
-    public CommandValidationErrors validate(Scope scope) {
-        return new CommandValidationErrors(this);
+    public ValidationErrors validate(Scope scope) {
+        return new ValidationErrors(this);
     }
 
 }

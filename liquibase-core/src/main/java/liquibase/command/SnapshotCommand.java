@@ -1,6 +1,7 @@
 package liquibase.command;
 
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.LiquibaseObject;
@@ -48,8 +49,8 @@ public class SnapshotCommand extends AbstractCommand<SnapshotCommand.SnapshotCom
     }
 
     @Override
-    public CommandValidationErrors validate(Scope scope) {
-        return new CommandValidationErrors(this);
+    public ValidationErrors validate(Scope scope) {
+        return new ValidationErrors(this);
     }
 
     public static class SnapshotCommandResult extends CommandResult {

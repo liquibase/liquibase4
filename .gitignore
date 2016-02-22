@@ -18,6 +18,7 @@ derby.log
 *.iml
 .DS_Store
 /tmp
+/liquibase-core/tmp
 /.metadata/
 
 /tmp.txt

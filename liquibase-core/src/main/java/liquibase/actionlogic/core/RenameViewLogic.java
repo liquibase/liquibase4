@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.action.core.RenameViewAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
 import liquibase.database.Database;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.structure.core.View;
 import liquibase.util.StringClauses;
 

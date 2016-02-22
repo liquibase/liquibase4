@@ -10,7 +10,7 @@ import liquibase.database.Database;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.DatabaseException;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.util.JdbcUtils;
 
 import java.sql.Connection;

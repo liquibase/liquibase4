@@ -5,8 +5,7 @@ import liquibase.action.core.CreateIndexesAction;
 import liquibase.actionlogic.core.CreateIndexesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.exception.ValidationErrors;
-import liquibase.structure.core.Index;
+import liquibase.ValidationErrors;
 
 public class CreateIndexesLogicMysql extends CreateIndexesLogic {
 

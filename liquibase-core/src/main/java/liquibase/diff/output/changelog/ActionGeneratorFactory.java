@@ -9,11 +9,11 @@ import liquibase.structure.LiquibaseObject;
 
 import java.util.List;
 
+/**
+ * Factory for creating and executing the correct {@link ActionGenerator} implementations for given missing/unexpected/changed objects.
+ */
 public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerator> implements SingletonService {
 
-    /**
-     * Protected because should be a singleton
-     */
     protected ActionGeneratorFactory(Scope scope) {
         super(scope);
     }
@@ -28,6 +28,10 @@ public class ActionGeneratorFactory extends AbstractServiceFactory<ActionGenerat
         return obj.getPriority((Class<? extends LiquibaseObject>) args[1], (Snapshot) args[2], (Snapshot) args[2], scope);
     }
 
+    /**
+     * Returns the list of {@link Action}s necessary to fix the passed missing object.
+     * The reference and target snapshots are included for reference, in case any information in them are needed to determine the returned actions.
+     */
     public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         MissingObjectActionGenerator generator = getGenerator(MissingObjectActionGenerator.class, missingObject.getClass(), referenceSnapshot, targetSnapshot, scope);
         return generator.fixMissing(missingObject, referenceSnapshot, targetSnapshot, scope);

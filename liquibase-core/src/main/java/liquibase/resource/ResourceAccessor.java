@@ -1,28 +1,45 @@
 package liquibase.resource;
 
-import java.io.IOException;
+import liquibase.ExtensibleObject;
+import liquibase.exception.LiquibaseException;
+
 import java.io.InputStream;
-import java.util.Set;
+import java.util.List;
+import java.util.SortedSet;
 
 /**
- * Abstracts file access so they can be read in a variety of manners.
+ * ResourceAccessors abstract file access so they can be read in a variety of environments.
+ * Implementations my look for local files in known locations, read from the network, or do whatever else they need to find files.
+ * Think of ResourceAccessors as a {@link ClassLoader} but for finding and reading files, not finding and loading classes.
  */
-public interface ResourceAccessor {
+public interface ResourceAccessor extends ExtensibleObject {
 
     /**
-     * Return an InputStream for each resource mapped by the given path. The path is often a URL but does not have to be. Return null if the resource does not exist. Throws IOException if there is an error reading an existing path.
-     */
-    public Set<InputStream> getResourcesAsStream(String path) throws IOException;
-
-    /**
-     * Returns the path to all resources contained in the given root. Returns null if the root does not exist. Throws IOException if there is an error reading an existing root.
-     * The passed root is not included in the returned set.
+     * Return the streams for each resource mapped by the given path.
+     * The path is often a URL but does not have to be.
+     * Should accept both / and \ chars for file paths to be platform-independent.
+     * If path points to a compressed resource, return a stream of the uncompressed contents of the file.
+     * Returns List since multiple resources can map to the same path, such as "META-INF/MAINFEST.MF".
+     * Remember to close streams when finished with them.
      *
-     * @param includeFiles Set to false to exclude files in the returned set. Defaults to true
-     * @param includeDirectories Set to false to exclude directories in the returned set. Defaults to true
-     * @param recursive Set to true and will return paths to contents in sub directories as well. Defaults to false
+     * @return null if the resource does not exist.
+     * @throws LiquibaseException if there is an error reading an existing path.
      */
-    public Set<String> list(String relativeTo, String path, boolean includeFiles, boolean includeDirectories, boolean recursive) throws IOException;
+    InputStreamList openStreams(String path) throws LiquibaseException;
 
-    public ClassLoader toClassLoader();
+    /**
+     * Returns the path to all resources contained in the given path.
+     * The passed path is not included in the returned set.
+     * Returned strings should use "/" for file path separators, regardless of the OS and should accept both / and \ chars for file paths to be platform-independent.
+     * Returned set is sorted, normally alphabetically but subclasses can use different comparators.
+     * The values returned should be able to be passed into {@link #openStreams(String)} and return the contents.
+     * Returned paths should normally be root-relative and therefore not be an absolute path, unless there is a good reason to be absolute.
+     *
+     * @param path The path to lookup resources in.
+     * @param relativeTo Path to an existing file or directory. If not null, the path param is looked up relative to this path. Returns empty set if the relativeTo path does not exist.
+     * @param recursive Set to true and will return paths to contents in sub directories as well. Defaults to false
+     * @return empty set if nothing was found
+     * @throws LiquibaseException if there is an error reading an existing root.
+     */
+    SortedSet<String> list(String path, String relativeTo, boolean recursive) throws LiquibaseException;
 }

@@ -5,7 +5,7 @@ import liquibase.action.core.AddPrimaryKeysAction;
 import liquibase.actionlogic.core.AddPrimaryKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.util.StringClauses;
 

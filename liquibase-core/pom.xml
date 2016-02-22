@@ -19,7 +19,6 @@
         <bundle.namespace>liquibase.*</bundle.namespace>
     </properties>
 
-
     <build>
         <finalName>liquibase-${project.version}</finalName>
 

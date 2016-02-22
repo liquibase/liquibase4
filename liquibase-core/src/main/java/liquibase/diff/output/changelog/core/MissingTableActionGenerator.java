@@ -15,6 +15,7 @@ import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MissingTableActionGenerator implements MissingObjectActionGenerator {
@@ -41,6 +42,9 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
     public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         try {
             Table missingTable = (Table) missingObject;
+            if (targetSnapshot.getScope().getDatabase().isLiquibaseObject(missingTable.toReference(), scope)) {
+                return null;
+            }
 
             Scope referenceOfflineDatabaseScope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).fromSnapshot(referenceSnapshot, scope));
 
@@ -48,53 +52,15 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
 
             PrimaryKey primaryKey  = snapshotFactory.snapshot(PrimaryKey.class, missingTable.toReference(), referenceOfflineDatabaseScope);
 
-//        if (control.diffResult.getReferenceSnapshot().getDatabase().isLiquibaseTable(missingTable.getSchema().toCatalogAndSchema(), missingTable.getName())) {
-//            continue;
-//        }
-
             CreateTableAction action = createCreateTableChange();
             action.table = (Table) missingTable.clone();
             action.primaryKey = primaryKey;
 
             for (Column column : snapshotFactory.snapshotAll(Column.class, missingTable.toReference(), referenceOfflineDatabaseScope)) {
                 action.columns.add(column);
-    //            columnDefinition.column = column.getName();
-    //
-    //            LiquibaseDataType ldt = DataTypeFactory.getInstance().from(column.type, targetScope.getDatabase());
-    //            DatabaseDataType ddt = ldt.toDatabaseDataType(referenceScope.getDatabase());
-    //            columnDefinition.columnType = ddt.toString();
-    //
-    //            if (column.isAutoIncrement()) {
-    //                columnDefinition.autoIncrementInformation = new AutoIncrementDefinition();
-    //            }
-    //
-    //            // In MySQL, the primary key must be specified at creation for an autoincrement column
-    //            if (column.isAutoIncrement() && primaryKey != null && primaryKey.getColumnNamesAsList().contains(column.getName())) {
-    //                columnDefinition.isPrimaryKey = true;
-    //                action.primaryKeyTablespace = primaryKey.getTablespace();
-    ////todo:         action refactoring MySQL sets some primary key names as PRIMARY which is invalid
-    ////                if (comparisonDatabase instanceof MySQLDatabase && "PRIMARY".equals(primaryKey.getName())) {
-    ////                    constraintsConfig.setPrimaryKeyName(null);
-    ////                } else  {
-    //                    action.primaryKeyName = primaryKey.getSimpleName();
-    ////                }
-    //                control.setAlreadyHandledMissing(primaryKey);
-    //                control.setAlreadyHandledMissing(primaryKey.getBackingIndex());
-    //            } else if (column.nullable != null && !column.nullable) {
-    //                columnDefinition.nullable = false;
-    //            }
-    //
-    //            setDefaultValue(columnDefinition, column, referenceScope, targetScope);
-    //
-    //            if (column.remarks != null) {
-    //                columnDefinition.remarks = column.remarks;
-    //            }
-    //
-    //            action.addColumn(column);
-    //            control.setAlreadyHandledMissing(column);
             }
 
-            return Arrays.asList((Action) action);
+            return Collections.singletonList((Action) action);
         } catch (ActionPerformException e) {
             throw new UnexpectedLiquibaseException(e);
         }

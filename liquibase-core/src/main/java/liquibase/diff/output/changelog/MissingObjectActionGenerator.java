@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface MissingObjectActionGenerator extends ActionGenerator {
 
-    public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
+    List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
 }

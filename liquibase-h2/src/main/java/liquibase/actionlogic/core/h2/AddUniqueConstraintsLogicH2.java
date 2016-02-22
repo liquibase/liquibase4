@@ -1,14 +1,10 @@
 package liquibase.actionlogic.core.h2;
 
 import liquibase.Scope;
-import liquibase.action.core.AddForeignKeysAction;
 import liquibase.action.core.AddUniqueConstraintsAction;
-import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.actionlogic.core.AddUniqueConstraintsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.exception.ValidationErrors;
-import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.UniqueConstraint;
 import liquibase.util.StringClauses;
 

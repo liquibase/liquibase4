@@ -10,7 +10,7 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.UniqueConstraint;

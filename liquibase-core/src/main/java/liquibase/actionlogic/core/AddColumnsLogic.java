@@ -8,7 +8,7 @@ import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.structure.datatype.DataType;
 import liquibase.structure.datatype.DataTypeLogicFactory;
 import liquibase.structure.ObjectReference;

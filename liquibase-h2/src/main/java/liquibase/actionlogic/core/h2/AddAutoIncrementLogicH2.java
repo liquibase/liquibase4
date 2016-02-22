@@ -5,9 +5,7 @@ import liquibase.action.core.AddAutoIncrementAction;
 import liquibase.actionlogic.core.AddAutoIncrementLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.exception.ValidationErrors;
-import liquibase.structure.core.Column;
-import liquibase.util.StringClauses;
+import liquibase.ValidationErrors;
 
 public class AddAutoIncrementLogicH2 extends AddAutoIncrementLogic {
 

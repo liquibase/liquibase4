@@ -5,7 +5,7 @@ import liquibase.action.core.AddForeignKeysAction;
 import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.exception.ValidationErrors;
+import liquibase.ValidationErrors;
 import liquibase.structure.core.ForeignKey;
 import liquibase.util.StringClauses;
 
