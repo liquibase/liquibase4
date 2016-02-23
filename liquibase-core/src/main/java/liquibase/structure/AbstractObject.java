@@ -5,7 +5,6 @@ import liquibase.util.StringUtils;
 
 public abstract class AbstractObject extends AbstractExtensibleObject implements LiquibaseObject {
 
-    public String snapshotId;
     public String name;
 
     @Override
@@ -25,14 +24,6 @@ public abstract class AbstractObject extends AbstractExtensibleObject implements
      */
     public final String getName() {
         return name;
-    }
-
-    /**
-     * Returns the snapshotId. Marked final so subclasses don't change business logic and make it not match get("snapshotId")
-     */
-    @Override
-    public final String getSnapshotId() {
-        return snapshotId;
     }
 
     @Override

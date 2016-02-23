@@ -12,6 +12,7 @@ import liquibase.structure.ObjectReference;
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<ObjectType ext
             throw new ActionPerformException("No snapshot found");
         }
 
-        Set allObjectsOfType = snapshot.get(getTypeToSnapshot());
+        Collection allObjectsOfType = snapshot.get(getTypeToSnapshot());
 
 
         return new ObjectBasedQueryResult(action, CollectionUtil.select(new ArrayList(allObjectsOfType), new CollectionUtil.CollectionFilter<ObjectType>() {

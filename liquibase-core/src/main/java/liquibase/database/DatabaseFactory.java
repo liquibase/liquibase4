@@ -169,9 +169,9 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
      * Creates a new Database instance with an offline connection pointing to the given snapshot
      */
     public Database fromSnapshot(Snapshot snapshot, Scope scope) {
-        Database database = snapshot.getScope().getDatabase();
+        Database database = snapshot.getScopeCreatedUnder().getDatabase();
 
-        DatabaseConnection conn = new OfflineConnection("offline:" + database.getShortName(), snapshot, snapshot.getScope().getResourceAccessor());
+        DatabaseConnection conn = new OfflineConnection("offline:" + database.getShortName(), snapshot, snapshot.getScopeCreatedUnder().getResourceAccessor());
 
         try {
             return getDatabase(conn, scope);

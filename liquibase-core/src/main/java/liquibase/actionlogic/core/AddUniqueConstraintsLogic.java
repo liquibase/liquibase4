@@ -20,6 +20,7 @@ import liquibase.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueConstraintsAction> {
@@ -72,11 +73,11 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
         ActionStatus result = new ActionStatus();
         try {
             for (UniqueConstraint actionUq : action.uniqueConstraints) {
-                List<UniqueConstraint> snapshotUniques = scope.getSingleton(SnapshotFactory.class).snapshotAll(UniqueConstraint.class, actionUq.toReference(), scope);
+                Collection<UniqueConstraint> snapshotUniques = scope.getSingleton(SnapshotFactory.class).snapshotAll(UniqueConstraint.class, actionUq.toReference(), scope);
                 UniqueConstraint snapshotUq = null;
                 if (snapshotUniques != null) {
                     if (snapshotUniques.size() == 1) {
-                        snapshotUq = snapshotUniques.get(0);
+                        snapshotUq = snapshotUniques.iterator().next();
                     } else {
                         for (UniqueConstraint constraint : snapshotUniques) {
                             if (StringUtils.join(constraint.columns, ",").equals(StringUtils.join(actionUq.columns, ","))) {

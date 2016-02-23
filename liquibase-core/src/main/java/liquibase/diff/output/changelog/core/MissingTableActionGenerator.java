@@ -41,7 +41,7 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
     public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         try {
             Table missingTable = (Table) missingObject;
-            if (targetSnapshot.getScope().getDatabase().isLiquibaseObject(missingTable.toReference(), scope)) {
+            if (targetSnapshot.getScopeCreatedUnder().getDatabase().isLiquibaseObject(missingTable.toReference(), scope)) {
                 return null;
             }
 

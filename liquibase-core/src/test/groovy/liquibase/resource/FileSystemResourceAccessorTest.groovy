@@ -187,7 +187,6 @@ ResourceAccessor.class
 Snapshot\$1.class
 Snapshot.class
 SnapshotFactory.class
-SnapshotIdService.class
 """.trim()
     }
 
