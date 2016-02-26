@@ -7,10 +7,9 @@ import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.snapshot.Snapshot
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.*
-import liquibase.structure.datatype.DataType
+import liquibase.item.ItemNameStrategy
+import liquibase.item.core.*
+import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -20,9 +19,9 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex PK names"() {
         expect:
         testAction([
-                tableName_asTable: action.primaryKeys*.table,
-                pkName_asTable    : action.primaryKeys*.name,
-                columns_asTable    : action.primaryKeys*.columns,
+                table_asTable: action.primaryKeys*.relation,
+                pk_asTable   : action.primaryKeys*.name,
+                columns_asTable  : action.primaryKeys*.columns,
         ], action, conn, scope)
 
         where:
@@ -34,9 +33,11 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
                             primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
-                                    name   : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
-                                    table  : [standardCaseObjectName("table_name", Table, scope.getDatabase())],
-                                    columns: [[new PrimaryKey.PrimaryKeyColumn(standardCaseObjectName("col_name", Column, scope.getDatabase()))]]
+                                    name    : getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
+                                    relation: it.getAllSchemas().collect({
+                                        return new RelationReference(Table, standardCaseItemName("table_name", Table, scope.getDatabase()), it)
+                                    }),
+                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope.getDatabase()))]]
                             ]))
                     ])
             ], new ValidActionFilter(scope))
@@ -47,7 +48,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex table names"() {
         expect:
         testAction([
-                tableName_asTable : action.primaryKeys*.table,
+                table_asTable: action.primaryKeys*.relation,
         ], action, conn, scope)
 
         where:
@@ -58,9 +59,9 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
                             primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
-                                    name   : null,
-                                    table  : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope).unique(),
-                                    columns: [[new PrimaryKey.PrimaryKeyColumn(standardCaseObjectName("col_name", Column, scope.getDatabase()))]]
+                                    name    : null,
+                                    relation: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope.getDatabase()))]]
                             ]))
                     ])
             ])
@@ -71,7 +72,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex column names"() {
         expect:
         testAction([
-                columnName_asTable: action.primaryKeys*.columns*.name
+                column_asTable: action.primaryKeys*.columns*.name
         ], action, conn, scope)
 
         where:
@@ -82,36 +83,38 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
                             primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
-                                    name   : null,
-                                    table  : [standardCaseObjectName("table_name", Table, scope.getDatabase())],
-                                    columns: CollectionUtil.toSingletonLists(getObjectNames(PrimaryKey, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique().collect({ return new PrimaryKey.PrimaryKeyColumn(it) })),
+                                    name    : null,
+                                    relation:  [new RelationReference(Table, standardCaseItemName("table_name", Table, scope.getDatabase()))],
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(PrimaryKey, ItemNameStrategy.COMPLEX_NAMES, scope).collect({
+                                        return new PrimaryKey.PrimaryKeyColumn(it)
+                                    })),
                             ]))
                     ])
             ])
         }
     }
 
-    @Unroll("#featureName: for #schemaName on #conn")
+    @Unroll("#featureName: for #schema on #conn")
     def "Can add multiple primary keys at once"() {
         when:
         def action = new AddPrimaryKeysAction()
 
         action.primaryKeys = [
-                new PrimaryKey(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_1", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
-                new PrimaryKey(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_2", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
-                new PrimaryKey(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_3", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
         ]
 
         then:
-        testAction(["schemaName_asTable": schemaName], action, conn, scope)
+        testAction(["schema_asTable": schema], action, conn, scope)
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schema] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Schema, scope)
+                    it.getAllSchemas()
             ])
         }
     }
@@ -122,7 +125,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
         testAction([
                 clustered_asTable : action.primaryKeys*.clustered,
                 tablespace_asTable: action.primaryKeys*.tablespace,
-                table_asTable     : action.primaryKeys*.table,
+                table_asTable     : action.primaryKeys*.relation,
                 columns_asTable   : action.primaryKeys*.columns*.name,
                 direction_asTable : action.primaryKeys*.columns*.direction,
         ], action, conn, scope)
@@ -141,7 +144,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseObjectName("test_table", Table, scope.database)
+        def tableName = standardCaseItemName("test_table", Table, scope.database)
 
         return createAllPermutations(AddPrimaryKeysAction, [
                 primaryKeys: CollectionUtil.toSingletonLists(createAllPermutations(PrimaryKey, [
@@ -149,9 +152,11 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                         tablespace: ["test_tablespace"],
                         columns   : CollectionUtil.toSingletonLists(createAllPermutations(PrimaryKey.PrimaryKeyColumn, [
                                 direction: [Index.IndexDirection.ASC, Index.IndexDirection.DESC],
-                                name     : [standardCaseObjectName("col_name", Column, scope.database)]
+                                name     : [standardCaseItemName("col_name", Column, scope.database)]
                         ])),
-                        table     : connectionSupplier.allSchemas.collect({ return new ObjectReference(Table, it, tableName) }),
+                        relation  : connectionSupplier.allSchemas.collect({
+                            return new RelationReference(Table, tableName, it)
+                        }),
                 ]))
         ])
     }
@@ -160,13 +165,13 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
         for (def pk : ((AddPrimaryKeysAction) action).primaryKeys) {
-            snapshot.add(new Table(pk.table))
+            snapshot.add(new Table(pk.relation.name, pk.relation.container))
             for (def col : pk.columns) {
-                if (pk.table != null && col.name != null) {
-                    snapshot.add(new Column(pk.table, col.name, DataType.parse("int"), false))
+                if (pk.relation != null && col.name != null) {
+                    snapshot.add(new Column(col.name, pk.relation, DataType.parse("int"), false))
                 }
             }
-            snapshot.add(new Column(pk.table, standardCaseObjectName("non_pk_col", Column, scope.database), "int"))
+            snapshot.add(new Column(standardCaseItemName("non_pk_col", Column, scope.database), pk.relation, DataType.parse("int"), true))
         }
 
         return snapshot

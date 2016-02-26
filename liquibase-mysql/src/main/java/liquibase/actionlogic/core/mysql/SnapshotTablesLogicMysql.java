@@ -2,12 +2,12 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.core.SnapshotTablesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.ObjectReference;
+import liquibase.item.DatabaseObjectReference;
 
 public class SnapshotTablesLogicMysql extends SnapshotTablesLogic {
 
@@ -17,7 +17,7 @@ public class SnapshotTablesLogicMysql extends SnapshotTablesLogic {
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Action snapshotAction = super.createSnapshotAction(relatedTo, action, scope);
 //        Object tableArg = ((QueryJdbcMetaDataAction) snapshotAction).arguments.get(2);
 //        if (tableArg != null) {

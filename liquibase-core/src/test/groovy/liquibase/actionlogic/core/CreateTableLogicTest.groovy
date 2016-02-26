@@ -18,9 +18,9 @@ CreateTableAction.columns: primary key columns cannot be nullable
 CreateTableAction.foreignKeys.columnChecks is required
 CreateTableAction.foreignKeys.initiallyDeferred is not supported
 CreateTableAction.foreignKeys.referencedTable is required
-CreateTableAction.foreignKeys.table is required
+CreateTableAction.foreignKeys.relation is required
 CreateTableAction.primaryKey.columns is required
-CreateTableAction.primaryKey.table is required
+CreateTableAction.primaryKey.relation is required
 CreateTableAction.primaryKey.tablespace is not supported
 CreateTableAction.primaryKey: adding a clustered primary key is not supported
 CreateTableAction.table is required
@@ -30,7 +30,7 @@ CreateTableAction.uniqueConstraints.columns is required
 CreateTableAction.uniqueConstraints.deferrable is not supported
 CreateTableAction.uniqueConstraints.disabled is not supported
 CreateTableAction.uniqueConstraints.initiallyDeferred is not supported
-CreateTableAction.uniqueConstraints.table is required
+CreateTableAction.uniqueConstraints.relation is required
 CreateTableAction.uniqueConstraints.tablespace is not supported
 CreateTableAction: a nullable auto-increment column is not supported
 """.trim()

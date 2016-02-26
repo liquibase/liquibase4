@@ -9,10 +9,10 @@ import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.Table;
+import liquibase.item.Item;
+import liquibase.item.core.Column;
+import liquibase.item.core.PrimaryKey;
+import liquibase.item.core.Table;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 public class MissingTableActionGenerator implements MissingObjectActionGenerator {
 
     @Override
-    public int getPriority(Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public int getPriority(Class<? extends Item> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         if (Table.class.isAssignableFrom(objectType)) {
             return PRIORITY_DEFAULT;
         }
@@ -28,17 +28,17 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runAfterTypes() {
+    public Class<? extends Item>[] runAfterTypes() {
         return null;
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runBeforeTypes() {
+    public Class<? extends Item>[] runBeforeTypes() {
         return null;
     }
 
     @Override
-    public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         try {
             Table missingTable = (Table) missingObject;
             if (targetSnapshot.getScopeCreatedUnder().getDatabase().isLiquibaseObject(missingTable.toReference(), scope)) {

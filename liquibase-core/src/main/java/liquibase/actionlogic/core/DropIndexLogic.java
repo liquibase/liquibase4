@@ -9,7 +9,7 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.Index;
+import liquibase.item.core.Index;
 
 public class DropIndexLogic extends AbstractActionLogic<DropIndexAction> {
 

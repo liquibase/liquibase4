@@ -6,8 +6,8 @@ import liquibase.action.core.AddColumnsAction;
 import liquibase.actionlogic.core.AddColumnsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.structure.core.Column;
-import liquibase.structure.datatype.DataType;
+import liquibase.item.core.Column;
+import liquibase.item.datatype.DataType;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
 

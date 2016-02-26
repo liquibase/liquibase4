@@ -11,9 +11,9 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
+import liquibase.item.core.Column;
+import liquibase.item.core.UniqueConstraint;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.UniqueConstraint;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -38,7 +38,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
     @Override
     public ValidationErrors validate(AddUniqueConstraintsAction action, Scope scope) {
         ValidationErrors validationErrors = super.validate(action, scope)
-                .checkRequiredFields("uniqueConstraints", "uniqueConstraints.table", "uniqueConstraints.columns");
+                .checkRequiredFields("uniqueConstraints", "uniqueConstraints.relation", "uniqueConstraints.columns");
 
         //normally not supported so ignoring by default
         validationErrors.checkUnsupportedFields("uniqueConstraints.disabled", "uniqueConstraints.backingIndex");
@@ -56,7 +56,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 continue;
             }
 
-            if (constraint.name != null && constraint.table != null && !supportsSeparateConstraintSchema() && !constraint.table.equals(constraint.table, true)) {
+            if (constraint.name != null && constraint.relation != null && !supportsSeparateConstraintSchema() && !constraint.relation.equals(constraint.relation, true)) {
                 validationErrors.addUnsupportedError("specifying a different constraint schema");
             }
         }
@@ -90,7 +90,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 if (snapshotUq == null) {
                     String desc = actionUq.name;
                     if (desc == null) {
-                        desc = actionUq.table.toString()+" ("+StringUtils.join(actionUq.columns, ",") +")";
+                        desc = actionUq.relation.toString()+" ("+StringUtils.join(actionUq.columns, ",") +")";
                     }
                     result.assertApplied(false, "Unique Constraint '" + desc + "' not found");
                 } else {
@@ -132,7 +132,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
 
     protected Action execute(UniqueConstraint uq, AddUniqueConstraintsAction action, Scope scope) {
         return new AlterTableAction(
-                uq.table,
+                uq.relation,
                 generateConstraintClause(uq, action, scope)
         );
     }

@@ -11,13 +11,9 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
+import liquibase.item.Item;
+import liquibase.item.core.*;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.Index;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.Table;
 import liquibase.util.StringClauses;
 
 import java.util.ArrayList;
@@ -38,7 +34,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
     @Override
     public ValidationErrors validate(AddPrimaryKeysAction action, final Scope scope) {
         final ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields("primaryKeys", "primaryKeys.columns", "primaryKeys.columns.name", "primaryKeys.table");
+                .checkRequiredFields("primaryKeys", "primaryKeys.columns", "primaryKeys.columns.name", "primaryKeys.relation");
 
         final Database database = scope.getDatabase();
 
@@ -81,8 +77,8 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
         ActionStatus result = new ActionStatus();
         try {
             for (PrimaryKey actionPK : action.primaryKeys) {
-                ObjectReference table = actionPK.table;
-                if (table.type == null || table.type.equals(LiquibaseObject.class)) {
+                RelationReference table = actionPK.relation;
+                if (table.type == null || table.type.equals(Item.class)) {
                     table.type = Table.class;
                 }
                 PrimaryKey snapshotPK = scope.getSingleton(SnapshotFactory.class).snapshot(PrimaryKey.class, table, scope);
@@ -147,7 +143,7 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
 
     protected Action execute(PrimaryKey pk, AddPrimaryKeysAction action, Scope scope) {
         return new AlterTableAction(
-                pk.table,
+                pk.relation,
                 generateSql(pk, action, scope)
         );
     }

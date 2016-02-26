@@ -66,7 +66,7 @@ public interface DatabaseConnection extends ExtensibleObject {
      * NOTE: The should be the level above what is returned by {@link #getSchema()}. If getSchema returns null, this must return null.
      * This may be different than {@link Connection#getCatalog()} which sometimes calls "schemas" "catalogs"
      *
-     * @see liquibase.structure.core.Catalog for a discussion on what "catalog" means to Liquibase
+     * @see liquibase.item.core.Catalog for a discussion on what "catalog" means to Liquibase
      */
     String getCatalog() throws DatabaseException;
 
@@ -76,7 +76,7 @@ public interface DatabaseConnection extends ExtensibleObject {
      * NOTE: The should be the level above what is returned by {@link #getSchema()}. If getSchema returns null, this must return null.
      * This may be different than {@link Connection#setCatalog(String)} which sometimes calls "schemas" "catalogs"
      *
-     * @see liquibase.structure.core.Catalog for a discussion on what "catalog" means to Liquibase
+     * @see liquibase.item.core.Catalog for a discussion on what "catalog" means to Liquibase
      * @throws DatabaseException if catalog cannot be set.
      */
     void setCatalog(String catalogName) throws DatabaseException;
@@ -88,7 +88,7 @@ public interface DatabaseConnection extends ExtensibleObject {
      * NOTE: The should be the level below what is returned by {@link #getCatalog()}.
      * This may be different than {@link Connection#getSchema()} which sometimes calls "schemas" "catalogs"
      *
-     * @see liquibase.structure.core.Schema for a discussion on what "schema" means to Liquibase
+     * @see liquibase.item.core.Schema for a discussion on what "schema" means to Liquibase
      */
     String getSchema() throws DatabaseException;
 
@@ -98,7 +98,7 @@ public interface DatabaseConnection extends ExtensibleObject {
      * NOTE: The should be the level below what is returned by {@link #getCatalog()}.
      * This may be different than {@link Connection#setSchema(String)} which sometimes calls "schemas" "catalogs"
      *
-     * @see liquibase.structure.core.Schema for a discussion on what "schema" means to Liquibase
+     * @see liquibase.item.core.Schema for a discussion on what "schema" means to Liquibase
      * @throws DatabaseException if the schema cannot be set.
      */
     void setSchema(String schemaName) throws DatabaseException;

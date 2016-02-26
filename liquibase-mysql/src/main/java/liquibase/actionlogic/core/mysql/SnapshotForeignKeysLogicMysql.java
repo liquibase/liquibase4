@@ -3,16 +3,18 @@ package liquibase.actionlogic.core.mysql;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.Schema;
-import liquibase.structure.core.Table;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.ItemReference;
+import liquibase.item.core.ForeignKey;
+import liquibase.item.core.ForeignKeyReference;
+import liquibase.item.core.Schema;
+import liquibase.item.core.Table;
 import liquibase.util.StringClauses;
 
 public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
@@ -23,7 +25,7 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
         StringClauses query = new StringClauses(" ").append("SELECT " +
                 "KEY_COL.CONSTRAINT_SCHEMA AS FKTABLE_CAT, " +
@@ -45,7 +47,7 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
                 "WHERE KEY_COL.REFERENCED_COLUMN_NAME IS NOT NULL");
         if (relatedTo.instanceOf(ForeignKey.class)) {
             if (relatedTo.name == null) {
-                ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
+                ItemReference baseTable = ((ForeignKeyReference) relatedTo).container;
                 query.append("AND KEY_COL.TABLE_NAME=" + database.quoteString(baseTable.name, scope));
                 query.append("AND KEY_COL.TABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope));
             } else {
@@ -64,7 +66,7 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
     }
 
     @Override
-    protected ForeignKey convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected ForeignKey convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         ForeignKey fk = super.convertToObject(object, relatedTo, originalAction, scope);
@@ -73,19 +75,19 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
         if (updateRule != null) {
             switch (updateRule) {
                 case "CASCADE":
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    fk.updateRule = ForeignKey.ReferentialAction.cascade;
                     break;
                 case "SET NULL":
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    fk.updateRule = ForeignKey.ReferentialAction.setNull;
                     break;
                 case "SET DEFAULT":
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    fk.updateRule = ForeignKey.ReferentialAction.setDefault;
                     break;
                 case "RESTRICT":
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    fk.updateRule = ForeignKey.ReferentialAction.restrict;
                     break;
                 case "NO ACTION":
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    fk.updateRule = ForeignKey.ReferentialAction.noAction;
                     break;
                 default:
                     throw new ActionPerformException("Unknown update rule: " + updateRule);
@@ -96,19 +98,19 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
         if (deleteRule != null) {
             switch (deleteRule) {
                 case "CASCADE":
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    fk.deleteRule = ForeignKey.ReferentialAction.cascade;
                     break;
                 case "SET NULL":
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    fk.deleteRule = ForeignKey.ReferentialAction.setNull;
                     break;
                 case "SET DEFAULT":
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    fk.deleteRule = ForeignKey.ReferentialAction.setDefault;
                     break;
                 case "RESTRICT":
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    fk.deleteRule = ForeignKey.ReferentialAction.restrict;
                     break;
                 case "NO ACTION":
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    fk.deleteRule = ForeignKey.ReferentialAction.noAction;
                     break;
                 default:
                     throw new ActionPerformException("Unknown delete rule: " + deleteRule);

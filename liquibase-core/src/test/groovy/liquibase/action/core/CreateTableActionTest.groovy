@@ -7,10 +7,9 @@ import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.snapshot.Snapshot
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.*
-import liquibase.structure.datatype.DataType
+import liquibase.item.ItemNameStrategy
+import liquibase.item.core.*
+import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -23,24 +22,24 @@ class CreateTableActionTest extends AbstractActionTest {
 
     def "parametrized constructor"() {
         expect:
-        new CreateTableAction(new Table(new ObjectReference(Table, "cat", "schem", "tab"))).describe() == "createTable(table=Table{name=tab, schema=cat.schem})"
+        new CreateTableAction(new Table("cat", "schem", "tab")).describe() == "createTable(table=Table{name=tab, schema=cat.schem})"
     }
 
-    @Unroll("#featureName #tableName")
+    @Unroll("#featureName #table")
     def "create simple table with complex name"() {
         expect:
-        def action = new CreateTableAction(new Table(tableName)).addColumn(standardCaseObjectName("col_name", Column, scope.database), new DataType(DataType.StandardType.INTEGER).toString())
+        def action = new CreateTableAction(new Table(table.name, table.container)).addColumn(standardCaseItemName("col_name", Column, scope.database), new DataType(DataType.StandardType.INTEGER).toString())
 
-        testAction([tableName_asTable: tableName.toString()],
+        testAction([table_asTable: table.toString()],
                 action, conn, scope)
 
         where:
-        [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, table] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -48,10 +47,10 @@ class CreateTableActionTest extends AbstractActionTest {
     @Unroll("#featureName: #columnName")
     def "create simple table with complex column name"() {
         expect:
-        def action = new CreateTableAction(new Table(standardCaseObjectName("table_name", Table, scope.database))).addColumn(columnName, new DataType(DataType.StandardType.INTEGER).toString())
+        def action = new CreateTableAction(new Table(standardCaseItemName("table_name", Table, scope.database))).addColumn(columnName, new DataType(DataType.StandardType.INTEGER).toString())
 
         testAction([
-                columnName_asTable: columnName.toString()
+                column_asTable: columnName.toString()
         ],
                 action, conn, scope)
 
@@ -61,7 +60,7 @@ class CreateTableActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
+                    getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -70,32 +69,32 @@ class CreateTableActionTest extends AbstractActionTest {
     def "check all table and permutations"() {
         expect:
         testAction([
-                tableName_asTable           : action.table == null ? null : action.table.name,
+                table_asTable               : action.table == null ? null : action.table.name,
                 tableTablespace_asTable     : action.table == null ? null : action.table.tablespace,
                 tableRemarks_asTable        : action.table == null ? null : action.table.remarks,
                 tableSchema_asTable         : action.table == null ? null : action.table.schema,
 
-                columnName_asTable          : action.columns[0].name,
+                column_asTable              : action.columns[0].name,
                 columnType_asTable          : action.columns[0].type,
                 columnDefaultValue_asTable  : action.columns[0].defaultValue,
                 columnRemarks_asTable       : action.columns[0].remarks,
                 columnNullable_asTable      : action.columns[0].nullable,
                 columnAutoInc_asTable       : action.columns[0].autoIncrementInformation,
 
-                pkName_asTable              : action.primaryKey == null ? null : action.primaryKey.name,
+                pk_asTable                  : action.primaryKey == null ? null : action.primaryKey.name,
                 pkTablespace_asTable        : action.primaryKey == null ? null : action.primaryKey.tablespace,
                 pkClustered_asTable         : action.primaryKey == null ? null : action.primaryKey.clustered,
                 pkColumns_asTable           : action.primaryKey == null ? null : action.primaryKey.columns*.describe(),
 
-                fkName_asTable              : action.foreignKeys*.name,
-                fkTableName_asTable         : action.foreignKeys*.referencedTable,
+                fk_asTable                  : action.foreignKeys*.name,
+                fkTable_asTable             : action.foreignKeys*.referencedTable,
                 fkDeferrable_asTable        : action.foreignKeys*.deferrable,
                 fkInitiallyDeferred_asTable : action.foreignKeys*.initiallyDeferred,
                 fkUpdateRule_asTable        : action.foreignKeys*.updateRule,
                 fkDeleteRule_asTable        : action.foreignKeys*.deleteRule,
                 fkColumnChecks_asTable      : action.foreignKeys*.columnChecks,
 
-                uqName_asTable              : action.uniqueConstraints*.name,
+                uq_asTable                  : action.uniqueConstraints*.name,
                 uqColumns_asTable           : action.uniqueConstraints*.columns,
                 uqDeferrable_asTable        : action.uniqueConstraints*.deferrable,
                 uqInitiallyDeferred_asTable : action.uniqueConstraints*.initiallyDeferred,
@@ -123,19 +122,19 @@ class CreateTableActionTest extends AbstractActionTest {
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def schema = connectionSupplier.allSchemas[0]
-        def tableRef = new ObjectReference(Table, schema, standardCaseObjectName("test_table", Table, scope.database))
-        def testColName = standardCaseObjectName("test_col", Column, scope.database)
-        def col1Name = standardCaseObjectName("col1", Column, scope.database)
-        def col2Name = standardCaseObjectName("col2", Column, scope.database)
+        def tableRef = new RelationReference(Table, standardCaseItemName("test_table", Table, scope.database), schema)
+        def testColName = standardCaseItemName("test_col", Column, scope.database)
+        def col1Name = standardCaseItemName("col1", Column, scope.database)
+        def col2Name = standardCaseItemName("col2", Column, scope.database)
 
-        def refTableRef = new ObjectReference(Table, schema, standardCaseObjectName("ref_table", Column, scope.database))
-        def refCol1Name = standardCaseObjectName("ref_col1", Column, scope.database)
-        def refCol2Name = standardCaseObjectName("ref_col2", Column, scope.database)
+        def refTableRef = new RelationReference(Table, standardCaseItemName("ref_table", Column, scope.database), schema)
+        def refCol1Name = standardCaseItemName("ref_col1", Column, scope.database)
+        def refCol2Name = standardCaseItemName("ref_col2", Column, scope.database)
 
         def returnList = []
         //setup standard column permutations
         def columnPermutations = CollectionUtil.toSingletonLists(CollectionUtil.addTo(createAllPermutationsWithoutNulls(Column, [
-                table                   : [tableRef],
+                relation                : [tableRef],
                 name                    : [testColName],
                 type                    : [new DataType(DataType.StandardType.INTEGER)],
                 defaultValue            : [null, 3],
@@ -143,13 +142,13 @@ class CreateTableActionTest extends AbstractActionTest {
                 nullable                : [null, true, false],
                 autoIncrementInformation: [null, new Column.AutoIncrementInformation(), new Column.AutoIncrementInformation(2, 3)]
         ]),
-                new Column(tableRef, testColName, new DataType(DataType.StandardType.VARCHAR, 10), true), //varchar type, nullable
-                new Column(tableRef, testColName, new DataType(DataType.StandardType.VARCHAR, 10), false), //varchar type, not null
-                new Column(tableRef, null, new DataType(DataType.StandardType.INTEGER)), //null name column
-                new Column(tableRef, testColName, (DataType) null), //null dataType column
+                new Column(testColName, tableRef, new DataType(DataType.StandardType.VARCHAR, 10), true), //varchar type, nullable
+                new Column(testColName, tableRef, new DataType(DataType.StandardType.VARCHAR, 10), false), //varchar type, not null
+                new Column(null, tableRef, new DataType(DataType.StandardType.INTEGER), true), //null name column
+                new Column(testColName, tableRef, (DataType) null, true), //null dataType column
         )).each({
-            it.add(new Column(tableRef, col1Name, new DataType(DataType.StandardType.INTEGER)))
-            it.add(new Column(tableRef, col2Name, new DataType(DataType.StandardType.INTEGER)))
+            it.add(new Column(col1Name, tableRef, new DataType(DataType.StandardType.INTEGER), true))
+            it.add(new Column(col2Name, tableRef, new DataType(DataType.StandardType.INTEGER), true))
         })
 
         //column and table-field variations
@@ -171,9 +170,9 @@ class CreateTableActionTest extends AbstractActionTest {
                 ]),
                 columns   : columnPermutations,
                 primaryKey: createAllPermutations(PrimaryKey, [
-                        name      : [standardCaseObjectName("test_pk", PrimaryKey, scope.database)],
+                        name      : [standardCaseItemName("test_pk", PrimaryKey, scope.database)],
                         tablespace: ["test_tablespace"],
-                        table     : [tableRef],
+                        relation  : [tableRef],
                         clustered : [true, false],
                         columns   : [[new PrimaryKey.PrimaryKeyColumn(testColName)],
                                      [new PrimaryKey.PrimaryKeyColumn(testColName, Index.IndexDirection.DESC)],
@@ -194,8 +193,8 @@ class CreateTableActionTest extends AbstractActionTest {
                 ]),
                 columns          : columnPermutations,
                 uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutations(UniqueConstraint, [
-                        name             : [standardCaseObjectName("uq_name", UniqueConstraint, scope.database)],
-                        table            : [tableRef],
+                        name             : [standardCaseItemName("uq_name", UniqueConstraint, scope.database)],
+                        relation         : [tableRef],
                         columns          : [[testColName], [col1Name, col2Name]],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],
@@ -213,8 +212,8 @@ class CreateTableActionTest extends AbstractActionTest {
                 ]),
                 columns    : columnPermutations,
                 foreignKeys: CollectionUtil.toSingletonLists(createAllPermutations(ForeignKey, [
-                        name           : [standardCaseObjectName("test_fk", ForeignKey, scope.database)],
-                        table          : [tableRef],
+                        name           : [standardCaseItemName("test_fk", ForeignKey, scope.database)],
+                        relation       : [tableRef],
                         referencedTable: [refTableRef],
                         columnChecks   : [
                                 [new ForeignKey.ForeignKeyColumnCheck(col1Name, refCol1Name)],
@@ -235,7 +234,7 @@ class CreateTableActionTest extends AbstractActionTest {
                 columns    : columnPermutations,
                 foreignKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(ForeignKey, [
                         name             : [null],
-                        table            : [tableRef],
+                        relation         : [tableRef],
                         referencedTable  : [refTableRef],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],
@@ -254,10 +253,10 @@ class CreateTableActionTest extends AbstractActionTest {
                 columns    : columnPermutations,
                 foreignKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(ForeignKey, [
                         name           : [null],
-                        table          : [tableRef],
+                        relation       : [tableRef],
                         referencedTable: [refTableRef],
-                        updateRule     : [ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
-                        deleteRule     : [ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
+                        updateRule     : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
+                        deleteRule     : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
                         columnChecks   : [
                                 [new ForeignKey.ForeignKeyColumnCheck(col1Name, refCol1Name)],
                         ]
@@ -273,14 +272,14 @@ class CreateTableActionTest extends AbstractActionTest {
         def snapshot = new Snapshot(scope)
         for (ForeignKey fk : CollectionUtil.createIfNull((List) ((CreateTableAction) action).foreignKeys)) {
             if (fk != null) {
-                Table fkTable = new Table(fk.referencedTable)
+                Table fkTable = new Table(fk.referencedTable.name, fk.referencedTable.container)
                 PrimaryKey pk
                 for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
                     if (pk == null) {
-                        pk = new PrimaryKey(fkTable.toReference(), null)
+                        pk = new PrimaryKey(null, fkTable.toReference())
                     }
 
-                    def column = new Column(new Column.ColumnReference(fkTable.toReference(), check.referencedColumn), new DataType(DataType.StandardType.INTEGER), false)
+                    def column = new Column(check.referencedColumn, fkTable.toReference(), new DataType(DataType.StandardType.INTEGER), false)
                     snapshot.add(column)
                     pk.columns.add(new PrimaryKey.PrimaryKeyColumn(column.name))
                 }

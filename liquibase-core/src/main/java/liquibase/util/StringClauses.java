@@ -3,8 +3,10 @@ package liquibase.util;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.core.GenericDatabase;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
+import liquibase.item.DatabaseObject;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 
 import java.util.*;
 
@@ -137,16 +139,16 @@ public class StringClauses {
         return this;
     }
 
-    public StringClauses append(List objects, Class<? extends LiquibaseObject> type, Scope scope) {
+    public StringClauses append(List objects, Class<? extends Item> type, Scope scope) {
         Database database = scope.getDatabase();
         if (database == null) {
             database = new GenericDatabase();
         }
         for (Object obj : objects) {
-            if (obj instanceof LiquibaseObject) {
-                this.append(database.quoteObjectName(((LiquibaseObject) obj).getName(), type, scope));
-            } else if (obj instanceof ObjectReference) {
-                this.append(database.quoteObjectName(((ObjectReference) obj), scope));
+            if (obj instanceof DatabaseObject) {
+                this.append(database.quoteObjectName(((Item) obj).getName(), (Class<? extends DatabaseObject>) type, scope));
+            } else if (obj instanceof DatabaseObjectReference) {
+                this.append(database.quoteObjectName(((DatabaseObjectReference) obj), scope));
             } else if (obj instanceof StringClauses) {
                 this.append(obj.toString(), ((StringClauses) obj));
             } else {

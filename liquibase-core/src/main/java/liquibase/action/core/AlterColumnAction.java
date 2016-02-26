@@ -1,7 +1,7 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
+import liquibase.item.core.ColumnReference;
 import liquibase.util.StringClauses;
 
 /**
@@ -9,13 +9,13 @@ import liquibase.util.StringClauses;
  */
 public class AlterColumnAction extends AbstractAction {
 
-    public ObjectReference column;
+    public ColumnReference column;
     public StringClauses newDefinition;
 
     public AlterColumnAction() {
     }
 
-    public AlterColumnAction(ObjectReference column, StringClauses newDefinition) {
+    public AlterColumnAction(ColumnReference column, StringClauses newDefinition) {
         this.column = column;
         this.newDefinition = newDefinition;
     }

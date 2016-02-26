@@ -1,7 +1,7 @@
 package liquibase.action.core
 
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Table
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
 import spock.lang.Specification
 
 class DropTableActionTest extends Specification {
@@ -12,7 +12,7 @@ class DropTableActionTest extends Specification {
 
     def "parametrized constructor"() {
         expect:
-        new DropTableAction(new ObjectReference(Table, "cat", "schem", "tab")).describe() == "dropTable(table=cat.schem.tab)"
+        new DropTableAction(new RelationReference(Table, "cat", "schem", "tab")).describe() == "dropTable(table=cat.schem.tab)"
     }
 
 //    @Unroll
@@ -24,7 +24,7 @@ class DropTableActionTest extends Specification {
 //            if (catalogName == "_alt") catalogName = conn.alternateCatalog
 //            if (schemaName == "_alt") schemaName = conn.alternateSchema
 //
-//            def action = new DropTablesAction(new ObjectReference(Table, catalogName, schemaName, table))
+//            def action = new DropTablesAction(new RelationReference(Table, catalogName, schemaName, table))
 //
 //
 //            def scope = JUnitScope.getInstance(conn.getDatabase())
@@ -36,7 +36,7 @@ class DropTableActionTest extends Specification {
 //                    .setup({
 //                conn.connect(scope)
 //
-//                def table = new Table(new ObjectReference(Table, catalogName, schemaName, table))
+//                def table = new Table(new RelationReference(Table, catalogName, schemaName, table))
 //                scope.getSingleton(ActionExecutor).execute(new CreateTableAction(table.addColumn("id", "int"), scope))
 //                throw SetupResult.OK
 //            })

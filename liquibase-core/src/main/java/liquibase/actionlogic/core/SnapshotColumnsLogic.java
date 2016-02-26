@@ -3,18 +3,18 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogic;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.DatabaseFunction;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
-import liquibase.structure.datatype.DataType;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
+import liquibase.item.datatype.DataType;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 import liquibase.util.Validate;
@@ -34,7 +34,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 Column.class,
                 Relation.class,
@@ -45,19 +45,19 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 
     @Override
     /**
-     * Creates an ObjectName with null values for "unknown" portions and calls {@link #createColumnSnapshotAction(ObjectReference)}.
+     * Creates an ObjectName with null values for "unknown" portions and calls {@link #createColumnSnapshotAction(ItemReference)}.
      */
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-        Column.ColumnReference columnName;
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
+        ColumnReference columnName;
 
         if (relatedTo.instanceOf(Catalog.class)) {
-            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.name, null, null), null);
-        } else if (relatedTo.instanceOf(Schema.class)) {
-            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.container, relatedTo.name, null), null);
-        } else if (relatedTo.instanceOf(Relation.class)) {
-            columnName = new Column.ColumnReference(new ObjectReference(Table.class, relatedTo.container, relatedTo.name), null);
-        } else if (relatedTo.instanceOf(Column.class)) {
-            columnName = new Column.ColumnReference(relatedTo.container, relatedTo.name);
+            columnName = new ColumnReference(null, new RelationReference(Table.class, relatedTo.name, null, null));
+        } else if (relatedTo instanceof SchemaReference) {
+            columnName = new ColumnReference(null, new RelationReference(Table.class, null, (SchemaReference) relatedTo));
+        } else if (relatedTo instanceof RelationReference) {
+            columnName = new ColumnReference(null, (RelationReference) relatedTo);
+        } else if (relatedTo instanceof ColumnReference) {
+            columnName = new ColumnReference(relatedTo.name, ((ColumnReference) relatedTo).container);
         } else {
             throw Validate.failure("Unexpected type: " + relatedTo.getClass().getName());
         }
@@ -65,7 +65,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
         return createColumnSnapshotAction(columnName, scope);
     }
 
-    protected Action createColumnSnapshotAction(ObjectReference columnRef, Scope scope) {
+    protected Action createColumnSnapshotAction(ColumnReference columnRef, Scope scope) {
         List<String> nameParts = columnRef.asList(4);
 
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
@@ -88,7 +88,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 
 
     @Override
-    protected Column convertToObject(Object result, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Column convertToObject(Object result, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) result;
         Database database = scope.getDatabase();
 
@@ -104,13 +104,13 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 
         Column column = new Column();
         if (rawSchemaName == null) {
-            column.table = new ObjectReference(Table.class, rawCatalogName, rawTableName);
+            column.relation = new RelationReference(Table.class, rawCatalogName, rawTableName);
             column.name = rawColumnName;
         } else {
             if (database.supports(Catalog.class, scope)) {
-                column.table = new ObjectReference(Table.class, rawCatalogName, rawSchemaName, rawTableName);
+                column.relation = new RelationReference(Table.class, rawCatalogName, rawSchemaName, rawTableName);
             } else {
-                column.table = new ObjectReference(Table.class, rawSchemaName, rawTableName);
+                column.relation = new RelationReference(Table.class, rawSchemaName, rawTableName);
             }
             column.name = rawColumnName;
 
@@ -347,7 +347,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 
         Class valueType = ObjectUtil.defaultIfEmpty(column.type.valueType, Object.class);
         if (defaultValueAsString.startsWith("(") && defaultValueAsString.endsWith(")")) {
-            return new DatabaseFunction(defaultValueAsString.substring(1, defaultValueAsString.length()-1));
+            return new Column.FunctionDefaultValue(defaultValueAsString.substring(1, defaultValueAsString.length()-1));
         } else if (defaultValueAsString.startsWith("'") && defaultValueAsString.endsWith("'")) {
             return ObjectUtil.convert(defaultValueAsString.substring(1, defaultValueAsString.length() - 1), valueType);
         } else {

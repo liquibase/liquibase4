@@ -7,13 +7,13 @@ import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.snapshot.Snapshot
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.Schema
-import liquibase.structure.core.Table
-import liquibase.structure.core.UniqueConstraint
-import liquibase.structure.datatype.DataType
+import liquibase.item.ItemNameStrategy
+import liquibase.item.core.Column
+import liquibase.item.core.IndexReference
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
+import liquibase.item.core.UniqueConstraint
+import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -23,8 +23,8 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex constraint names"() {
         expect:
         testAction([
-                tableName_asTable: action.uniqueConstraints*.table,
-                uqName_asTable: action.uniqueConstraints*.name,
+                table_asTable: action.uniqueConstraints*.relation,
+                uq_asTable   : action.uniqueConstraints*.name,
         ], action, conn, scope)
 
         where:
@@ -35,9 +35,11 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name   : getObjectNames(UniqueConstraint, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
-                                    table  : it.allSchemas.collect({ return new ObjectReference(Table.class, it, standardCaseObjectName("table_name", Table, scope.database)) }),
-                                    columns: [[standardCaseObjectName("column_name", Column.class, scope.database)]],
+                                    name    : getItemNames(UniqueConstraint, ItemNameStrategy.COMPLEX_NAMES, scope),
+                                    relation: it.allSchemas.collect({
+                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope.database), it)
+                                    }),
+                                    columns : [[standardCaseItemName("column_name", Column.class, scope.database)]],
                             ]))
                     ])
             ])
@@ -48,7 +50,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex table names"() {
         expect:
         testAction([
-                tableName_asTable: action.uniqueConstraints.table,
+                table_asTable: action.uniqueConstraints.relation,
         ], action, conn, scope)
 
         where:
@@ -59,9 +61,9 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
-                                    table  : getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
-                                    columns: [[standardCaseObjectName("column_name", Column.class, scope.database)]],
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
+                                    relation: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                                    columns : [[standardCaseItemName("column_name", Column.class, scope.database)]],
                             ]))
                     ])
             ])
@@ -72,8 +74,8 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     def "Can apply single column with standard settings but complex column names"() {
         expect:
         testAction([
-                tableName_asTable: action.uniqueConstraints*.table,
-                columnName_asTable: action.uniqueConstraints.columns,
+                table_asTable : action.uniqueConstraints*.relation,
+                column_asTable: action.uniqueConstraints.columns,
         ], action, conn, scope)
 
         where:
@@ -84,9 +86,11 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
-                                    table  : it.allSchemas.collect({ return new ObjectReference(Table.class, it, standardCaseObjectName("table_name", Table, scope.database)) }),
-                                    columns: CollectionUtil.toSingletonLists(getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique()),
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
+                                    relation: it.allSchemas.collect({
+                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope.database), it)
+                                    }),
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope)),
                             ]))
                     ])
             ])
@@ -97,8 +101,8 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     def "Can apply multi-column with standard settings"() {
         expect:
         testAction([
-                tableName_asTable: action.uniqueConstraints*.table,
-                columnName_asTable: action.uniqueConstraints*.columns
+                table_asTable : action.uniqueConstraints*.relation,
+                column_asTable: action.uniqueConstraints*.columns
         ], action, conn, scope)
 
         where:
@@ -109,36 +113,38 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     [scope],
                     createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name   : [standardCaseObjectName("uq_name", UniqueConstraint.class, scope.database)],
-                                    table  : it.allSchemas.collect({ return new ObjectReference(Table, it, standardCaseObjectName("table_name", Table.class, scope.database)) }),
-                                    columns: [[standardCaseObjectName("col_1", Column.class, scope.database), standardCaseObjectName("col_2", Column.class, scope.database)]],
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
+                                    relation: it.allSchemas.collect({
+                                        return new RelationReference(Table, standardCaseItemName("table_name", Table.class, scope.database), it)
+                                    }),
+                                    columns : [[standardCaseItemName("col_1", Column.class, scope.database), standardCaseItemName("col_2", Column.class, scope.database)]],
                             ]))
                     ])
             ])
         }
     }
 
-    @Unroll("#featureName: for #schemaName on #conn")
+    @Unroll("#featureName: for #schema on #conn")
     def "Can add multiple constraints at once"() {
         when:
         def action = new AddUniqueConstraintsAction()
 
         action.uniqueConstraints = [
-                new UniqueConstraint(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_1", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
-                new UniqueConstraint(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_2", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
-                new UniqueConstraint(null, new ObjectReference(Table, schemaName, standardCaseObjectName("test_table_3", Table, scope.database)), standardCaseObjectName("col_name", Column, scope.database)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
         ]
 
         then:
-        testAction(["schemaName_asTable": schemaName], action, conn, scope)
+        testAction(["schema_asTable": schema], action, conn, scope)
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schema] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Schema, scope)
+                    it.getAllSchemas()
             ])
         }
     }
@@ -150,8 +156,8 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
 
         then:
         testAction([
-                name_asTable            : uqDef.name,
-                table_asTable            : uqDef.table,
+                name_asTable             : uqDef.name,
+                table_asTable            : uqDef.relation,
                 columns_asTable          : uqDef.columns,
                 deferrable_asTable       : uqDef.deferrable,
                 initiallyDeferred_asTable: uqDef.initiallyDeferred,
@@ -174,22 +180,24 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseObjectName("test_table", Table, scope.database)
+        def tableName = standardCaseItemName("test_table", Table, scope.database)
 
         return createAllPermutations(AddUniqueConstraintsAction, [
                 uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutations(UniqueConstraint, [
-                        name             : [null, standardCaseObjectName("uq_test", UniqueConstraint, scope.database)],
-                        table            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new ObjectReference(Table, it, tableName) })),
+                        name             : [null, standardCaseItemName("uq_test", UniqueConstraint, scope.database)],
+                        relation         : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({
+                            return new RelationReference(Table, tableName, it)
+                        })),
                         deferrable       : [null, true, false],
                         initiallyDeferred: [null, true, false],
                         disabled         : [null, true, false],
                         tablespace       : [null, "test_tablespace"],
-                        backingIndex     : [null, "idx_test"],
+                        backingIndex     : [null, new IndexReference("idx_test")],
                         columns          : [
                                 null,
                                 [],
-                                [standardCaseObjectName("col_name", Column, scope.database)],
-                                [standardCaseObjectName("col_name1", Column, scope.database), standardCaseObjectName("col_name2", Column, scope.database)],
+                                [standardCaseItemName("col_name", Column, scope.database)],
+                                [standardCaseItemName("col_name1", Column, scope.database), standardCaseItemName("col_name2", Column, scope.database)],
                         ]
                 ]))
         ])
@@ -199,11 +207,11 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
         for (def uq : ((AddUniqueConstraintsAction) action).uniqueConstraints) {
-            snapshot.add(new Table(uq.table))
+            snapshot.add(new Table(uq.relation.name, uq.relation.container))
             for (def colName : uq.columns) {
-                snapshot.add(new Column(uq.table, colName, DataType.parse("int"), false))
+                snapshot.add(new Column(colName, uq.relation, DataType.parse("int"), false))
             }
-            snapshot.add(new Column(uq.table, standardCaseObjectName("non_uq_col", Column, scope.database), "int"))
+            snapshot.add(new Column(standardCaseItemName("non_uq_col", Column, scope.database), uq.relation, DataType.parse("int"), true))
         }
 
         return snapshot

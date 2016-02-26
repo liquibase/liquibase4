@@ -12,9 +12,9 @@ import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.item.core.Column;
+import liquibase.item.core.ForeignKey;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.ForeignKey;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -38,7 +38,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
     @Override
     public ValidationErrors validate(AddForeignKeysAction action, Scope scope) {
         ValidationErrors validationErrors = super.validate(action, scope)
-                .checkRequiredFields("foreignKeys.table", "foreignKeys.table.name",
+                .checkRequiredFields("foreignKeys.relation", "foreignKeys.relation.name",
                         "foreignKeys.referencedTable","foreignKeys.referencedTable.name",
                         "foreignKeys.columnChecks", "foreignKeys.columnChecks.baseColumn", "foreignKeys.columnChecks.referencedColumn");
 
@@ -51,7 +51,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         validationErrors.checkField("foreignKeys", new ValidationErrors.FieldCheck<ForeignKey>() {
             @Override
             public String check(ForeignKey fk) {
-                if (fk.table.container != null && fk.referencedTable.container != null && !supportsSeparateConstraintSchema() && !fk.table.container.equals(fk.referencedTable.container, true)) {
+                if (fk.relation.container != null && fk.referencedTable.container != null && !supportsSeparateConstraintSchema() && !fk.relation.container.equals(fk.referencedTable.container, true)) {
                     return "cannot specify a different foreign key schema";
                 }
                 return null;
@@ -108,7 +108,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
 
     protected Action execute(ForeignKey fk, AddForeignKeysAction action, Scope scope) {
         return new AlterTableAction(
-                fk.table,
+                fk.relation,
                 generateConstraintClause(fk, action, scope)
         );
     }
@@ -142,11 +142,11 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         if (foreignKey.deleteRule != null) {
             String option;
             switch (foreignKey.deleteRule) {
-                case importedKeyCascade: option = "CASCADE"; break;
-                case importedKeyNoAction: option = "NO ACTION"; break;
-                case importedKeyRestrict: option = "RESTRICT"; break;
-                case importedKeySetDefault: option = "SET DEFAULT"; break;
-                case importedKeySetNull: option = "SET NULL"; break;
+                case cascade: option = "CASCADE"; break;
+                case noAction: option = "NO ACTION"; break;
+                case restrict: option = "RESTRICT"; break;
+                case setDefault: option = "SET DEFAULT"; break;
+                case setNull: option = "SET NULL"; break;
                 default: throw new UnexpectedLiquibaseException("Unknown updateRule: "+foreignKey.updateRule);
             }
             clauses.append("ON DELETE", new StringClauses(" ").append("ON DELETE").append(option));
@@ -155,11 +155,11 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
         if (foreignKey.updateRule != null) {
             String option;
             switch (foreignKey.updateRule) {
-                case importedKeyCascade: option = "CASCADE"; break;
-                case importedKeySetNull: option = "SET NULL"; break;
-                case importedKeySetDefault: option = "SET DEFAULT"; break;
-                case importedKeyRestrict: option = "RESTRICT"; break;
-                case importedKeyNoAction: option = "NO ACTION"; break;
+                case cascade: option = "CASCADE"; break;
+                case setNull: option = "SET NULL"; break;
+                case setDefault: option = "SET DEFAULT"; break;
+                case restrict: option = "RESTRICT"; break;
+                case noAction: option = "NO ACTION"; break;
                 default: throw new UnexpectedLiquibaseException("Unknown updateRule: "+foreignKey.updateRule);
             }
             clauses.append("ON UPDATE", new StringClauses(" ").append("ON UPDATE").append(option));

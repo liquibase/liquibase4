@@ -5,11 +5,11 @@ import liquibase.action.Action;
 import liquibase.action.core.AddUniqueConstraintsAction;
 import liquibase.diff.output.changelog.MissingObjectActionGenerator;
 import liquibase.snapshot.Snapshot;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.Index;
-import liquibase.structure.core.Table;
-import liquibase.structure.core.UniqueConstraint;
+import liquibase.item.Item;
+import liquibase.item.core.Column;
+import liquibase.item.core.Index;
+import liquibase.item.core.Table;
+import liquibase.item.core.UniqueConstraint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class MissingUniqueConstraintActionGenerator implements MissingObjectActi
 
 
     @Override
-    public int getPriority(Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public int getPriority(Class<? extends Item> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         if (UniqueConstraint.class.isAssignableFrom(objectType)) {
             return PRIORITY_DEFAULT;
         }
@@ -26,7 +26,7 @@ public class MissingUniqueConstraintActionGenerator implements MissingObjectActi
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runAfterTypes() {
+    public Class<? extends Item>[] runAfterTypes() {
         return new Class[] {
                 Table.class,
                 Column.class
@@ -35,14 +35,14 @@ public class MissingUniqueConstraintActionGenerator implements MissingObjectActi
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runBeforeTypes() {
+    public Class<? extends Item>[] runBeforeTypes() {
         return new Class[] {
                 Index.class
         };
     }
 
     @Override
-    public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         UniqueConstraint uq = (UniqueConstraint) missingObject;
 
         ArrayList<AddUniqueConstraintsAction> actions = new ArrayList<>();

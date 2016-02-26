@@ -4,74 +4,64 @@
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | schemaName | OPERATIONS
-| :---------- | :------- | :--------- | :------
-| 2a5ee3      | true     | lbcat      | **plan**: ALTER TABLE `lbcat`.`test_table_1` ADD CONSTRAINT UNIQUE (`col_name`)<br>ALTER TABLE `lbcat`.`test_table_2` ADD CONSTRAINT UNIQUE (`col_name`)<br>ALTER TABLE `lbcat`.`test_table_3` ADD CONSTRAINT UNIQUE (`col_name`)
-| 9f6418      | true     | lbcat2     | **plan**: ALTER TABLE `lbcat2`.`test_table_1` ADD CONSTRAINT UNIQUE (`col_name`)<br>ALTER TABLE `lbcat2`.`test_table_2` ADD CONSTRAINT UNIQUE (`col_name`)<br>ALTER TABLE `lbcat2`.`test_table_3` ADD CONSTRAINT UNIQUE (`col_name`)
+| Permutation | Verified | schema | OPERATIONS
+| :---------- | :------- | :----- | :------
+| 4935d9      | true     | lbcat  | **plan**: ALTER TABLE `lbcat`.`test_table_1` ADD CONSTRAINT UNIQUE (`COL_NAME`)<br>ALTER TABLE `lbcat`.`test_table_2` ADD CONSTRAINT UNIQUE (`COL_NAME`)<br>ALTER TABLE `lbcat`.`test_table_3` ADD CONSTRAINT UNIQUE (`COL_NAME`)
+| e78147      | true     | lbcat2 | **plan**: ALTER TABLE `lbcat2`.`test_table_1` ADD CONSTRAINT UNIQUE (`COL_NAME`)<br>ALTER TABLE `lbcat2`.`test_table_2` ADD CONSTRAINT UNIQUE (`COL_NAME`)<br>ALTER TABLE `lbcat2`.`test_table_3` ADD CONSTRAINT UNIQUE (`COL_NAME`)
 
 # Test: "Can apply multi-column with standard settings" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | columnName   | tableName         | OPERATIONS
+| Permutation | Verified | column       | table             | OPERATIONS
 | :---------- | :------- | :----------- | :---------------- | :------
-| ffc5fe      | true     | col_1, col_2 | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`col_1`, `col_2`)
-| 7fd924      | true     | col_1, col_2 | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`col_1`, `col_2`)
+| 050402      | true     | COL_1, COL_2 | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`COL_1`, `COL_2`)
+| e29cb5      | true     | COL_1, COL_2 | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`COL_1`, `COL_2`)
 
 # Test: "Can apply single column with standard settings but complex column names" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | columnName                     | tableName         | OPERATIONS
+| Permutation | Verified | column                         | table             | OPERATIONS
 | :---------- | :------- | :----------------------------- | :---------------- | :------
-| f7c80b      | true     | 4test_column                   | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`4test_column`)
-| 545c5e      | true     | 4test_column                   | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`4test_column`)
-| b24e49      | true     | anotherlowercolumn             | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`anotherlowercolumn`)
-| 3f4f42      | true     | anotherlowercolumn             | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`anotherlowercolumn`)
-| 883353      | true     | crazy!@#\$%^&*()_+{}[]'"column | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`crazy!@#\$%^&*()_+{}[]'"column`)
-| bc8e39      | true     | crazy!@#\$%^&*()_+{}[]'"column | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`crazy!@#\$%^&*()_+{}[]'"column`)
-| 380500      | true     | lowercolumn                    | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`lowercolumn`)
-| d156a0      | true     | lowercolumn                    | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`lowercolumn`)
-| fa8d8f      | true     | only_in_lbcat                  | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`only_in_lbcat`)
-| 41257a      | true     | only_in_lbcat                  | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`only_in_lbcat`)
-| 9ae3ac      | true     | only_in_lbcat2                 | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`only_in_lbcat2`)
-| 049b85      | true     | only_in_lbcat2                 | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`only_in_lbcat2`)
+| 1ab753      | true     | ANOTHERUPPERCOLUMN             | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`ANOTHERUPPERCOLUMN`)
+| 19df9c      | true     | ANOTHERUPPERCOLUMN             | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`ANOTHERUPPERCOLUMN`)
+| b2810f      | true     | CRAZY!@#\$%^&*()_+{}[]'"COLUMN | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`CRAZY!@#\$%^&*()_+{}[]'"COLUMN`)
+| 46ab16      | true     | CRAZY!@#\$%^&*()_+{}[]'"COLUMN | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`CRAZY!@#\$%^&*()_+{}[]'"COLUMN`)
+| ec721d      | true     | UPPERCOLUMN                    | lbcat.table_name  | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`UPPERCOLUMN`)
+| 8e172b      | true     | UPPERCOLUMN                    | lbcat2.table_name | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `uq_name` UNIQUE (`UPPERCOLUMN`)
 
 # Test: "Can apply single column with standard settings but complex constraint names" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | tableName         | uqName                                   | OPERATIONS
+| Permutation | Verified | table             | uq                                       | OPERATIONS
 | :---------- | :------- | :---------------- | :--------------------------------------- | :------
-| d31ca1      | true     | lbcat.table_name  | 4test_uniqueconstraint                   | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `4test_uniqueconstraint` UNIQUE (`column_name`)
-| 989603      | true     | lbcat.table_name  | anotherloweruniqueconstraint             | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `anotherloweruniqueconstraint` UNIQUE (`column_name`)
-| 414ac2      | true     | lbcat.table_name  | crazy!@#\$%^&*()_+{}[]'"uniqueconstraint | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `crazy!@#\$%^&*()_+{}[]'"uniqueconstraint` UNIQUE (`column_name`)
-| db8dc8      | true     | lbcat.table_name  | loweruniqueconstraint                    | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `loweruniqueconstraint` UNIQUE (`column_name`)
-| b0f8c2      | true     | lbcat.table_name  | only_in_lbcat                            | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `only_in_lbcat` UNIQUE (`column_name`)
-| 71ad27      | true     | lbcat.table_name  | only_in_lbcat2                           | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `only_in_lbcat2` UNIQUE (`column_name`)
-| 2f8fdc      | true     | lbcat2.table_name | 4test_uniqueconstraint                   | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `4test_uniqueconstraint` UNIQUE (`column_name`)
-| f12589      | true     | lbcat2.table_name | anotherloweruniqueconstraint             | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `anotherloweruniqueconstraint` UNIQUE (`column_name`)
-| 0d17d3      | true     | lbcat2.table_name | crazy!@#\$%^&*()_+{}[]'"uniqueconstraint | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `crazy!@#\$%^&*()_+{}[]'"uniqueconstraint` UNIQUE (`column_name`)
-| e0c7f8      | true     | lbcat2.table_name | loweruniqueconstraint                    | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `loweruniqueconstraint` UNIQUE (`column_name`)
-| 9930e7      | true     | lbcat2.table_name | only_in_lbcat                            | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `only_in_lbcat` UNIQUE (`column_name`)
-| 05a77e      | true     | lbcat2.table_name | only_in_lbcat2                           | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `only_in_lbcat2` UNIQUE (`column_name`)
+| 7924d5      | true     | lbcat.table_name  | 4test_uniqueconstraint                   | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `4test_uniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| 0ef673      | true     | lbcat.table_name  | anotherloweruniqueconstraint             | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `anotherloweruniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| 03b6e6      | true     | lbcat.table_name  | crazy!@#\$%^&*()_+{}[]'"uniqueconstraint | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `crazy!@#\$%^&*()_+{}[]'"uniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| 6d9d5a      | true     | lbcat.table_name  | loweruniqueconstraint                    | **plan**: ALTER TABLE `lbcat`.`table_name` ADD CONSTRAINT `loweruniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| ffffec      | true     | lbcat2.table_name | 4test_uniqueconstraint                   | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `4test_uniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| 8fbad1      | true     | lbcat2.table_name | anotherloweruniqueconstraint             | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `anotherloweruniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| bb52dd      | true     | lbcat2.table_name | crazy!@#\$%^&*()_+{}[]'"uniqueconstraint | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `crazy!@#\$%^&*()_+{}[]'"uniqueconstraint` UNIQUE (`COLUMN_NAME`)
+| b14807      | true     | lbcat2.table_name | loweruniqueconstraint                    | **plan**: ALTER TABLE `lbcat2`.`table_name` ADD CONSTRAINT `loweruniqueconstraint` UNIQUE (`COLUMN_NAME`)
 
 # Test: "Can apply single column with standard settings but complex table names" #
 
 - **connection:** mysql[config:caseInsensitive]
 
-| Permutation | Verified | tableName                            | OPERATIONS
+| Permutation | Verified | table                                | OPERATIONS
 | :---------- | :------- | :----------------------------------- | :------
-| 6db8bb      | true     | lbcat.4test_table                    | **plan**: ALTER TABLE `lbcat`.`4test_table` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| b2e45f      | true     | lbcat.anotherlowertable              | **plan**: ALTER TABLE `lbcat`.`anotherlowertable` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 5f0ea5      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: ALTER TABLE `lbcat`.`crazy!@#\$%^&*()_+{}[]'"table` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 572208      | true     | lbcat.lowertable                     | **plan**: ALTER TABLE `lbcat`.`lowertable` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 58d58f      | true     | lbcat.only_in_lbcat                  | **plan**: ALTER TABLE `lbcat`.`only_in_lbcat` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| be2547      | true     | lbcat2.4test_table                   | **plan**: ALTER TABLE `lbcat2`.`4test_table` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| c493e5      | true     | lbcat2.anotherlowertable             | **plan**: ALTER TABLE `lbcat2`.`anotherlowertable` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 94369b      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE `lbcat2`.`crazy!@#\$%^&*()_+{}[]'"table` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 2c35e6      | true     | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
-| 4e636c      | true     | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD CONSTRAINT `uq_name` UNIQUE (`column_name`)
+| f75adb      | true     | lbcat.4test_table                    | **plan**: ALTER TABLE `lbcat`.`4test_table` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| 5e7754      | true     | lbcat.anotherlowertable              | **plan**: ALTER TABLE `lbcat`.`anotherlowertable` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| ca0403      | true     | lbcat.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: ALTER TABLE `lbcat`.`crazy!@#\$%^&*()_+{}[]'"table` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| ad19b9      | true     | lbcat.lowertable                     | **plan**: ALTER TABLE `lbcat`.`lowertable` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| cea6bc      | true     | lbcat.only_in_lbcat                  | **plan**: ALTER TABLE `lbcat`.`only_in_lbcat` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| bc878f      | true     | lbcat2.4test_table                   | **plan**: ALTER TABLE `lbcat2`.`4test_table` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| b48dc5      | true     | lbcat2.anotherlowertable             | **plan**: ALTER TABLE `lbcat2`.`anotherlowertable` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| b85e41      | true     | lbcat2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE `lbcat2`.`crazy!@#\$%^&*()_+{}[]'"table` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| f95c81      | true     | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
+| d76757      | true     | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD CONSTRAINT `uq_name` UNIQUE (`COLUMN_NAME`)
 
 # Test: "Can apply unique constraint with with various settings" #
 
@@ -79,13 +69,13 @@
 
 | Permutation | Verified | columns              | name    | table             | OPERATIONS
 | :---------- | :------- | :------------------- | :------ | :---------------- | :------
-| 71c152      | true     | col_name             |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`col_name`)
-| 71e686      | true     | col_name             |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`col_name`)
-| cf177f      | true     | col_name             | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
-| ad93bf      | true     | col_name             | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name`)
-| da840e      | true     | col_name1, col_name2 |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
-| 2b3736      | true     | col_name1, col_name2 |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`col_name1`, `col_name2`)
-| 8ca3da      | true     | col_name1, col_name2 | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
-| 900a36      | true     | col_name1, col_name2 | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`col_name1`, `col_name2`)
+| 9224d3      | true     | COL_NAME             |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`COL_NAME`)
+| 30a711      | true     | COL_NAME             |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`COL_NAME`)
+| 056b8c      | true     | COL_NAME             | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`COL_NAME`)
+| bd3e6c      | true     | COL_NAME             | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`COL_NAME`)
+| 30b041      | true     | COL_NAME1, COL_NAME2 |         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT UNIQUE (`COL_NAME1`, `COL_NAME2`)
+| 0c43aa      | true     | COL_NAME1, COL_NAME2 |         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT UNIQUE (`COL_NAME1`, `COL_NAME2`)
+| 2df6a7      | true     | COL_NAME1, COL_NAME2 | uq_test | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`COL_NAME1`, `COL_NAME2`)
+| f7e3e8      | true     | COL_NAME1, COL_NAME2 | uq_test | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD CONSTRAINT `uq_test` UNIQUE (`COL_NAME1`, `COL_NAME2`)
 
-# Test Version: "a8a663" #
+# Test Version: "278bd8" #

@@ -5,10 +5,11 @@ import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.Index;
-import liquibase.structure.core.Sequence;
+import liquibase.item.Item;
+import liquibase.item.core.Column;
+import liquibase.item.core.ForeignKey;
+import liquibase.item.core.Index;
+import liquibase.item.core.Sequence;
 
 import java.sql.Connection;
 import java.util.Arrays;
@@ -41,17 +42,25 @@ public class MysqlDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {
+    public boolean supports(Class<? extends Item> type, Scope scope) {
         return !type.isAssignableFrom(Sequence.class)
                 && super.supports(type, scope);
     }
 
     @Override
-    protected int getMaxObjectPathLength(Class<? extends LiquibaseObject> objectType, Scope scope) {
+    protected int getMaxObjectPathLength(Class<? extends Item> objectType, Scope scope) {
         if (Index.class.isAssignableFrom(objectType) || ForeignKey.class.isAssignableFrom(objectType)) {
             return 1;
         }
         return super.getMaxObjectPathLength(objectType, scope);
+    }
+
+    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends Item> type, boolean quoted, Scope scope) {
+        if (Column.class.isAssignableFrom(type) || Index.class.isAssignableFrom(type)) { //columns and indexes are always case-insensitive, even when quoted http://dev.mysql.com/doc/refman/5.7/en/identifier-case-sensitivity.html
+            return IdentifierCaseHandling.UPPERCASE;
+        } else {
+            return super.getIdentifierCaseHandling(type, quoted, scope);
+        }
     }
 
     @Override

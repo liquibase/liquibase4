@@ -1,24 +1,25 @@
 package liquibase.actionlogic;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.OfflineConnection;
 import liquibase.exception.ActionPerformException;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 import liquibase.plugin.Plugin;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class for SnapshotObjectsLogic implementations that read from an online database.
+ * Base class for {@link AbstractSnapshotItemsLogic} implementations that read from an online database.
  */
-public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends LiquibaseObject> extends AbstractSnapshotObjectsLogic<SnapshotObjectsAction, ObjectType> {
+public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends Item> extends AbstractSnapshotItemsLogic<SnapshotItemsAction, ObjectType> {
 
     /**
-     * Only requires a {@link DatabaseConnection}, but will test that it is not an OfflineConnection in {@link #getPriority(SnapshotObjectsAction, Scope)}
+     * Only requires a {@link DatabaseConnection}, but will test that it is not an OfflineConnection in {@link #getPriority(SnapshotItemsAction, Scope)}
      */
     @Override
     protected Class<? extends DatabaseConnection> getRequiredConnection() {
@@ -29,7 +30,7 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
      * Besides standard logic, will return {@link Plugin#PRIORITY_NOT_APPLICABLE} if it is an offline connection.
      */
     @Override
-    public int getPriority(SnapshotObjectsAction action, Scope scope) {
+    public int getPriority(SnapshotItemsAction action, Scope scope) {
         int priority = super.getPriority(action, scope);
 
         if (priority > PRIORITY_NOT_APPLICABLE) {
@@ -41,29 +42,29 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
     }
 
     /**
-     * Default implementation returns a {@link liquibase.actionlogic.DelegateResult} based on {@link #createSnapshotAction(ObjectReference, SnapshotObjectsAction, Scope)}  and {@link #createModifier(ObjectReference, SnapshotObjectsAction, Scope)}.
+     * Default implementation returns a {@link liquibase.actionlogic.DelegateResult} based on {@link #createSnapshotAction(DatabaseObjectReference, SnapshotItemsAction, Scope)}  and {@link #createModifier(DatabaseObjectReference, SnapshotItemsAction, Scope)}.
      */
     @Override
-    public ActionResult execute(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
-        return new DelegateResult(action, createModifier(relatedTo, action, scope), createSnapshotAction(relatedTo, action, scope));
+    public ActionResult execute(ItemReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
+        return new DelegateResult(action, createModifier((DatabaseObjectReference) relatedTo, action, scope), createSnapshotAction((DatabaseObjectReference) relatedTo, action, scope));
 
     }
 
     /**
      * Return a lower-level action that will snapshot given type relatedTo object for the action.
-     * This action will be included in the {@link DelegateResult} in {@link #execute(ObjectReference, SnapshotObjectsAction, Scope)}
+     * This action will be included in the {@link DelegateResult} in {@link AbstractSnapshotItemsLogic#execute(ItemReference, SnapshotItemsAction, Scope)}
      */
-    protected abstract liquibase.action.Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException;
+    protected abstract liquibase.action.Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException;
 
     /**
-     * Returns a {@link DelegateResult.Modifier} that will convert the raw results from the action returned by {@link #createSnapshotAction(ObjectReference, SnapshotObjectsAction, Scope)} to a more standard form.
-     * This method is used by {@link #execute(ObjectReference, SnapshotObjectsAction, Scope)}.
-     * Default implementation returns {@link RowsToObjectsModifier} which uses {@link #convertToObject(Object, ObjectReference, SnapshotObjectsAction, Scope)}
+     * Returns a {@link DelegateResult.Modifier} that will convert the raw results from the action returned by {@link #createSnapshotAction(DatabaseObjectReference, SnapshotItemsAction, Scope)} to a more standard form.
+     * This method is used by {@link AbstractSnapshotItemsLogic#execute(ItemReference, SnapshotItemsAction, Scope)}.
+     * Default implementation returns {@link RowsToObjectsModifier} which uses {@link #convertToObject(Object, DatabaseObjectReference, SnapshotItemsAction, Scope)}
      * to convert the returned QueryResult to the correct DatabaseObject.
      * <br><br>
-     * The passed action is the original action, not the one returned by {@link #createSnapshotAction(ObjectReference, SnapshotObjectsAction, Scope)}
+     * The passed action is the original action, not the one returned by {@link #createSnapshotAction(DatabaseObjectReference, SnapshotItemsAction, Scope)}
      */
-    protected DelegateResult.Modifier createModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, final Scope scope) {
+    protected DelegateResult.Modifier createModifier(DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, final Scope scope) {
         return new RowsToObjectsModifier(relatedTo, originalAction, scope);
     }
 
@@ -71,28 +72,28 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
      * Used by {@link RowsToObjectsModifier} to convert a row returned by the generated action into the final object type.
      * This method is in this class vs. on SnapshotModifier to avoid an extra subclass to create.
      */
-    protected abstract ObjectType convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException;
+    protected abstract ObjectType convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException;
 
     /**
-     * Class used by default {@link #createModifier(ObjectReference, SnapshotObjectsAction, Scope)} implementation.
+     * Class used by default {@link #createModifier(DatabaseObjectReference, SnapshotItemsAction, Scope)} implementation.
      */
     protected class RowsToObjectsModifier implements DelegateResult.Modifier {
 
-        private ObjectReference relatedTo;
-        private SnapshotObjectsAction originalAction;
+        private DatabaseObjectReference relatedTo;
+        private SnapshotItemsAction originalAction;
         private Scope scope;
 
-        public RowsToObjectsModifier(ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) {
+        public RowsToObjectsModifier(DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) {
             this.relatedTo = relatedTo;
             this.originalAction = originalAction;
             this.scope = scope;
         }
 
-        public SnapshotObjectsAction getOriginalAction() {
+        public SnapshotItemsAction getOriginalAction() {
             return originalAction;
         }
 
-        public ObjectReference getRelatedTo() {
+        public DatabaseObjectReference getRelatedTo() {
             return relatedTo;
         }
 
@@ -102,7 +103,7 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
 
         /**
          * Expects ActionResult to be a {@link RowBasedQueryResult} or a {@link CompoundResult} with just a single RowBasedQueryResult.
-         * Iterates over each row and calls {@link #convertToObject(Object, ObjectReference, SnapshotObjectsAction, Scope)}, then returns a new
+         * Iterates over each row and calls {@link #convertToObject(Object, DatabaseObjectReference, SnapshotItemsAction, Scope)}, then returns a new
          * {@link ObjectBasedQueryResult} containing the converted objects.
          */
         @Override
@@ -118,9 +119,9 @@ public  abstract class AbstractSnapshotDatabaseObjectsLogic<ObjectType extends L
                 }
             }
 
-            List<LiquibaseObject> liquibaseObjects = new ArrayList<>();
+            List<Item> liquibaseObjects = new ArrayList<>();
             for (RowBasedQueryResult.Row row : ((RowBasedQueryResult) result).getRows()) {
-                LiquibaseObject object = convertToObject(row, getRelatedTo(), getOriginalAction(), getScope());
+                Item object = convertToObject(row, getRelatedTo(), getOriginalAction(), getScope());
                 if (object != null) {
                     liquibaseObjects.add(object);
                 }

@@ -9,7 +9,7 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.ForeignKey;
+import liquibase.item.core.ForeignKey;
 import liquibase.util.StringClauses;
 
 public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyAction> {
@@ -28,7 +28,7 @@ public class DropForeignKeyLogic extends AbstractSqlBuilderLogic<DropForeignKeyA
     @Override
     public ActionResult execute(DropForeignKeyAction action, Scope scope) throws ActionPerformException {
         return new DelegateResult(action, null, new AlterTableAction(
-                action.foreignKey.getTable(),
+                action.foreignKey.getRelation(),
                 generateSql(action, scope)
         ));
     }

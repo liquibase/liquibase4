@@ -7,7 +7,7 @@ import liquibase.action.core.AddColumnsAction;
 import liquibase.actionlogic.core.AddColumnsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.structure.core.Column;
+import liquibase.item.core.Column;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 

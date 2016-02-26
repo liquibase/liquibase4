@@ -1,7 +1,7 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.core.UniqueConstraint;
+import liquibase.item.core.UniqueConstraint;
 
 import java.util.ArrayList;
 import java.util.Arrays;

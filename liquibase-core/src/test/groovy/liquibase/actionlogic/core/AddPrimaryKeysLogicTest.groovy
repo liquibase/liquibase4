@@ -12,7 +12,7 @@ class AddPrimaryKeysLogicTest extends AbstractLogicTest {
 AddPrimaryKeysAction.primaryKeys is required
 AddPrimaryKeysAction.primaryKeys.columns is required
 AddPrimaryKeysAction.primaryKeys.columns.name is required
-AddPrimaryKeysAction.primaryKeys.table is required
+AddPrimaryKeysAction.primaryKeys.relation is required
 AddPrimaryKeysAction.primaryKeys.tablespace is not supported
 AddPrimaryKeysAction.primaryKeys: adding a clustered primary key is not supported
 """.trim()

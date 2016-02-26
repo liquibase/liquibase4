@@ -5,8 +5,8 @@ import liquibase.action.Action;
 import liquibase.action.core.AddForeignKeysAction;
 import liquibase.diff.output.changelog.MissingObjectActionGenerator;
 import liquibase.snapshot.Snapshot;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.core.*;
+import liquibase.item.Item;
+import liquibase.item.core.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class MissingForeignKeyActionGenerator implements MissingObjectActionGene
 
 
     @Override
-    public int getPriority(Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public int getPriority(Class<? extends Item> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         if (ForeignKey.class.isAssignableFrom(objectType)) {
             return PRIORITY_DEFAULT;
         }
@@ -23,7 +23,7 @@ public class MissingForeignKeyActionGenerator implements MissingObjectActionGene
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runAfterTypes() {
+    public Class<? extends Item>[] runAfterTypes() {
         return new Class[] {
                 Table.class,
                 Column.class,
@@ -34,12 +34,12 @@ public class MissingForeignKeyActionGenerator implements MissingObjectActionGene
     }
 
     @Override
-    public Class<? extends LiquibaseObject>[] runBeforeTypes() {
+    public Class<? extends Item>[] runBeforeTypes() {
         return null;
     }
 
     @Override
-    public List<? extends Action> fixMissing(LiquibaseObject missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         ForeignKey fk = (ForeignKey) missingObject;
 
         ArrayList<AddForeignKeysAction> actions = new ArrayList<>();

@@ -5,8 +5,8 @@ import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
-import liquibase.structure.TestObjectReferenceSupplier
-import liquibase.structure.datatype.DataTypeLogic
+import liquibase.item.TestItemReferenceSupplier
+import liquibase.item.datatype.DataTypeLogic
 import liquibase.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -35,7 +35,7 @@ public class CodeInspector extends Specification {
                 Database,
                 DataTypeLogic,
                 ActionGenerator,
-                TestObjectReferenceSupplier,
+                TestItemReferenceSupplier,
                 AbstractActionTest.TestDetails,
         ]
     }

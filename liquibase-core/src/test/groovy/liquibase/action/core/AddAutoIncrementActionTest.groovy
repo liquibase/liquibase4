@@ -6,11 +6,12 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.core.Column
-import liquibase.structure.core.PrimaryKey
-import liquibase.structure.core.Table
-import liquibase.structure.datatype.DataType
+import liquibase.item.ItemNameStrategy
+import liquibase.item.core.Column
+import liquibase.item.core.ColumnReference
+import liquibase.item.core.PrimaryKey
+import liquibase.item.core.Table
+import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -20,7 +21,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     def "Can apply standard settings to complex names"() {
         expect:
         testAction([
-                columnName_asTable: action.column,
+                column_asTable: action.column,
         ], action, conn, scope)
 
         where:
@@ -30,9 +31,9 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
                     [it],
                     [scope],
                     createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
-                            column  : createAllPermutationsWithoutNulls(Column.ColumnReference, [
-                                    name     : getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope).collect({ it.name }).unique(),
-                                    container: getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
+                            column  : createAllPermutationsWithoutNulls(ColumnReference, [
+                                    name     : getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
+                                    container: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
                             ]),
                             dataType: [new DataType(DataType.StandardType.INTEGER)]
                     ])
@@ -73,11 +74,11 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseObjectName("table_name", Table, scope.database)
-        def columnName = standardCaseObjectName("column_name", Table, scope.database)
+        def tableName = standardCaseItemName("table_name", Table, scope.database)
+        def columnName = standardCaseItemName("column_name", Table, scope.database)
 
         createAllPermutations(AddAutoIncrementAction, [
-                column                  : [null, new Column.ColumnReference(null, columnName), new Column.ColumnReference(tableName, columnName)],
+                column                  : [null, new ColumnReference(columnName, null), new ColumnReference(tableName, columnName)],
                 dataType                : [null, new DataType(DataType.StandardType.INTEGER)],
                 autoIncrementInformation: CollectionUtil.addNull(createAllPermutations(Column.AutoIncrementInformation, [
                         startWith  : [null, 1, 2, 10],
@@ -87,11 +88,11 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     }
 
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
-        Column.ColumnReference columnName = ((AddAutoIncrementAction) action).column
+        ColumnReference columnName = ((AddAutoIncrementAction) action).column
         Snapshot snapshot = new Snapshot(scope)
-        snapshot.add(new Table(columnName.relation))
-        snapshot.add(new Column(columnName.relation, "id", "int"))
-        snapshot.add(new Column(columnName.relation, columnName.name, "int"))
+        snapshot.add(new Table(columnName.relation.name, columnName.relation.container))
+        snapshot.add(new Column("id", columnName.relation, DataType.parse("int"), false))
+        snapshot.add(new Column(columnName.name, columnName.relation, DataType.parse("int"), false))
 
         if (((TestDetails) getTestDetails(scope)).createPrimaryKeyBeforeAutoIncrement()) {
             snapshot.add(new PrimaryKey(null, columnName.container, columnName.name))

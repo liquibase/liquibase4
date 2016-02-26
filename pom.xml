@@ -58,25 +58,25 @@
 
     <modules>
         <module>liquibase-core</module>
-        <module>liquibase-maven-plugin</module>
-        <module>liquibase-osgi</module>
-        <module>liquibase-cdi</module>
-        <module>liquibase-integration-tests</module>
-        <module>liquibase-debian</module>
+        <!--<module>liquibase-maven-plugin</module>-->
+        <!--<module>liquibase-osgi</module>-->
+        <!--<module>liquibase-cdi</module>-->
+        <!--<module>liquibase-integration-tests</module>-->
+        <!--<module>liquibase-debian</module>-->
 
-        <module>liquibase-asany</module>
-        <module>liquibase-db2</module>
-        <module>liquibase-derby</module>
-        <module>liquibase-firebird</module>
+        <!--<module>liquibase-asany</module>-->
+        <!--<module>liquibase-db2</module>-->
+        <!--<module>liquibase-derby</module>-->
+        <!--<module>liquibase-firebird</module>-->
         <module>liquibase-h2</module>
-        <module>liquibase-hsql</module>
-        <module>liquibase-informix</module>
-        <module>liquibase-mssql</module>
+        <!--<module>liquibase-hsql</module>-->
+        <!--<module>liquibase-informix</module>-->
+        <!--<module>liquibase-mssql</module>-->
         <module>liquibase-mysql</module>
-        <module>liquibase-oracle</module>
-        <module>liquibase-postgresql</module>
-        <module>liquibase-sqlite</module>
-        <module>liquibase-sybase</module>
+        <!--<module>liquibase-oracle</module>-->
+        <!--<module>liquibase-postgresql</module>-->
+        <!--<module>liquibase-sqlite</module>-->
+        <!--<module>liquibase-sybase</module>-->
 
         <module>liquibase-all</module>
     </modules>

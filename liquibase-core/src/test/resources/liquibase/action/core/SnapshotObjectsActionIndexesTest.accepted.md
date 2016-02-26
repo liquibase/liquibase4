@@ -95,19 +95,17 @@
 
 - **connection:** generic[config:standard]
 
-| Permutation | Verified | indexName                                 | OPERATIONS
-| :---------- | :------- | :---------------------------------------- | :------
-| 3286dd      | Generic  | KNOWN_TABLE.4TEST_index                   | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| 1b98d6      | Generic  | KNOWN_TABLE.4test_index                   | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| 79462a      | Generic  | KNOWN_TABLE.ANOTHERUPPERINDEX             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| b9c7d9      | Generic  | KNOWN_TABLE.AnotherMixedIndex             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| e64834      | Generic  | KNOWN_TABLE.CRAZY!@#\$%^&*()_+{}[]'"INDEX | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| 5bd445      | Generic  | KNOWN_TABLE.MixedIndex                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| e139ef      | Generic  | KNOWN_TABLE.UPPERINDEX                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| 8180aa      | Generic  | KNOWN_TABLE.anotherlowerindex             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| 73be1c      | Generic  | KNOWN_TABLE.crazy!@#\$%^&*()_+{}[]'"index | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| d40f14      | Generic  | KNOWN_TABLE.lowerindex                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| cfab30      | Generic  | KNOWN_TABLE.only_in_LBSCHEMA              | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
-| f7640e      | Generic  | KNOWN_TABLE.only_in_LBSCHEMA2             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| Permutation | Verified | index                                        | OPERATIONS
+| :---------- | :------- | :------------------------------------------- | :------
+| 8167cb      | Generic  | 4TEST_index on KNOWN_TABLE                   | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 1c1eb9      | Generic  | 4test_index on KNOWN_TABLE                   | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 746d32      | Generic  | ANOTHERUPPERINDEX on KNOWN_TABLE             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 64eff7      | Generic  | AnotherMixedIndex on KNOWN_TABLE             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| e0185b      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"INDEX on KNOWN_TABLE | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| d4f5e4      | Generic  | MixedIndex on KNOWN_TABLE                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 336e69      | Generic  | UPPERINDEX on KNOWN_TABLE                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 0212b9      | Generic  | anotherlowerindex on KNOWN_TABLE             | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| 7825fa      | Generic  | crazy!@#\$%^&*()_+{}[]'"index on KNOWN_TABLE | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
+| f0d4a1      | Generic  | lowerindex on KNOWN_TABLE                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
 
-# Test Version: "8cd43c" #
+# Test Version: "37b860" #

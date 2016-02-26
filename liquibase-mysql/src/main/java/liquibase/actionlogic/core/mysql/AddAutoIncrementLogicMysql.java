@@ -10,7 +10,7 @@ import liquibase.actionlogic.core.AddAutoIncrementLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.Column;
+import liquibase.item.core.Column;
 import liquibase.util.StringClauses;
 
 public class AddAutoIncrementLogicMysql extends AddAutoIncrementLogic {

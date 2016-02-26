@@ -14,11 +14,11 @@ import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin
 import liquibase.snapshot.Snapshot
-import liquibase.structure.LiquibaseObject
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
-import liquibase.structure.TestObjectReferenceSupplierFactory
-import liquibase.structure.core.*
+import liquibase.item.Item
+import liquibase.item.ItemNameStrategy
+import liquibase.item.ItemReference
+import liquibase.item.TestItemReferenceSupplierFactory
+import liquibase.item.core.*
 import liquibase.test.TestObjectFactory
 import liquibase.util.CollectionUtil
 import liquibase.util.StringUtils
@@ -109,15 +109,15 @@ abstract class AbstractActionTest extends Specification {
         JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(type, defaultValues)
     }
 
-    protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, Scope scope) {
-        return scope.getSingleton(TestObjectReferenceSupplierFactory).getObjectReferenceSupplier(objectType, scope).getObjectNames(objectType, scope)
+    protected List<ItemReference> getItemReferences(Class<? extends Item> itemType, List<? extends ItemReference> containers, ItemNameStrategy strategy, Scope scope) {
+        return scope.getSingleton(TestItemReferenceSupplierFactory).getItemReferenceSupplier(itemType, scope).getItemReferences(itemType, containers, strategy, scope)
     }
 
-    protected List<ObjectReference> getObjectNames(Class<? extends LiquibaseObject> objectType, ObjectNameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestObjectReferenceSupplierFactory).getObjectReferenceSupplier(objectType, scope).getObjectNames(objectType, strategy, scope)
+    protected List<String> getItemNames(Class<? extends Item> itemType, ItemNameStrategy strategy, Scope scope) {
+        return scope.getSingleton(TestItemReferenceSupplierFactory).getItemReferenceSupplier(itemType, scope).getItemNames(itemType, strategy, scope)
     }
 
-    protected String standardCaseObjectName(String name, Class<? extends LiquibaseObject> type, Database database) {
+    protected String standardCaseItemName(String name, Class<? extends Item> type, Database database) {
         if (name == null) {
             return null;
         }
@@ -146,7 +146,7 @@ abstract class AbstractActionTest extends Specification {
             throw SetupResult.OK;
         }
 
-        for (ObjectReference name : supplier.getAllSchemas()) {
+        for (ItemReference name : supplier.getAllSchemas()) {
             new DropAllCommand(name).execute(scope);
         }
 
@@ -182,7 +182,7 @@ abstract class AbstractActionTest extends Specification {
         return scope.getSingleton(AbstractActionTest.TestDetailsFactory).getTestDetails(this, scope)
     }
 
-    String concatConsistantCaseObjectName(String baseName, String stringToAdd) {
+    String concatConsistantCase(String baseName, String stringToAdd) {
         if (baseName.matches(/[^A-Z]+/)) { //keep it lower case
             return baseName + stringToAdd.toLowerCase()
         } else { //mixed case or all caps. Use upper case

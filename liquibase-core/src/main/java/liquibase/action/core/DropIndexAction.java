@@ -1,21 +1,19 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Index;
+import liquibase.item.core.IndexReference;
 
 /**
  * Drops an existing index.
  */
 public class DropIndexAction extends AbstractAction {
 
-    public Index.IndexReference index;
-    public ObjectReference associatedWith;
+    public IndexReference index;
 
     public DropIndexAction() {
     }
 
-    public DropIndexAction(Index.IndexReference index) {
+    public DropIndexAction(IndexReference index) {
         this.index = index;
     }
 }

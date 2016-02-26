@@ -15,7 +15,7 @@ AddUniqueConstraintsAction.uniqueConstraints.columns is required
 AddUniqueConstraintsAction.uniqueConstraints.deferrable is not supported
 AddUniqueConstraintsAction.uniqueConstraints.disabled is not supported
 AddUniqueConstraintsAction.uniqueConstraints.initiallyDeferred is not supported
-AddUniqueConstraintsAction.uniqueConstraints.table is required
+AddUniqueConstraintsAction.uniqueConstraints.relation is required
 AddUniqueConstraintsAction.uniqueConstraints.tablespace is not supported
 """.trim()
     }

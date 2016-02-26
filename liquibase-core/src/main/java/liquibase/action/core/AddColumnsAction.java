@@ -1,10 +1,10 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.UniqueConstraint;
+import liquibase.item.core.Column;
+import liquibase.item.core.ForeignKey;
+import liquibase.item.core.PrimaryKey;
+import liquibase.item.core.UniqueConstraint;
 
 import java.util.ArrayList;
 import java.util.Arrays;

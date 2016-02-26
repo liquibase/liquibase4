@@ -1,8 +1,8 @@
 package liquibase.util;
 
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -229,11 +229,17 @@ public class ObjectUtil {
                 return (T) (Boolean) (lowerCase.equals("true") || lowerCase.equals("t") || lowerCase.equals("1") || lowerCase.equals("1.0") || lowerCase.equals("yes"));
             } else if (targetClass.isAssignableFrom(String.class)) {
                 return (T) object.toString();
-            } else if (targetClass.isAssignableFrom(ObjectReference.class)) {
+            } else if (targetClass.isAssignableFrom(ItemReference.class)) {
                 if (object instanceof String) {
-                    return (T) new ObjectReference(LiquibaseObject.class, (String) object);
+                    try {
+                        Item newInstance = (Item) targetClass.getConstructor().newInstance();
+                        newInstance.set("name", object);
+                        return (T) newInstance;
+                    } catch (Exception e) {
+                        throw new UnexpectedLiquibaseException(e);
+                    }
                 } else {
-                    throw new UnexpectedLiquibaseException("Cannot convert "+ object.getClass()+" to "+ObjectReference.class.getName());
+                    throw new UnexpectedLiquibaseException("Cannot convert "+ object.getClass()+" to "+ItemReference.class.getName());
                 }
             } else if (targetClass.isAssignableFrom(List.class)) {
                 if (object instanceof List) {

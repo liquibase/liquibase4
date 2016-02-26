@@ -6,7 +6,7 @@ import liquibase.action.core.AddForeignKeysAction;
 import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
-import liquibase.structure.core.ForeignKey;
+import liquibase.item.core.ForeignKey;
 
 public class AddForeignKeysLogicMysql extends AddForeignKeysLogic {
 
@@ -23,11 +23,11 @@ public class AddForeignKeysLogicMysql extends AddForeignKeysLogic {
                 continue;
             }
 
-            if (fk.updateRule == ForeignKey.ConstraintType.importedKeySetDefault) {
+            if (fk.updateRule == ForeignKey.ReferentialAction.setDefault) {
                 errors.addUnsupportedError("update rule SET DEFAULT");
             }
 
-            if (fk.deleteRule == ForeignKey.ConstraintType.importedKeySetDefault) {
+            if (fk.deleteRule == ForeignKey.ReferentialAction.setDefault) {
                 errors.addUnsupportedError("delete rule SET DEFAULT");
             }
         }

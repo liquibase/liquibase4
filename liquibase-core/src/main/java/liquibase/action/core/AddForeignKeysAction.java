@@ -1,7 +1,7 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.core.ForeignKey;
+import liquibase.item.core.ForeignKey;
 
 import java.util.ArrayList;
 import java.util.Arrays;

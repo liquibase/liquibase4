@@ -4,13 +4,13 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.ValidationErrors
 import liquibase.action.*
-import liquibase.action.core.SnapshotObjectsAction
+import liquibase.action.core.SnapshotItemsAction
 import liquibase.database.MockJdbcConnection
 import liquibase.database.core.GenericDatabase
 import liquibase.database.core.MockDatabase
 import liquibase.exception.ActionPerformException
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Table
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -249,6 +249,6 @@ class ActionExecutorTest extends Specification {
 
         where:
         action                                                                             | expected
-        new SnapshotObjectsAction(new ObjectReference(Table, "table_schem", "table_name")) | "Execute getTables(null, table_schem, table\\_name, [TABLE]) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic"
+        new SnapshotItemsAction(new RelationReference(Table, "table_schem", "table_name")) | "Execute getTables(null, table_schem, table\\_name, [TABLE]) with liquibase.actionlogic.core.QueryJdbcMetaDataLogic"
     }
 }

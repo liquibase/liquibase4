@@ -5,9 +5,11 @@ import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Schema;
+import liquibase.item.DatabaseObject;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.Schema;
 import liquibase.util.StringUtils;
 
 import java.util.Date;
@@ -19,7 +21,7 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
     private DatabaseConnection connection;
 
     private boolean caseSensitive;
-    private Map<Class<? extends LiquibaseObject>, Boolean> supports = new HashMap<>();
+    private Map<Class<? extends Item>, Boolean> supports = new HashMap<>();
     private boolean supportsAutoIncrement = true;
 
 
@@ -37,11 +39,11 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
         return "Mock Database";
     }
 
-    public LiquibaseObject[] getContainingObjects() {
+    public Item[] getContainingObjects() {
         return null;
     }
 
-    public boolean equals(final LiquibaseObject otherObject, final Database accordingTo) {
+    public boolean equals(final Item otherObject, final Database accordingTo) {
         return otherObject.getName().equalsIgnoreCase(this.getName());
     }
 
@@ -75,12 +77,12 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
     }
 
     @Override
-    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope) {
+    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends Item> type, boolean quoted, Scope scope) {
         return IdentifierCaseHandling.CASE_SENSITIVE;
     }
 
     @Override
-    public boolean isValidObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type, Scope scope) {
+    public boolean isValidObjectName(String name, boolean quoted, Class<? extends Item> type, Scope scope) {
         return true;
     }
 
@@ -131,36 +133,36 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
     }
 
     @Override
-    public boolean isSystemObject(final ObjectReference object, Scope scope) {
+    public boolean isSystemObject(final ItemReference object, Scope scope) {
         return false;
     }
 
     @Override
-    public boolean isLiquibaseObject(final ObjectReference object, Scope scope) {
+    public boolean isLiquibaseObject(final ItemReference object, Scope scope) {
         return false;
     }
 
     @Override
-    public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {
+    public boolean supports(Class<? extends Item> type, Scope scope) {
         if (supports.containsKey(type)) {
             return supports.get(type);
         }
         return true;
     }
 
-    public MockDatabase setSupports(Class<? extends LiquibaseObject> type, Boolean supports) {
+    public MockDatabase setSupports(Class<? extends Item> type, Boolean supports) {
         this.supports.put(type, supports);
         return this;
     }
 
     @Override
-    public String quoteObjectName(final String objectName, final Class<? extends LiquibaseObject> objectType, Scope scope) {
+    public String quoteObjectName(final String objectName, final Class<? extends DatabaseObject> objectType, Scope scope) {
         return "`" + objectName + "`";
     }
 
     @Override
-    public String quoteObjectName(ObjectReference objectReference, Scope scope) {
-        return StringUtils.join(objectReference.asList(), ".", new StringUtils.ObjectNameFormatter(objectReference.type, scope));
+    public String quoteObjectName(DatabaseObjectReference reference, Scope scope) {
+        return StringUtils.join(reference.asList(), ".", new StringUtils.DatabaseObjectNameFormatter(reference.type, scope));
     }
 
     @Override

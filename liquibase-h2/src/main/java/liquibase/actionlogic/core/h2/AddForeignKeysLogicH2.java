@@ -6,7 +6,7 @@ import liquibase.action.core.AddForeignKeysAction;
 import liquibase.actionlogic.core.AddForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.structure.core.ForeignKey;
+import liquibase.item.core.ForeignKey;
 import liquibase.util.StringClauses;
 
 public class AddForeignKeysLogicH2 extends AddForeignKeysLogic {
@@ -23,8 +23,8 @@ public class AddForeignKeysLogicH2 extends AddForeignKeysLogic {
             if (fk == null) {
                 continue;
             }
-            errors.addError(fk.updateRule != null && fk.updateRule == ForeignKey.ConstraintType.importedKeyNoAction, ": ON UPDATE NO ACTION is not supported");
-            errors.addError(fk.deleteRule != null && fk.deleteRule== ForeignKey.ConstraintType.importedKeyNoAction, ": ON DELETE NO ACTION is not supported");
+            errors.addError(fk.updateRule != null && fk.updateRule == ForeignKey.ReferentialAction.noAction, ": ON UPDATE NO ACTION is not supported");
+            errors.addError(fk.deleteRule != null && fk.deleteRule== ForeignKey.ReferentialAction.noAction, ": ON DELETE NO ACTION is not supported");
         }
 
             return errors;

@@ -11,8 +11,9 @@ import liquibase.actionlogic.core.CreateTableLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.PrimaryKey;
+import liquibase.item.core.Column;
+import liquibase.item.core.ColumnReference;
+import liquibase.item.core.PrimaryKey;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringClauses;
 
@@ -65,7 +66,7 @@ public class CreateTableLogicH2 extends CreateTableLogic {
             String columnRemarks = column.remarks;
             if (columnRemarks != null) {
                 SetColumnRemarksAction remarksAction = new SetColumnRemarksAction();
-                remarksAction.column = new Column.ColumnReference(action.table.name, column.name);
+                remarksAction.column = new ColumnReference(action.table.name, column.name);
                 remarksAction.remarks = columnRemarks;
                 result.addActions(remarksAction);
             }

@@ -3335,4 +3335,4 @@
 | c310f8      | Generic  | ID TO ID_REF | null       | null                  | null              | test_fk | LBSCHEMA2.REF_TABLE | LBSCHEMA2.BASE_TABLE | importedKeySetNull    | **plan**: ALTER TABLE "LBSCHEMA2"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "LBSCHEMA2"."REF_TABLE" ("ID_REF") ON UPDATE SET NULL
 | 1782f5      | Generic  | ID TO ID_REF | null       | null                  | null              | test_fk | LBSCHEMA2.REF_TABLE | LBSCHEMA2.BASE_TABLE | null                  | **plan**: ALTER TABLE "LBSCHEMA2"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "LBSCHEMA2"."REF_TABLE" ("ID_REF")
 
-# Test Version: "517f8c" #
+# Test Version: "2f1f80" #

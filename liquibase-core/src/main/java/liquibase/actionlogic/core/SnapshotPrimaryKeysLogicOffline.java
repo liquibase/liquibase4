@@ -1,15 +1,12 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogicOffline;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Catalog;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.Relation;
-import liquibase.structure.core.Schema;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.core.*;
 
 public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObjectsLogicOffline<PrimaryKey> {
 
@@ -19,7 +16,7 @@ public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObj
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 PrimaryKey.class,
                 Relation.class,
@@ -29,28 +26,28 @@ public class SnapshotPrimaryKeysLogicOffline extends AbstractSnapshotDatabaseObj
     }
 
     @Override
-    public boolean executeInteractsExternally(SnapshotObjectsAction action, Scope scope) {
+    public boolean executeInteractsExternally(SnapshotItemsAction action, Scope scope) {
         return true;
     }
 
     @Override
-    protected boolean isRelatedTo(PrimaryKey primaryKey, ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) {
+    protected boolean isRelatedTo(PrimaryKey primaryKey, DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) {
         if (relatedTo.instanceOf(PrimaryKey.class)) {
-            return primaryKey.getName().equals(relatedTo.name);
+            return primaryKey.toReference().equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Relation.class)) {
-            ObjectReference tableName = primaryKey.table;
-            return tableName != null && tableName.equals((relatedTo));
+            RelationReference tableName = primaryKey.relation;
+            return tableName != null && tableName.equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Schema.class)) {
-            ObjectReference tableName = primaryKey.table;
-            return tableName != null && tableName.container != null && tableName.container.equals((relatedTo.container));
+            SchemaReference schema = primaryKey.getSchema();
+            return schema != null && schema.equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Catalog.class)) {
-            ObjectReference tableName = primaryKey.table;
+            RelationReference tableName = primaryKey.relation;
             if (tableName == null || tableName.container == null) {
                 return false;
             }
-            ObjectReference schemaName = tableName.container;
+            SchemaReference schemaName = tableName.getSchema();
 
-            return schemaName.container != null && schemaName.container.equals((relatedTo.container));
+            return schemaName.container != null && schemaName.container.equals(relatedTo.container, true);
         } else {
             throw new UnexpectedLiquibaseException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }

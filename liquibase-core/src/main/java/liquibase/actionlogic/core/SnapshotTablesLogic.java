@@ -3,16 +3,17 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogic;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Catalog;
-import liquibase.structure.core.Schema;
-import liquibase.structure.core.Table;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.core.Catalog;
+import liquibase.item.core.Schema;
+import liquibase.item.core.SchemaReference;
+import liquibase.item.core.Table;
 import liquibase.util.StringUtils;
 import liquibase.util.Validate;
 
@@ -29,7 +30,7 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 Schema.class,
                 Catalog.class,
@@ -38,7 +39,7 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         String catalogName = null;
         String schemaName = null;
         String tableName = null;
@@ -72,7 +73,7 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
     }
 
     @Override
-    protected Table convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Table convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String rawTableName = row.get("TABLE_NAME", String.class);
@@ -83,20 +84,20 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
             remarks = remarks.replace("''", "'"); //come back escaped sometimes
         }
 
-        ObjectReference container;
+        SchemaReference schema;
         if (!scope.getDatabase().supports(Schema.class, scope)) {
-            container = null;
+            schema = null;
         } else if (!scope.getDatabase().supports(Catalog.class, scope)) {
             if (rawCatalogName != null && rawSchemaName == null) {
-                container = new ObjectReference(Schema.class, rawCatalogName);
+                schema = new SchemaReference(rawCatalogName);
             } else {
-                container = new ObjectReference(Schema.class, rawSchemaName);
+                schema = new SchemaReference(rawSchemaName);
             }
         } else {
-            container = new ObjectReference(Schema.class, new ObjectReference(Catalog.class, rawCatalogName), rawSchemaName);
+            schema = new SchemaReference(rawCatalogName, rawSchemaName);
         }
 
-        Table table = new Table(new ObjectReference(Table.class, container, rawTableName));
+        Table table = new Table(rawTableName, schema);
         table.remarks = remarks;
 
         if ("Y".equals(row.get("TEMPORARY", String.class))) {

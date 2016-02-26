@@ -1,7 +1,7 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
+import liquibase.item.core.RelationReference;
 import liquibase.util.StringClauses;
 
 /**
@@ -9,13 +9,13 @@ import liquibase.util.StringClauses;
  */
 public class AlterTableAction extends AbstractAction {
 
-    public ObjectReference table;
+    public RelationReference table;
     public StringClauses newDefinition;
 
     public AlterTableAction() {
     }
 
-    public AlterTableAction(ObjectReference table, StringClauses newDefinition) {
+    public AlterTableAction(RelationReference table, StringClauses newDefinition) {
         this.table = table;
         this.newDefinition = newDefinition;
     }

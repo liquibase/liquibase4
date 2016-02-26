@@ -10,8 +10,8 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
+import liquibase.item.core.Column;
 import liquibase.snapshot.SnapshotFactory;
-import liquibase.structure.core.Column;
 import liquibase.util.StringClauses;
 
 public class AddAutoIncrementLogic extends AbstractSqlBuilderLogic<AddAutoIncrementAction> {

@@ -10,9 +10,10 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.Index;
+import liquibase.item.core.Column;
+import liquibase.item.core.Index;
+import liquibase.item.core.IndexReference;
+import liquibase.item.core.RelationReference;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtils;
@@ -39,7 +40,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
     public ValidationErrors validate(CreateIndexesAction action, final Scope scope) {
         final ValidationErrors validationErrors = super.validate(action, scope)
                 .checkRequiredFields("indexes.columns", "indexes.columns.name",
-                        "indexes.table");
+                        "indexes.relation");
 
         final Database database = scope.getDatabase();
 
@@ -85,8 +86,8 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
     protected StringClauses generateSql(Index index, CreateIndexesAction action, final Scope scope) {
         final Database database = scope.getDatabase();
-        ObjectReference indexName = index.toReference();
-        ObjectReference tableName = index.table;
+        IndexReference indexName = index.toReference();
+        RelationReference tableName = index.relation;
         String tablespace = index.tablespace;
 
 

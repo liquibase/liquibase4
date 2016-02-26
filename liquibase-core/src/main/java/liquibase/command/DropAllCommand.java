@@ -5,9 +5,10 @@ import liquibase.ValidationErrors;
 import liquibase.action.core.DropForeignKeyAction;
 import liquibase.action.core.DropTableAction;
 import liquibase.actionlogic.ActionExecutor;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.Table;
+import liquibase.item.ItemReference;
+import liquibase.item.core.ForeignKey;
+import liquibase.item.core.ForeignKeyReference;
+import liquibase.item.core.Table;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,12 +19,12 @@ import java.util.Set;
  */
 public class DropAllCommand extends AbstractCommand {
 
-    public Set<ObjectReference> containers = new HashSet<>();
+    public Set<ItemReference> containers = new HashSet<>();
 
     public DropAllCommand() {
     }
 
-    public DropAllCommand(ObjectReference... containers) {
+    public DropAllCommand(ItemReference... containers) {
         if (containers != null) {
             this.containers.addAll(Arrays.asList(containers));
         }
@@ -42,7 +43,7 @@ public class DropAllCommand extends AbstractCommand {
         SnapshotCommand.SnapshotCommandResult snapshotResult = snapshotCommand.execute(scope);
 
         for (ForeignKey foreignKey : snapshotResult.snapshot.get(ForeignKey.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction((ForeignKey.ForeignKeyReference) foreignKey.toReference()), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction((ForeignKeyReference) foreignKey.toReference()), scope);
         }
 
         for (Table table : snapshotResult.snapshot.get(Table.class)) {

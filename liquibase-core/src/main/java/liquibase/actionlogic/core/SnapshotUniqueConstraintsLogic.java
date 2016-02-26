@@ -3,13 +3,14 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
 import liquibase.util.StringClauses;
 import liquibase.util.Validate;
 
@@ -31,7 +32,7 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 UniqueConstraint.class,
                 Relation.class,
@@ -41,7 +42,7 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
 
         String catalogName = null;
@@ -108,7 +109,7 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
     }
 
     @Override
-    protected UniqueConstraint convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected UniqueConstraint convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String relatedToUniqueConstraintName = null;
@@ -129,14 +130,14 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
             return null;
         }
 
-        UniqueConstraint.UniqueConstraintReference objectReference;
+        UniqueConstraintReference uqRef;
         if (tableCat != null && tableSchema == null) {
-            objectReference = new UniqueConstraint.UniqueConstraintReference(new ObjectReference(Table.class, tableCat, tableName), constraintName);
+            uqRef = new UniqueConstraintReference(constraintName, new RelationReference(Table.class, tableCat, tableName));
         } else {
-            objectReference = new UniqueConstraint.UniqueConstraintReference(new ObjectReference(Table.class, tableCat, tableSchema, tableName), constraintName);
+            uqRef = new UniqueConstraintReference(constraintName, new RelationReference(Table.class, tableCat, tableSchema, tableName));
         }
 
-        UniqueConstraint fk = new UniqueConstraint(objectReference);
+        UniqueConstraint fk = new UniqueConstraint(uqRef.name, uqRef.container);
         fk.columns.add(columnName);
         fk.deferrable = isDeferrable;
         fk.initiallyDeferred = initiallyDeferred;
@@ -145,12 +146,12 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
     }
 
     @Override
-    protected DelegateResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
+    protected DelegateResult.Modifier createModifier(DatabaseObjectReference relatedTo, final SnapshotItemsAction originalAction, Scope scope) {
         return new RowsToObjectsModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
                 List<UniqueConstraint> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(UniqueConstraint.class);
-                Map<ObjectReference, UniqueConstraint> combinedResults = new HashMap<>();
+                Map<UniqueConstraintReference, UniqueConstraint> combinedResults = new HashMap<>();
                 for (UniqueConstraint uniqueConstraint : rawResults) {
                     UniqueConstraint existingUq = combinedResults.get(uniqueConstraint.toReference());
                     if (existingUq == null) {

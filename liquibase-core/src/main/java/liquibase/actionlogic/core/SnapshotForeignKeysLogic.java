@@ -3,13 +3,14 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.*;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
 import liquibase.util.Validate;
 
 import java.sql.DatabaseMetaData;
@@ -26,7 +27,7 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 ForeignKey.class,
                 Relation.class,
@@ -36,7 +37,7 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         String catalogName = null;
         String schemaName = null;
         String tableName = null;
@@ -46,7 +47,7 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
             List<String> names = relatedTo.asList(2);
             catalogName = names.get(0);
             schemaName = names.get(1);
-        } else if (relatedTo.instanceOf(Table.class)) {
+        } else if (relatedTo.instanceOf(Relation.class)) {
             List<String> names = relatedTo.asList(3);
             catalogName = names.get(0);
             schemaName = names.get(1);
@@ -72,7 +73,7 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
     }
 
     @Override
-    protected ForeignKey convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected ForeignKey convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         String relatedToForeignKeyName = null;
@@ -98,40 +99,40 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
             return null;
         }
 
-        ForeignKey.ForeignKeyReference objectReference;
+        ForeignKeyReference fkRef;
         if (fkTableCat != null && fkTableSchema == null) {
-            objectReference = new ForeignKey.ForeignKeyReference(fkTableCat, fkTableName, fkName);
+            fkRef = new ForeignKeyReference(fkTableCat, fkTableName, fkName);
         } else {
-            objectReference = new ForeignKey.ForeignKeyReference(fkTableCat, fkTableSchema, fkTableName, fkName);
+            fkRef = new ForeignKeyReference(fkTableCat, fkTableSchema, fkTableName, fkName);
         }
 
-        ObjectReference refTableObjectReference;
+        RelationReference refTableRef;
         if (pkTableCat != null && pkTableSchema == null) {
-            refTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableName);
+            refTableRef = new RelationReference(Table.class, pkTableCat, pkTableName);
         } else {
-            refTableObjectReference = new ObjectReference(Table.class, pkTableCat, pkTableSchema, pkTableName);
+            refTableRef = new RelationReference(Table.class, pkTableCat, pkTableSchema, pkTableName);
         }
 
-        ForeignKey fk = new ForeignKey(objectReference);
-        fk.referencedTable = refTableObjectReference;
+        ForeignKey fk = new ForeignKey(fkRef.name, fkRef.container);
+        fk.referencedTable = refTableRef;
         fk.columnChecks.add(new ForeignKey.ForeignKeyColumnCheck(fkColumnName, pkColumnName));
 
         if (updateRule != null) {
             switch (updateRule) {
                 case(DatabaseMetaData.importedKeyNoAction):
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    fk.updateRule = ForeignKey.ReferentialAction.noAction;
                     break;
                 case(DatabaseMetaData.importedKeyCascade):
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    fk.updateRule = ForeignKey.ReferentialAction.cascade;
                     break;
                 case(DatabaseMetaData.importedKeySetNull):
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    fk.updateRule = ForeignKey.ReferentialAction.setNull;
                     break;
                 case(DatabaseMetaData.importedKeySetDefault):
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    fk.updateRule = ForeignKey.ReferentialAction.setDefault;
                     break;
                 case(DatabaseMetaData.importedKeyRestrict):
-                    fk.updateRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    fk.updateRule = ForeignKey.ReferentialAction.restrict;
                     break;
             }
         }
@@ -139,19 +140,19 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
         if (deleteRule != null) {
             switch (deleteRule) {
                 case(DatabaseMetaData.importedKeyNoAction):
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyNoAction;
+                    fk.deleteRule = ForeignKey.ReferentialAction.noAction;
                     break;
                 case(DatabaseMetaData.importedKeyCascade):
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyCascade;
+                    fk.deleteRule = ForeignKey.ReferentialAction.cascade;
                     break;
                 case(DatabaseMetaData.importedKeySetNull):
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetNull;
+                    fk.deleteRule = ForeignKey.ReferentialAction.setNull;
                     break;
                 case(DatabaseMetaData.importedKeySetDefault):
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeySetDefault;
+                    fk.deleteRule = ForeignKey.ReferentialAction.setDefault;
                     break;
                 case(DatabaseMetaData.importedKeyRestrict):
-                    fk.deleteRule = ForeignKey.ConstraintType.importedKeyRestrict;
+                    fk.deleteRule = ForeignKey.ReferentialAction.restrict;
                     break;
             }
         }
@@ -176,12 +177,12 @@ public class SnapshotForeignKeysLogic extends AbstractSnapshotDatabaseObjectsLog
 }
 
     @Override
-    protected DelegateResult.Modifier createModifier(ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
+    protected DelegateResult.Modifier createModifier(DatabaseObjectReference relatedTo, final SnapshotItemsAction originalAction, Scope scope) {
         return new RowsToObjectsModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
                 List<ForeignKey> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(ForeignKey.class);
-                Map<ObjectReference, ForeignKey> combinedResults = new HashMap<>();
+                Map<ForeignKeyReference, ForeignKey> combinedResults = new HashMap<>();
                 for (ForeignKey foreignKey : rawResults) {
                     ForeignKey existingPk = combinedResults.get(foreignKey.toReference());
                     if (existingPk == null) {

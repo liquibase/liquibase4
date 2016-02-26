@@ -6,7 +6,7 @@ import liquibase.action.core.AddPrimaryKeysAction;
 import liquibase.actionlogic.core.AddPrimaryKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.structure.core.PrimaryKey;
+import liquibase.item.core.PrimaryKey;
 import liquibase.util.StringClauses;
 
 public class AddPrimaryKeysLogicH2 extends AddPrimaryKeysLogic {

@@ -3,7 +3,7 @@ package liquibase.diff.output.changelog;
 import liquibase.Scope;
 import liquibase.plugin.Plugin;
 import liquibase.snapshot.Snapshot;
-import liquibase.structure.LiquibaseObject;
+import liquibase.item.Item;
 
 /**
  * Base interface for all classes that generate actions for missing/unexpected/changed objects.
@@ -13,18 +13,18 @@ import liquibase.structure.LiquibaseObject;
  */
 public interface ActionGenerator extends Plugin {
 
-    int getPriority(Class<? extends LiquibaseObject> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
+    int getPriority(Class<? extends Item> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
 
     /**
      * Returns the classes which should be handled by other ActionGenerators before this implementation runs.
      * Return null if there are no prerequisites.
      */
-    Class<? extends LiquibaseObject>[] runAfterTypes();
+    Class<? extends Item>[] runAfterTypes();
 
     /**
      * Returns the classes which should be handled by other ActionGenerators after this implementation runs.
      * Return null if any can be ran after this.
      */
-    Class<? extends LiquibaseObject>[] runBeforeTypes();
+    Class<? extends Item>[] runBeforeTypes();
 
 }

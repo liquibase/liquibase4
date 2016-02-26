@@ -2,7 +2,7 @@ package liquibase.action;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
-import liquibase.structure.ObjectReference;
+import liquibase.item.ItemReference;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtils;
 
@@ -122,7 +122,7 @@ public class ActionStatus {
     /**
      * Compares the given property in to ExtensibleObjects.
      * Does not support and therefore does not check Collection values.
-     * For {@link ObjectReference} does a "fuzzy" equals.
+     * For {@link ItemReference} does a "fuzzy" equals.
      */
     public ActionStatus assertPropertyCorrect(ExtensibleObject correctObject, ExtensibleObject objectToCheck, String propertyName) {
         Object correctValue = correctObject.get(propertyName, Object.class);
@@ -136,8 +136,8 @@ public class ActionStatus {
         if (correctValue == null) {
             correct = checkValue == null;
         } else {
-            if (correctValue instanceof ObjectReference) {
-                correct = ((ObjectReference) correctValue).equals((ObjectReference) checkValue, true);
+            if (correctValue instanceof ItemReference) {
+                correct = ((ItemReference) correctValue).equals((ItemReference) checkValue, true);
             } else {
                 correct = correctValue.equals(checkValue);
             }

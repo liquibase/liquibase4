@@ -7,13 +7,13 @@ import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.snapshot.Snapshot
-import liquibase.structure.ObjectNameStrategy
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.ForeignKey
-import liquibase.structure.core.Index
-import liquibase.structure.core.Table
-import liquibase.structure.datatype.DataType
+import liquibase.item.ItemNameStrategy
+import liquibase.item.core.Column
+import liquibase.item.core.ForeignKey
+import liquibase.item.core.Index
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
+import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
 import spock.lang.Unroll
 
@@ -24,17 +24,17 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         when:
         def action = new AddForeignKeysAction()
 
-        def pkTable = new Table(tableName.container, concatConsistantCaseObjectName(tableName.name, "_ref"))
+        def pkTable = new Table(concatConsistantCase(tableName.name, "_ref"), tableName.container)
 
-        def foreignKey = new ForeignKey(tableName, pkTable.toReference(), fkName, [columnName], [concatConsistantCaseObjectName(columnName, "_ref")])
+        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName], [concatConsistantCase(columnName, "_ref")])
 
         action.foreignKeys = [foreignKey]
 
         then:
         testAction([
-                fkName_asTable    : fkName.toString(),
-                tableName_asTable : tableName.toString(),
-                columnName_asTable: columnName.toString()
+                fk_asTable    : fkName.toString(),
+                table_asTable : tableName.toString(),
+                column_asTable: columnName.toString()
         ], action, conn, scope)
 
         where:
@@ -43,37 +43,37 @@ class AddForeignKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getObjectNames(Column, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
-                    getObjectNames(Table, ObjectNameStrategy.COMPLEX_NAMES, scope),
-                    getObjectNames(ForeignKey, ObjectNameStrategy.COMPLEX_NAMES, scope)*.name.unique(),
+                    getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(ForeignKey, ItemNameStrategy.COMPLEX_NAMES, scope),
             ])
         }
 
     }
 
-    @Unroll("#featureName: add to #schemaName on #conn")
+    @Unroll("#featureName: add to #schema on #conn")
     def "Can apply multiple columns with standard settings"() {
         when:
         def action = new AddForeignKeysAction()
-        def tableName = new ObjectReference(Table, schemaName, standardCaseObjectName("table_name", Table, scope.database))
-        def fkName = standardCaseObjectName("fk_test", ForeignKey, scope.database)
-        def columnName = standardCaseObjectName("col_name", Column, scope.database)
+        def tableName = new RelationReference(Table, standardCaseItemName("table_name", Table, scope.database), schema)
+        def fkName = standardCaseItemName("fk_test", ForeignKey, scope.database)
+        def columnName = standardCaseItemName("col_name", Column, scope.database)
 
-        def pkTable = new Table(tableName.container, concatConsistantCaseObjectName(tableName.name, "_ref"))
+        def pkTable = new Table(concatConsistantCase(tableName.name, "_ref"), tableName.container)
 
-        def foreignKey = new ForeignKey(tableName, pkTable.toReference(), fkName, [columnName, columnName + "_2"], [concatConsistantCaseObjectName(columnName, "_ref"), concatConsistantCaseObjectName(columnName, "_2_ref")])
+        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName, columnName + "_2"], [concatConsistantCase(columnName, "_ref"), concatConsistantCase(columnName, "_2_ref")])
 
         action.foreignKeys = [foreignKey]
 
 
         then:
         testAction([
-                schemaName_asTable: schemaName
+                schema_asTable: schema
         ], action, conn, scope)
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.objectNameStrategy, ObjectNameStrategy.COMPLEX_NAMES)
+        [conn, scope, schema] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.itemNameStrategy, ItemNameStrategy.COMPLEX_NAMES)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
@@ -88,7 +88,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         expect:
         testAction([
                 name_asTable             : action.foreignKeys*.name,
-                table_asTable            : action.foreignKeys*.table,
+                table_asTable            : action.foreignKeys*.relation,
                 referencedTable_asTable  : action.foreignKeys*.referencedTable,
                 columnChecks_asTable     : action.foreignKeys*.columnChecks,
                 deferrable_asTable       : action.foreignKeys*.deferrable,
@@ -111,22 +111,22 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def baseTableName = standardCaseObjectName("base_table", Table, scope.database)
-        def refTableName = standardCaseObjectName("ref_table", Table, scope.database)
+        def baseTableName = standardCaseItemName("base_table", Table, scope.database)
+        def refTableName = standardCaseItemName("ref_table", Table, scope.database)
 
-        def baseColumnName = standardCaseObjectName("id", Column, scope.database)
-        def refColumnName = standardCaseObjectName("id_ref", Column, scope.database)
+        def baseColumnName = standardCaseItemName("id", Column, scope.database)
+        def refColumnName = standardCaseItemName("id_ref", Column, scope.database)
 
         return createAllPermutations(AddForeignKeysAction, [
                 foreignKeys: CollectionUtil.toSingletonLists(createAllPermutations(ForeignKey, [
                         name             : ["test_fk"],
-                        table            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new ObjectReference(Table, it, baseTableName) })),
-                        referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new ObjectReference(Table, it, refTableName) })),
+                        relation            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, baseTableName, it) })),
+                        referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, refTableName, it) })),
                         columnChecks     : [[new ForeignKey.ForeignKeyColumnCheck(baseColumnName, refColumnName)]],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],
-                        updateRule       : [ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
-                        deleteRule       : [ForeignKey.ConstraintType.importedKeyCascade, ForeignKey.ConstraintType.importedKeyNoAction, ForeignKey.ConstraintType.importedKeyRestrict, ForeignKey.ConstraintType.importedKeySetDefault, ForeignKey.ConstraintType.importedKeySetNull],
+                        updateRule       : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
+                        deleteRule       : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
                 ]))
         ])
     }
@@ -136,25 +136,25 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         Snapshot snapshot = new Snapshot(scope)
         def seenTables = new HashSet()
         for (def fk : ((AddForeignKeysAction) action).foreignKeys) {
-            def baseTableName = fk.table
+            def baseTableName = fk.relation
             def refTableName = fk.referencedTable
             def index;
             for (def check : fk.columnChecks) {
                 if (index == null) {
-                    index = new Index(refTableName, concatConsistantCaseObjectName(refTableName.name, "_idx"))
+                    index = new Index(concatConsistantCase(refTableName.name, "_idx"), refTableName)
                 }
 
-                if (!seenTables.contains(baseTableName)) {
-                    snapshot.add(new Table(baseTableName))
+                if (seenTables.add(baseTableName)) {
+                    snapshot.add(new Table(baseTableName.name, baseTableName.container))
                 }
-                if (!seenTables.contains(refTableName)) {
-                    snapshot.add(new Table(refTableName))
+                if (seenTables.add(refTableName)) {
+                    snapshot.add(new Table(refTableName.name, refTableName.container))
                 }
 
                 index.columns.add(new Index.IndexedColumn(check.referencedColumn)) //index, not PK to support nulls
 
-                snapshot.add(new Column(baseTableName, check.baseColumn, new DataType(DataType.StandardType.INTEGER), true))
-                snapshot.add(new Column(refTableName, check.referencedColumn, new DataType(DataType.StandardType.INTEGER), true))
+                snapshot.add(new Column(check.baseColumn, baseTableName, new DataType(DataType.StandardType.INTEGER), true))
+                snapshot.add(new Column(check.referencedColumn, refTableName, new DataType(DataType.StandardType.INTEGER), true))
             }
 
             snapshot.add(index)

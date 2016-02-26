@@ -1,7 +1,7 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.core.Sequence;
+import liquibase.item.core.Sequence;
 
 import java.util.ArrayList;
 import java.util.Arrays;

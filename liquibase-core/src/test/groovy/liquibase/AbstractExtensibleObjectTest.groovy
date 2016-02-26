@@ -3,8 +3,8 @@ package liquibase
 import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.CreateTableAction
 import liquibase.action.core.DropTableAction
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.*
+import liquibase.item.ItemReference
+import liquibase.item.core.*
 import spock.lang.Specification
 
 import static org.hamcrest.Matchers.containsInAnyOrder
@@ -48,7 +48,7 @@ class AbstractExtensibleObjectTest extends Specification {
         fieldObject.set("value2", 2)
         fieldObject.set("startWith", 12)
         fieldObject.autoIncrementInformation = new Column.AutoIncrementInformation(null, new BigInteger(32))
-        fieldObject.column = new Column.ColumnReference("x", "y")
+        fieldObject.column = new ColumnReference("x", "y")
 
         then:
         that nonFieldObject.getAttributeNames(), containsInAnyOrder(["value1", "value2", "value3"] as String[])
@@ -138,22 +138,22 @@ class AbstractExtensibleObjectTest extends Specification {
     def "nested properties work"() {
         when:
         def obj = new CreateTableAction()
-        obj.table = new Table(new ObjectReference(Schema, "schema_name"), "test_table")
-        obj.uniqueConstraints = [new UniqueConstraint(null, new ObjectReference(Table, "test_table"), "col1a", "col1b"), new UniqueConstraint(null, new ObjectReference(Table, "test_table"), "col2")]
+        obj.table = new Table("test_table", new SchemaReference("schema_name"))
+        obj.uniqueConstraints = [new UniqueConstraint(null, new RelationReference(Table, "test_table"), "col1a", "col1b"), new UniqueConstraint(null, new RelationReference(Table, "test_table"), "col2")]
         obj.foreignKeys = [
-                new ForeignKey(new ObjectReference(Table, "base_table1"), new ObjectReference(Table, "ref_table1"), "fk1", ["base_1"], ["ref_1"]),
-                new ForeignKey(new ObjectReference(Table, "base_table2"), new ObjectReference(Table, "ref_table2"), "fk2", ["base_2a", "base_2b"], ["ref_2a", "ref_2b"]),
+                new ForeignKey("fk1", new RelationReference(Table, "base_table1"), new RelationReference(Table, "ref_table1"), ["base_1"], ["ref_1"]),
+                new ForeignKey("fk2", new RelationReference(Table, "base_table2"), new RelationReference(Table, "ref_table2"), ["base_2a", "base_2b"], ["ref_2a", "ref_2b"]),
         ]
 
         then:
         obj.get("table.name", String.class) == "test_table"
         obj.get("table.schema.name", String.class) == "schema_name"
-        obj.get("table.schema.container", ObjectReference.class) == null
+        obj.get("table.schema.container", ItemReference.class) == null
         obj.get("table.primaryKey.tablespace", String.class) == null //nulls in the chain return null
         obj.get("uniqueConstraints.name", List) == [null, null]
         obj.get("uniqueConstraints.columns", List) == ["col1a", "col1b", "col2"]
         obj.get("foreignKeys.name", List) == ["fk1", "fk2"]
-        obj.get("foreignKeys.table", List) == [new ObjectReference(Table, "base_table1"), new ObjectReference(Table, "base_table2")]
+        obj.get("foreignKeys.relation", List) == [new RelationReference(Table, "base_table1"), new RelationReference(Table, "base_table2")]
         obj.get("foreignKeys.columnChecks.baseColumn", List) == ["base_1", "base_2a", "base_2b"]
         obj.get("foreignKeys.columnChecks.referencedColumn", List) == ["ref_1", "ref_2a", "ref_2b"]
 

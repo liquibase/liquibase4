@@ -3,10 +3,10 @@ package liquibase.test
 import liquibase.JUnitScope
 import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.DropTableAction
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Column
-import liquibase.structure.core.Table
-import liquibase.structure.datatype.DataType
+import liquibase.item.core.ColumnReference
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
+import liquibase.item.datatype.DataType
 import spock.lang.Specification
 
 class TestObjectFactoryTest extends Specification {
@@ -14,7 +14,7 @@ class TestObjectFactoryTest extends Specification {
     def "createAllPermutations"() {
         when:
         def permutations = JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(DropTableAction, [
-                table             : [new ObjectReference(Table, "table1"), new ObjectReference(Table, "table2"), new ObjectReference(Table, "table3")],
+                table             : [new RelationReference(Table, "table1"), new RelationReference(Table, "table2"), new RelationReference(Table, "table3")],
                 cascadeConstraints: [true, false],
         ])
 
@@ -28,7 +28,7 @@ class TestObjectFactoryTest extends Specification {
     def "createAllPermutationsWithoutNulls"() {
         when:
         def permutations = JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutationsWithoutNulls(DropTableAction, [
-                table             : [new ObjectReference(Table, "table1"), new ObjectReference(Table, "table2"), new ObjectReference(Table, "table3")],
+                table             : [new RelationReference(Table, "table1"), new RelationReference(Table, "table2"), new RelationReference(Table, "table3")],
                 cascadeConstraints: [true, false],
         ])
 
@@ -43,9 +43,9 @@ class TestObjectFactoryTest extends Specification {
         when:
         def testObjectFactory = JUnitScope.instance.getSingleton(TestObjectFactory)
         def permutations = testObjectFactory.createAllPermutations(AddAutoIncrementAction, [
-                column  : testObjectFactory.createAllPermutations(Column.ColumnReference, [
+                column  : testObjectFactory.createAllPermutations(ColumnReference, [
                         name     : ["a", "b", "c"],
-                        container: [new ObjectReference(Table, "x"), new ObjectReference(Table, "y"), new ObjectReference(Table, "z")],
+                        container: [new RelationReference(Table, "x"), new RelationReference(Table, "y"), new RelationReference(Table, "z")],
                 ]),
                 dataType: [new DataType(DataType.StandardType.INTEGER)]
         ])

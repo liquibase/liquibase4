@@ -10,7 +10,7 @@ import liquibase.actionlogic.core.DropIndexLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.Index;
+import liquibase.item.core.Index;
 
 public class DropIndexLogicMysql extends DropIndexLogic {
 
@@ -33,7 +33,7 @@ public class DropIndexLogicMysql extends DropIndexLogic {
                 "DROP INDEX "
                         + database.quoteObjectName(action.index.name, Index.class, scope)
                         + " ON "
-                        + database.quoteObjectName(action.index.getTable(), scope)));
+                        + database.quoteObjectName(action.index.getRelation(), scope)));
 
     }
 }

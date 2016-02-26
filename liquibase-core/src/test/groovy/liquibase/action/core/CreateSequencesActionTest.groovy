@@ -1,6 +1,6 @@
 package liquibase.action.core
 
-import liquibase.structure.core.Sequence
+import liquibase.item.core.Sequence
 import spock.lang.Specification
 import spock.lang.Unroll
 

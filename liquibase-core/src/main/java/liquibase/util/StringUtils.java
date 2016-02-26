@@ -4,8 +4,10 @@ import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.core.GenericDatabase;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
+import liquibase.item.DatabaseObject;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -365,13 +367,13 @@ public class StringUtils {
         }
     }
 
-    public static class ObjectNameFormatter implements StringUtilsFormatter {
+    public static class DatabaseObjectNameFormatter implements StringUtilsFormatter {
 
         private Database database;
-        private Class<? extends LiquibaseObject> objectType;
+        private Class<? extends DatabaseObject> objectType;
         private Scope scope;
 
-        public ObjectNameFormatter(Class<? extends LiquibaseObject> objectType, Scope scope) {
+        public DatabaseObjectNameFormatter(Class<? extends DatabaseObject> objectType, Scope scope) {
             this.objectType = objectType;
             this.database = scope.getDatabase();
             this.scope = scope;
@@ -385,19 +387,12 @@ public class StringUtils {
         public String toString(Object obj) {
             if (obj == null) {
                 return null;
-            } else if (obj instanceof ObjectReference) {
-                return database.quoteObjectName((ObjectReference) obj, scope);
+            } else if (obj instanceof DatabaseObjectReference) {
+                return database.quoteObjectName((DatabaseObjectReference) obj, scope);
             } else {
                 return database.quoteObjectName(obj.toString(), objectType, scope);
             }
         }
-    }
-
-    public static String limitSize(String string, int maxLength) {
-        if (string.length() > maxLength) {
-            return string.substring(0, maxLength - 3) + "...";
-        }
-        return string;
     }
 
 }

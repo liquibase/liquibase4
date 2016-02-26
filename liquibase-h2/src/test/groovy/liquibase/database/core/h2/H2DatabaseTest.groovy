@@ -1,8 +1,8 @@
 package liquibase.database.core.h2
 
 import liquibase.JUnitScope
-import liquibase.structure.ObjectReference
-import liquibase.structure.core.Table
+import liquibase.item.core.RelationReference
+import liquibase.item.core.Table
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -16,7 +16,7 @@ class H2DatabaseTest extends Specification {
         where:
         ref                                      | expected
         null                                     | null
-        new ObjectReference(Table, "TEST_TABLE") | "\"TEST_TABLE\""
-        new ObjectReference(Table, "test_table") | "\"test_table\""
+        new RelationReference(Table, "TEST_TABLE") | "\"TEST_TABLE\""
+        new RelationReference(Table, "test_table") | "\"test_table\""
     }
 }

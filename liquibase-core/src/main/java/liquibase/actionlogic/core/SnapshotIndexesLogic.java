@@ -3,13 +3,14 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.QueryJdbcMetaDataAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.*;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
 import liquibase.util.StringUtils;
 import liquibase.util.Validate;
 
@@ -24,7 +25,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 PrimaryKey.class,
                 Index.class,
@@ -35,39 +36,39 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
     }
 
     @Override
-    public ActionResult execute(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(ItemReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         if (relatedTo.instanceOf(PrimaryKey.class)) {
-            return new DelegateResult(action, new PrimaryKeyIndexModifier(action), new SnapshotObjectsAction(Index.class, relatedTo.container), new SnapshotObjectsAction(relatedTo));
+            return new DelegateResult(action, new PrimaryKeyIndexModifier(action), new SnapshotItemsAction(Index.class, relatedTo.container), new SnapshotItemsAction(relatedTo));
         } else {
             return super.execute(relatedTo, action, scope);
         }
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
 
         final Boolean DEFAULT_UNIQUE_PARAM = Boolean.FALSE;
         final Boolean DEFAULT_APPROX_PARAM = Boolean.TRUE;
 
-        Index.IndexReference objectReference;
-        if (relatedTo.instanceOf(Catalog.class)) {
+        IndexReference indexRef;
+        if (relatedTo instanceof CatalogReference) {
             if (!scope.getDatabase().supports(Catalog.class, scope)) {
                 throw new ActionPerformException("Cannot snapshot catalogs on " + scope.getDatabase().getShortName());
             }
-            objectReference = new Index.IndexReference(new ObjectReference(Schema.class, relatedTo, null), null);
-        } else if (relatedTo.instanceOf(Schema.class)) {
-            objectReference = new Index.IndexReference(new ObjectReference(Table.class, relatedTo, null), null);
-        } else if (relatedTo.instanceOf(Table.class)) {
-            objectReference = new Index.IndexReference(relatedTo, null);
-        } else if (relatedTo.instanceOf(Index.class)) {
-            objectReference = new Index.IndexReference(relatedTo.container, relatedTo.name);
-        } else if (relatedTo.instanceOf(PrimaryKey.class)) {
-            objectReference = new Index.IndexReference(relatedTo.container, null);
+            indexRef = new IndexReference(null, new RelationReference(Table.class, null, new SchemaReference(null, (CatalogReference) relatedTo)));
+        } else if (relatedTo instanceof SchemaReference) {
+            indexRef = new IndexReference(null, new RelationReference(Table.class, null, (SchemaReference) relatedTo));
+        } else if (relatedTo instanceof RelationReference) {
+            indexRef = new IndexReference(null, (RelationReference) relatedTo);
+        } else if (relatedTo instanceof IndexReference) {
+            indexRef = new IndexReference(relatedTo.name, ((IndexReference) relatedTo).container);
+        } else if (relatedTo instanceof PrimaryKeyReference) {
+            indexRef = new IndexReference(null, ((PrimaryKeyReference) relatedTo).container);
         } else {
             throw Validate.failure("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
 
-        List<String> nameParts = objectReference.asList(4);
+        List<String> nameParts = indexRef.asList(4);
 
         if (scope.getDatabase().supports(Catalog.class, scope)) {
             return createSnapshotAction(nameParts.get(0), nameParts.get(1), nameParts.get(2), nameParts.get(3), DEFAULT_UNIQUE_PARAM, DEFAULT_APPROX_PARAM, scope);
@@ -85,7 +86,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
     }
 
     @Override
-    protected Index convertToObject(Object object, ObjectReference relatedTo, SnapshotObjectsAction originalAction, Scope scope) throws ActionPerformException {
+    protected Index convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) object;
 
         short type = row.get("TYPE", Short.class);
@@ -117,16 +118,16 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
         }
 
 
-        Index.IndexReference indexReference;
+        IndexReference indexReference;
         if (tableCat != null && tableSchema == null) {
-            indexReference = new Index.IndexReference(new ObjectReference(Table.class, tableCat, tableName), indexName);
+            indexReference = new IndexReference(indexName, new RelationReference(Table.class, tableCat, tableName));
         } else {
-            indexReference = new Index.IndexReference(new ObjectReference(Table.class, tableCat, tableSchema, tableName), indexName);
+            indexReference = new IndexReference(indexName, new RelationReference(Table.class, tableCat, tableSchema, tableName));
         }
 
-        Index index = new Index(indexReference);
+        Index index = new Index(indexReference.name, indexReference.container);
         if (indexQualifier != null) {
-            index.indexContainer = new ObjectReference(Schema.class, indexQualifier);
+            index.indexSchema = new SchemaReference(indexQualifier);
         }
         index.unique = !nonUnique;
         index.clustered = type == DatabaseMetaData.tableIndexClustered;
@@ -148,7 +149,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
     }
 
     @Override
-    protected DelegateResult.Modifier createModifier(final ObjectReference relatedTo, final SnapshotObjectsAction originalAction, Scope scope) {
+    protected DelegateResult.Modifier createModifier(final DatabaseObjectReference relatedTo, final SnapshotItemsAction originalAction, Scope scope) {
         return new RowsToObjectsModifier(relatedTo, originalAction, scope) {
             @Override
             public ActionResult rewrite(ActionResult result) throws ActionPerformException {
@@ -157,11 +158,11 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
                 }
 
                 List<Index> rawResults = ((ObjectBasedQueryResult) super.rewrite(result)).asList(Index.class);
-                Map<Index.IndexReference, Index> combinedResults = new HashMap<>();
+                Map<IndexReference, Index> combinedResults = new HashMap<>();
                 for (Index Index : rawResults) {
                     Index existingPk = combinedResults.get(Index.toReference());
                     if (existingPk == null) {
-                        combinedResults.put((Index.IndexReference) Index.toReference(), Index);
+                        combinedResults.put((IndexReference) Index.toReference(), Index);
                     } else {
                         existingPk.columns.addAll(Index.columns);
                     }
@@ -190,9 +191,9 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
     }
 
     private static class PrimaryKeyIndexModifier implements DelegateResult.Modifier {
-        private SnapshotObjectsAction originalAction;
+        private SnapshotItemsAction originalAction;
 
-        public PrimaryKeyIndexModifier(SnapshotObjectsAction originalAction) {
+        public PrimaryKeyIndexModifier(SnapshotItemsAction originalAction) {
             this.originalAction = originalAction;
         }
 
@@ -203,7 +204,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
             List<Index> indexes = new ArrayList<>();
 
             for (ActionResult subresult : nestedResults) {
-                Class<? extends LiquibaseObject> type = ((SnapshotObjectsAction) subresult.getSourceAction()).typeToSnapshot;
+                Class<? extends Item> type = ((SnapshotItemsAction) subresult.getSourceAction()).typeToSnapshot;
                 if (type.isAssignableFrom(PrimaryKey.class)) {
                     primaryKeys.addAll(((ObjectBasedQueryResult) subresult).asList(PrimaryKey.class));
                 } else if (type.isAssignableFrom(Index.class)) {
@@ -227,7 +228,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
         }
 
         protected boolean isBackingIndex(Index index, PrimaryKey primaryKey) {
-            if (!index.table.equals(primaryKey.table, true)) {
+            if (!index.relation.equals(primaryKey.relation, true)) {
                 return false;
             }
             if (index.columns.size() != primaryKey.columns.size()) {

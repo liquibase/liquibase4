@@ -1,16 +1,16 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
+import liquibase.item.core.SequenceReference;
 
 /**
  * Action to drop an existing sequence.
  */
 public class DropSequenceAction extends AbstractAction {
 
-    public ObjectReference sequence;
+    public SequenceReference sequence;
 
-    public DropSequenceAction(ObjectReference sequence) {
+    public DropSequenceAction(SequenceReference sequence) {
         this.sequence = sequence;
     }
 

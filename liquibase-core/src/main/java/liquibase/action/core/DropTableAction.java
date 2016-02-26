@@ -1,19 +1,19 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
+import liquibase.item.core.RelationReference;
 
 /**
  * Drop an existing table
  */
 public class DropTableAction extends AbstractAction {
-    public ObjectReference table;
+    public RelationReference table;
     public Boolean cascadeConstraints;
 
     public DropTableAction() {
     }
 
-    public DropTableAction(ObjectReference table) {
+    public DropTableAction(RelationReference table) {
         this.table = table;
     }
 

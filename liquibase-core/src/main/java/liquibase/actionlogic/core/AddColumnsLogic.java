@@ -9,13 +9,9 @@ import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.PrimaryKey;
-import liquibase.structure.core.UniqueConstraint;
-import liquibase.structure.datatype.DataType;
-import liquibase.structure.datatype.DataTypeLogicFactory;
+import liquibase.item.core.*;
+import liquibase.item.datatype.DataType;
+import liquibase.item.datatype.DataTypeLogicFactory;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
@@ -45,7 +41,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         Database database = scope.getDatabase();
         ValidationErrors errors = super.validate(action, scope)
                 .checkRequiredFields("columns", "columns.name", "columns.type",
-                        "columns.table", "columns.table.name");
+                        "columns.relation", "columns.table.name");
 
         if (!database.supports(Database.Feature.AUTO_INCREMENT, scope)) {
             errors.checkUnsupportedFields("columns.autoIncrement");
@@ -77,7 +73,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
             errors.checkField("foreignKeys", new ValidationErrors.FieldCheck<ForeignKey>() {
                 @Override
                 public String check(ForeignKey fk) {
-                    if (fk.updateRule == ForeignKey.ConstraintType.importedKeySetNull) {
+                    if (fk.updateRule == ForeignKey.ReferentialAction.setNull) {
                         for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
                             for (Column column : action.columns) {
                                 if (column.name.equals(check.baseColumn)) {
@@ -91,7 +87,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                         }
                     }
 
-                    if (fk.deleteRule == ForeignKey.ConstraintType.importedKeySetNull) {
+                    if (fk.deleteRule == ForeignKey.ReferentialAction.setNull) {
                         for (ForeignKey.ForeignKeyColumnCheck check : fk.columnChecks) {
                             for (Column column : action.columns) {
                                 if (column.name.equals(check.baseColumn)) {
@@ -170,12 +166,12 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         ActionExecutor executor = scope.getSingleton(ActionExecutor.class);
         try {
             for (Column actionColumn : action.columns) {
-                snapshotColumns.add(executor.query(new SnapshotObjectsAction(actionColumn.toReference()), scope).asObject(Column.class));
+                snapshotColumns.add(executor.query(new SnapshotItemsAction(actionColumn.toReference()), scope).asObject(Column.class));
             }
 
             PrimaryKey snapshotPK = null;
             if (action.primaryKey != null) {
-                snapshotPK = executor.query(new SnapshotObjectsAction(PrimaryKey.class, action.primaryKey.table), scope).asObject(PrimaryKey.class);
+                snapshotPK = executor.query(new SnapshotItemsAction(PrimaryKey.class, action.primaryKey.relation), scope).asObject(PrimaryKey.class);
             }
 
             for (int i = 0; i < snapshotColumns.size(); i++) {
@@ -242,7 +238,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
     protected void createAddColumnsActions(AddColumnsAction action, Scope scope, List<Action> actions) {
         for (Column column : action.columns) {
             actions.add(new AlterTableAction(
-                    column.table,
+                    column.relation,
                     getColumnClause(column, action, scope)));
         }
     }
@@ -251,7 +247,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         StringClauses clauses = new StringClauses(" ");
         Database database = scope.getDatabase();
 
-        ObjectReference columnName = column.toReference();
+        ColumnReference columnName = column.toReference();
         DataType columnType = column.type;
 
         boolean markPrimaryKey = canInlinePrimaryKey(action) && isPrimaryKey(column, action);

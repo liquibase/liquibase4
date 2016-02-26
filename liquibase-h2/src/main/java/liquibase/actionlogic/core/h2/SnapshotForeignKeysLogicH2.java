@@ -3,15 +3,14 @@ package liquibase.actionlogic.core.h2;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.QuerySqlAction;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.ForeignKey;
-import liquibase.structure.core.Schema;
-import liquibase.structure.core.Table;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
 import liquibase.util.StringClauses;
 
 public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
@@ -23,7 +22,7 @@ public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
     }
 
     @Override
-    protected Action createSnapshotAction(ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) throws ActionPerformException {
+    protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
         StringClauses query = new StringClauses(" ").append("SELECT PKTABLE_CATALOG PKTABLE_CAT, " +
                 "PKTABLE_SCHEMA PKTABLE_SCHEM, " +
@@ -42,14 +41,14 @@ public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
                 "FROM INFORMATION_SCHEMA.CROSS_REFERENCES");
         if (relatedTo.instanceOf(ForeignKey.class)) {
             if (relatedTo.name== null) {
-                ObjectReference baseTable = ((ForeignKey.ForeignKeyReference) relatedTo).container;
+                ItemReference baseTable = ((ForeignKeyReference) relatedTo).container;
                 query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope))
                         .append("AND FKTABLE_NAME=" + database.quoteString(baseTable.name, scope));
             } else {
                 query.append("WHERE FK_NAME=" + database.quoteString(relatedTo.name, scope))
                         .append("AND FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
             }
-        } else if (relatedTo.instanceOf(Table.class)) {
+        } else if (relatedTo instanceof RelationReference) {
             query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope))
                     .append("AND FKTABLE_NAME=" + database.quoteString(relatedTo.name, scope));
         } else if (relatedTo.instanceOf(Schema.class)) {

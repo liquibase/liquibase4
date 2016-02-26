@@ -1,10 +1,12 @@
 package liquibase.database;
 
 import liquibase.Scope;
+import liquibase.item.DatabaseObject;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
+import liquibase.item.core.*;
 import liquibase.plugin.AbstractPlugin;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +89,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Default implementation returns true for all object types except {@link Catalog}
      */
     @Override
-    public boolean supports(Class<? extends LiquibaseObject> type, Scope scope) {
+    public boolean supports(Class<? extends Item> type, Scope scope) {
         if (type.isAssignableFrom(Catalog.class)) {
             return false;
         }
@@ -130,7 +132,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Always returns true if willQuote is true. Otherwise, require the name to start with a non-number and not be a reserved word.
      */
     @Override
-    public boolean isValidObjectName(String objectName, boolean willQuote, Class<? extends LiquibaseObject> type, Scope scope) {
+    public boolean isValidObjectName(String objectName, boolean willQuote, Class<? extends Item> type, Scope scope) {
         if (willQuote) {
             return true;
         } else {
@@ -143,7 +145,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * If connection is not set or is not a {@link JdbcConnection}, returns {@link liquibase.database.Database.IdentifierCaseHandling#CASE_SENSITIVE} if quoted and {@link liquibase.database.Database.IdentifierCaseHandling#UPPERCASE} for unquoted names
      */
     @Override
-    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope) {
+    public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends Item> type, boolean quoted, Scope scope) {
         IdentifierCaseHandling DEFAULT_QUOTED_HANDLING = IdentifierCaseHandling.CASE_SENSITIVE;
         IdentifierCaseHandling DEFAULT_UNQUOTED_HANDLING = IdentifierCaseHandling.UPPERCASE;
 
@@ -227,7 +229,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Normally subclasses only need to override {@link #isSystemSchema(String, Scope)}
      */
     @Override
-    public boolean isSystemObject(ObjectReference object, Scope scope) {
+    public boolean isSystemObject(ItemReference object, Scope scope) {
         if (object == null) {
             return false;
         }
@@ -242,14 +244,14 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
     }
 
     /**
-     * Used by {@link #isSystemObject(ObjectReference, Scope)}. Default implementation returns true for "information_schema"
+     * Used by {@link #isSystemObject(ItemReference, Scope)}. Default implementation returns true for "information_schema"
      */
     protected boolean isSystemSchema(String schemaName, Scope scope) {
         return schemaName.equalsIgnoreCase("information_schema");
     }
 
     @Override
-    public boolean isLiquibaseObject(final ObjectReference object, Scope scope) {
+    public boolean isLiquibaseObject(final ItemReference object, Scope scope) {
 //        if (Table.class.isAssignableFrom(object.type)) {
 //            Schema liquibaseSchema = new Schema(new ObjectReference(getLiquibaseCatalogName()), getLiquibaseSchemaName());
 ////            if (DatabaseObjectComparatorFactory.getInstance().isSameObject(object, new Table(new ObjectName(getDatabaseChangeLogTableName())).setSchema(liquibaseSchema), this)) {
@@ -284,7 +286,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * If quoting char is ", replace quotes in object name with double quotes. Otherwise, replace identifierStartQuote and identifierEndQuote chars with backslashed versions.
      */
     @Override
-    public String quoteObjectName(String objectName, final Class<? extends LiquibaseObject> objectType, Scope scope) {
+    public String quoteObjectName(String objectName, final Class<? extends DatabaseObject> objectType, Scope scope) {
         if (objectName == null) {
             return null;
         }
@@ -302,28 +304,28 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
     }
 
     /**
-     * Uses {@link #quoteObjectName(String, Class, Scope)} to quote all levels of the objectReference.
-     * Only quotes levels in the objectReference up to the length returned by {@link #getMaxObjectPathLength(Class, Scope)}
+     * Uses {@link Database#quoteObjectName(String, Class, Scope)} to quote all levels of the {@link ItemReference}.
+     * Only quotes levels in the reference up to the length returned by {@link #getMaxObjectPathLength(Class, Scope)}
      */
     @Override
-    public String quoteObjectName(ObjectReference objectReference, Scope scope) {
-        if (objectReference == null) {
+    public String quoteObjectName(DatabaseObjectReference reference, Scope scope) {
+        if (reference == null) {
             return null;
         }
-        Class<? extends LiquibaseObject> objectType = objectReference.type;
+        Class<? extends DatabaseObject> objectType = reference.type;
         if (objectType == null) {
-            objectType = LiquibaseObject.class;
+            objectType = DatabaseObject.class;
         }
 
-        return StringUtils.join(objectReference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtils.ObjectNameFormatter(objectType, scope));
+        return StringUtils.join(reference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtils.DatabaseObjectNameFormatter(objectType, scope));
     }
 
 
     /**
      * If the objectType is a Column, PrimaryKey or UniqueConstraint then return 1. Otherwise, checks if the database supports Catalogs and/or Schemas to determine the length.
-     * Used by {@link #quoteObjectName(ObjectReference, Scope)}
+     * Used by {@link Database#quoteObjectName(DatabaseObjectReference, Scope)}
      */
-    protected int getMaxObjectPathLength(Class<? extends LiquibaseObject> objectType, Scope scope) {
+    protected int getMaxObjectPathLength(Class<? extends Item> objectType, Scope scope) {
         if (Column.class.isAssignableFrom(objectType) || PrimaryKey.class.isAssignableFrom(objectType) || UniqueConstraint.class.isAssignableFrom(objectType)) {
             return 1;
         } else {

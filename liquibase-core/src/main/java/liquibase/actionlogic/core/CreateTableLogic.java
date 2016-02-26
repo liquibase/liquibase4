@@ -9,8 +9,8 @@ import liquibase.action.core.*;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
-import liquibase.structure.core.*;
-import liquibase.structure.datatype.DataTypeLogicFactory;
+import liquibase.item.core.*;
+import liquibase.item.datatype.DataTypeLogicFactory;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
@@ -69,11 +69,11 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         ActionStatus result = new ActionStatus();
 
         try {
-            Table snapshotTable = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(action.table.toReference()), scope).asObject(Table.class);
+            Table snapshotTable = scope.getSingleton(ActionExecutor.class).query(new SnapshotItemsAction(action.table.toReference()), scope).asObject(Table.class);
             if (snapshotTable == null) {
                 return result.assertCorrect(false, "Table "+action.table.toReference()+" was not found");
             }
-            List<Column> snapshotColumns = scope.getSingleton(ActionExecutor.class).query(new SnapshotObjectsAction(Column.class, action.table.toReference()), scope).asList(Column.class);
+            List<Column> snapshotColumns = scope.getSingleton(ActionExecutor.class).query(new SnapshotItemsAction(Column.class, action.table.toReference()), scope).asList(Column.class);
 
             result.assertCorrect(action.table, snapshotTable);
             result.assertCorrect(action.columns.size(), snapshotColumns.size(), "Column size incorrect");

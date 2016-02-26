@@ -2,9 +2,11 @@ package liquibase.database;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
+import liquibase.item.DatabaseObject;
+import liquibase.item.DatabaseObjectReference;
 import liquibase.plugin.Plugin;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 
 import java.util.Date;
 
@@ -55,7 +57,7 @@ public interface Database extends Plugin, ExtensibleObject {
     /**
      * Returns true if the database supports the given object type
      */
-    boolean supports(Class<? extends LiquibaseObject> type, Scope scope);
+    boolean supports(Class<? extends Item> type, Scope scope);
 
     /**
      * Returns database-specific function for generating the current date/time.
@@ -70,12 +72,12 @@ public interface Database extends Plugin, ExtensibleObject {
     /**
      * Return true if the given object is a system object. System objects should not be included in snapshots
      */
-    boolean isSystemObject(ObjectReference object, Scope scope);
+    boolean isSystemObject(ItemReference object, Scope scope);
 
     /**
      * Return true if the given object is used by liquibase. Examples include the databasechangelog and databasechangeloglock tables.
      */
-    boolean isLiquibaseObject(ObjectReference object, Scope scope);
+    boolean isLiquibaseObject(ItemReference object, Scope scope);
 
     /**
      * Return true if the given string is a reserved word
@@ -102,14 +104,14 @@ public interface Database extends Plugin, ExtensibleObject {
      * The name is assumed to be a simple object name, it is not parsed or checked for existing quoting or schema separators etc.
      * Method should check {@link liquibase.Scope.Attr#quotingStrategy} to determine how to quote the object.
      */
-    String quoteObjectName(String objectName, Class<? extends LiquibaseObject> objectType, Scope scope);
+    String quoteObjectName(String objectName, Class<? extends DatabaseObject> objectType, Scope scope);
 
     /**
      * Quote the given object reference.
      * Normally include all container levels quoted as well, unless the database in scope doesn't support fully qualified names for that object type.
      * Method should check {@link liquibase.Scope.Attr#quotingStrategy} to determine how to quote the object.
      */
-    String quoteObjectName(ObjectReference objectReference, Scope scope);
+    String quoteObjectName(DatabaseObjectReference reference, Scope scope);
 
     /**
      * Return the given string quoted, with any special characters within the string handled.
@@ -119,14 +121,14 @@ public interface Database extends Plugin, ExtensibleObject {
     /**
      * Return how identifiers are handled, based on the passed quoting strategy.
      */
-    IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends LiquibaseObject> type, boolean quoted, Scope scope);
+    IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends Item> type, boolean quoted, Scope scope);
 
     /**
      * Return true if the given type's name is a valid object name format.
      * The object's case is not taken into account with this check, that is handled with {@link #getIdentifierCaseHandling(Class, boolean, Scope)}.
      * There is no checking if the object exists, only if it is valid as a name.
      */
-    boolean isValidObjectName(String name, boolean quoted, Class<? extends LiquibaseObject> type, Scope scope);
+    boolean isValidObjectName(String name, boolean quoted, Class<? extends Item> type, Scope scope);
 
     /**
      * Enum containing standard features used in {@link #supports(Feature, Scope)}

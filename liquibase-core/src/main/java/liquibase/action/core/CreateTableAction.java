@@ -1,8 +1,8 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.*;
+import liquibase.item.core.*;
+import liquibase.item.datatype.DataType;
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
@@ -29,12 +29,12 @@ public class CreateTableAction extends AbstractAction {
         this.table = table;
     }
 
-    public CreateTableAction addColumn(ObjectReference columnName, String type) {
-        return addColumn(new Column(columnName, type));
+    public CreateTableAction addColumn(ColumnReference column, String type) {
+        return addColumn(new Column(column.name, column.getRelation(), DataType.parse(type), true));
     }
 
     public CreateTableAction addColumn(String columnName, String type) {
-        return addColumn(new Column(table.toReference(), columnName, type));
+        return addColumn(new Column(columnName, table.toReference(), DataType.parse(type), true));
     }
 
     public CreateTableAction addColumn(Column column) {

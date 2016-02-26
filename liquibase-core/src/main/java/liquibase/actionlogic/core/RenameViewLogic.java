@@ -5,7 +5,7 @@ import liquibase.ValidationErrors;
 import liquibase.action.core.RenameViewAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
 import liquibase.database.Database;
-import liquibase.structure.core.View;
+import liquibase.item.core.View;
 import liquibase.util.StringClauses;
 
 public class RenameViewLogic extends AbstractSqlBuilderLogic<RenameViewAction> {

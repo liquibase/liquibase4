@@ -3,8 +3,8 @@ package liquibase.snapshot;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
+import liquibase.item.Item;
+import liquibase.item.ItemReference;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringUtils;
 
@@ -21,7 +21,7 @@ public class Snapshot extends AbstractExtensibleObject {
     private final Scope scopeCreatedUnder;
 
     //objects in snapshot, grouped by the type of object
-    private Map<Class<? extends LiquibaseObject>, List<? extends LiquibaseObject>> objects = new HashMap<>();
+    private Map<Class<? extends Item>, List<? extends Item>> objects = new HashMap<>();
 
     /**
      * Creates an empty Snapshot.
@@ -43,7 +43,7 @@ public class Snapshot extends AbstractExtensibleObject {
     /**
      * Adds the given object to this snapshot.
      */
-    public Snapshot add(LiquibaseObject object) {
+    public Snapshot add(Item object) {
         List typeObjects = this.objects.get(object.getClass());
         if (typeObjects == null) {
             typeObjects = new ArrayList<>();
@@ -56,10 +56,10 @@ public class Snapshot extends AbstractExtensibleObject {
     }
 
     /**
-     * Convenience method to call {@link #add(LiquibaseObject)} for all objects in a collection.
+     * Convenience method to call {@link #add(Item)} for all objects in a collection.
      */
-    public Snapshot addAll(Collection<? extends LiquibaseObject> objects) {
-        for (LiquibaseObject obj : objects) {
+    public Snapshot addAll(Collection<? extends Item> objects) {
+        for (Item obj : objects) {
             add(obj);
         }
         return this;
@@ -68,30 +68,30 @@ public class Snapshot extends AbstractExtensibleObject {
     /**
      * Returns all the objects in the snapshot of the given type.
      */
-    public <T extends LiquibaseObject> Collection<T> get(Class<T> type) {
+    public <T extends Item> Collection<T> get(Class<T> type) {
         return Collections.unmodifiableCollection(CollectionUtil.createIfNull((List<T>) objects.get(type)));
     }
 
     /**
-     * Returns all the objects in this snapshot that (fuzzily) match the passed objectReference.
+     * Returns all the objects in this snapshot that (fuzzily) match the passed {@link ItemReference}.
      * Returns empty collection if none match.
      */
-    public <T extends LiquibaseObject> Collection<T> getAll(Class<T> type, final ObjectReference objectReference) {
+    public <T extends Item> Collection<T> getAll(Class<T> type, final ItemReference reference) {
         return CollectionUtil.select(CollectionUtil.createIfNull((List<T>) objects.get(type)),
                 new CollectionUtil.CollectionFilter<T>() {
                     @Override
-                    public boolean include(LiquibaseObject obj) {
-                        return obj.toReference().equals(objectReference, true);
+                    public boolean include(Item obj) {
+                        return obj.toReference().equals(reference, true);
                     }
                 });
 
     }
 
     /**
-     * Returns the object with a {@link LiquibaseObject#toReference()} (fuzzily) matching the passed ObjectReference, or null if the object is not in the snapshot.
+     * Returns the object with a {@link Item#toReference()} (fuzzily) matching the passed {@link ItemReference}, or null if the object is not in the snapshot.
      * If more than one object in the snapshot matches, an {@link liquibase.exception.UnexpectedLiquibaseException} exception is thrown.
      */
-    public <T extends LiquibaseObject> T get(Class<T> type, ObjectReference reference) {
+    public <T extends Item> T get(Class<T> type, ItemReference reference) {
         Collection<T> all = getAll(type, reference);
         if (all.size() == 0) {
             return null;

@@ -3,7 +3,7 @@ package liquibase.database.core.h2;
 import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
-import liquibase.structure.LiquibaseObject;
+import liquibase.item.Item;
 
 import java.util.Arrays;
 
@@ -35,7 +35,7 @@ public class H2Database extends AbstractJdbcDatabase {
     }
 
     @Override
-    protected int getMaxObjectPathLength(Class<? extends LiquibaseObject> objectType, Scope scope) {
+    protected int getMaxObjectPathLength(Class<? extends Item> objectType, Scope scope) {
         int length = super.getMaxObjectPathLength(objectType, scope);
         if (length > 2) { //Can only return up to object + schema
             return 2;

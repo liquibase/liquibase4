@@ -1,15 +1,12 @@
 package liquibase.actionlogic.core;
 
 import liquibase.Scope;
-import liquibase.action.core.SnapshotObjectsAction;
+import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.AbstractSnapshotDatabaseObjectsLogicOffline;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Catalog;
-import liquibase.structure.core.Relation;
-import liquibase.structure.core.Schema;
-import liquibase.structure.core.UniqueConstraint;
+import liquibase.item.DatabaseObjectReference;
+import liquibase.item.Item;
+import liquibase.item.core.*;
 
 public class SnapshotUniqueConstraintsLogicOffline extends AbstractSnapshotDatabaseObjectsLogicOffline<UniqueConstraint> {
 
@@ -19,7 +16,7 @@ public class SnapshotUniqueConstraintsLogicOffline extends AbstractSnapshotDatab
     }
 
     @Override
-    protected Class<? extends LiquibaseObject>[] getSupportedRelatedTypes() {
+    protected Class<? extends Item>[] getSupportedRelatedTypes() {
         return new Class[]{
                 UniqueConstraint.class,
                 Relation.class,
@@ -29,29 +26,23 @@ public class SnapshotUniqueConstraintsLogicOffline extends AbstractSnapshotDatab
     }
 
     @Override
-    public boolean executeInteractsExternally(SnapshotObjectsAction action, Scope scope) {
+    public boolean executeInteractsExternally(SnapshotItemsAction action, Scope scope) {
         return true;
     }
 
     @Override
-    protected boolean isRelatedTo(UniqueConstraint objectToCheck, ObjectReference relatedTo, SnapshotObjectsAction action, Scope scope) {
-        UniqueConstraint uniqueConstraint = (UniqueConstraint) objectToCheck;
+    protected boolean isRelatedTo(UniqueConstraint uniqueConstraint, DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) {
         if (relatedTo.instanceOf(UniqueConstraint.class)) {
-            return uniqueConstraint.getName().equals(relatedTo.name);
+            return uniqueConstraint.toReference().equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Relation.class)) {
-            ObjectReference tableName = uniqueConstraint.table;
-            return tableName != null && tableName.equals((relatedTo));
+            RelationReference tableName = uniqueConstraint.relation;
+            return tableName != null && tableName.equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Schema.class)) {
-            ObjectReference tableName = uniqueConstraint.table;
-            return tableName != null && tableName.container != null && tableName.container.equals((relatedTo.container));
+            SchemaReference schema = uniqueConstraint.getSchema();
+            return schema != null && schema.equals(relatedTo, true);
         } else if (relatedTo.instanceOf(Catalog.class)) {
-            ObjectReference tableName = uniqueConstraint.table;
-            if (tableName == null || tableName.container == null) {
-                return false;
-            }
-            ObjectReference schemaName = tableName.container;
-
-            return schemaName.container != null && schemaName.container.equals((relatedTo.container));
+            CatalogReference catalog = uniqueConstraint.getCatalog();
+            return catalog != null && catalog.equals(relatedTo.container, true);
         } else {
             throw new UnexpectedLiquibaseException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }

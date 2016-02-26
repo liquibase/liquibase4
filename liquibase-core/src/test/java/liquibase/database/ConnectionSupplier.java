@@ -5,10 +5,10 @@ import liquibase.Scope;
 import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
 import liquibase.plugin.Plugin;
-import liquibase.structure.LiquibaseObject;
-import liquibase.structure.ObjectReference;
-import liquibase.structure.core.Catalog;
-import liquibase.structure.core.Schema;
+import liquibase.item.Item;
+import liquibase.item.core.Catalog;
+import liquibase.item.core.Schema;
+import liquibase.item.core.SchemaReference;
 import org.slf4j.LoggerFactory;
 import testmd.logic.SetupResult;
 
@@ -137,7 +137,7 @@ public abstract class ConnectionSupplier implements Cloneable, Plugin {
 
     protected DatabaseConnection getConnection(Scope scope) throws SetupResult {
         if (connection == null && connectionResult == null) {
-            LoggerFactory.getLogger(getClass()).info("Opening connection as "+this.getDatabaseUsername()+" to "+this.getJdbcUrl());
+            LoggerFactory.getLogger(getClass()).info("Opening connection as " + this.getDatabaseUsername() + " to " + this.getJdbcUrl());
             try {
                 Connection dbConn = DriverManager.getConnection(this.getJdbcUrl(), this.getDatabaseUsername(), this.getDatabasePassword());
                 connection = new JdbcConnection(dbConn);
@@ -175,30 +175,17 @@ public abstract class ConnectionSupplier implements Cloneable, Plugin {
         return scope;
     }
 
-    public List<ObjectReference> getAllSchemas() {
+    public List<SchemaReference> getAllSchemas() {
         if (getDatabase().supports(Catalog.class, JUnitScope.getInstance())) {
-            return Arrays.asList(new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getPrimarySchema()),
-                    new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getPrimaryCatalog()), getAlternateSchema()),
-                    new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getAlternateCatalog()), getPrimarySchema()),
-                    new ObjectReference(Schema.class, new ObjectReference(Catalog.class, getAlternateCatalog()), getAlternateSchema()));
+            return Arrays.asList(new SchemaReference(getPrimaryCatalog(), getPrimarySchema()),
+                    new SchemaReference(getPrimaryCatalog(), getAlternateSchema()),
+                    new SchemaReference(getAlternateCatalog(), getPrimarySchema()),
+                    new SchemaReference(getAlternateCatalog(), getAlternateSchema()));
 
         } else if (getDatabase().supports(Schema.class, JUnitScope.getInstance())) {
-            return Arrays.asList(new ObjectReference(Schema.class, getPrimarySchema()), new ObjectReference(Schema.class, getAlternateSchema()));
+            return Arrays.asList(new SchemaReference(getPrimarySchema()), new SchemaReference(getAlternateSchema()));
         } else {
             return Arrays.asList();
         }
-    }
-
-
-    public List<String> getSimpleObjectNames(Class<? extends LiquibaseObject> type) {
-        List<String> returnList = new ArrayList<>();
-        returnList.add("test" + type.getSimpleName().toLowerCase());
-        returnList.add("TEST" + type.getSimpleName().toUpperCase());
-        returnList.add("Test" + type.getSimpleName());
-        returnList.add("12numbers_" + type.getSimpleName());
-        returnList.add("12NUMBERS_" + type.getSimpleName());
-        returnList.add("test!@#$%^&*()_+{}[]" + type.getSimpleName());
-
-        return returnList;
     }
 }

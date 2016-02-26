@@ -5,7 +5,7 @@ import liquibase.action.core.AddUniqueConstraintsAction;
 import liquibase.actionlogic.core.AddUniqueConstraintsLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.structure.core.UniqueConstraint;
+import liquibase.item.core.UniqueConstraint;
 import liquibase.util.StringClauses;
 
 public class AddUniqueConstraintsLogicH2 extends AddUniqueConstraintsLogic {
