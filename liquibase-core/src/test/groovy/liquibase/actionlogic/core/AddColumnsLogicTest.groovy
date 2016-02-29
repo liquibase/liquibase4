@@ -2,13 +2,13 @@ package liquibase.actionlogic.core
 
 import liquibase.action.core.AddColumnsActionTest
 import liquibase.actionlogic.AbstractLogicTest
-import liquibase.database.core.GenericDatabaseSupplier
+import liquibase.database.core.GenericConnectionSupplier
 
 class AddColumnsLogicTest extends AbstractLogicTest {
 
     def "validation failures are as expected"() {
         expect:
-        collectAllValidationErrors(new AddColumnsActionTest(), new GenericDatabaseSupplier()) == """
+        collectAllValidationErrors(new AddColumnsActionTest(), new GenericConnectionSupplier()) == """
 AddColumnsAction.columns is required
 AddColumnsAction.columns.name is required
 AddColumnsAction.columns.relation is required

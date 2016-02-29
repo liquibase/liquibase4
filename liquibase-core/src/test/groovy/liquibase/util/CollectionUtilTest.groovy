@@ -144,11 +144,6 @@ class CollectionUtilTest extends Specification {
         CollectionUtil.createIfNull(strings) == ["a", "b", "c"]
         CollectionUtil.createIfNull(strings).is(strings)
 
-//        CollectionUtil.createIfNull((List) null) == []  //overlapping signature
-//        CollectionUtil.createIfNull(null as List, "x") == ["x"] //overlapping signature
-        CollectionUtil.createIfNull(emptyStrings, "y") == ["y"]
-        CollectionUtil.createIfNull(strings, "z") == ["a", "b", "c", "z"]
-
     }
 
     def "createIfNull using array"() {

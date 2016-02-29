@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Singleton root scope for JUnit tests. Use this for all Scope objects in tests to avoid re-initialization of singletons. If you want fresh Singletons for a test, use {@link JUnitEmptyScope}.
+ * Singleton root scope for JUnit tests. Use this for all Scope objects in tests to avoid re-initialization of singletons.
  */
 public class JUnitScope extends Scope {
 
@@ -47,11 +47,7 @@ public class JUnitScope extends Scope {
     }
 
     public static JUnitScope getInstance(ConnectionSupplier supplier) throws DatabaseException {
-        Scope scope = getInstance()
-                .child(Scope.Attr.database, supplier.getDatabase())
-                .child(Attr.connectionSupplier, supplier);
-
-        return (JUnitScope) supplier.connect(scope);
+        return (JUnitScope) supplier.connect(getInstance());
     }
 
     @Override

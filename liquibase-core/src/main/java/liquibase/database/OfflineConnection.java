@@ -6,7 +6,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.ResourceAccessor;
 import liquibase.snapshot.Snapshot;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
             throw new UnexpectedLiquibaseException("Could not parse offline url " + url);
         }
         this.databaseShortName = matcher.group(1).toLowerCase();
-        String paramString = StringUtils.trimToNull(matcher.group(2));
+        String paramString = StringUtil.trimToNull(matcher.group(2));
         Map<String, String> params = new HashMap<>();
         if (paramString != null) {
             String[] keyValues = paramString.split("&");

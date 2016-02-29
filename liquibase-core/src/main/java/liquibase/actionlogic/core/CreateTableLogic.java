@@ -281,7 +281,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
             }
         }
 
-        boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, true); //ObjectUtil.defaultIfEmpty(column.isPrimaryKey, false) || ObjectUtil.defaultIfEmpty(column.nullable, false);
+        boolean nullable = ObjectUtil.defaultIfNull(column.nullable, true); //ObjectUtil.defaultIfEmpty(column.isPrimaryKey, false) || ObjectUtil.defaultIfEmpty(column.nullable, false);
 
         if (nullable) {
             if (((AddColumnsLogic) scope.getSingleton(ActionLogicFactory.class).getActionLogic(createAddColumnsAction(action), scope)).requiresDefiningColumnsAsNull()) {

@@ -1,11 +1,14 @@
 package liquibase.database;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.JUnitScope;
 import liquibase.Scope;
+import liquibase.SingletonObject;
 import liquibase.database.core.GenericDatabase;
 import liquibase.exception.DatabaseException;
+import liquibase.item.core.CatalogReference;
+import liquibase.plugin.AbstractPlugin;
 import liquibase.plugin.Plugin;
-import liquibase.item.Item;
 import liquibase.item.core.Catalog;
 import liquibase.item.core.Schema;
 import liquibase.item.core.SchemaReference;
@@ -18,134 +21,89 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ConnectionSupplier implements Cloneable, Plugin {
+/**
+ * Used by tests to create connections to available databases.
+ */
+public abstract class ConnectionSupplier extends AbstractPlugin {
 
-    public static final String CONFIG_NAME_STANDARD = "standard";
+    public String primaryCatalog = "LBCAT";
+    public String primarySchema = "LBSCHEMA";
+    public String username = "lbuser";
+    public String password = "lbuser";
 
-    private String version;
-    private String ipAddress = "vagrant";
+    public String alternateCatalog = "LBCAT2";
+    public String alternateSchema = "LBSCHEMA2";
+    public String alternateUsername = "lbuser2";
+    public String alternatePassword = "lbuser2";
+
+    public String alternateTablespace = "lbtbsp2";
+
+    public String host = "vagrant";
+
     private DatabaseConnection connection;
     private SetupResult connectionResult;
 
-    public abstract String getDatabaseShortName();
-
-    public String getConfigurationName() {
-        return CONFIG_NAME_STANDARD;
+    /**
+     * A descriptive name the type of connection this class creates. Default implementation returns "standard"
+     */
+    public String getName() {
+        return "standard";
     }
 
-    public abstract String getJdbcUrl();
+    /**
+     * Returns the {@link Database#getShortName()} which should be used by {@link #getDatabase()} when creating database objects.
+     */
+    protected abstract String getDatabaseShortName();
 
-    public String getPrimaryCatalog() {
-        return "LBCAT";
-    }
-
-    public String getPrimarySchema() {
-        return "LBSCHEMA";
-    }
-
-    public String getDatabaseUsername() {
-        return "lbuser";
-    }
-
-    public String getDatabasePassword() {
-        return "lbuser";
-    }
-
-    public String getAlternateUsername() {
-        return "lbuser2";
-    }
-
-    public String getAlternateUserPassword() {
-        return "lbuser2";
-    }
-
-    public String getAlternateCatalog() {
-        return "LBCAT2";
-    }
-
-    public String getAlternateSchema() {
-        return "LBSCHEMA2";
-    }
-
-    public String getAlternateTablespace() {
-        return "lbtbsp2";
-    }
-
-    public String getAdminUsername() {
-        return "lbadmin";
-    }
-
-    ;
-
-    public String getAdminPassword() {
-        return "lbadmin";
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getShortVersion() {
-        if (getVersion() == null) {
-            return "LATEST";
-        }
-        String[] split = getVersion().split("\\.");
-        if (split.length == 1) {
-            return split[0];
-        } else {
-            return split[0] + "." + split[1];
-        }
+    /**
+     * Returns the database to use for connections from this supplier.
+     * Default implementation finds database that matches {@link #getDatabaseShortName()}
+     */
+    public Database getDatabase() {
+        return JUnitScope.getInstance().getSingleton(DatabaseFactory.class).getDatabase(getDatabaseShortName());
     }
 
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+    /**
+     * Creates the URL for opening the connection.
+     */
+    public abstract String createJdbcUrl();
 
     @Override
     public String toString() {
-        return getDatabaseShortName() + "[config:" + getConfigurationName() + "]";
+        return getDatabaseShortName() + " " + getName();
     }
 
-    public String getDescription() {
-        String version = getVersion();
-        if (version == null) {
-            version = "LATEST";
+    /**
+     * Opens a connection, attaches it to a {@link Database} and returns a new {@link Scope} including the database.
+     */
+    public Scope connect(Scope scope) throws DatabaseException {
+        DatabaseConnection databaseConnection = getConnection(scope);
+        Database db = this.getDatabase();
+        if (!(db instanceof GenericDatabase) && !db.supports(databaseConnection, scope)) {
+            throw new DatabaseException("Incorrect db '" + db.getShortName() + "' for connection " + databaseConnection.getURL());
         }
+        db.setConnection(databaseConnection, scope);
 
-        return "JDBC Url: " + getJdbcUrl() + "\n" +
-                "Version: " + version + "\n" +
-                "Standard User: " + getDatabaseUsername() + "\n" +
-                "         Password: " + getDatabasePassword() + "\n" +
-                "Primary Catalog: " + getPrimaryCatalog() + "\n" +
-                "Primary Schema: " + getPrimarySchema() + " (if applicable)\n" +
-                "\n" +
-                "Alternate User: " + getAlternateUsername() + "\n" +
-                "          Password: " + getAlternateUserPassword() + "\n" +
-                "Alternate Catalog: " + getAlternateCatalog() + "\n" +
-                "Alternate Schema: " + getAlternateSchema() + " (if applicable)\n" +
-                "Alternate Tablespace: " + getAlternateTablespace() + "\n";
+        return scope.child(JUnitScope.Attr.connectionSupplier, this)
+                .child(Scope.Attr.database, db);
     }
 
+    /**
+     * Return the existing open connection or opens a new one if not yet open.
+     */
     protected DatabaseConnection getConnection(Scope scope) throws SetupResult {
         if (connection == null && connectionResult == null) {
-            LoggerFactory.getLogger(getClass()).info("Opening connection as " + this.getDatabaseUsername() + " to " + this.getJdbcUrl());
+            LoggerFactory.getLogger(getClass()).info("Opening connection as " + username + " to " + this.createJdbcUrl());
             try {
-                Connection dbConn = DriverManager.getConnection(this.getJdbcUrl(), this.getDatabaseUsername(), this.getDatabasePassword());
-                connection = new JdbcConnection(dbConn);
+                Connection dbConn = DriverManager.getConnection(this.createJdbcUrl(), username, password);
+                connection = initConnection(new JdbcConnection(dbConn), scope);
 
-                Database initDb = JUnitScope.getInstance().getSingleton(DatabaseFactory.class).getDatabase(connection, scope);
-                initDb.setConnection(connection, scope);
-                initConnection(JUnitScope.getInstance(initDb));
+                if (connection == null) {
+                    connectionResult = new SetupResult.CannotVerify(getClass().getName() + ".initConnection returned a null connection");
+                }
             } catch (Exception e) {
+                LoggerFactory.getLogger(getClass()).error(e.getMessage(), e);
                 connectionResult = new SetupResult.CannotVerify("Cannot open connection: " + e.getMessage());
             }
         }
@@ -156,36 +114,45 @@ public abstract class ConnectionSupplier implements Cloneable, Plugin {
         }
     }
 
-    protected void initConnection(Scope scope) {
-
+    /**
+     * Called by {@link #getConnection(Scope)} to perform any necessary initialization on a newly opened connection.
+     * Return the connection to store for future calls to {@link #getConnection(Scope)} or null if the connection cannot be used.
+     */
+    protected DatabaseConnection initConnection(DatabaseConnection connection, Scope scope) throws DatabaseException {
+        return connection;
     }
 
-    public Database getDatabase() {
-        return JUnitScope.getInstance().getSingleton(DatabaseFactory.class).getDatabase(getDatabaseShortName());
-    }
-
-    public Scope connect(Scope scope) throws DatabaseException {
-        DatabaseConnection databaseConnection = getConnection(scope);
-        Database db = scope.getDatabase();
-        if (!(db instanceof GenericDatabase) && !db.supports(databaseConnection, scope)) {
-            throw new DatabaseException("Incorrect db '" + db.getShortName() + "' for connection " + databaseConnection.getURL());
-        }
-        db.setConnection(databaseConnection, scope);
-
-        return scope;
-    }
-
+    /**
+     * Returns all schemas available to this connection. Does not not interact with an actual connection, but returns a pre-defined list that the connection will need to support.
+     */
     public List<SchemaReference> getAllSchemas() {
-        if (getDatabase().supports(Catalog.class, JUnitScope.getInstance())) {
-            return Arrays.asList(new SchemaReference(getPrimaryCatalog(), getPrimarySchema()),
-                    new SchemaReference(getPrimaryCatalog(), getAlternateSchema()),
-                    new SchemaReference(getAlternateCatalog(), getPrimarySchema()),
-                    new SchemaReference(getAlternateCatalog(), getAlternateSchema()));
-
-        } else if (getDatabase().supports(Schema.class, JUnitScope.getInstance())) {
-            return Arrays.asList(new SchemaReference(getPrimarySchema()), new SchemaReference(getAlternateSchema()));
+        if (!getDatabase().supports(Schema.class, JUnitScope.getInstance())) {
+            return new ArrayList<>();
         } else {
-            return Arrays.asList();
+            List<CatalogReference> catalogs = getAllCatalogs();
+            if (catalogs.size() == 0) {
+                return Arrays.asList(new SchemaReference(primarySchema), new SchemaReference(alternateSchema));
+            } else {
+                List<SchemaReference> schemas = new ArrayList<>();
+                for (CatalogReference catalog : catalogs) {
+                    schemas.add(new SchemaReference(primarySchema, catalog));
+                    schemas.add(new SchemaReference(alternateSchema, catalog));
+                }
+                return schemas;
+            }
+        }
+    }
+
+    /**
+     * Returns all catalogs available to this connection. Does not not interact with an actual connection, but returns a pre-defined list that the connection will need to support.
+     */
+    public List<CatalogReference> getAllCatalogs() {
+        if (getDatabase().supports(Catalog.class, JUnitScope.getInstance())) {
+            return Arrays.asList(new CatalogReference(primaryCatalog),
+                    new CatalogReference(alternateCatalog));
+
+        } else {
+            return new ArrayList<>();
         }
     }
 }

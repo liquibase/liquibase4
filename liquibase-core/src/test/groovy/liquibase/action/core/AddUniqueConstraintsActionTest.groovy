@@ -6,8 +6,9 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.core.Column
 import liquibase.item.core.IndexReference
 import liquibase.item.core.RelationReference
@@ -15,6 +16,7 @@ import liquibase.item.core.Table
 import liquibase.item.core.UniqueConstraint
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.TestUtil
 import spock.lang.Unroll
 
 public class AddUniqueConstraintsActionTest extends AbstractActionTest {
@@ -33,13 +35,13 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
-                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name    : getItemNames(UniqueConstraint, ItemNameStrategy.COMPLEX_NAMES, scope),
+                    TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name    : getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
                                     relation: it.allSchemas.collect({
-                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope.database), it)
+                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope), it)
                                     }),
-                                    columns : [[standardCaseItemName("column_name", Column.class, scope.database)]],
+                                    columns : [[standardCaseItemName("column_name", Column.class, scope)]],
                             ]))
                     ])
             ])
@@ -59,11 +61,11 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
-                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
-                                    relation: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
-                                    columns : [[standardCaseItemName("column_name", Column.class, scope.database)]],
+                    TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope)],
+                                    relation: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    columns : [[standardCaseItemName("column_name", Column.class, scope)]],
                             ]))
                     ])
             ])
@@ -84,13 +86,13 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
-                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
+                    TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope)],
                                     relation: it.allSchemas.collect({
-                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope.database), it)
+                                        return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope), it)
                                     }),
-                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope)),
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)),
                             ]))
                     ])
             ])
@@ -111,13 +113,13 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
-                            uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope.database)],
+                    TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
+                            uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
+                                    name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope)],
                                     relation: it.allSchemas.collect({
-                                        return new RelationReference(Table, standardCaseItemName("table_name", Table.class, scope.database), it)
+                                        return new RelationReference(Table, standardCaseItemName("table_name", Table.class, scope), it)
                                     }),
-                                    columns : [[standardCaseItemName("col_1", Column.class, scope.database), standardCaseItemName("col_2", Column.class, scope.database)]],
+                                    columns : [[standardCaseItemName("col_1", Column.class, scope), standardCaseItemName("col_2", Column.class, scope)]],
                             ]))
                     ])
             ])
@@ -130,9 +132,9 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
         def action = new AddUniqueConstraintsAction()
 
         action.uniqueConstraints = [
-                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
-                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
-                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
+                new UniqueConstraint(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
         ]
 
         then:
@@ -180,11 +182,11 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseItemName("test_table", Table, scope.database)
+        def tableName = standardCaseItemName("test_table", Table, scope)
 
-        return createAllPermutations(AddUniqueConstraintsAction, [
-                uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutations(UniqueConstraint, [
-                        name             : [null, standardCaseItemName("uq_test", UniqueConstraint, scope.database)],
+        return TestUtil.createAllPermutations(AddUniqueConstraintsAction, [
+                uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(UniqueConstraint, [
+                        name             : [null, standardCaseItemName("uq_test", UniqueConstraint, scope)],
                         relation         : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({
                             return new RelationReference(Table, tableName, it)
                         })),
@@ -196,8 +198,8 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                         columns          : [
                                 null,
                                 [],
-                                [standardCaseItemName("col_name", Column, scope.database)],
-                                [standardCaseItemName("col_name1", Column, scope.database), standardCaseItemName("col_name2", Column, scope.database)],
+                                [standardCaseItemName("col_name", Column, scope)],
+                                [standardCaseItemName("col_name1", Column, scope), standardCaseItemName("col_name2", Column, scope)],
                         ]
                 ]))
         ])
@@ -211,7 +213,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
             for (def colName : uq.columns) {
                 snapshot.add(new Column(colName, uq.relation, DataType.parse("int"), false))
             }
-            snapshot.add(new Column(standardCaseItemName("non_uq_col", Column, scope.database), uq.relation, DataType.parse("int"), true))
+            snapshot.add(new Column(standardCaseItemName("non_uq_col", Column, scope), uq.relation, DataType.parse("int"), true))
         }
 
         return snapshot

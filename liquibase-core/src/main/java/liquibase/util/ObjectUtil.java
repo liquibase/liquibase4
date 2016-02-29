@@ -12,137 +12,6 @@ import java.util.*;
 
 public class ObjectUtil {
 
-    private static Map<Class<?>, Method[]> methodCache = new HashMap<Class<?>, Method[]>();
-
-    public static Object getProperty(Object object, String propertyName) throws IllegalAccessException, InvocationTargetException {
-        Method readMethod = getReadMethod(object, propertyName);
-        if (readMethod == null) {
-            throw new UnexpectedLiquibaseException("Property '" + propertyName + "' not found on object type " + object.getClass().getName());
-        }
-
-        return readMethod.invoke(object);
-    }
-
-    public static Class getPropertyType(Object object, String propertyName) {
-        Method readMethod = getReadMethod(object, propertyName);
-        if (readMethod == null) {
-            return null;
-        }
-        return readMethod.getReturnType();
-    }
-
-    public static boolean hasProperty(Object object, String propertyName) {
-        return hasReadProperty(object, propertyName) && hasWriteProperty(object, propertyName);
-    }
-
-    public static boolean hasReadProperty(Object object, String propertyName) {
-        return getReadMethod(object, propertyName) != null;
-    }
-
-    public static boolean hasWriteProperty(Object object, String propertyName) {
-        return getWriteMethod(object, propertyName) != null;
-    }
-
-    public static void setProperty(Object object, String propertyName, String propertyValue) {
-        Method method = getWriteMethod(object, propertyName);
-        if (method == null) {
-            throw new UnexpectedLiquibaseException("Property '" + propertyName + "' not found on object type " + object.getClass().getName());
-        }
-
-        Class<?> parameterType = method.getParameterTypes()[0];
-        Object finalValue = propertyValue;
-        if (parameterType.equals(Boolean.class) || parameterType.equals(boolean.class)) {
-            finalValue = Boolean.valueOf(propertyValue);
-        } else if (parameterType.equals(Integer.class)) {
-            finalValue = Integer.valueOf(propertyValue);
-        } else if (parameterType.equals(Long.class)) {
-            finalValue = Long.valueOf(propertyValue);
-        } else if (parameterType.equals(BigInteger.class)) {
-            finalValue = new BigInteger(propertyValue);
-        } else if (parameterType.equals(BigDecimal.class)) {
-	        finalValue = new BigDecimal(propertyValue);
-//        } else if (parameterType.equals(DatabaseFunction.class)) {
-//            finalValue = new DatabaseFunction(propertyValue);
-//        } else if (parameterType.equals(SequenceNextValueFunction.class)) {
-//            finalValue = new SequenceNextValueFunction(new ObjectReference(propertyValue));
-//        } else if (parameterType.equals(SequenceCurrentValueFunction.class)) {
-//            finalValue = new SequenceCurrentValueFunction(propertyValue);
-//        } else if (Enum.class.isAssignableFrom(parameterType)) {
-//            finalValue = Enum.valueOf((Class<Enum>) parameterType, propertyValue);
-//        } else if (ContextExpression.class.isAssignableFrom(parameterType)) {
-//            finalValue = new ContextExpression(propertyValue);
-        } else if (Set.class.isAssignableFrom(parameterType)) {
-            finalValue = new HashSet(Arrays.asList(propertyValue.split("\\s*,\\s*")));
-        }
-        try {
-            method.invoke(object, finalValue);
-        } catch (IllegalAccessException e) {
-            throw new UnexpectedLiquibaseException(e);
-        } catch (IllegalArgumentException e) {
-            throw new UnexpectedLiquibaseException("Cannot call "+method.toString()+" with value of type "+finalValue.getClass().getName());
-        } catch (InvocationTargetException e) {
-            throw new UnexpectedLiquibaseException(e);
-        }
-    }
-
-    public static void setProperty(Object object, String propertyName, Object propertyValue) {
-        Method method = getWriteMethod(object, propertyName);
-        if (method == null) {
-            throw new UnexpectedLiquibaseException("Property '" + propertyName + "' not found on object type " + object.getClass().getName());
-        }
-
-        try {
-            if (!method.getParameterTypes()[0].isAssignableFrom(propertyValue.getClass())) {
-                setProperty(object, propertyName, propertyValue.toString());
-                return;
-            }
-
-            method.invoke(object, propertyValue);
-        } catch (IllegalAccessException e) {
-            throw new UnexpectedLiquibaseException(e);
-        } catch (IllegalArgumentException e) {
-            throw new UnexpectedLiquibaseException("Cannot call "+method.toString()+" with value of type "+propertyValue.getClass().getName());
-        } catch (InvocationTargetException e) {
-            throw new UnexpectedLiquibaseException(e);
-        }
-    }
-
-    private static Method getReadMethod(Object object, String propertyName) {
-        String getMethodName = "get" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1);
-        String isMethodName = "is" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1);
-
-        Method[] methods = getMethods(object);
-
-        for (Method method : methods) {
-            if ((method.getName().equals(getMethodName) || method.getName().equals(isMethodName)) && method.getParameterTypes().length == 0) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private static Method getWriteMethod(Object object, String propertyName) {
-        String methodName = "set" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1);
-        Method[] methods = getMethods(object);
-
-        for (Method method : methods) {
-            if (method.getName().equals(methodName) && method.getParameterTypes().length == 1) {
-                return method;
-            }
-        }
-        return null;
-    }
-
-    private static Method[] getMethods(Object object) {
-        Method[] methods = methodCache.get(object.getClass());
-
-        if (methods == null) {
-            methods = object.getClass().getMethods();
-            methodCache.put(object.getClass(), methods);
-        }
-        return methods;
-    }
-
     /**
      * Converts the given object to the targetClass
      */
@@ -258,7 +127,7 @@ public class ObjectUtil {
         }
     }
 
-    protected static <T> T raiseUnknownConversionException(Object object, Class<T> targetClass) {
+    private static <T> T raiseUnknownConversionException(Object object, Class<T> targetClass) {
         throw new IllegalArgumentException("Could not convert '" + object + "' of type " + object.getClass().getName() + " to unknown target class " + targetClass.getName());
     }
 
@@ -266,7 +135,10 @@ public class ObjectUtil {
         throw new IllegalArgumentException("Could not convert '" + number + "' of type " + number.getClass().getName() + " to target class " + targetClass.getName() + ": overflow");
     }
 
-    public static <T> T defaultIfEmpty(T value, T defaultValue) {
+    /**
+     * Return the defaultValue if the passed value is null. Otherwise, return the original value.
+     */
+    public static <T> T defaultIfNull(T value, T defaultValue) {
         if (value == null) {
             return defaultValue;
         } else {

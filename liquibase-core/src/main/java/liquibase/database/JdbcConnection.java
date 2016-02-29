@@ -4,7 +4,7 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
@@ -35,7 +35,7 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
     public void configureDatabase(Database database, Scope scope) {
         try {
             if (database instanceof AbstractJdbcDatabase) {
-                ((AbstractJdbcDatabase) database).reservedWords.addAll(StringUtils.splitAndTrim(getMetaData().getSQLKeywords().toUpperCase(), ","));
+                ((AbstractJdbcDatabase) database).reservedWords.addAll(StringUtil.splitAndTrim(getMetaData().getSQLKeywords().toUpperCase(), ","));
             }
         } catch (Exception e) {
             LoggerFactory.getLogger(getClass()).warn("Error fetching reserved words list from JDBC driver", e);

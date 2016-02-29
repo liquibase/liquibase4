@@ -3,7 +3,7 @@ package liquibase.item;
 import liquibase.AbstractExtensibleObject;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.*;
 
@@ -86,10 +86,10 @@ public class ItemReference<ContainerReferenceType extends ItemReference> extends
         if (list.size() == 0) {
             returnString = "UNNAMED";
         } else {
-            returnString = StringUtils.join(list, ".", new StringUtils.StringUtilsFormatter<String>() {
+            returnString = StringUtil.join(list, ".", new StringUtil.StringUtilsFormatter<String>() {
                 @Override
                 public String toString(String obj) {
-                    return StringUtils.defaultIfEmpty(obj, "UNNAMED");
+                    return StringUtil.defaultIfEmpty(obj, "UNNAMED");
                 }
             });
         }
@@ -102,7 +102,7 @@ public class ItemReference<ContainerReferenceType extends ItemReference> extends
             return 1;
         }
 
-        int compareTo = ObjectUtil.defaultIfEmpty(this.type, Item.class).getClass().getName().compareTo(ObjectUtil.defaultIfEmpty(o.type, Item.class).getClass().getName());
+        int compareTo = ObjectUtil.defaultIfNull(this.type, Item.class).getClass().getName().compareTo(ObjectUtil.defaultIfNull(o.type, Item.class).getClass().getName());
 
         if (compareTo != 0) {
             return compareTo;
@@ -118,7 +118,7 @@ public class ItemReference<ContainerReferenceType extends ItemReference> extends
     public boolean equals(Object obj) {
         return obj != null
                 && (obj instanceof ItemReference)
-                && ObjectUtil.defaultIfEmpty(this.type, Item.class).equals(ObjectUtil.defaultIfEmpty(((ItemReference) obj).type, Item.class))
+                && ObjectUtil.defaultIfNull(this.type, Item.class).equals(ObjectUtil.defaultIfNull(((ItemReference) obj).type, Item.class))
                 && obj.toString().equals(this.toString());
     }
 

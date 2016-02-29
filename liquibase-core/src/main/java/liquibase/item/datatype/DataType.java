@@ -2,7 +2,7 @@ package liquibase.item.datatype;
 
 import liquibase.AbstractExtensibleObject;
 import liquibase.util.StringClauses;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -51,7 +51,7 @@ public class DataType extends AbstractExtensibleObject {
     }
 
     public static DataType parse(String typeString) {
-        typeString = StringUtils.trimToEmpty(typeString);
+        typeString = StringUtil.trimToEmpty(typeString);
 
         DataType dataType = new DataType();
         Matcher nameMatcher = Pattern.compile("^(\\w+)").matcher(typeString);
@@ -66,12 +66,12 @@ public class DataType extends AbstractExtensibleObject {
             String beforeParens = matcher.group(1);
             String inParens = matcher.group(2);
             String afterParens = matcher.group(3);
-            List<String> params = StringUtils.splitAndTrim(inParens, "\\s*,\\s*");
+            List<String> params = StringUtil.splitAndTrim(inParens, "\\s*,\\s*");
             dataType.parameters = params;
-            dataType.clausesBeforeParameters = new StringClauses(" ").append(StringUtils.trimToNull(beforeParens.substring(dataType.name.length())));
+            dataType.clausesBeforeParameters = new StringClauses(" ").append(StringUtil.trimToNull(beforeParens.substring(dataType.name.length())));
             dataType.clausesAfterParameters = new StringClauses(" ").append(afterParens);
         } else {
-            dataType.clausesBeforeParameters = new StringClauses(" ").append(StringUtils.trimToNull(typeString.substring(dataType.name.length())));
+            dataType.clausesBeforeParameters = new StringClauses(" ").append(StringUtil.trimToNull(typeString.substring(dataType.name.length())));
         }
 
         dataType.standardType = standardType(dataType.name);
@@ -109,7 +109,7 @@ public class DataType extends AbstractExtensibleObject {
 
     @Override
     public String toString() {
-        String returnString = StringUtils.trimToEmpty(name);
+        String returnString = StringUtil.trimToEmpty(name);
         if (clausesBeforeParameters != null && !clausesBeforeParameters.isEmpty()) {
             returnString += " "+clausesBeforeParameters+" ";
         }
@@ -127,7 +127,7 @@ public class DataType extends AbstractExtensibleObject {
             returnString += clausesAfterParameters;
         }
 
-        return StringUtils.trimToEmpty(returnString);
+        return StringUtil.trimToEmpty(returnString);
     }
 
     public enum StandardType {

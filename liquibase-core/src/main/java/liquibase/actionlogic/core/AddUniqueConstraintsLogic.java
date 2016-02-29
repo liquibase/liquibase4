@@ -16,7 +16,7 @@ import liquibase.item.core.UniqueConstraint;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +80,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                         snapshotUq = snapshotUniques.iterator().next();
                     } else {
                         for (UniqueConstraint constraint : snapshotUniques) {
-                            if (StringUtils.join(constraint.columns, ",").equals(StringUtils.join(actionUq.columns, ","))) {
+                            if (StringUtil.join(constraint.columns, ",").equals(StringUtil.join(actionUq.columns, ","))) {
                                 snapshotUq = constraint;
                             }
                         }
@@ -90,7 +90,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 if (snapshotUq == null) {
                     String desc = actionUq.name;
                     if (desc == null) {
-                        desc = actionUq.relation.toString()+" ("+StringUtils.join(actionUq.columns, ",") +")";
+                        desc = actionUq.relation.toString()+" ("+ StringUtil.join(actionUq.columns, ",") +")";
                     }
                     result.assertApplied(false, "Unique Constraint '" + desc + "' not found");
                 } else {
@@ -148,15 +148,15 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 .append("CONSTRAINT")
                 .append(AddUniqueConstraintsLogic.Clauses.constraintName, constrantName)
                 .append("UNIQUE")
-                .append(Clauses.columnNames, "(" + StringUtils.join(uniqueConstraint.columns, ", ", new StringUtils.StringUtilsFormatter<String>() {
+                .append(Clauses.columnNames, "(" + StringUtil.join(uniqueConstraint.columns, ", ", new StringUtil.StringUtilsFormatter<String>() {
                     @Override
                     public String toString(String obj) {
                         return database.quoteObjectName(obj, Column.class, scope);
                     }
                 }) + ")");
 
-        boolean deferrable = ObjectUtil.defaultIfEmpty(uniqueConstraint.deferrable, false);
-        boolean initiallyDeferred = ObjectUtil.defaultIfEmpty(uniqueConstraint.initiallyDeferred, false);
+        boolean deferrable = ObjectUtil.defaultIfNull(uniqueConstraint.deferrable, false);
+        boolean initiallyDeferred = ObjectUtil.defaultIfNull(uniqueConstraint.initiallyDeferred, false);
         if (deferrable || initiallyDeferred) {
             if (deferrable) {
                 clauses.append("DEFERRABLE");
@@ -167,7 +167,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
             }
         }
 
-        if (ObjectUtil.defaultIfEmpty(uniqueConstraint.disabled, false)) {
+        if (ObjectUtil.defaultIfNull(uniqueConstraint.disabled, false)) {
             clauses.append("DISABLED");
         }
 

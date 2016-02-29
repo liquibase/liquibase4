@@ -5,11 +5,13 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.core.*
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.TestUtil
 import spock.lang.Unroll
 
 class AddColumnsActionTest extends AbstractActionTest {
@@ -31,8 +33,8 @@ class AddColumnsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
 
@@ -57,8 +59,8 @@ class AddColumnsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    [[standardCaseItemName("col_1", Column, scope.database), standardCaseItemName("col_2", Column, scope.database)]],
-                    [standardCaseItemName("table_name", Table, scope.database)],
+                    [[standardCaseItemName("col_1", Column, scope), standardCaseItemName("col_2", Column, scope)]],
+                    [standardCaseItemName("table_name", Table, scope)],
                     it.allSchemas
             ])
         }
@@ -98,20 +100,20 @@ class AddColumnsActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseItemName("test_table", Table, scope.database)
+        def tableName = standardCaseItemName("test_table", Table, scope)
         def tableRef = new RelationReference(Table, tableName, connectionSupplier.allSchemas[0]);
-        def testColName = standardCaseItemName("test_col", Column, scope.database)
-        def col1Name = standardCaseItemName("col1", Column, scope.database)
-        def col2Name = standardCaseItemName("col2", Column, scope.database)
+        def testColName = standardCaseItemName("test_col", Column, scope)
+        def col1Name = standardCaseItemName("col1", Column, scope)
+        def col2Name = standardCaseItemName("col2", Column, scope)
 
-        def refTableName = standardCaseItemName("ref_table", Table, scope.database)
-        def refCol1Name = standardCaseItemName("ref_col1", Column, scope.database)
-        def refCol2Name = standardCaseItemName("ref_col2", Column, scope.database)
+        def refTableName = standardCaseItemName("ref_table", Table, scope)
+        def refCol1Name = standardCaseItemName("ref_col1", Column, scope)
+        def refCol2Name = standardCaseItemName("ref_col2", Column, scope)
 
 
         def returnList = []
 
-        def columnPermutations = CollectionUtil.addTo(CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(Column, [
+        def columnPermutations = CollectionUtil.addTo(CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(Column, [
                 name                    : [testColName],
                 relation                : [tableRef],
                 type                    : [new DataType(DataType.StandardType.INTEGER)],
@@ -125,7 +127,7 @@ class AddColumnsActionTest extends AbstractActionTest {
         })
 
         //add standard columns
-        returnList.addAll(createAllPermutations(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutations(AddColumnsAction, [
                 columns: columnPermutations,
         ]))
 
@@ -140,10 +142,10 @@ class AddColumnsActionTest extends AbstractActionTest {
         //null dataType column))
 
         //add primary key permutations
-        returnList.addAll(createAllPermutationsWithoutNulls(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutationsWithoutNulls(AddColumnsAction, [
                 columns   : columnPermutations,
-                primaryKey: createAllPermutations(PrimaryKey, [
-                        name      : [standardCaseItemName("test_pk", PrimaryKey, scope.database)],
+                primaryKey: TestUtil.createAllPermutations(PrimaryKey, [
+                        name      : [standardCaseItemName("test_pk", PrimaryKey, scope)],
                         relation  : [tableRef],
                         tablespace: ["test_tablespace"],
                         clustered : [true, false],
@@ -159,10 +161,10 @@ class AddColumnsActionTest extends AbstractActionTest {
         ]))
 
         //add unique constraint permutations
-        returnList.addAll(createAllPermutationsWithoutNulls(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutationsWithoutNulls(AddColumnsAction, [
                 columns          : columnPermutations,
-                uniqueConstraints: CollectionUtil.toSingletonLists(createAllPermutations(UniqueConstraint, [
-                        name             : [standardCaseItemName("uq_name", UniqueConstraint, scope.database)],
+                uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(UniqueConstraint, [
+                        name             : [standardCaseItemName("uq_name", UniqueConstraint, scope)],
                         columns          : [[testColName], [testColName, col2Name]],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],
@@ -174,10 +176,10 @@ class AddColumnsActionTest extends AbstractActionTest {
         ]))
 
         //add fk variations without deferrable or update/delete rules
-        returnList.addAll(createAllPermutationsWithoutNulls(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutationsWithoutNulls(AddColumnsAction, [
                 columns    : columnPermutations,
-                foreignKeys: CollectionUtil.toSingletonLists(createAllPermutations(ForeignKey, [
-                        name        : [standardCaseItemName("test_fk", ForeignKey, scope.database)],
+                foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(ForeignKey, [
+                        name        : [standardCaseItemName("test_fk", ForeignKey, scope)],
                         columnChecks: [
                                 [new ForeignKey.ForeignKeyColumnCheck(col1Name, refCol1Name)],
                                 [
@@ -189,9 +191,9 @@ class AddColumnsActionTest extends AbstractActionTest {
         ]))
 
 //        //add fk variations with deferrable
-        returnList.addAll(createAllPermutationsWithoutNulls(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutationsWithoutNulls(AddColumnsAction, [
                 columns    : columnPermutations,
-                foreignKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(ForeignKey, [
+                foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(ForeignKey, [
                         name             : [null],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],
@@ -202,9 +204,9 @@ class AddColumnsActionTest extends AbstractActionTest {
         ]))
 
         // add fk variations with update/delete checks
-        returnList.addAll(createAllPermutationsWithoutNulls(AddColumnsAction, [
+        returnList.addAll(TestUtil.createAllPermutationsWithoutNulls(AddColumnsAction, [
                 columns    : columnPermutations,
-                foreignKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(ForeignKey, [
+                foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(ForeignKey, [
                         name        : [null],
                         updateRule  : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
                         deleteRule  : [ForeignKey.ReferentialAction.cascade, ForeignKey.ReferentialAction.noAction, ForeignKey.ReferentialAction.restrict, ForeignKey.ReferentialAction.setDefault, ForeignKey.ReferentialAction.setNull],
@@ -237,7 +239,7 @@ class AddColumnsActionTest extends AbstractActionTest {
             def tableName = column.relation
             if (seenTables.add(tableName)) {
                 snapshot.add(new Table(tableName.name, tableName.container))
-                snapshot.add(new Column(standardCaseItemName("column_existing", Column, scope.getDatabase()), tableName, new DataType(DataType.StandardType.INTEGER), true))
+                snapshot.add(new Column(standardCaseItemName("column_existing", Column, scope), tableName, new DataType(DataType.StandardType.INTEGER), true))
             }
         }
 

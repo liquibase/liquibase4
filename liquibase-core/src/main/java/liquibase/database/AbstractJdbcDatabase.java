@@ -1,23 +1,20 @@
 package liquibase.database;
 
 import liquibase.Scope;
+import liquibase.exception.DatabaseException;
 import liquibase.item.DatabaseObject;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
 import liquibase.item.core.*;
 import liquibase.plugin.AbstractPlugin;
-import liquibase.util.StringUtils;
+import liquibase.util.SmartMap;
+import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -100,7 +97,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Returns a SQL-standard datetime literal
      */
     @Override
-    public String getDateTimeString(Date date, Scope scope) {
+    public String getDateTimeString(java.util.Date date, Scope scope) {
         return "TIMESTAMP '" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(date) + "'";
     }
 
@@ -108,7 +105,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Returns a SQL-standard date literal
      */
     @Override
-    public String getDateString(Date date, Scope scope) {
+    public String getDateString(java.util.Date date, Scope scope) {
         return "DATE '" + new SimpleDateFormat("yyyy-MM-dd").format(date) + "'";
     }
 
@@ -116,7 +113,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
      * Returns a SQL-standard time literal
      */
     @Override
-    public String getTimeString(Date date, Scope scope) {
+    public String getTimeString(java.util.Date date, Scope scope) {
         return "TIME '" + new SimpleDateFormat("HH:mm:ss.SSS").format(date) + "'";
     }
 
@@ -282,6 +279,73 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
 
 
     /**
+     * Converts the given resultSet to a list of {@link SmartMap}, using {@link #getValue(ResultSet, int)} on each cell.
+     */
+    public List<SmartMap> extract(ResultSet rs, Scope scope) throws DatabaseException {
+        try {
+            List<SmartMap> rows = new ArrayList<>();
+            while (rs.next()) {
+                SmartMap row = new SmartMap();
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                for (int i = 1; i <= columnCount; i++) {
+                    String key = metaData.getColumnLabel(i);
+                    Object obj = getValue(rs, i);
+                    row.put(key, obj);
+                }
+                rows.add(row);
+            }
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    /**
+     * Retrieve a JDBC column value from a ResultSet, using the most appropriate
+     * value type. The returned value should be a detached value object, not having
+     * any ties to the active ResultSet: in particular, it should not be a Blob or
+     * Clob object but rather a byte array respectively String representation.
+     * <br><br>
+     * Uses the {@link ResultSet#getObject(int)} method, but subclasses can work around
+     * around database-specific non-standard handling.
+     */
+    protected Object getValue(ResultSet rs, int index) throws SQLException {
+//        try {
+        Object obj = rs.getObject(index);
+//        } catch (SQLException e) {
+//            if (e.getMessage().equals("The conversion from char to SMALLINT is unsupported.")) {
+//                issue with sqlserver jdbc 3.0 http://social.msdn.microsoft.com/Forums/sqlserver/en-US/2c908b45-6f75-484a-a891-5e8206f8844f/conversion-error-in-the-jdbc-30-driver-when-accessing-metadata
+//                obj = rs.getString(index);
+//            } else {
+//                throw e;
+//            }
+//        }
+        if (obj instanceof Blob) {
+            obj = rs.getBytes(index);
+        } else if (obj instanceof Clob) {
+            obj = rs.getString(index);
+//        } else if (obj != null && obj.getClass().getName().startsWith("oracle.sql.TIMESTAMP")) {
+//            obj = rs.getTimestamp(index);
+//        } else if (obj != null && obj.getClass().getName().startsWith("oracle.sql.DATE")) {
+//            String metaDataClassName = rs.getMetaData().getColumnClassName(index);
+//            if ("java.sql.Timestamp".equals(metaDataClassName) ||
+//                    "oracle.sql.TIMESTAMP".equals(metaDataClassName)) {
+//                obj = rs.getTimestamp(index);
+//            } else {
+//                obj = rs.getDate(index);
+//            }
+//        } else if (obj != null && obj instanceof java.sql.Date) {
+//            if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
+//                obj = rs.getTimestamp(index);
+//            }
+        }
+        return obj;
+    }
+
+    /**
      * Surrounds objectName with {@link #identifierStartQuote} and {@link #identifierEndQuote}.
      * If quoting char is ", replace quotes in object name with double quotes. Otherwise, replace identifierStartQuote and identifierEndQuote chars with backslashed versions.
      */
@@ -317,7 +381,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
             objectType = DatabaseObject.class;
         }
 
-        return StringUtils.join(reference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtils.DatabaseObjectNameFormatter(objectType, scope));
+        return StringUtil.join(reference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtil.DatabaseObjectNameFormatter(objectType, scope));
     }
 
 

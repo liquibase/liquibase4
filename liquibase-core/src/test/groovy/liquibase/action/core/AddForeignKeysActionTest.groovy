@@ -6,8 +6,9 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.core.Column
 import liquibase.item.core.ForeignKey
 import liquibase.item.core.Index
@@ -15,6 +16,8 @@ import liquibase.item.core.RelationReference
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.StringUtil
+import liquibase.util.TestUtil
 import spock.lang.Unroll
 
 class AddForeignKeysActionTest extends AbstractActionTest {
@@ -24,9 +27,9 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         when:
         def action = new AddForeignKeysAction()
 
-        def pkTable = new Table(concatConsistantCase(tableName.name, "_ref"), tableName.container)
+        def pkTable = new Table(StringUtil.concatConsistentCase(tableName.name, "_ref"), tableName.container)
 
-        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName], [concatConsistantCase(columnName, "_ref")])
+        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName], [StringUtil.concatConsistentCase(columnName, "_ref")])
 
         action.foreignKeys = [foreignKey]
 
@@ -43,9 +46,9 @@ class AddForeignKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
-                    getItemNames(ForeignKey, ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(ForeignKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
 
@@ -55,13 +58,13 @@ class AddForeignKeysActionTest extends AbstractActionTest {
     def "Can apply multiple columns with standard settings"() {
         when:
         def action = new AddForeignKeysAction()
-        def tableName = new RelationReference(Table, standardCaseItemName("table_name", Table, scope.database), schema)
-        def fkName = standardCaseItemName("fk_test", ForeignKey, scope.database)
-        def columnName = standardCaseItemName("col_name", Column, scope.database)
+        def tableName = new RelationReference(Table, standardCaseItemName("table_name", Table, scope), schema)
+        def fkName = standardCaseItemName("fk_test", ForeignKey, scope)
+        def columnName = standardCaseItemName("col_name", Column, scope)
 
-        def pkTable = new Table(concatConsistantCase(tableName.name, "_ref"), tableName.container)
+        def pkTable = new Table(StringUtil.concatConsistentCase(tableName.name, "_ref"), tableName.container)
 
-        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName, columnName + "_2"], [concatConsistantCase(columnName, "_ref"), concatConsistantCase(columnName, "_2_ref")])
+        def foreignKey = new ForeignKey(fkName, tableName, pkTable.toReference(), [columnName, columnName + "_2"], [StringUtil.concatConsistentCase(columnName, "_ref"), StringUtil.concatConsistentCase(columnName, "_2_ref")])
 
         action.foreignKeys = [foreignKey]
 
@@ -73,7 +76,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
         where:
         [conn, scope, schema] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.itemNameStrategy, ItemNameStrategy.COMPLEX_NAMES)
+            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.itemNameStrategy, TestItemSupplier.NameStrategy.COMPLEX_NAMES)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
@@ -111,14 +114,14 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def baseTableName = standardCaseItemName("base_table", Table, scope.database)
-        def refTableName = standardCaseItemName("ref_table", Table, scope.database)
+        def baseTableName = standardCaseItemName("base_table", Table, scope)
+        def refTableName = standardCaseItemName("ref_table", Table, scope)
 
-        def baseColumnName = standardCaseItemName("id", Column, scope.database)
-        def refColumnName = standardCaseItemName("id_ref", Column, scope.database)
+        def baseColumnName = standardCaseItemName("id", Column, scope)
+        def refColumnName = standardCaseItemName("id_ref", Column, scope)
 
-        return createAllPermutations(AddForeignKeysAction, [
-                foreignKeys: CollectionUtil.toSingletonLists(createAllPermutations(ForeignKey, [
+        return TestUtil.createAllPermutations(AddForeignKeysAction, [
+                foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(ForeignKey, [
                         name             : ["test_fk"],
                         relation            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, baseTableName, it) })),
                         referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, refTableName, it) })),
@@ -141,7 +144,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
             def index;
             for (def check : fk.columnChecks) {
                 if (index == null) {
-                    index = new Index(concatConsistantCase(refTableName.name, "_idx"), refTableName)
+                    index = new Index(StringUtil.concatConsistentCase(refTableName.name, "_idx"), refTableName)
                 }
 
                 if (seenTables.add(baseTableName)) {

@@ -7,8 +7,9 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
 import liquibase.item.core.*
 import liquibase.item.datatype.DataType
@@ -19,7 +20,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
 
     @Unroll("#featureName: #fkName in #schema on #conn")
     def "can find fully qualified complex foreign key names"() {
-        def fkRef = new ForeignKeyReference(fkName, new RelationReference(Table, standardCaseItemName("test_table", Table, scope.database), schema))
+        def fkRef = new ForeignKeyReference(fkName, new RelationReference(Table, standardCaseItemName("test_table", Table, scope), schema))
 
         expect:
         def action = new SnapshotItemsAction(fkRef)
@@ -44,7 +45,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(ForeignKey, ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(ForeignKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
                     it.getAllSchemas(),
             ])
         }
@@ -75,7 +76,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -114,17 +115,17 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
     def "Finds multi-column FKs correctly"() {
         expect:
 
-        def table = new Table(standardCaseItemName("table_name", Table, scope.database), schema)
-        def column1 = new Column(standardCaseItemName("col1", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column2 = new Column(standardCaseItemName("col2", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column3 = new Column(standardCaseItemName("col3", Column, scope.database), table.toReference(), DataType.parse("int"), true)
+        def table = new Table(standardCaseItemName("table_name", Table, scope), schema)
+        def column1 = new Column(standardCaseItemName("col1", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column2 = new Column(standardCaseItemName("col2", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column3 = new Column(standardCaseItemName("col3", Column, scope), table.toReference(), DataType.parse("int"), true)
 
-        def refTable = new Table(standardCaseItemName("ref_table_name", Table, scope.database), schema)
-        def refColumn1 = new Column(standardCaseItemName("col1_ref", Column, scope.database), refTable.toReference(), DataType.parse("int"), true)
-        def refColumn2 = new Column(standardCaseItemName("col2_ref", Column, scope.database), refTable.toReference(), DataType.parse("int"), true)
-        def refColumn3 = new Column(standardCaseItemName("col3_ref", Column, scope.database), refTable.toReference(), DataType.parse("int"), true)
+        def refTable = new Table(standardCaseItemName("ref_table_name", Table, scope), schema)
+        def refColumn1 = new Column(standardCaseItemName("col1_ref", Column, scope), refTable.toReference(), DataType.parse("int"), true)
+        def refColumn2 = new Column(standardCaseItemName("col2_ref", Column, scope), refTable.toReference(), DataType.parse("int"), true)
+        def refColumn3 = new Column(standardCaseItemName("col3_ref", Column, scope), refTable.toReference(), DataType.parse("int"), true)
 
-        def index = new Index(standardCaseItemName("ref_idx", Index, scope.database), refTable.toReference(), new Index.IndexedColumn(refColumn1.name), new Index.IndexedColumn(refColumn3.name))
+        def index = new Index(standardCaseItemName("ref_idx", Index, scope), refTable.toReference(), new Index.IndexedColumn(refColumn1.name), new Index.IndexedColumn(refColumn3.name))
         def fk = new ForeignKey("test_fk", table.toReference(), refTable.toReference(), [column1.name, column3.name], [refColumn1.name, refColumn3.name])
 
         def snapshot = new Snapshot(scope)
@@ -175,11 +176,11 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
 
-        def baseColumn1Name = standardCaseItemName("fk_id1", Column, scope.database)
-        def refColumn1Name = standardCaseItemName("id1", Column, scope.database)
+        def baseColumn1Name = standardCaseItemName("fk_id1", Column, scope)
+        def refColumn1Name = standardCaseItemName("id1", Column, scope)
 
-        def baseColumn2Name = standardCaseItemName("fk_id2", Column, scope.database)
-        def refColumn2Name = standardCaseItemName("id2", Column, scope.database)
+        def baseColumn2Name = standardCaseItemName("fk_id2", Column, scope)
+        def refColumn2Name = standardCaseItemName("id2", Column, scope)
 
         def schema = null;
         for (ItemReference relatedTo : ((SnapshotItemsAction) action).relatedTo) {
@@ -191,12 +192,12 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Column(baseColumn1Name, relatedTo.container, DataType.parse("int"), true))
                 snapshot.add(new Column(baseColumn2Name, relatedTo.container, DataType.parse("int"), true))
 
-                def refTable = new RelationReference(Table, standardCaseItemName(relatedTo.container.name + "_ref", Table, scope.database), schema)
+                def refTable = new RelationReference(Table, standardCaseItemName(relatedTo.container.name + "_ref", Table, scope), schema)
                 snapshot.add(new Table(refTable.name, refTable.container))
                 snapshot.add(new Column(refColumn1Name, refTable, DataType.parse("int"), true))
                 snapshot.add(new Column(refColumn2Name, refTable, DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx1_"+refTable.name, Index, scope.database), refTable, new Index.IndexedColumn(refColumn1Name)))
-                snapshot.add(new Index(standardCaseItemName("idx2_"+refTable.name, Index, scope.database), refTable, new Index.IndexedColumn(refColumn2Name)))
+                snapshot.add(new Index(standardCaseItemName("idx1_"+refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn1Name)))
+                snapshot.add(new Index(standardCaseItemName("idx2_"+refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn2Name)))
                 snapshot.add(new ForeignKey(relatedTo.name, relatedTo.container, refTable, [baseColumn1Name], [refColumn1Name]))
                 snapshot.add(new ForeignKey(null, relatedTo.container, refTable, [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Relation)) {
@@ -207,30 +208,30 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Column(baseColumn1Name, relatedTo, DataType.parse("int"), true))
                 snapshot.add(new Column(baseColumn2Name, relatedTo, DataType.parse("int"), true))
 
-                def refTableName = new RelationReference(Table, standardCaseItemName(relatedTo.name + "_ref", Table, scope.database), relatedTo.container)
+                def refTableName = new RelationReference(Table, standardCaseItemName(relatedTo.name + "_ref", Table, scope), relatedTo.container)
                 snapshot.add(new Table(refTableName.name, refTableName.container))
                 snapshot.add(new Column(refColumn1Name, refTableName, DataType.parse("int"), true))
                 snapshot.add(new Column(refColumn2Name, refTableName, DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx1_$refTableName.name", Index, scope.database), refTableName, new Index.IndexedColumn( refColumn1Name)))
-                snapshot.add(new Index(standardCaseItemName("idx2_$refTableName.name", Index, scope.database), refTableName, new Index.IndexedColumn( refColumn2Name)))
-                snapshot.add(new ForeignKey(standardCaseItemName("fk1_" + relatedTo, ForeignKey, scope.database), relatedTo, refTableName, [baseColumn1Name], [refColumn1Name]))
-                snapshot.add(new ForeignKey(standardCaseItemName("fk2_" + relatedTo, ForeignKey, scope.database), relatedTo, refTableName, [baseColumn2Name], [refColumn2Name]))
+                snapshot.add(new Index(standardCaseItemName("idx1_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn( refColumn1Name)))
+                snapshot.add(new Index(standardCaseItemName("idx2_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn( refColumn2Name)))
+                snapshot.add(new ForeignKey(standardCaseItemName("fk1_" + relatedTo, ForeignKey, scope), relatedTo, refTableName, [baseColumn1Name], [refColumn1Name]))
+                snapshot.add(new ForeignKey(standardCaseItemName("fk2_" + relatedTo, ForeignKey, scope), relatedTo, refTableName, [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Schema)) {
                 schema = relatedTo
             }
         }
 
         for (int i=0; i<5; i++) {
-            def baseTable = new RelationReference(Table, standardCaseItemName("test_table_$i", Table, scope.database), schema)
-            def refTable = new RelationReference(Table, standardCaseItemName("ref_table_$i", Table, scope.database), schema)
+            def baseTable = new RelationReference(Table, standardCaseItemName("test_table_$i", Table, scope), schema)
+            def refTable = new RelationReference(Table, standardCaseItemName("ref_table_$i", Table, scope), schema)
 
             snapshot.add(new Table(baseTable.name, baseTable.container))
             snapshot.add(new Column(baseColumn1Name, baseTable, DataType.parse("int"), true))
 
             snapshot.add(new Table(refTable.name, refTable.container))
             snapshot.add(new Column(refColumn1Name, refTable, DataType.parse("int"), true))
-            snapshot.add(new Index(standardCaseItemName("ref_idx_$i", Index, scope.database), refTable, new Index.IndexedColumn(refColumn1Name)))
-            snapshot.add(new ForeignKey(standardCaseItemName("fk_" + baseTable.name, ForeignKey, scope.database), baseTable, refTable, [baseColumn1Name], [refColumn1Name]))
+            snapshot.add(new Index(standardCaseItemName("ref_idx_$i", Index, scope), refTable, new Index.IndexedColumn(refColumn1Name)))
+            snapshot.add(new ForeignKey(standardCaseItemName("fk_" + baseTable.name, ForeignKey, scope), baseTable, refTable, [baseColumn1Name], [refColumn1Name]))
         }
 
         return snapshot

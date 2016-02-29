@@ -251,7 +251,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         DataType columnType = column.type;
 
         boolean markPrimaryKey = canInlinePrimaryKey(action) && isPrimaryKey(column, action);
-        boolean nullable = ObjectUtil.defaultIfEmpty(column.nullable, true); // markPrimaryKey || ObjectUtil.defaultIfEmpty(column.nullable, false);
+        boolean nullable = ObjectUtil.defaultIfNull(column.nullable, true); // markPrimaryKey || ObjectUtil.defaultIfEmpty(column.nullable, false);
 //        String addAfterColumn = column.addAfterColumn;
 
         clauses.append("ADD")

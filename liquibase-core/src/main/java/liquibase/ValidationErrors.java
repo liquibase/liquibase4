@@ -1,6 +1,6 @@
 package liquibase;
 
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.*;
 
@@ -36,7 +36,7 @@ public class ValidationErrors {
         }
 
         for (String requiredFieldName : requiredFields) {
-            List path = objectToValidate.getPathOfValues(requiredFieldName, Object.class);
+            List path = objectToValidate.getValuePath(requiredFieldName, Object.class);
 
             boolean parentNull = false;
             for (int i=0; i<path.size()-1; i++) {
@@ -164,7 +164,7 @@ public class ValidationErrors {
     }
 
     public ValidationErrors addUnsupportedError(String message) {
-        addError(": " + (StringUtils.trimToEmpty(message) + " is not supported").trim());
+        addError(": " + (StringUtil.trimToEmpty(message) + " is not supported").trim());
         return this;
     }
 
@@ -280,11 +280,11 @@ public class ValidationErrors {
         if (!hasErrors()) {
             string = "No errors";
         } else {
-            string = StringUtils.join(getErrorMessages(), "; ");
+            string = StringUtil.join(getErrorMessages(), "; ");
         }
 
         if (hasWarnings()) {
-            string = StringUtils.join(getWarningMessages(), "; ", new StringUtils.StringUtilsFormatter() {
+            string = StringUtil.join(getWarningMessages(), "; ", new StringUtil.StringUtilsFormatter() {
                 @Override
                 public String toString(Object obj) {
                     return "WARNING: " + obj;

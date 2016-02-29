@@ -8,9 +8,10 @@ import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 import liquibase.snapshot.SnapshotFactory
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
 import liquibase.item.core.Catalog
 import liquibase.item.core.Column
@@ -70,7 +71,7 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope)
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
             ])
         }
     }
@@ -176,8 +177,8 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
     def "dataType comes through correctly"() {
         when:
         def schema = conn.getAllSchemas()[0]
-        def tableName = standardCaseItemName("testtable", Table, conn.database)
-        def columnName = standardCaseItemName("testcol", Column, conn.database)
+        def tableName = standardCaseItemName("testtable", Table, scope)
+        def columnName = standardCaseItemName("testcol", Column, scope)
         def type = DataType.parse(typeString)
 
         def snapshot = new Snapshot(scope)
@@ -202,7 +203,7 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
                     assert snapshotColumn.type.toString().toLowerCase().startsWith("varchar") && snapshotColumn.type.toString().contains("(10")
                 }
 
-                //since data types change to what the database thinks, test by adding a new columnRef with the snapshot's datatype and check that those are consistant
+                //since data types change to what the database thinks, test by adding a new columnRef with the snapshot's datatype and check that those are consistent
                 def addColumnsAction = new AddColumnsAction()
                 def columnToAdd = snapshotColumn.clone() as Column
                 columnToAdd.name = snapshotColumn.name + "_added"
@@ -235,8 +236,8 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
         def defaultValue = typeAndValue[1]
 
         def schema = conn.getAllSchemas()[0]
-        def tableName = standardCaseItemName("testtable", Table, conn.database)
-        def columnName = standardCaseItemName("testcol", Column, conn.database)
+        def tableName = standardCaseItemName("testtable", Table, scope)
+        def columnName = standardCaseItemName("testcol", Column, scope)
         def type = DataType.parse(typeString)
 
         def snapshot = new Snapshot(scope)
@@ -285,9 +286,9 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
-        for (ItemReference tableName : getItemReferences(Table, connectionSupplier.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope)) {
+        for (ItemReference tableName : getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
             snapshot.add(new Table(tableName.name, tableName.container))
-            for (def columnName : getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope)) {
+            for (def columnName : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
                 snapshot.add(new Column(columnName, tableName, DataType.parse("int"), true))
             }
         }
@@ -296,9 +297,9 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
     }
 
     List<ColumnReference> getColumnNamesWithTables(ConnectionSupplier connectionSupplier, Scope scope) {
-        getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope).collectMany {
+        getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collectMany {
             def colName = it
-            return getItemReferences(Table, connectionSupplier.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope).collect {
+            return getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect {
                 return new ColumnReference(colName, it)
             }
         }

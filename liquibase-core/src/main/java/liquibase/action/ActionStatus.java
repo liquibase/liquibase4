@@ -4,7 +4,7 @@ import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.item.ItemReference;
 import liquibase.util.ObjectUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.*;
 
@@ -34,7 +34,7 @@ public class ActionStatus {
      * Add the given message under the given Status. Message defaults to "No message" if null.
      */
     public ActionStatus add(Status status, String message) {
-        messages.get(status).add(ObjectUtil.defaultIfEmpty(message, "No message"));
+        messages.get(status).add(ObjectUtil.defaultIfNull(message, "No message"));
 
         return this;
     }
@@ -185,7 +185,7 @@ public class ActionStatus {
             if (statusMessages.size() == 0) {
                 return null;
             } else {
-                return StringUtils.join(statusMessages, ", ");
+                return StringUtil.join(statusMessages, ", ");
             }
         }
     }

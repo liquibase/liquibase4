@@ -1,16 +1,20 @@
 package liquibase
 
 import liquibase.action.AbstractActionTest
+import liquibase.action.Action
 import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
-import liquibase.item.TestItemReferenceSupplier
+import liquibase.item.TestItemSupplier
 import liquibase.item.datatype.DataTypeLogic
 import liquibase.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
+/**
+ * General tests of code-structure and tests for violations of required patterns.
+ */
 public class CodeInspector extends Specification {
 
     @Unroll("#featureName: #objectType.name")
@@ -26,18 +30,44 @@ public class CodeInspector extends Specification {
         assert getClass().getClassLoader().getResources("META-INF/services/" + objectType.name).hasMoreElements(): "No META-INF/services/$objectType.name file"
 
         TestUtil.getClasses(objectType) != null
-        new TreeSet<>(listedTypes*.name) == new TreeSet((TestUtil.getClasses(objectType)*.name.findAll({!it.contains("MockActionLogic") && !it.contains("MockExternalInteractionLogic")}))) //want ordered alphabetically in the file
+        new TreeSet<>(listedTypes*.name) == new TreeSet((TestUtil.getClasses(objectType)*.name.findAll({
+            !it.contains("MockActionLogic") && !it.contains("MockExternalInteractionLogic")
+        }))) //want ordered alphabetically in the file
 
         where:
         objectType << [
-        ActionLogic,
+                ActionLogic,
                 ConnectionSupplier,
                 Database,
                 DataTypeLogic,
                 ActionGenerator,
-                TestItemReferenceSupplier,
+                TestItemSupplier,
                 AbstractActionTest.TestDetails,
         ]
     }
+
+//    @Unroll("featureName: #actionClass")
+//    def "action classes have tests"() {
+//        when:
+//        getClass().forName(actionClass+"Test")
+//
+//        then:
+//        noExceptionThrown()
+//
+//        where:
+//        actionClass << TestUtil.getClasses(Action)*.name
+//    }
+//
+//    @Unroll("featureName: #logicClass")
+//    def "logic classes have tests"() {
+//        when:
+//        getClass().forName(logicClass+"Test")
+//
+//        then:
+//        noExceptionThrown()
+//
+//        where:
+//        logicClass << TestUtil.getClasses(ActionLogic)*.name
+//    }
 
 }

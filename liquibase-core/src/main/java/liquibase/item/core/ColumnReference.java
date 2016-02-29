@@ -22,6 +22,6 @@ public class ColumnReference extends AbstractRelationBasedObject.RelationBasedOb
 
     @Override
     public String toString() {
-        return ObjectUtil.defaultIfEmpty(container, "UNNAMED")+"."+ObjectUtil.defaultIfEmpty(name, "UNNAMED");
+        return ObjectUtil.defaultIfNull(container, "UNNAMED")+"."+ObjectUtil.defaultIfNull(name, "UNNAMED");
     }
 }

@@ -22,6 +22,9 @@ import java.util.Map;
  */
 public class Scope {
 
+    /**
+     * Enumeration containing standard attributes. Normally use methods like convenience {@link #getResourceAccessor()} or {@link #getDatabase()}
+     */
     public enum Attr {
         resourceAccessor,
         classLoader,

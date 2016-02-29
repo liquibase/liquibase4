@@ -16,7 +16,7 @@ import liquibase.item.ItemReference;
 import liquibase.item.core.*;
 import liquibase.item.datatype.DataType;
 import liquibase.util.ObjectUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import liquibase.util.Validate;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +92,11 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
         RowBasedQueryResult.Row row = (RowBasedQueryResult.Row) result;
         Database database = scope.getDatabase();
 
-        String rawTableName = StringUtils.trimToNull(row.get("TABLE_NAME", String.class));
+        String rawTableName = StringUtil.trimToNull(row.get("TABLE_NAME", String.class));
         String rawColumnName = row.get("COLUMN_NAME", String.class);
-        String rawSchemaName = StringUtils.trimToNull(row.get("TABLE_SCHEM", String.class));
-        String rawCatalogName = StringUtils.trimToNull(row.get("TABLE_CAT", String.class));
-        String remarks = StringUtils.trimToNull(row.get("REMARKS", String.class));
+        String rawSchemaName = StringUtil.trimToNull(row.get("TABLE_SCHEM", String.class));
+        String rawCatalogName = StringUtil.trimToNull(row.get("TABLE_CAT", String.class));
+        String remarks = StringUtil.trimToNull(row.get("REMARKS", String.class));
         if (remarks != null) {
             remarks = remarks.replace("''", "'"); //come back escaped sometimes
         }
@@ -141,7 +141,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 //            if (table instanceof Table) {
             if (row.get("IS_AUTOINCREMENT", Object.class) != null) {
                 String isAutoincrement = row.get("IS_AUTOINCREMENT", String.class);
-                isAutoincrement = StringUtils.trimToNull(isAutoincrement);
+                isAutoincrement = StringUtil.trimToNull(isAutoincrement);
                 if (isAutoincrement == null) {
                     column.autoIncrementInformation = null;
                 } else if (isAutoincrement.equals("YES")) {
@@ -345,7 +345,7 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
             return null;
         }
 
-        Class valueType = ObjectUtil.defaultIfEmpty(column.type.valueType, Object.class);
+        Class valueType = ObjectUtil.defaultIfNull(column.type.valueType, Object.class);
         if (defaultValueAsString.startsWith("(") && defaultValueAsString.endsWith(")")) {
             return new Column.FunctionDefaultValue(defaultValueAsString.substring(1, defaultValueAsString.length()-1));
         } else if (defaultValueAsString.startsWith("'") && defaultValueAsString.endsWith("'")) {

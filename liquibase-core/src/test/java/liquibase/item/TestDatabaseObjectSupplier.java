@@ -1,8 +1,6 @@
 package liquibase.item;
 
-import liquibase.JUnitScope;
 import liquibase.Scope;
-import liquibase.database.ConnectionSupplier;
 import liquibase.database.Database;
 import liquibase.database.core.GenericDatabase;
 import liquibase.exception.UnexpectedLiquibaseException;
@@ -14,16 +12,37 @@ import liquibase.util.ObjectUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TestItemReferenceSupplier<T extends Item> extends AbstractPlugin {
+/**
+ * Creates {@link DatabaseObject}s for test.
+ * This implementation will create names and references for all database object types, so there is no need to subclass unless you want non-standard logic for any types.
+ */
+public class TestDatabaseObjectSupplier<T extends DatabaseObject> extends AbstractPlugin implements TestItemSupplier<T> {
 
-    abstract int getPriority(Class<? extends Item> type, Scope scope);
+    public int getPriority(Class<T> type, Scope scope) {
+        return PRIORITY_DEFAULT;
+    }
 
-    List<String> getSimpleItemNames(Class<T> type, Scope scope) {
+    /**
+     * Calls to {@link #getSimpleNames(Class, Scope)} or {@link #getComplexNames(Class, Scope)} depending on the passed {@link NameStrategy}
+     */
+    @Override
+    public List<String> getNames(Class<T> type, NameStrategy nameStrategy, Scope scope) {
+        if (nameStrategy == NameStrategy.COMPLEX_NAMES) {
+            return getComplexNames(type, scope);
+        } else {
+            return getSimpleNames(type, scope);
+        }
+    }
+
+    /**
+     * Returns a list of simple names for the given type. Used by {@link #getNames(Class, NameStrategy, Scope)} for {@link NameStrategy#SIMPLE_NAMES}.
+     */
+    protected List<String> getSimpleNames(Class<T> type, Scope scope) {
         List<String> returnList = new ArrayList<>();
 
         int objectsToCreate = 10;
 
-        Database database = ObjectUtil.defaultIfEmpty(scope.getDatabase(), new GenericDatabase());
+        Database database = ObjectUtil.defaultIfNull(scope.getDatabase(), new GenericDatabase());
         if (database.getIdentifierCaseHandling(type, false, scope) == Database.IdentifierCaseHandling.LOWERCASE) {
             for (int i = 1; i <= objectsToCreate; i++) {
                 returnList.add(type.getSimpleName().toLowerCase() + i);
@@ -37,7 +56,10 @@ public abstract class TestItemReferenceSupplier<T extends Item> extends Abstract
         return returnList;
     }
 
-    List<String> getComplexItemNames(Class<T> type, Scope scope) {
+    /**
+     * Returns a list of complex names for the given type. Used by {@link #getNames(Class, NameStrategy, Scope)} for {@link NameStrategy#COMPLEX_NAMES}.
+     */
+    protected  List<String> getComplexNames(Class<T> type, Scope scope) {
         List<String> returnList = new ArrayList<>();
 
         returnList.add("lower" + type.getSimpleName().toLowerCase());
@@ -70,13 +92,20 @@ public abstract class TestItemReferenceSupplier<T extends Item> extends Abstract
         return returnList;
     }
 
-    public List<ItemReference> getItemReferences(Class<T> type, List<? extends ItemReference> containers, ItemNameStrategy nameStrategy, Scope scope) {
+    /**
+     * Uses {@link #getNames(Class, NameStrategy, Scope)} to construct references, plus if containers has non-null values, adds object names "ONLY_IN_X" where X is the container's name.
+     */
+    @Override
+    public List<ItemReference> getReferences(Class<T> type, List<? extends ItemReference> containers, NameStrategy nameStrategy, Scope scope) {
         try {
             List<ItemReference> returnList = new ArrayList<>();
+            if (containers == null) {
+                containers = new ArrayList<>(null);
+            }
 
             Class<? extends ItemReference> referenceType = type.getConstructor().newInstance().toReference().getClass();
 
-            List<String> baseNames = new ArrayList<>(getItemNames(type, nameStrategy, scope));
+            List<String> baseNames = new ArrayList<>(getNames(type, nameStrategy, scope));
 
             for (ItemReference container : containers) {
                 List<String> names = new ArrayList<>(baseNames);
@@ -106,17 +135,5 @@ public abstract class TestItemReferenceSupplier<T extends Item> extends Abstract
         } catch (Exception e) {
             throw new UnexpectedLiquibaseException(e);
         }
-    }
-
-    public List<String> getItemNames(Class<T> type, ItemNameStrategy nameStrategy, Scope scope) {
-        if (nameStrategy == ItemNameStrategy.COMPLEX_NAMES) {
-            return getComplexItemNames(type, scope);
-        } else {
-            return getSimpleItemNames(type, scope);
-        }
-    }
-
-    protected List<? extends ItemReference> getObjectContainers(Scope scope) {
-        return scope.get(JUnitScope.Attr.connectionSupplier, ConnectionSupplier.class).getAllSchemas();
     }
 }

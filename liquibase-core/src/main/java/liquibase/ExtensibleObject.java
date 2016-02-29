@@ -5,12 +5,11 @@ import java.util.Set;
 
 /**
  * This interface defines how objects can be extended with additional attributes at runtime without subclassing and exposes the ability to query attributes without resorting to reflection.
- * Implementations of this interface can and should expose get/set methods for standard properties, but those methods should be wrappers around the get/set methods, not private fields.
  *
  * If creating an ExtensibleObject, it is usually best to extend {@link liquibase.AbstractExtensibleObject} rather than this interface directly.
  * You should also create a test that extends from AbstractExtensibleObjectTest.
  */
-public interface ExtensibleObject {
+public interface ExtensibleObject extends Cloneable {
 
     /**
      * Return the names of all the set attributes. If an attribute is null the name may or may not be returned.
@@ -22,18 +21,24 @@ public interface ExtensibleObject {
      */
     Set<String> getStandardAttributeNames();
 
+    /**
+     * Returnsn true if the given attribute is set and not null.
+     */
     boolean has(String attribute);
 
-    boolean has(Enum attribute);
-
-
-    List getPathOfValues(String attribute, Class lastType);
+    /**
+     * Traverses dot-separated attributes in the attributePath and returns a list containing all the intermediate values.
+     *
+     *  @param lastType the type to convert the last value in the list to.
+     */
+    List getValuePath(String attributePath, Class lastType);
 
     /**
      * Return the current value of the given attribute name, converted to the passed type.
      * If the passed attribute is null or not defined, returns null.
      * If you do not know the type to convert to, pass Object.class as the type.
-     * Conversion is done using {@link liquibase.util.ObjectUtil#convert(Object, Class)}
+     * Conversion is done using {@link liquibase.util.ObjectUtil#convert(Object, Class)}.
+     * Should traverse dot-separated attributes.
      */
     <T> T get(String attribute, Class<T> type);
 
@@ -42,34 +47,17 @@ public interface ExtensibleObject {
      * Uses the type of defaultValue to determine the type to convert the current value to.
      *
      * If null is passed to the default value, no conversion of attribute is made if it is set.
+     * If traversing a dot-separated attribute path, return the default value if any along the path are null.
      */
     <T> T get(String attribute, T defaultValue);
-
-
-    /**
-     * Works like {@link #get(String, Class)} but uses the Enum name as the attribute name.
-     * By defining an enum containing the possible attributes for an object, you protect yourself from accidental misspellings and provide some level of intellisense.
-     * By convention, Liquibase creates an "Attr" enum in extensible objects containing the standard list of attributes. See {@link liquibase.action.AbstractSqlAction.Attr} for an example.
-     */
-    <T> T get(Enum attribute, Class<T> type);
-
-    <T> T get(Enum attribute, T defaultValue);
 
     /**
      * Sets the value of the given attribute.
      */
     ExtensibleObject set(String attribute, Object value);
 
-    ExtensibleObject set(Enum attribute, Object value);
-
-
     /**
-     * Adds the value to the collection at the given attribute. If the attribute is not defined, a List is created at the attribute.
-     * If the attribute contains only a single value, it is converted to a List with the old value plus the new value.
+     * Output a full description of this object. Should include all attributes and values.
      */
-    ExtensibleObject add(String attribute, Object value);
-
-    ExtensibleObject add(Enum attribute, Object value);
-
     String describe();
 }

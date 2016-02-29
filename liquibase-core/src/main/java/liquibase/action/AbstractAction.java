@@ -1,7 +1,7 @@
 package liquibase.action;
 
 import liquibase.AbstractExtensibleObject;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 /**
  * Convenience standard implementation of {@link liquibase.action.Action}.
@@ -16,8 +16,8 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
     public String describe() {
         String name = getClass().getSimpleName();
         name = name.replaceFirst("Action$", "");
-        name = StringUtils.lowerCaseFirst(name);
-        return name+"("+ StringUtils.join(this, ", ", new StringUtils.DefaultFormatter())+")";
+        name = StringUtil.lowerCaseFirst(name);
+        return name+"("+ StringUtil.join(this, ", ", new StringUtil.DefaultFormatter())+")";
     }
 
     /**

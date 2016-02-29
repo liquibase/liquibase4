@@ -54,7 +54,7 @@ public class DropTableLogic extends AbstractActionLogic<DropTableAction> {
                 .append("DROP TABLE")
                 .append(database.quoteObjectName(tableName, scope));
 
-        if (ObjectUtil.defaultIfEmpty(action.cascadeConstraints, false)) {
+        if (ObjectUtil.defaultIfNull(action.cascadeConstraints, false)) {
             clauses.append("CASCADE");
         }
         return clauses;

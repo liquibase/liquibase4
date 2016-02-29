@@ -6,11 +6,13 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.core.*
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.TestUtil
 import spock.lang.Unroll
 
 public class AddPrimaryKeysActionTest extends AbstractActionTest {
@@ -31,13 +33,13 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
-                            primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
-                                    name    : getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
+                    TestUtil.createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
+                            primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
+                                    name    : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
                                     relation: it.getAllSchemas().collect({
-                                        return new RelationReference(Table, standardCaseItemName("table_name", Table, scope.getDatabase()), it)
+                                        return new RelationReference(Table, standardCaseItemName("table_name", Table, scope), it)
                                     }),
-                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope.getDatabase()))]]
+                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope))]]
                             ]))
                     ])
             ], new ValidActionFilter(scope))
@@ -57,11 +59,11 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
-                            primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
+                    TestUtil.createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
+                            primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
                                     name    : null,
-                                    relation: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
-                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope.getDatabase()))]]
+                                    relation: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope))]]
                             ]))
                     ])
             ])
@@ -81,11 +83,11 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
-                            primaryKeys: CollectionUtil.toSingletonLists(createAllPermutationsWithoutNulls(PrimaryKey, [
+                    TestUtil.createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
+                            primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
                                     name    : null,
-                                    relation:  [new RelationReference(Table, standardCaseItemName("table_name", Table, scope.getDatabase()))],
-                                    columns : CollectionUtil.toSingletonLists(getItemNames(PrimaryKey, ItemNameStrategy.COMPLEX_NAMES, scope).collect({
+                                    relation:  [new RelationReference(Table, standardCaseItemName("table_name", Table, scope))],
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
                                         return new PrimaryKey.PrimaryKeyColumn(it)
                                     })),
                             ]))
@@ -100,9 +102,9 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
         def action = new AddPrimaryKeysAction()
 
         action.primaryKeys = [
-                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
-                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
-                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope.database), schema), standardCaseItemName("col_name", Column, scope.database)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_1", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_2", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
+                new PrimaryKey(null, new RelationReference(Table, standardCaseItemName("test_table_3", Table, scope), schema), standardCaseItemName("col_name", Column, scope)),
         ]
 
         then:
@@ -144,15 +146,15 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseItemName("test_table", Table, scope.database)
+        def tableName = standardCaseItemName("test_table", Table, scope)
 
-        return createAllPermutations(AddPrimaryKeysAction, [
-                primaryKeys: CollectionUtil.toSingletonLists(createAllPermutations(PrimaryKey, [
+        return TestUtil.createAllPermutations(AddPrimaryKeysAction, [
+                primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(PrimaryKey, [
                         clustered : [true, false],
                         tablespace: ["test_tablespace"],
-                        columns   : CollectionUtil.toSingletonLists(createAllPermutations(PrimaryKey.PrimaryKeyColumn, [
+                        columns   : CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(PrimaryKey.PrimaryKeyColumn, [
                                 direction: [Index.IndexDirection.ASC, Index.IndexDirection.DESC],
-                                name     : [standardCaseItemName("col_name", Column, scope.database)]
+                                name     : [standardCaseItemName("col_name", Column, scope)]
                         ])),
                         relation  : connectionSupplier.allSchemas.collect({
                             return new RelationReference(Table, tableName, it)
@@ -171,7 +173,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     snapshot.add(new Column(col.name, pk.relation, DataType.parse("int"), false))
                 }
             }
-            snapshot.add(new Column(standardCaseItemName("non_pk_col", Column, scope.database), pk.relation, DataType.parse("int"), true))
+            snapshot.add(new Column(standardCaseItemName("non_pk_col", Column, scope), pk.relation, DataType.parse("int"), true))
         }
 
         return snapshot

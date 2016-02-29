@@ -5,37 +5,24 @@ import liquibase.database.ConnectionSupplier;
 
 public class MysqlConnectionSupplier extends ConnectionSupplier {
 
+    public MysqlConnectionSupplier() {
+        primarySchema = "lbcat";
+        alternateSchema = "lbcat2";
+    }
+
     @Override
-    public String getDatabaseShortName() {
+    protected String getDatabaseShortName() {
         return "mysql";
     }
 
-    public int getPort() {
-        return 3306;
+    @Override
+    public String createJdbcUrl() {
+        return "jdbc:mysql://"+ host +"/"+primaryCatalog;
     }
 
     @Override
-    public String getAdminUsername() {
-        return "root";
-    }
-
-    @Override
-    public String getJdbcUrl() {
-        return "jdbc:mysql://"+ getIpAddress() +"/"+getPrimaryCatalog();
-    }
-
-    @Override
-    public String getConfigurationName() {
+    public String getName() {
         return "caseInsensitive";
     }
 
-    @Override
-    public String getPrimarySchema() {
-        return "lbcat".toLowerCase();
-    }
-
-    @Override
-    public String getAlternateSchema() {
-        return "lbcat2".toLowerCase();
-    }
 }

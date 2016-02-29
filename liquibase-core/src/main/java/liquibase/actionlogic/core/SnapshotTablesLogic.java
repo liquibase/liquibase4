@@ -14,7 +14,7 @@ import liquibase.item.core.Catalog;
 import liquibase.item.core.Schema;
 import liquibase.item.core.SchemaReference;
 import liquibase.item.core.Table;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import liquibase.util.Validate;
 
 import java.util.List;
@@ -79,7 +79,7 @@ public class SnapshotTablesLogic extends AbstractSnapshotDatabaseObjectsLogic<Ta
         String rawTableName = row.get("TABLE_NAME", String.class);
         String rawSchemaName = row.get("TABLE_SCHEM", String.class);
         String rawCatalogName = row.get("TABLE_CAT", String.class);
-        String remarks = StringUtils.trimToNull(row.get("REMARKS", String.class));
+        String remarks = StringUtil.trimToNull(row.get("REMARKS", String.class));
         if (remarks != null) {
             remarks = remarks.replace("''", "'"); //come back escaped sometimes
         }

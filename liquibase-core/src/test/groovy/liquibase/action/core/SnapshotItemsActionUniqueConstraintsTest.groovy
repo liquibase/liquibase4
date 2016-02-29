@@ -7,8 +7,9 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
@@ -46,7 +47,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(UniqueConstraint, ItemNameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
                         return new UniqueConstraintReference(it)
                     }),
             ])
@@ -78,8 +79,8 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(UniqueConstraint, ItemNameStrategy.COMPLEX_NAMES, scope).collect({
-                        return new UniqueConstraintReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope.getDatabase())))
+                    getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        return new UniqueConstraintReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))
                     }),
             ])
         }
@@ -110,7 +111,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
                         new UniqueConstraintReference(null, it)
                     }),
             ])
@@ -142,7 +143,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -213,10 +214,10 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
     def "Finds multi-column UQs correctly"() {
         expect:
 
-        def table = new Table(standardCaseItemName("table_name", Table, scope.database), schema)
-        def column1 = new Column(standardCaseItemName("col1", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column2 = new Column(standardCaseItemName("col2", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column3 = new Column(standardCaseItemName("col3", Column, scope.database), table.toReference(), DataType.parse("int"), true)
+        def table = new Table(standardCaseItemName("table_name", Table, scope), schema)
+        def column1 = new Column(standardCaseItemName("col1", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column2 = new Column(standardCaseItemName("col2", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column3 = new Column(standardCaseItemName("col3", Column, scope), table.toReference(), DataType.parse("int"), true)
 
         def uq = new UniqueConstraint(null, table.toReference(), column1.name, column3.name)
         def snapshot = new Snapshot(scope)
@@ -262,14 +263,14 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
 
-        def columnName = standardCaseItemName("id", Column, scope.database)
+        def columnName = standardCaseItemName("id", Column, scope)
         //Crate the expected UQ/table combo
         for (ItemReference relatedTo : ((SnapshotItemsAction) action).relatedTo) {
             if (relatedTo instanceof UniqueConstraintReference) {
 
                 def tableName = relatedTo.container
                 if (tableName == null || tableName.name == null) {
-                    tableName = new RelationReference(Table, standardCaseItemName("test_table", Table, scope.database), ((UniqueConstraintReference) relatedTo).getSchema())
+                    tableName = new RelationReference(Table, standardCaseItemName("test_table", Table, scope), ((UniqueConstraintReference) relatedTo).getSchema())
                 }
 
                 snapshot.add(new Table(tableName.name, tableName.container))
@@ -278,7 +279,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             } else if (relatedTo.instanceOf(Table)) {
                 def table = new Table(relatedTo.name, relatedTo.container)
                 if (table.name == null) {
-                    table.name = standardCaseItemName("test_table", Table, scope.database)
+                    table.name = standardCaseItemName("test_table", Table, scope)
                 }
                 snapshot.add(table)
                 snapshot.add(new Column(columnName, table.toReference(), DataType.parse("int"), true))
@@ -290,10 +291,10 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
         for (int i = 0; i < 5; i++) {
             i = i + 1;
             for (ItemReference schema : connectionSupplier.getAllSchemas()) {
-                def tableName = new RelationReference(Table, standardCaseItemName("table_$i", Table, scope.database), schema)
+                def tableName = new RelationReference(Table, standardCaseItemName("table_$i", Table, scope), schema)
                 snapshot.add(new Table(tableName.name, tableName.container))
                 snapshot.add(new Column(columnName, tableName, DataType.parse("int"), true))
-                snapshot.add(new UniqueConstraint(standardCaseItemName("uq_test_" + i, UniqueConstraint, scope.database), tableName, columnName))
+                snapshot.add(new UniqueConstraint(standardCaseItemName("uq_test_" + i, UniqueConstraint, scope), tableName, columnName))
             }
         }
 

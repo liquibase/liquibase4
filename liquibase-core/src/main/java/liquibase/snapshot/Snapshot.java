@@ -6,7 +6,7 @@ import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.*;
 
@@ -37,7 +37,7 @@ public class Snapshot extends AbstractExtensibleObject {
     }
 
     public String describe() {
-        return "Snapshot(" + StringUtils.join(objects, ", ") + ")";
+        return "Snapshot(" + StringUtil.join(objects, ", ") + ")";
     }
 
     /**

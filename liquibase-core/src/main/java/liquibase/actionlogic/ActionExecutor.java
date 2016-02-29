@@ -7,7 +7,7 @@ import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class ActionExecutor implements SingletonObject {
     public ActionResult execute(Action action, Scope scope) throws ActionPerformException {
         Plan plan = createPlan(action, scope);
         if (plan.getValidationErrors().hasErrors()) {
-            throw new ActionPerformException("Validation Error(s): "+ StringUtils.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
+            throw new ActionPerformException("Validation Error(s): "+ StringUtil.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
         }
         executedPlans.add(plan.describe(true));
         return plan.execute(scope);
@@ -306,12 +306,12 @@ public class ActionExecutor implements SingletonObject {
 
             @Override
             public String describe(final boolean longDescription) {
-                return StringUtils.pad(StringUtils.join(steps, "\n", new StringUtils.StringUtilsFormatter<Step>() {
+                return StringUtil.pad(StringUtil.join(steps, "\n", new StringUtil.StringUtilsFormatter<Step>() {
                     @Override
                     public String toString(Step step) {
                         return step.describe(longDescription);
                     }
-                }), depth*4);
+                }), depth * 4);
             }
 
 

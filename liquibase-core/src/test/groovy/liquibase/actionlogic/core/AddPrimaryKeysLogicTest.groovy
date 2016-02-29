@@ -2,13 +2,13 @@ package liquibase.actionlogic.core
 
 import liquibase.action.core.AddPrimaryKeysActionTest
 import liquibase.actionlogic.AbstractLogicTest
-import liquibase.database.core.GenericDatabaseSupplier
+import liquibase.database.core.GenericConnectionSupplier
 
 class AddPrimaryKeysLogicTest extends AbstractLogicTest {
 
     def "validation failures are as expected"() {
         expect:
-        collectAllValidationErrors(new AddPrimaryKeysActionTest(), new GenericDatabaseSupplier()) == """
+        collectAllValidationErrors(new AddPrimaryKeysActionTest(), new GenericConnectionSupplier()) == """
 AddPrimaryKeysAction.primaryKeys is required
 AddPrimaryKeysAction.primaryKeys.columns is required
 AddPrimaryKeysAction.primaryKeys.columns.name is required

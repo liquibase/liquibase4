@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class CollectionUtil {
+public abstract class CollectionUtil {
 
     public static <T> Set<Set<T>> powerSet(Collection<T> originalSet) {
         Set<Set<T>> sets = new HashSet<>();
@@ -99,10 +99,6 @@ public class CollectionUtil {
         return returnList;
     }
 
-    public static boolean hasValue(List value) {
-        return value != null && value.size() > 0;
-    }
-
     /**
      * Convenience method returns passed currentValue if it is not null and creates a new ArrayList if it is null.
      * <br><br>
@@ -114,16 +110,6 @@ public class CollectionUtil {
         } else {
             return currentValue;
         }
-    }
-
-    /**
-     * Convenience method like {@link #createIfNull(List)} but also adds the given valueToAdd after the collection is ensured to exist.
-     */
-    public static <T> List<T> createIfNull(List<T> currentValue, T valueToAdd) {
-        List<T> list = createIfNull(currentValue);
-        list.add(valueToAdd);
-
-        return list;
     }
 
     public static <T> T[] createIfNull(T[] arguments) {

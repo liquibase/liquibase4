@@ -11,10 +11,10 @@ import liquibase.database.Database;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.DatabaseException;
-import liquibase.util.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -90,17 +90,28 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
     public ActionResult execute(QueryJdbcMetaDataAction action, Scope scope) throws ActionPerformException {
         String method = action.method;
         List arguments = action.arguments;
+        AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
         try {
             if (method.equals("getTables")) {
-                return new RowBasedQueryResult(action, JdbcUtils.extract(getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))));
+                try (ResultSet rs = getMetaData(scope).getTables((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String[]) arguments.get(3))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             } else if (method.equals("getColumns")) {
-                return new RowBasedQueryResult(action, JdbcUtils.extract(getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))));
+                try (ResultSet rs = getMetaData(scope).getColumns((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (String) arguments.get(3))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             } else if (method.equals("getPrimaryKeys")) {
-                return new RowBasedQueryResult(action, JdbcUtils.extract(getMetaData(scope).getPrimaryKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
+                try (ResultSet rs = getMetaData(scope).getPrimaryKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             } else if (method.equals("getImportedKeys")) {
-                return new RowBasedQueryResult(action, JdbcUtils.extract(getMetaData(scope).getImportedKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))));
+                try (ResultSet rs = getMetaData(scope).getImportedKeys((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             } else if (method.equals("getIndexInfo")) {
-                return new RowBasedQueryResult(action, JdbcUtils.extract(getMetaData(scope).getIndexInfo((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (Boolean) arguments.get(3), (Boolean) arguments.get(4))));
+                try (ResultSet rs = getMetaData(scope).getIndexInfo((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (Boolean) arguments.get(3), (Boolean) arguments.get(4))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             }
             throw new ActionPerformException("Unknown method '" + method + "'");
         } catch (Exception e) {

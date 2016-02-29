@@ -3,7 +3,7 @@ package liquibase.resource;
 import liquibase.exception.LiquibaseException;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StreamUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -166,7 +166,7 @@ public class FileSystemResourceAccessor extends AbstractResourceAccessor {
 
     @Override
     public String toString() {
-        return getClass().getName() + " (" + StringUtils.join(getRootPaths(), ", ", new StringUtils.ToStringFormatter()) + ")";
+        return getClass().getName() + " (" + StringUtil.join(getRootPaths(), ", ", new StringUtil.ToStringFormatter()) + ")";
     }
 
     /**

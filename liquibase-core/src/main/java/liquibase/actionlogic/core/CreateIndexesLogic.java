@@ -16,7 +16,7 @@ import liquibase.item.core.IndexReference;
 import liquibase.item.core.RelationReference;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +93,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
         StringClauses clauses = new StringClauses().append("CREATE");
 
-        if (ObjectUtil.defaultIfEmpty(index.unique, false)) {
+        if (ObjectUtil.defaultIfNull(index.unique, false)) {
             clauses.append("UNIQUE ");
         }
 
@@ -107,7 +107,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
         clauses.append(Clauses.tableName, database.quoteObjectName(tableName, scope));
 
-        clauses.append(Clauses.columns, "(" + StringUtils.join(index.columns, ", ", new StringUtils.StringUtilsFormatter<Index.IndexedColumn>() {
+        clauses.append(Clauses.columns, "(" + StringUtil.join(index.columns, ", ", new StringUtil.StringUtilsFormatter<Index.IndexedColumn>() {
             @Override
             public String toString(Index.IndexedColumn column) {
                 Boolean computed = column.computed;

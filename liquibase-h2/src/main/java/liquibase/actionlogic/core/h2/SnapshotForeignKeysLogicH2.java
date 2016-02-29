@@ -46,7 +46,7 @@ public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
                         .append("AND FKTABLE_NAME=" + database.quoteString(baseTable.name, scope));
             } else {
                 query.append("WHERE FK_NAME=" + database.quoteString(relatedTo.name, scope))
-                        .append("AND FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
+                        .append("AND FKTABLE_SCHEMA=" + database.quoteString(((ForeignKeyReference) relatedTo).getSchema().name, scope));
             }
         } else if (relatedTo instanceof RelationReference) {
             query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope))

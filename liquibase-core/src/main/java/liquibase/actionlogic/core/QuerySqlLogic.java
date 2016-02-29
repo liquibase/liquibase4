@@ -9,10 +9,9 @@ import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
-import liquibase.util.JdbcUtils;
 
 import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
@@ -30,10 +29,12 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
             DatabaseConnection connection = database.getConnection();
 
             Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
-            Statement stmt = jdbcConnection.createStatement();
-            return new RowBasedQueryResult(action, JdbcUtils.extract(stmt.executeQuery(sql)));
-        } catch (SQLException e) {
-            throw new ActionPerformException("Error executing query '"+ sql +"'"+e);
+            try (Statement stmt = jdbcConnection.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                return new RowBasedQueryResult(action, database.extract(rs, scope));
+            }
+        } catch (Exception e) {
+            throw new ActionPerformException("Error executing query '" + sql + "'" + e);
         }
     }
 }

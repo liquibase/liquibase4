@@ -6,15 +6,15 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.MockJdbcConnection;
 import testmd.logic.SetupResult;
 
-public class GenericDatabaseSupplier extends ConnectionSupplier {
+public class GenericConnectionSupplier extends ConnectionSupplier {
 
     @Override
-    public String getDatabaseShortName() {
+    protected String getDatabaseShortName() {
         return "generic";
     }
 
     @Override
-    public String getJdbcUrl() {
+    public String createJdbcUrl() {
         return "jdbc:generic";
     }
 

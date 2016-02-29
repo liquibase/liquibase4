@@ -3,7 +3,7 @@ package liquibase.item.core;
 import liquibase.AbstractExtensibleObject;
 import liquibase.item.AbstractRelationBasedObject;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class ForeignKey extends AbstractRelationBasedObject<ForeignKeyReference>
     public ReferentialAction updateRule;
     public ReferentialAction deleteRule;
 
-    private static final liquibase.util.StringUtils.StringUtilsFormatter DEFAULT_COLUMN_CHECK_FORMATTER = new StringUtils.StringUtilsFormatter<ForeignKeyColumnCheck>() {
+    private static final StringUtil.StringUtilsFormatter DEFAULT_COLUMN_CHECK_FORMATTER = new StringUtil.StringUtilsFormatter<ForeignKeyColumnCheck>() {
         @Override
         public String toString(ForeignKeyColumnCheck obj) {
             return obj.baseColumn + "->" + obj.referencedColumn;
@@ -65,8 +65,8 @@ public class ForeignKey extends AbstractRelationBasedObject<ForeignKeyReference>
      * Creates a string for use in equals, hasCode and compareTo.
      */
     protected String createComparisonString() {
-        return this.relation + "(" + StringUtils.join(this.columnChecks, ", ", DEFAULT_COLUMN_CHECK_FORMATTER) +") to " +
-                this.referencedTable + "(" + StringUtils.join(this.columnChecks, ", ", DEFAULT_COLUMN_CHECK_FORMATTER) + ")";
+        return this.relation + "(" + StringUtil.join(this.columnChecks, ", ", DEFAULT_COLUMN_CHECK_FORMATTER) +") to " +
+                this.referencedTable + "(" + StringUtil.join(this.columnChecks, ", ", DEFAULT_COLUMN_CHECK_FORMATTER) + ")";
     }
 
     @Override

@@ -10,7 +10,7 @@ import liquibase.item.DatabaseObjectReference;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
 import liquibase.item.core.Schema;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -162,7 +162,7 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
 
     @Override
     public String quoteObjectName(DatabaseObjectReference reference, Scope scope) {
-        return StringUtils.join(reference.asList(), ".", new StringUtils.DatabaseObjectNameFormatter(reference.type, scope));
+        return StringUtil.join(reference.asList(), ".", new StringUtil.DatabaseObjectNameFormatter(reference.type, scope));
     }
 
     @Override

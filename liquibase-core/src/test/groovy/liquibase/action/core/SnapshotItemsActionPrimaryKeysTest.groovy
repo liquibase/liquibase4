@@ -7,8 +7,9 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
 import liquibase.item.core.Column
 import liquibase.item.core.PrimaryKey
@@ -49,7 +50,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(PrimaryKey, ItemNameStrategy.COMPLEX_NAMES, scope).collect({ return new SnapshotItemsAction(new PrimaryKeyReference(it)) }),
+                    getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new SnapshotItemsAction(new PrimaryKeyReference(it)) }),
             ], new ValidActionFilter(scope))
         })
     }
@@ -81,14 +82,14 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
                 return []
             }
 
-            def tableName = standardCaseItemName("known_table", Table, scope.getDatabase())
+            def tableName = standardCaseItemName("known_table", Table, scope)
 
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     CollectionUtil.permutationsWithoutNulls([
                             it.allSchemas,
-                            getItemNames(PrimaryKey, ItemNameStrategy.COMPLEX_NAMES, scope)
+                            getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
                     ]).collect({
                         def ref = new PrimaryKeyReference(it[1], new RelationReference(Table, tableName, it[0]))
 
@@ -123,7 +124,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope).collect({ new PrimaryKeyReference(null, it) }),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ new PrimaryKeyReference(null, it) }),
             ])
         }
     }
@@ -153,7 +154,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table,it.getAllSchemas(),  ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table,it.getAllSchemas(),  TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -224,10 +225,10 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
     def "Finds multi-column PKs correctly"() {
         expect:
 
-        def table = new Table(standardCaseItemName("table_name", Table, scope.database), schemaName)
-        def column1 = new Column(standardCaseItemName("col1", Column, scope.database), table.toReference(), DataType.parse("int"), false)
-        def column2 = new Column(standardCaseItemName("col2", Column, scope.database), table.toReference(), DataType.parse("int"), false)
-        def column3 = new Column(standardCaseItemName("col3", Column, scope.database), table.toReference(), DataType.parse("int"), false)
+        def table = new Table(standardCaseItemName("table_name", Table, scope), schemaName)
+        def column1 = new Column(standardCaseItemName("col1", Column, scope), table.toReference(), DataType.parse("int"), false)
+        def column2 = new Column(standardCaseItemName("col2", Column, scope), table.toReference(), DataType.parse("int"), false)
+        def column3 = new Column(standardCaseItemName("col3", Column, scope), table.toReference(), DataType.parse("int"), false)
 
         def pk = new PrimaryKey(null, table.toReference(), column1.name, column3.name)
         def snapshot = new Snapshot(scope)
@@ -273,12 +274,12 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
 
-        def columnName = standardCaseItemName("id", Column, scope.database)
+        def columnName = standardCaseItemName("id", Column, scope)
         //Crate the expected PK/table combo
         for (ItemReference relatedTo : ((SnapshotItemsAction) action).relatedTo) {
             if (relatedTo.instanceOf(PrimaryKey)) {
 
-                def table = relatedTo.container ?: new RelationReference(Table, standardCaseItemName("test_table", Table, scope.database))
+                def table = relatedTo.container ?: new RelationReference(Table, standardCaseItemName("test_table", Table, scope))
 
                 snapshot.add(new Table(table.name, table.container))
                 snapshot.add(new Column(columnName, table, DataType.parse("int"), false))
@@ -299,13 +300,13 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
         for (int i = 0; i < 5; i++) {
             i = i + 1;
             for (ItemReference schema : connectionSupplier.getAllSchemas()) {
-                def table = new RelationReference(Table, standardCaseItemName("table_$i", Table, scope.database), schema)
+                def table = new RelationReference(Table, standardCaseItemName("table_$i", Table, scope), schema)
                 snapshot.add(new Table(table.name, table.container))
                 snapshot.add(new Column(columnName, table, DataType.parse("int"), false))
 
                 def pkName = null;
                 if (testNamedPKs) {
-                    pkName = standardCaseItemName("pk_test_" + i, PrimaryKey, scope.database)
+                    pkName = standardCaseItemName("pk_test_" + i, PrimaryKey, scope)
                 }
 
                 snapshot.add(new PrimaryKey(pkName, table, columnName))

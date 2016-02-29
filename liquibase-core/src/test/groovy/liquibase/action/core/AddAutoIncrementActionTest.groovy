@@ -5,14 +5,16 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.core.Column
 import liquibase.item.core.ColumnReference
 import liquibase.item.core.PrimaryKey
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.TestUtil
 import spock.lang.Unroll
 
 class AddAutoIncrementActionTest extends AbstractActionTest {
@@ -30,10 +32,10 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
-                            column  : createAllPermutationsWithoutNulls(ColumnReference, [
-                                    name     : getItemNames(Column, ItemNameStrategy.COMPLEX_NAMES, scope),
-                                    container: getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    TestUtil.createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
+                            column  : TestUtil.createAllPermutationsWithoutNulls(ColumnReference, [
+                                    name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    container: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
                             ]),
                             dataType: [new DataType(DataType.StandardType.INTEGER)]
                     ])
@@ -74,13 +76,13 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
 
     @Override
     def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        def tableName = standardCaseItemName("table_name", Table, scope.database)
-        def columnName = standardCaseItemName("column_name", Table, scope.database)
+        def tableName = standardCaseItemName("table_name", Table, scope)
+        def columnName = standardCaseItemName("column_name", Table, scope)
 
-        createAllPermutations(AddAutoIncrementAction, [
+        TestUtil.createAllPermutations(AddAutoIncrementAction, [
                 column                  : [null, new ColumnReference(columnName, null), new ColumnReference(tableName, columnName)],
                 dataType                : [null, new DataType(DataType.StandardType.INTEGER)],
-                autoIncrementInformation: CollectionUtil.addNull(createAllPermutations(Column.AutoIncrementInformation, [
+                autoIncrementInformation: CollectionUtil.addNull(TestUtil.createAllPermutations(Column.AutoIncrementInformation, [
                         startWith  : [null, 1, 2, 10],
                         incrementBy: [null, 1, 5, 20]
                 ]))

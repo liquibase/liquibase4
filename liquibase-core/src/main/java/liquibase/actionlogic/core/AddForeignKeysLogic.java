@@ -17,7 +17,7 @@ import liquibase.item.core.ForeignKey;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,7 +124,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                 .append("CONSTRAINT")
                 .append(AddForeignKeysLogic.Clauses.constraintName, constrantName)
                 .append("FOREIGN KEY")
-                .append(Clauses.baseColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
+                .append(Clauses.baseColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
                         return database.quoteObjectName(obj.baseColumn, Column.class, scope);
@@ -132,7 +132,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                 }) + ")")
                 .append("REFERENCES")
                 .append(Clauses.referencedTableName, database.quoteObjectName(foreignKey.referencedTable, scope))
-                .append(Clauses.referencedColumnNames, "(" + StringUtils.join(foreignKey.columnChecks, ", ", new StringUtils.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
+                .append(Clauses.referencedColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
                         return database.quoteObjectName(obj.referencedColumn, Column.class, scope);
@@ -165,8 +165,8 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
             clauses.append("ON UPDATE", new StringClauses(" ").append("ON UPDATE").append(option));
         }
 
-        boolean deferrable = ObjectUtil.defaultIfEmpty(foreignKey.deferrable, false);
-        boolean initiallyDeferred = ObjectUtil.defaultIfEmpty(foreignKey.initiallyDeferred, false);
+        boolean deferrable = ObjectUtil.defaultIfNull(foreignKey.deferrable, false);
+        boolean initiallyDeferred = ObjectUtil.defaultIfNull(foreignKey.initiallyDeferred, false);
         if (deferrable || initiallyDeferred) {
             if (deferrable) {
                 clauses.append("DEFERRABLE");

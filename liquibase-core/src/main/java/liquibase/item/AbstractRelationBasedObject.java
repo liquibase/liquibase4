@@ -110,7 +110,7 @@ public abstract class AbstractRelationBasedObject<ReferenceType extends Abstract
 
         @Override
         public String toString() {
-            return ObjectUtil.defaultIfEmpty(name, "UNNAMED") + " on " + ObjectUtil.defaultIfEmpty(container, "UNNAMED");
+            return ObjectUtil.defaultIfNull(name, "UNNAMED") + " on " + ObjectUtil.defaultIfNull(container, "UNNAMED");
         }
 
         @Override

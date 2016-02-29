@@ -3,7 +3,7 @@ package liquibase;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.ObjectUtil;
 import liquibase.util.SmartMap;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -12,18 +12,28 @@ import java.util.*;
 /**
  * Convenience class implementing ExtensibleObject. It is usually easiest to extend this class rather than implement all of ExtensibleObject yourself.
  */
-public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
+public class AbstractExtensibleObject implements ExtensibleObject {
 
+    /**
+     * Additional non-standard attributes.
+     */
     private SmartMap attributes = new SmartMap();
-    private Set<String> standardAttributeNames;
 
+    /**
+     * Cache of fields on this object. Lazy loaded in {@link #getAttributeFields()}
+     */
     private static Map<Class, Map<String, Field>> attributeFieldCache = new HashMap<>();
 
     public AbstractExtensibleObject() {
     }
 
+    /**
+     * Creates a new object with the given attributes.
+     */
     public AbstractExtensibleObject(Map<String, ?> values) {
-        attributes.putAll(values);
+        for (Map.Entry<String, ?> entry : values.entrySet()) {
+            this.set(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
@@ -37,9 +47,6 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
         return Collections.unmodifiableSet(returnSet);
     }
 
-    /**
-     * Default implementation looks for an inner enum called "Attr" and returns the fields in there
-     */
     @Override
     public Set<String> getStandardAttributeNames() {
         return getAttributeFields().keySet();
@@ -50,13 +57,6 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
      */
     public boolean has(String key) {
         return get(key, Object.class) != null;
-    }
-
-    /**
-     * Return true if the given key is defined.
-     */
-    public boolean has(Enum key) {
-        return has(key.name());
     }
 
     @Override
@@ -88,10 +88,10 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
         return fields;
     }
 
-    private <T> T get(String attribute, T defaultValue, Class<T> type) {
+    protected  <T> T get(String attribute, T defaultValue, Class<T> type) {
         Object value;
         if (attribute.contains(".")) {
-            List path = getPathOfValues(attribute, type);
+            List path = getValuePath(attribute, type);
             value = path.get(path.size() - 1);
         } else {
             value = getFieldValue(attribute, type);
@@ -104,17 +104,17 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
         }
     }
 
-    public List getPathOfValues(String attribute, Class lastType) {
+    public List getValuePath(String attributes, Class lastType) {
         List path = new ArrayList();
 
         String baseField;
         String remainingAttribute = null;
-        int separatorIndex = attribute.indexOf('.');
+        int separatorIndex = attributes.indexOf('.');
         if (separatorIndex < 0) {
-            baseField = attribute;
+            baseField = attributes;
         } else {
-            baseField = attribute.substring(0, separatorIndex);
-            remainingAttribute = attribute.substring(separatorIndex + 1);
+            baseField = attributes.substring(0, separatorIndex);
+            remainingAttribute = attributes.substring(separatorIndex + 1);
         }
 
         Object lastValue = this;
@@ -200,21 +200,6 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
     }
 
     @Override
-    public <T> T get(Enum attribute, Class<T> type) {
-        return get(attribute.name(), type);
-    }
-
-    @Override
-    public <T> T get(Enum attribute, T defaultValue) {
-        return get(attribute.name(), defaultValue);
-    }
-
-    @Override
-    public ExtensibleObject set(Enum attribute, Object value) {
-        return this.set(attribute.name(), value);
-    }
-
-    @Override
     public ExtensibleObject set(String attribute, Object value) {
         Field field = getAttributeFields().get(attribute);
         if (field == null) {
@@ -230,32 +215,9 @@ public class AbstractExtensibleObject implements ExtensibleObject, Cloneable {
         return this;
     }
 
-    @Override
-    public ExtensibleObject add(String attribute, Object value) {
-        Object existingValue = get(attribute, Object.class);
-        if (existingValue == null) {
-            existingValue = new ArrayList<>();
-            set(attribute, existingValue);
-        } else if (!(existingValue instanceof Collection)) {
-            List newCollection = new ArrayList();
-            newCollection.add(existingValue);
-            set(attribute, newCollection);
-            existingValue = newCollection;
-        }
-
-        ((Collection) existingValue).add(value);
-
-        return this;
-    }
-
-    @Override
-    public ExtensibleObject add(Enum attribute, Object value) {
-        return add(attribute.name(), value);
-    }
-
     public String describe() {
         String name = getClass().getSimpleName();
-        return name + "{" + StringUtils.join(this, ", ", new StringUtils.DefaultFormatter()) + "}";
+        return name + "{" + StringUtil.join(this, ", ", new StringUtil.DefaultFormatter()) + "}";
     }
 
     @Override

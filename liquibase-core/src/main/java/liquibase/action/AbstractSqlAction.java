@@ -22,6 +22,6 @@ public abstract class AbstractSqlAction extends AbstractAction {
 
     @Override
     public String describe() {
-        return sql + ObjectUtil.defaultIfEmpty(endDelimiter, "");
+        return sql + ObjectUtil.defaultIfNull(endDelimiter, "");
     }
 }

@@ -1,1 +1,1 @@
-liquibase.database.core.GenericDatabaseSupplier
+liquibase.database.core.GenericConnectionSupplier

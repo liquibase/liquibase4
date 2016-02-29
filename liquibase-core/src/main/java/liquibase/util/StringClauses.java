@@ -6,7 +6,6 @@ import liquibase.database.core.GenericDatabase;
 import liquibase.item.DatabaseObject;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.Item;
-import liquibase.item.ItemReference;
 
 import java.util.*;
 
@@ -64,7 +63,7 @@ public class StringClauses {
     private String uniqueKey(String key) {
         boolean generateOne = false;
 
-        key = StringUtils.trimToNull(key);
+        key = StringUtil.trimToNull(key);
         if (key == null) {
             generateOne = true;
         } else if (clauses.containsKey(key)) {
@@ -82,10 +81,10 @@ public class StringClauses {
      * Adds a new clause at the end of the list with the given key.
      */
     public StringClauses append(String key, String clause) {
-        Validate.notNull(StringUtils.trimToNull(key), "key must be a non-null, non-empty value");
+        Validate.notNull(StringUtil.trimToNull(key), "key must be a non-null, non-empty value");
 
-        key = StringUtils.trimToEmpty(key).toLowerCase();
-        clause = StringUtils.trimToEmpty(clause);
+        key = StringUtil.trimToEmpty(key).toLowerCase();
+        clause = StringUtil.trimToEmpty(clause);
 
         if (clauses.containsKey(key)) {
             throw new IllegalArgumentException("Cannot add clause with key '" + key + "' because it is already defined");
@@ -98,9 +97,9 @@ public class StringClauses {
      * Adds a new sub-clause at the end of the list with the given key.
      */
     public StringClauses append(String key, StringClauses subclauses) {
-        Validate.notNull(StringUtils.trimToNull(key), "key must be a non-null, non-empty value");
+        Validate.notNull(StringUtil.trimToNull(key), "key must be a non-null, non-empty value");
 
-        key = StringUtils.trimToEmpty(key).toLowerCase();
+        key = StringUtil.trimToEmpty(key).toLowerCase();
 
         if (clauses.containsKey(key)) {
             throw new IllegalArgumentException("Cannot add clause with key '" + key + "' because it is already defined");
@@ -164,7 +163,7 @@ public class StringClauses {
      * Adds a clause with the given key to the beginning of the list.
      */
     public StringClauses prepend(String key, String clause) {
-        return prependImpl(key, StringUtils.trimToEmpty(clause));
+        return prependImpl(key, StringUtil.trimToEmpty(clause));
     }
 
     /**
@@ -197,9 +196,9 @@ public class StringClauses {
 
 
     private StringClauses prependImpl(String key, Object clause) throws IllegalArgumentException {
-        Validate.notNull(StringUtils.trimToNull(key), "key must be a non-null, non-empty value");
+        Validate.notNull(StringUtil.trimToNull(key), "key must be a non-null, non-empty value");
 
-        key = StringUtils.trimToEmpty(key).toLowerCase();
+        key = StringUtil.trimToEmpty(key).toLowerCase();
 
         if (clauses.containsKey(key)) {
             throw new IllegalArgumentException("Cannot add clause with key '" + key + "' because it is already defined");
@@ -234,7 +233,7 @@ public class StringClauses {
      * Replaces the given key with a new string. If the existing key does not exist, throws IllegalArgumentException
      */
     public StringClauses replace(String key, String newValue) throws IllegalArgumentException {
-        return replaceImpl(key, StringUtils.trimToEmpty(newValue));
+        return replaceImpl(key, StringUtil.trimToEmpty(newValue));
     }
 
     /**
@@ -260,7 +259,7 @@ public class StringClauses {
 
 
     private StringClauses replaceImpl(String key, Object newValue) {
-        key = StringUtils.trimToEmpty(key).toLowerCase();
+        key = StringUtil.trimToEmpty(key).toLowerCase();
         if (!clauses.containsKey(key)) {
             throw new IllegalArgumentException("Key '" + key + "' is not defined");
         }
@@ -295,7 +294,7 @@ public class StringClauses {
      * Convenience method for {@link #insertBefore(String, String, String)} where the new clause key is equal to the newValue.
      */
     public StringClauses insertBefore(String existingKey, String newValue) {
-        return insertBefore(existingKey, newValue, StringUtils.trimToNull(newValue));
+        return insertBefore(existingKey, newValue, StringUtil.trimToNull(newValue));
     }
 
     /**
@@ -314,10 +313,10 @@ public class StringClauses {
 
 
     private StringClauses insertBeforeImpl(String existingKey, String newKey, Object newValue) {
-        Validate.notNull(StringUtils.trimToNull(newKey), "key must be a non-null, non-empty value");
+        Validate.notNull(StringUtil.trimToNull(newKey), "key must be a non-null, non-empty value");
 
-        existingKey = StringUtils.trimToEmpty(existingKey).toLowerCase();
-        newKey = StringUtils.trimToEmpty(newKey).toLowerCase();
+        existingKey = StringUtil.trimToEmpty(existingKey).toLowerCase();
+        newKey = StringUtil.trimToEmpty(newKey).toLowerCase();
 
         if (!clauses.containsKey(existingKey)) {
             throw new IllegalArgumentException("Existing key '" + existingKey + "' does not exist");
@@ -363,14 +362,14 @@ public class StringClauses {
      * Convenience method for {@link #insertAfter(String, String, String)} using the newValue as the newKey.
      */
     public StringClauses insertAfter(String existingKey, String newValue) {
-        return insertAfter(existingKey, newValue, StringUtils.trimToEmpty(newValue));
+        return insertAfter(existingKey, newValue, StringUtil.trimToEmpty(newValue));
     }
 
     private StringClauses insertAfterImpl(String existingKey, String newKey, Object newValue) {
-        Validate.notNull(StringUtils.trimToNull(existingKey), "key must be a non-null, non-empty value");
+        Validate.notNull(StringUtil.trimToNull(existingKey), "key must be a non-null, non-empty value");
 
-        existingKey = StringUtils.trimToEmpty(existingKey).toLowerCase();
-        newKey = StringUtils.trimToEmpty(newKey).toLowerCase();
+        existingKey = StringUtil.trimToEmpty(existingKey).toLowerCase();
+        newKey = StringUtil.trimToEmpty(newKey).toLowerCase();
 
         if (!clauses.containsKey(existingKey)) {
             throw new IllegalArgumentException("Existing key '" + existingKey + "' does not exist");
@@ -397,7 +396,7 @@ public class StringClauses {
      * Will traverse sub-clauses to find the key.
      */
     public String get(String exitingKey) {
-        exitingKey = StringUtils.trimToEmpty(exitingKey).toLowerCase();
+        exitingKey = StringUtil.trimToEmpty(exitingKey).toLowerCase();
         Object clauses = getImpl(exitingKey);
         if (clauses == null) {
             return null;
@@ -431,7 +430,7 @@ public class StringClauses {
      * Retrieves the given key. Returns null if not set. If clause at key is a String, return a new StringClause version of it. Will traverse sub-clauses to find the key.
      */
     public StringClauses getSubclause(String exitingKey) {
-        exitingKey = StringUtils.trimToEmpty(exitingKey).toLowerCase();
+        exitingKey = StringUtil.trimToEmpty(exitingKey).toLowerCase();
         Object clauses = getImpl(exitingKey);
         if (clauses == null) {
             return null;
@@ -465,7 +464,7 @@ public class StringClauses {
         }
 
         return start
-                + StringUtils.join(finalList, separator, new StringUtils.ToStringFormatter())
+                + StringUtil.join(finalList, separator, new StringUtil.ToStringFormatter())
                 + end;
     }
 

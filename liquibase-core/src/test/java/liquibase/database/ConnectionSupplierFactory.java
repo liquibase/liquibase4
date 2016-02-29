@@ -1,7 +1,7 @@
 package liquibase.database;
 
 import liquibase.Scope;
-import liquibase.database.core.GenericDatabaseSupplier;
+import liquibase.database.core.GenericConnectionSupplier;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.plugin.AbstractPluginFactory;
 
@@ -42,7 +42,7 @@ public class ConnectionSupplierFactory extends AbstractPluginFactory<ConnectionS
                 Iterator<ConnectionSupplier> iterator = this.connectionSuppliers.iterator();
                 while (iterator.hasNext()) {
                     ConnectionSupplier supplier = iterator.next();
-                    if (supplier instanceof GenericDatabaseSupplier) {
+                    if (supplier instanceof GenericConnectionSupplier) {
                         iterator.remove();
                     }
                 }

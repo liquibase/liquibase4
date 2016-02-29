@@ -3,7 +3,7 @@ package liquibase.actionlogic;
 import liquibase.action.Action;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.ObjectUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.sql.ResultSet;
 import java.util.*;
@@ -206,7 +206,7 @@ public class RowBasedQueryResult extends QueryResult {
 
         @Override
         public String toString() {
-            return "[" + StringUtils.join(data, ", ", new StringUtils.ToStringFormatter()) + "]";
+            return "[" + StringUtil.join(data, ", ", new StringUtil.ToStringFormatter()) + "]";
         }
 
         @Override

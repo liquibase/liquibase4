@@ -38,9 +38,6 @@ public class CreateTableAction extends AbstractAction {
     }
 
     public CreateTableAction addColumn(Column column) {
-        if (!CollectionUtil.hasValue(columns)) {
-            this.columns = new ArrayList<>();
-        }
         columns.add(column);
 
         return this;

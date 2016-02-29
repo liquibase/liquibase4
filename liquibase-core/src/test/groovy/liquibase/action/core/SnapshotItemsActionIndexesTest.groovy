@@ -8,12 +8,14 @@ import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
+import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
 import liquibase.item.core.*
 import liquibase.item.datatype.DataType
 import liquibase.util.CollectionUtil
+import liquibase.util.StringUtil
 import spock.lang.Unroll
 
 class SnapshotItemsActionIndexesTest extends AbstractActionTest {
@@ -42,7 +44,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return okIfEmpty("May not support snapshotting indexes without a table", CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, ItemNameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it) }),
+                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it) }),
             ], new ValidActionFilter(scope)))
         }
     }
@@ -71,7 +73,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, ItemNameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope.getDatabase())))}),
+                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))}),
             ])
         }
     }
@@ -101,7 +103,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope).collect({ new IndexReference(null, it) }),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ new IndexReference(null, it) }),
             ])
         }
     }
@@ -131,7 +133,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), ItemNameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -202,12 +204,12 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     def "Finds multi-column indexes correctly"() {
         expect:
 
-        def table = new Table(standardCaseItemName("table_name", Table, scope.database), schema)
-        def column1 = new Column(standardCaseItemName("col1", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column2 = new Column(standardCaseItemName("col2", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def column3 = new Column(standardCaseItemName("col3", Column, scope.database), table.toReference(), DataType.parse("int"), true)
+        def table = new Table(standardCaseItemName("table_name", Table, scope), schema)
+        def column1 = new Column(standardCaseItemName("col1", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column2 = new Column(standardCaseItemName("col2", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def column3 = new Column(standardCaseItemName("col3", Column, scope), table.toReference(), DataType.parse("int"), true)
 
-        def index = new Index(standardCaseItemName("idx_table_name", Index, scope.database), table.toReference(), new Index.IndexedColumn(column1.name), new Index.IndexedColumn(column3.name))
+        def index = new Index(standardCaseItemName("idx_table_name", Index, scope), table.toReference(), new Index.IndexedColumn(column1.name), new Index.IndexedColumn(column3.name))
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table, column1, column2, column3, index])
 
@@ -245,11 +247,11 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     def "Snapshots column direction correctly"() {
         when:
         def schemaName = conn.getAllSchemas()[0]
-        def table = new Table(standardCaseItemName("table1", Table, scope.database), schemaName)
-        def columnAsc = new Column(standardCaseItemName("col_asc", Column, scope.database), table.toReference(), DataType.parse("int"), true)
-        def columnDesc = new Column(standardCaseItemName("col_desc", Column, scope.database), table.toReference(), DataType.parse("int"), true)
+        def table = new Table(standardCaseItemName("table1", Table, scope), schemaName)
+        def columnAsc = new Column(standardCaseItemName("col_asc", Column, scope), table.toReference(), DataType.parse("int"), true)
+        def columnDesc = new Column(standardCaseItemName("col_desc", Column, scope), table.toReference(), DataType.parse("int"), true)
 
-        def index = new Index(standardCaseItemName("idx_table1", Index, scope.database), table.toReference())
+        def index = new Index(standardCaseItemName("idx_table1", Index, scope), table.toReference())
         index.columns = [
                 new Index.IndexedColumn(columnAsc.name, Index.IndexDirection.ASC),
                 new Index.IndexedColumn(columnDesc.name, Index.IndexDirection.DESC)
@@ -307,30 +309,30 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     def "Snapshots single-column primary key correctly"() {
         when:
         def schemaName = conn.getAllSchemas()[0]
-        def table1 = new Table(standardCaseItemName("table1", Table, scope.database), schemaName)
-        def table1Col1 = new Column(standardCaseItemName("col1", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col2 = new Column(standardCaseItemName("col2", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col3 = new Column(standardCaseItemName("col3", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col4 = new Column(standardCaseItemName("col4", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
+        def table1 = new Table(standardCaseItemName("table1", Table, scope), schemaName)
+        def table1Col1 = new Column(standardCaseItemName("col1", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col2 = new Column(standardCaseItemName("col2", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col3 = new Column(standardCaseItemName("col3", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col4 = new Column(standardCaseItemName("col4", Column, scope), table1.toReference(), DataType.parse("int"), false)
 
-        def table2 = new Table(standardCaseItemName("table2", Table, scope.database), schemaName)
-        def table2Col1 = new Column(standardCaseItemName("col1", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col2 = new Column(standardCaseItemName("col2", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col3 = new Column(standardCaseItemName("col3", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col4 = new Column(standardCaseItemName("col4", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
+        def table2 = new Table(standardCaseItemName("table2", Table, scope), schemaName)
+        def table2Col1 = new Column(standardCaseItemName("col1", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col2 = new Column(standardCaseItemName("col2", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col3 = new Column(standardCaseItemName("col3", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col4 = new Column(standardCaseItemName("col4", Column, scope), table2.toReference(), DataType.parse("int"), false)
 
         def table1PK = new PrimaryKey(null, table1.toReference(), table1Col1.name)
         def table2PK = new PrimaryKey(null, table2.toReference(), table2Col2.name, table2Col3.name)
 
-        def table1Index1 = new Index(concatConsistantCase(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
-        def table1Index2 = new Index(concatConsistantCase(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
-        def table1Index3 = new Index(concatConsistantCase(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
-        def table1Index4 = new Index(concatConsistantCase(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
+        def table1Index1 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
+        def table1Index2 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
+        def table1Index3 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
+        def table1Index4 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
 
-        def table2Index1 = new Index(concatConsistantCase(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
-        def table2Index2 = new Index(concatConsistantCase(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
-        def table2Index3 = new Index(concatConsistantCase(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
-        def table2Index4 = new Index(concatConsistantCase(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
+        def table2Index1 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
+        def table2Index2 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
+        def table2Index3 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
+        def table2Index4 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
 
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table1, table2,
@@ -372,30 +374,30 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     def "Snapshots multi-column primary key correctly"() {
         when:
         def schemaName = conn.getAllSchemas()[0]
-        def table1 = new Table(standardCaseItemName("table1", Table, scope.database), schemaName)
-        def table1Col1 = new Column(standardCaseItemName("col1", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col2 = new Column(standardCaseItemName("col2", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col3 = new Column(standardCaseItemName("col3", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
-        def table1Col4 = new Column(standardCaseItemName("col4", Column, scope.database), table1.toReference(), DataType.parse("int"), false)
+        def table1 = new Table(standardCaseItemName("table1", Table, scope), schemaName)
+        def table1Col1 = new Column(standardCaseItemName("col1", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col2 = new Column(standardCaseItemName("col2", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col3 = new Column(standardCaseItemName("col3", Column, scope), table1.toReference(), DataType.parse("int"), false)
+        def table1Col4 = new Column(standardCaseItemName("col4", Column, scope), table1.toReference(), DataType.parse("int"), false)
 
-        def table2 = new Table(standardCaseItemName("table2", Table, scope.database), schemaName)
-        def table2Col1 = new Column(standardCaseItemName("col1", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col2 = new Column(standardCaseItemName("col2", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col3 = new Column(standardCaseItemName("col3", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
-        def table2Col4 = new Column(standardCaseItemName("col4", Column, scope.database), table2.toReference(), DataType.parse("int"), false)
+        def table2 = new Table(standardCaseItemName("table2", Table, scope), schemaName)
+        def table2Col1 = new Column(standardCaseItemName("col1", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col2 = new Column(standardCaseItemName("col2", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col3 = new Column(standardCaseItemName("col3", Column, scope), table2.toReference(), DataType.parse("int"), false)
+        def table2Col4 = new Column(standardCaseItemName("col4", Column, scope), table2.toReference(), DataType.parse("int"), false)
 
         def table1PK = new PrimaryKey(null, table1.toReference(), table1Col1.name)
         def table2PK = new PrimaryKey(null, table2.toReference(), table2Col2.name, table2Col3.name)
 
-        def table1Index1 = new Index(concatConsistantCase(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
-        def table1Index2 = new Index(concatConsistantCase(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
-        def table1Index3 = new Index(concatConsistantCase(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
-        def table1Index4 = new Index(concatConsistantCase(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
+        def table1Index1 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx1"), table1.toReference(), new Index.IndexedColumn(table1Col2.name), new Index.IndexedColumn(table1Col3.name))
+        def table1Index2 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx2"), table1.toReference(), new Index.IndexedColumn(table1Col3.name))
+        def table1Index3 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx3"), table1.toReference(), new Index.IndexedColumn(table1Col4.name))
+        def table1Index4 = new Index(StringUtil.concatConsistentCase(table1.name, "_idx4"), table1.toReference(), new Index.IndexedColumn(table1Col1.name), new Index.IndexedColumn(table1Col2.name))
 
-        def table2Index1 = new Index(concatConsistantCase(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
-        def table2Index2 = new Index(concatConsistantCase(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
-        def table2Index3 = new Index(concatConsistantCase(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
-        def table2Index4 = new Index(concatConsistantCase(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
+        def table2Index1 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx1"), table2.toReference(), new Index.IndexedColumn(table2Col1.name))
+        def table2Index2 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx2"), table2.toReference(), new Index.IndexedColumn(table2Col2.name))
+        def table2Index3 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx3"), table2.toReference(), new Index.IndexedColumn(table2Col3.name))
+        def table2Index4 = new Index(StringUtil.concatConsistentCase(table2.name, "_idx4"), table2.toReference(), new Index.IndexedColumn(table2Col2.name), new Index.IndexedColumn(table2Col4.name))
 
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table1, table2,
@@ -438,31 +440,31 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
 
-        def columnName = standardCaseItemName("id", Column, scope.database)
+        def columnName = standardCaseItemName("id", Column, scope)
         //Crate the expected index/table combo
         int incNumber = 0;
         for (ItemReference relatedTo : ((SnapshotItemsAction) action).relatedTo) {
             if (relatedTo.instanceOf(Index)) {
 
-                def table = relatedTo.container ?: new RelationReference(Table, standardCaseItemName("test_table", Table, scope.database))
+                def table = relatedTo.container ?: new RelationReference(Table, standardCaseItemName("test_table", Table, scope))
                 if (table.name == null) {
-                    table.name = standardCaseItemName("test_table", Table, scope.database)
+                    table.name = standardCaseItemName("test_table", Table, scope)
                 }
 
                 snapshot.add(new Table(table.name, table.container))
                 snapshot.add(new Column(columnName, table, DataType.parse("int"), true))
 
-                def indexName = relatedTo.name ?: standardCaseItemName("idx_passed", Index, scope.database)
+                def indexName = relatedTo.name ?: standardCaseItemName("idx_passed", Index, scope)
 
                 snapshot.add(new Index(indexName, table, new Index.IndexedColumn(columnName)))
             } else if (relatedTo.instanceOf(Relation)) {
                 relatedTo = relatedTo.clone()
                 if (relatedTo.name == null) {
-                    relatedTo.name = standardCaseItemName("generated_table_" + (incNumber++), Table, scope.database)
+                    relatedTo.name = standardCaseItemName("generated_table_" + (incNumber++), Table, scope)
                 }
                 snapshot.add(new Table(relatedTo.name, relatedTo.container))
                 snapshot.add(new Column(columnName, relatedTo, DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx_passed_table", Index, scope.database), relatedTo, new Index.IndexedColumn(columnName)))
+                snapshot.add(new Index(standardCaseItemName("idx_passed_table", Index, scope), relatedTo, new Index.IndexedColumn(columnName)))
             }
         }
 
@@ -470,10 +472,10 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
         for (int i = 0; i < 5; i++) {
             i = i + 1;
             for (ItemReference schema : connectionSupplier.getAllSchemas()) {
-                def table = new Table(standardCaseItemName("table_$i", Table, scope.database), schema)
+                def table = new Table(standardCaseItemName("table_$i", Table, scope), schema)
                 snapshot.add(table)
                 snapshot.add(new Column(columnName, table.toReference(), DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx_test_" + i, Index, scope.database), table.toReference(), new Index.IndexedColumn(columnName)))
+                snapshot.add(new Index(standardCaseItemName("idx_test_" + i, Index, scope), table.toReference(), new Index.IndexedColumn(columnName)))
             }
         }
 

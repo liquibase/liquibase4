@@ -11,7 +11,7 @@ import liquibase.item.DatabaseObjectReference;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
 import liquibase.item.core.*;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import liquibase.util.Validate;
 
 import java.sql.DatabaseMetaData;
@@ -105,7 +105,7 @@ public class SnapshotIndexesLogic extends AbstractSnapshotDatabaseObjectsLogic<I
         String tableCat = row.get("TABLE_CAT", String.class);
         String tableSchema = row.get("TABLE_SCHEM", String.class);
         String tableName = row.get("TABLE_NAME", String.class);
-        String definition = StringUtils.trimToNull(row.get("FILTER_CONDITION", String.class));
+        String definition = StringUtil.trimToNull(row.get("FILTER_CONDITION", String.class));
         Boolean nonUnique = row.get("NON_UNIQUE", Boolean.class);
         if (nonUnique == null) {
             nonUnique = true;

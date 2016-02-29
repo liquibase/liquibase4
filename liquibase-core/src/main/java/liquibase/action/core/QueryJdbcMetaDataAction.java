@@ -3,7 +3,7 @@ package liquibase.action.core;
 import liquibase.action.AbstractAction;
 import liquibase.action.QueryAction;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +24,6 @@ public class QueryJdbcMetaDataAction extends AbstractAction implements QueryActi
 
     @Override
     public String describe() {
-        return method + "(" + StringUtils.join(arguments, ", ", new StringUtils.DefaultFormatter()) + ")";
+        return method + "(" + StringUtil.join(arguments, ", ", new StringUtil.DefaultFormatter()) + ")";
     }
 }

@@ -10,18 +10,20 @@ import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
+import liquibase.item.TestItemSupplier
 import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin
 import liquibase.snapshot.Snapshot
 import liquibase.item.Item
-import liquibase.item.ItemNameStrategy
+
 import liquibase.item.ItemReference
-import liquibase.item.TestItemReferenceSupplierFactory
+import liquibase.item.TestItemSupplierFactory
 import liquibase.item.core.*
-import liquibase.test.TestObjectFactory
+
 import liquibase.util.CollectionUtil
-import liquibase.util.StringUtils
+import liquibase.util.StringUtil
+import liquibase.util.TestUtil
 import org.junit.Assert
 import org.junit.Assume
 import org.slf4j.LoggerFactory
@@ -33,21 +35,47 @@ import testmd.logic.SetupResult
 
 import java.text.NumberFormat
 
+/**
+ * ActionTests are designed to actually execute {@link Action}s against the database, but will only do so if the SQL or database commands have changes.
+ * This "only test if needed" logic is managed using <a href="http://www.testmd.org">TestMD</a>.
+ * This base class provides convenience methods for making ActionTests as easy to write as possible.
+ * There should be one ActionTest per Action implementation.
+ */
 abstract class AbstractActionTest extends Specification {
 
-    def testMDPermutation(ConnectionSupplier conn, Scope scope) {
-        return testMDPermutation(null, conn, scope)
-    }
-
-    protected abstract Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope)
-
+    /**
+     * Creates all permutations of the action this test is for. This method is public because it can be used by other tests that operate on all actions of a given type.
+     */
     public abstract createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope)
 
-    def testAction(Map parameters, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results -> }, Closure setupClosure = {}) {
+    /**
+     * Used by {@link #testAction(java.util.Map, liquibase.action.Action, liquibase.database.ConnectionSupplier, liquibase.Scope)} to create a snapshot that contains everything needed to test the given action.
+     */
+    protected abstract Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope)
+
+    /**
+     * Convenience version of {@link #testAction(java.util.Map, Snapshot, liquibase.action.Action, liquibase.database.ConnectionSupplier, liquibase.Scope)}
+     * that uses {@link #createSnapshot(liquibase.action.Action, liquibase.database.ConnectionSupplier, liquibase.Scope)} as the snapshot.
+     */
+    protected testAction(Map parameters, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = { plan, results -> }, Closure setupClosure = {
+    }) {
         return testAction(parameters, null, action, connectionSupplier, scope, assertClosure, setupClosure)
     }
 
-    def testAction(Map parameters, Snapshot snapshot, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = {plan, results ->}, Closure setupClosure = {}) {
+    /**
+     * Executes an action through TestMD. The parameters are used to lookup the last time the action was ran, then a {@link liquibase.actionlogic.ActionExecutor.Plan} is created for the action.
+     * If the action was not ran before or plan differs, the action will be executed against the database.
+     * The success of the action is tested by calling {@link ActionExecutor#checkStatus(liquibase.action.Action, liquibase.Scope)} and the assertClosure if passed.
+     * For performance reasons, filter out invalid actions before calling this method. This method will perform action validation, but will throw an exception if validation fails.
+     *
+     * @param parameters A map of the permutation parameters to pass to TestMD. An additional "connection" parameter is automatically added.
+     * @param snapshot If the permutation must be re-tested, populate the database with the objects in the snapshot
+     * @param action The action to test
+     * @param assertClosure an additional assertion function if the standard assertion is insufficient. Parameters passed are (plan, result)
+     */
+    protected testAction(Map parameters, Snapshot snapshot, Action action, ConnectionSupplier connectionSupplier, Scope scope, Closure assertClosure = { plan, results -> }, Closure setupClosure = {
+        throw SetupResult.OK
+    }) {
         def executor = scope.getSingleton(ActionExecutor)
         try {
             executor.resetPlanHistory()
@@ -55,7 +83,7 @@ abstract class AbstractActionTest extends Specification {
             def errors = executor.validate(action, scope)
 //            Assume.assumeFalse(errors.toString() + " for action" + action.describe(), errors.hasErrors())
             if (errors.hasErrors()) {
-                Assert.fail("Should not have pass invalid action to testAction. Filter beforehand for performance reasons: "+errors.toString())
+                Assert.fail("Should not have pass invalid action to testAction. Filter beforehand for performance reasons: " + errors.toString())
             }
             def plan = executor.createPlan(action, scope)
 
@@ -64,15 +92,31 @@ abstract class AbstractActionTest extends Specification {
                 snapshot = createSnapshot(action, connectionSupplier, scope)
             }
 
-            testMDPermutation(snapshot, setupClosure, connectionSupplier, scope)
-                    .addParameters(parameters)
+            parameters.put("connection", connectionSupplier.toString());
+
+            TestMD.test(specificationContext.currentIteration.parent.spec.getPackage() + "." + specificationContext.currentIteration.parent.spec.name, specificationContext.currentIteration.parent.name, scope.database.class)
+                    .withPermutation(parameters)
                     .addOperations(plan: plan.describe(false))
+                    .setup({
+                if (scope.database instanceof GenericDatabase) {
+                    throw new SetupResult.CannotVerify("Generic");
+                }
+
+                scope = connectionSupplier.connect(scope)
+                this.setupDatabase(snapshot, scope)
+                setupClosure();
+
+                throw SetupResult.OK
+            })
+                    .cleanup({
+                this.cleanupDatabase(snapshot, scope)
+            })
                     .run({
                 def results
                 try {
                     results = plan.execute(scope)
                 } catch (ActionPerformException e) {
-                    LoggerFactory.getLogger(getClass()).warn("Snapshot: "+snapshot.describe())
+                    LoggerFactory.getLogger(getClass()).warn("Snapshot: " + snapshot.describe())
                     throw e;
                 }
 
@@ -81,72 +125,84 @@ abstract class AbstractActionTest extends Specification {
                 }
 
                 assertClosure(plan, results)
+
             })
 
             return true;
         } catch (Throwable e) {
-            LoggerFactory.getLogger(getClass()).error("Error on testAction for "+action.describe(), e)
-            LoggerFactory.getLogger(getClass()).error("All executed:\n"+StringUtils.pad(StringUtils.join(executor.getExecutedPlans(), "\n"), 4))
+            LoggerFactory.getLogger(getClass()).error("Error on testAction for " + action.describe(), e)
+            LoggerFactory.getLogger(getClass()).error("All executed:\n" + StringUtil.pad(StringUtil.join(executor.getExecutedPlans(), "\n"), 4))
             throw e
         }
     }
 
-    protected Collection assumeNotEmpty(String errorMessage, Collection values) {
-        Assume.assumeTrue(errorMessage, values != null && values.size() > 0)
-        return values;
+    /**
+     * Throw {@link org.junit.internal.AssumptionViolatedException} if collection is null or size is zero.
+     * Otherwise, return the collection.
+     * Used when the permutations generated by a where clause may end up being empty, and that is expected.
+     */
+    protected Collection okIfEmpty(String assertionErrorMessage, Collection collection) {
+        Assume.assumeTrue(assertionErrorMessage, collection != null && collection.size() > 0)
+        return collection
     }
 
-
+    /**
+     * Convenience method to call {@link ConnectionSupplierFactory#getConnectionSuppliers()}
+     */
     protected Set<ConnectionSupplier> getConnectionSuppliers() {
         JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers
     }
 
-    protected List createAllPermutationsWithoutNulls(Class type, Map<String, List<Object>> defaultValues) {
-        JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutationsWithoutNulls(type, defaultValues)
+    /**
+     * Convenience method to {@link liquibase.item.TestItemSupplier#getReferences(java.lang.Class, java.util.List, liquibase.item.TestItemSupplier.NameStrategy, liquibase.Scope)}
+     */
+    protected List<ItemReference> getItemReferences(Class<? extends Item> itemType, List<? extends ItemReference> containers, TestItemSupplier.NameStrategy strategy, Scope scope) {
+        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getReferences(itemType, containers, strategy, scope)
     }
 
-    protected List createAllPermutations(Class type, Map<String, List<Object>> defaultValues) {
-        JUnitScope.instance.getSingleton(TestObjectFactory).createAllPermutations(type, defaultValues)
+    /**
+     * Convenience method to {@link liquibase.item.TestItemSupplier#getNames(java.lang.Class, liquibase.item.TestItemSupplier.NameStrategy, liquibase.Scope)}
+     */
+    protected List<String> getItemNames(Class<? extends Item> itemType, TestItemSupplier.NameStrategy strategy, Scope scope) {
+        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getNames(itemType, strategy, scope)
     }
 
-    protected List<ItemReference> getItemReferences(Class<? extends Item> itemType, List<? extends ItemReference> containers, ItemNameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestItemReferenceSupplierFactory).getItemReferenceSupplier(itemType, scope).getItemReferences(itemType, containers, strategy, scope)
-    }
-
-    protected List<String> getItemNames(Class<? extends Item> itemType, ItemNameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestItemReferenceSupplierFactory).getItemReferenceSupplier(itemType, scope).getItemNames(itemType, strategy, scope)
-    }
-
-    protected String standardCaseItemName(String name, Class<? extends Item> type, Database database) {
+    /**
+     * Returns the given name with whatever the standard naming case is for the database in the scope.
+     * Example: if the database store everything as upper case, returns name.toUpperCase().
+     */
+    protected String standardCaseItemName(String name, Class<? extends Item> type, Scope scope) {
         if (name == null) {
             return null;
         }
 
-        switch(database.getIdentifierCaseHandling(type, false, JUnitScope.instance)) {
+        Database database = scope.database;
+        if (database == null) {
+            return name;
+        }
+
+        switch (database.getIdentifierCaseHandling(type, false, JUnitScope.instance)) {
             case Database.IdentifierCaseHandling.LOWERCASE: return name.toLowerCase();
             case Database.IdentifierCaseHandling.UPPERCASE: return name.toUpperCase();
             default: return name;
         }
     }
 
-    def testMDPermutation(Snapshot snapshot, Closure setupClosure = {}, ConnectionSupplier conn, Scope scope) {
-        def database = scope.database
-
-        def permutation = new ActionTestPermutation(this.specificationContext, this, snapshot, setupClosure, conn, scope, [:])
-
-        permutation.addParameter("connection", conn.toString())
-
-        return TestMD.test(this.specificationContext, database.class)
-                .withPermutation(permutation)
-    }
-
-    def setupDatabase(Snapshot snapshot, Closure setupClosure, ConnectionSupplier supplier, Scope scope) {
+    /**
+     * Called by {@link ActionTestPermutation} to setup the database as part of {@link Permutation#setup}.
+     * Default implementation:
+     * <ol>
+     * <li>drops all objects in the database</li>
+     * <li>creates everything in the ActionTestPermutation's snapshot</li>
+     * <li>runs the ActionTestPermutation's setupClosure</li>
+     */
+    protected setupDatabase(Snapshot snapshot, Scope scope) {
         Database database = scope.database
         if (database instanceof GenericDatabase) {
             throw SetupResult.OK;
         }
 
-        for (ItemReference name : supplier.getAllSchemas()) {
+        for (ItemReference name : scope.get(JUnitScope.Attr.connectionSupplier.name(), ConnectionSupplier).getAllSchemas()) {
             new DropAllCommand(name).execute(scope);
         }
 
@@ -159,7 +215,8 @@ abstract class AbstractActionTest extends Specification {
 
             for (def type : [Table, UniqueConstraint, Index, ForeignKey]) {
                 for (def obj : snapshot.get(type)) {
-                    for (def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
+                    for (
+                            def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
                         def errors = executor.validate(action, scope)
                         LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe(true))
                         if (errors.hasErrors()) {
@@ -170,33 +227,22 @@ abstract class AbstractActionTest extends Specification {
                 }
             }
         }
-
-        setupClosure()
-
-        throw SetupResult.OK
     }
 
-    def cleanupDatabase(Snapshot snapshot, ConnectionSupplier supplier, Scope scope) {}
+    /**
+     * Called by {@link ActionTestPermutation} to clean up the database as part of {@link Permutation#cleanup}.
+     * Default implementation does nothing.
+     */
+    protected cleanupDatabase(Snapshot snapshot, Scope scope) {}
 
     AbstractActionTest.TestDetails getTestDetails(Scope scope) {
         return scope.getSingleton(AbstractActionTest.TestDetailsFactory).getTestDetails(this, scope)
     }
 
-    String concatConsistantCase(String baseName, String stringToAdd) {
-        if (baseName.matches(/[^A-Z]+/)) { //keep it lower case
-            return baseName + stringToAdd.toLowerCase()
-        } else { //mixed case or all caps. Use upper case
-            return baseName + stringToAdd.toUpperCase()
-        }
-
-    }
-
-    Collection okIfEmpty(String assertionErrorMessage, Collection collection) {
-        Assume.assumeTrue(assertionErrorMessage, collection != null && collection.size() > 0)
-        return collection
-    }
-
-    static class ActionTestPermutation extends Permutation {
+    /**
+     * A specialized
+     */
+    protected static class ActionTestPermutation extends Permutation {
         Scope scope
         Database database
         ConnectionSupplier conn
@@ -204,7 +250,7 @@ abstract class AbstractActionTest extends Specification {
         Snapshot snapshot
         Closure setupClosure
 
-        ActionTestPermutation(SpecificationContext specificationContext, AbstractActionTest test, Snapshot snapshot, Closure setupClosure, ConnectionSupplier connectionSupplier, Scope scope, Map<String, Object> parameters) {
+        ActionTestPermutation(Map<String, Object> parameters, Snapshot snapshot, AbstractActionTest test, ConnectionSupplier connectionSupplier, SpecificationContext specificationContext, Scope scope, Closure setupClosure) {
             super(specificationContext.currentIteration.parent.spec.getPackage() + "." + specificationContext.currentIteration.parent.spec.name, specificationContext.currentIteration.parent.name, parameters)
             this.scope = scope
             this.database = scope.database
@@ -230,21 +276,13 @@ abstract class AbstractActionTest extends Specification {
             }
             return message;
         }
-
-        @Override
-        Permutation setup(Runnable setup) {
-            super.setup({
-                if (scope.database instanceof GenericDatabase) {
-                    throw new SetupResult.CannotVerify("Generic");
-                }
-
-                conn.connect(scope)
-                test.setupDatabase(snapshot, setupClosure, conn, scope)
-                setup.run();
-            })
-        }
     }
 
+    /**
+     * Since Spock doesn't let us override tests in subclasses, ActionTests can create inner classes that extend this to provide attributes which tests can check to modify behavior
+     * to support various database differences.
+     * The inner class must just be called "TestDetails" or it will not be found.
+     */
     public static class TestDetails extends AbstractPlugin {
 
     }
@@ -281,6 +319,9 @@ abstract class AbstractActionTest extends Specification {
 
     }
 
+    /**
+     * Use this {@link liquibase.util.CollectionUtil.CollectionFilter} to trim out actions that fail validation before passing them to {@link #testAction(java.util.Map, liquibase.action.Action, liquibase.database.ConnectionSupplier, liquibase.Scope)}
+     */
     protected static class ValidActionFilter implements CollectionUtil.CollectionFilter<Map> {
 
         private Scope scope
@@ -291,14 +332,15 @@ abstract class AbstractActionTest extends Specification {
 
 
         static {
-            //output the total filtered actions for informational purposes
+            //output the total filtered actions for informational/troubleshooting purposes
             Runtime.getRuntime().addShutdownHook({
                 if (filteredActions > 0) {
                     def logger = LoggerFactory.getLogger(ValidActionFilter)
-                    logger.error("Total filtered actions: "+NumberFormat.instance.format(filteredActions)+" out of "+NumberFormat.instance.format(totalActions)+". Top reasons:\n"+StringUtils.indent(StringUtils.join(filteredActionsByReason.sort({a, b -> b.value <=> a.value}).take(5), "\n")))
+                    logger.error("Total filtered actions: " + NumberFormat.instance.format(filteredActions) + " out of " + NumberFormat.instance.format(totalActions) + ". Top reasons:\n" + StringUtil.indent(StringUtil.join(filteredActionsByReason.sort({ a, b -> b.value <=> a.value }).take(5), "\n")))
                 }
             })
         }
+
         ValidActionFilter(Scope scope) {
             this.scope = scope
         }
@@ -306,7 +348,7 @@ abstract class AbstractActionTest extends Specification {
         @Override
         boolean include(Map obj) {
             totalActions++;
-            boolean foundAction = false;;
+            boolean foundAction = false; ;
             for (Map.Entry entry : obj.entrySet()) {
                 if (entry.value instanceof Action) {
                     foundAction = true;
