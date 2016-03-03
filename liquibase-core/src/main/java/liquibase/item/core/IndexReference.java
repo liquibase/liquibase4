@@ -2,13 +2,14 @@ package liquibase.item.core;
 
 import liquibase.item.AbstractRelationBasedObject;
 import liquibase.item.ItemReference;
+import liquibase.util.ObjectUtil;
 
 /**
- * {@link #container} lists the table. {@link #indexContainer} can contain the index's qualifier
+ * {@link #container} lists the table. {@link #indexSchema} can contain the index's qualifier
  */
 public class IndexReference extends AbstractRelationBasedObject.RelationBasedObjectReference {
 
-    public ItemReference indexContainer;
+    public SchemaReference indexSchema;
 
     public IndexReference() {
         super(Index.class);
@@ -22,8 +23,13 @@ public class IndexReference extends AbstractRelationBasedObject.RelationBasedObj
         super(Index.class, indexName, relation);
     }
 
-    public IndexReference(String indexName, RelationReference relation, ItemReference indexContainer) {
+    public IndexReference(String indexName, RelationReference relation, SchemaReference indexSchema) {
         this(indexName, relation);
-        this.indexContainer = indexContainer;
+        this.indexSchema = indexSchema;
+    }
+
+    @Override
+    public String toString() {
+        return (indexSchema == null ? "" : indexSchema + ".") + ObjectUtil.defaultIfNull(name, "UNNAMED") + " on " + ObjectUtil.defaultIfNull(container, "UNNAMED");
     }
 }

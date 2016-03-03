@@ -133,7 +133,7 @@ public class StringClauses {
 
     public StringClauses append(LiteralClause literal) {
         if (literal != null) {
-            clauses.put(literal.getClass().getName().toLowerCase()+" #"+clauses.size(), literal);
+            clauses.put(literal.getClass().getName().toLowerCase() + " #" + clauses.size(), literal);
         }
         return this;
     }
@@ -470,13 +470,14 @@ public class StringClauses {
 
     /**
      * Returns the parts of this StringClases as an array. If any clauses are empty or null, they are not included.
+     *
      * @param stringify If set to true, values of the array will be converted to a string.
      */
     public Object[] toArray(boolean stringify) {
         List returnArray = new ArrayList();
         ArrayList<Object> currentValues = new ArrayList<Object>(clauses.values());
 
-        for (int i=0; i<currentValues.size(); i++) {
+        for (int i = 0; i < currentValues.size(); i++) {
             Object piece = currentValues.get(i);
             if (piece instanceof StringClauses) {
                 if (((StringClauses) piece).isEmpty()) {
@@ -520,7 +521,7 @@ public class StringClauses {
         String toString();
     }
 
-    public static class Delimiter implements LiteralClause{
+    public static class Delimiter implements LiteralClause {
         private String value;
 
         public Delimiter(String value) {
@@ -533,7 +534,7 @@ public class StringClauses {
         }
     }
 
-    public static class Whitespace implements LiteralClause{
+    public static class Whitespace implements LiteralClause {
         private String value;
 
         public Whitespace(String value) {

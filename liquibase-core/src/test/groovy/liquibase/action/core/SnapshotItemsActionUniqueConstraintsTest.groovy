@@ -219,7 +219,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
         def column2 = new Column(standardCaseItemName("col2", Column, scope), table.toReference(), DataType.parse("int"), true)
         def column3 = new Column(standardCaseItemName("col3", Column, scope), table.toReference(), DataType.parse("int"), true)
 
-        def uq = new UniqueConstraint(null, table.toReference(), column1.name, column3.name)
+        def uq = new UniqueConstraint(standardCaseItemName("uq_test", UniqueConstraint, scope), table.toReference(), column1.name, column3.name)
         def snapshot = new Snapshot(scope)
         snapshot.addAll([table, column1, column2, column3, uq])
 
@@ -255,7 +255,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
 
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null;
     }
 
@@ -265,6 +265,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
 
         def columnName = standardCaseItemName("id", Column, scope)
         //Crate the expected UQ/table combo
+        def constraintId = 1;
         for (ItemReference relatedTo : ((SnapshotItemsAction) action).relatedTo) {
             if (relatedTo instanceof UniqueConstraintReference) {
 
@@ -275,7 +276,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
 
                 snapshot.add(new Table(tableName.name, tableName.container))
                 snapshot.add(new Column(columnName, tableName, DataType.parse("int"), true))
-                snapshot.add(new UniqueConstraint(relatedTo.name, tableName, columnName))
+                snapshot.add(new UniqueConstraint((relatedTo.name == null ? standardCaseItemName("uq_" + constraintId++, UniqueConstraint, scope) : relatedTo.name), tableName, columnName))
             } else if (relatedTo.instanceOf(Table)) {
                 def table = new Table(relatedTo.name, relatedTo.container)
                 if (table.name == null) {
@@ -283,7 +284,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
                 }
                 snapshot.add(table)
                 snapshot.add(new Column(columnName, table.toReference(), DataType.parse("int"), true))
-                snapshot.add(new UniqueConstraint(null, table.toReference(), columnName))
+                snapshot.add(new UniqueConstraint(standardCaseItemName("uq_" + constraintId++, UniqueConstraint, scope), table.toReference(), columnName))
             }
         }
 

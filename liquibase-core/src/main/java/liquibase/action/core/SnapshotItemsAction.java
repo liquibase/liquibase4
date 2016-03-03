@@ -24,6 +24,9 @@ public class SnapshotItemsAction extends AbstractAction implements QueryAction {
     public Class<? extends Item> typeToSnapshot;
     public Set<ItemReference> relatedTo = new HashSet<>();
 
+    public SnapshotItemsAction() {
+    }
+
     public SnapshotItemsAction(ItemReference itemToSnapshot) {
         this.typeToSnapshot = itemToSnapshot.type;
         relatedTo.add(itemToSnapshot);

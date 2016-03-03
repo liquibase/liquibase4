@@ -22,6 +22,10 @@ public abstract class DataTypeLogic extends AbstractPlugin {
      * Translate the given value into a string for inclusion in SQL.
      */
     public String toSql(Object value, DataType dataType, Scope scope) {
+        if (value == null) {
+            return "NULL";
+        }
+
         return value.toString();
     }
 

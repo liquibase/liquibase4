@@ -2,7 +2,9 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
+import liquibase.action.ActionStatus;
 import liquibase.action.ExecuteSqlAction;
+import liquibase.action.core.AlterColumnAction;
 import liquibase.action.core.AlterTableAction;
 import liquibase.actionlogic.AbstractActionLogic;
 import liquibase.actionlogic.ActionResult;
@@ -21,6 +23,14 @@ public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
     public ValidationErrors validate(AlterTableAction action, Scope scope) {
         return super.validate(action, scope)
                 .checkRequiredFields("table", "newDefinition");
+    }
+
+    @Override
+    public ActionStatus checkStatus(AlterTableAction action, Scope scope) {
+        ActionStatus result = new ActionStatus();
+        result.assertCorrect(true, "Low-level action with no assertions to perform");
+
+        return result;
     }
 
     @Override

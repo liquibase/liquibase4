@@ -39,14 +39,16 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, indexRef] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, indexRef] << okIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            return okIfEmpty("May not support snapshotting indexes without a table", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it) }),
-            ], new ValidActionFilter(scope)))
-        }
+                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        return new IndexReference(it)
+                    }),
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #indexRef on #conn")
@@ -73,7 +75,9 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new IndexReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))}),
+                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        return new IndexReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))
+                    }),
             ])
         }
     }
@@ -103,7 +107,9 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ new IndexReference(null, it) }),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        new IndexReference(null, it)
+                    }),
             ])
         }
     }
@@ -158,15 +164,15 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, tableName] << okIfEmpty("May not support snapshotting indexes without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return okIfEmpty("May not support snapshotting indexes without a table name", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.getAllSchemas().collect({ return new RelationReference(Table, null, it) }),
-            ], new ValidActionFilter(scope)))
-        }
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #schemaName on #conn")
@@ -189,15 +195,15 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << okIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return okIfEmpty("May not support snapshotting indexes without a table", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.getAllSchemas(),
-            ], new ValidActionFilter(scope)))
-        }
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #schema on #conn")
@@ -483,7 +489,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null //not used
     }
 }

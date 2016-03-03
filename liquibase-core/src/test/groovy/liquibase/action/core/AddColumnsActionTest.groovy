@@ -99,7 +99,7 @@ class AddColumnsActionTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def tableName = standardCaseItemName("test_table", Table, scope)
         def tableRef = new RelationReference(Table, tableName, connectionSupplier.allSchemas[0]);
         def testColName = standardCaseItemName("test_col", Column, scope)

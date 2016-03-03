@@ -181,7 +181,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def tableName = standardCaseItemName("test_table", Table, scope)
 
         return TestUtil.createAllPermutations(AddUniqueConstraintsAction, [

@@ -75,7 +75,7 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def tableName = standardCaseItemName("table_name", Table, scope)
         def columnName = standardCaseItemName("column_name", Table, scope)
 

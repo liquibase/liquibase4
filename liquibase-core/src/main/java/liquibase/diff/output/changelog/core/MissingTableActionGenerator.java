@@ -17,7 +17,7 @@ import liquibase.item.core.Table;
 import java.util.Collections;
 import java.util.List;
 
-public class MissingTableActionGenerator implements MissingObjectActionGenerator {
+public class MissingTableActionGenerator implements MissingObjectActionGenerator<Table> {
 
     @Override
     public int getPriority(Class<? extends Item> objectType, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
@@ -38,9 +38,8 @@ public class MissingTableActionGenerator implements MissingObjectActionGenerator
     }
 
     @Override
-    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
+    public List<? extends Action> fixMissing(Table missingTable, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         try {
-            Table missingTable = (Table) missingObject;
             if (targetSnapshot.getScopeCreatedUnder().getDatabase().isLiquibaseObject(missingTable.toReference(), scope)) {
                 return null;
             }

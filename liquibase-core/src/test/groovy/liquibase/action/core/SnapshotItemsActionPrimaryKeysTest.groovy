@@ -50,7 +50,9 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ return new SnapshotItemsAction(new PrimaryKeyReference(it)) }),
+                    getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        return new SnapshotItemsAction(new PrimaryKeyReference(it))
+                    }),
             ], new ValidActionFilter(scope))
         })
     }
@@ -124,7 +126,9 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({ new PrimaryKeyReference(null, it) }),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                        new PrimaryKeyReference(null, it)
+                    }),
             ])
         }
     }
@@ -154,7 +158,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table,it.getAllSchemas(),  TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
             ])
         }
     }
@@ -179,15 +183,15 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, tableName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, tableName] << okIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return okIfEmpty("May not support snapshotting PKs without a table name", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.getAllSchemas().collect({ return new RelationReference(Table, null, it) }),
-            ], new ValidActionFilter(scope)))
-        }
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #schemaName on #conn")
@@ -210,15 +214,15 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << okIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return okIfEmpty("May not support snapshotting PKs without a table name", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.getAllSchemas(),
-            ], new ValidActionFilter(scope)))
-        }
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #schemaName on #conn")
@@ -266,7 +270,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
 
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null;
     }
 

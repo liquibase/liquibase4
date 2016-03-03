@@ -46,25 +46,26 @@ public class CodeInspector extends Specification {
         ]
     }
 
-//    @Unroll("featureName: #actionClass")
-//    def "action classes have tests"() {
-//        when:
-//        getClass().forName(actionClass+"Test")
-//
-//        then:
-//        noExceptionThrown()
-//
-//        where:
-//        actionClass << TestUtil.getClasses(Action)*.name
-//    }
+    @Unroll("featureName: #actionClass")
+    def "action classes have tests"() {
+        when:
+        getClass().forName(actionClass+"Test")
+
+        then:
+        noExceptionThrown()
+
+        where:
+        actionClass << TestUtil.getClasses(Action)*.name
+    }
 //
 //    @Unroll("featureName: #logicClass")
 //    def "logic classes have tests"() {
 //        when:
-//        getClass().forName(logicClass+"Test")
+//        def testClass = getClass().forName(logicClass+"Test")
 //
 //        then:
 //        noExceptionThrown()
+//        testClass.metaClass.getMetaMethod("validation failures are as expected") != null
 //
 //        where:
 //        logicClass << TestUtil.getClasses(ActionLogic)*.name

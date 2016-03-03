@@ -12,6 +12,11 @@ public class AlterColumnAction extends AbstractAction {
     public ColumnReference column;
     public StringClauses newDefinition;
 
+    /**
+     * Alternate keyword to use instead of "ALTER COLUMN" or whatever is standard for the database.
+     */
+    public String alterColumnKeyword;
+
     public AlterColumnAction() {
     }
 

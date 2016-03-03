@@ -43,7 +43,18 @@ public class ActionExecutor implements SingletonObject {
      * Convenience version of {@link #execute(Action, Scope)} for performing a query
      */
     public QueryResult query(Action action, Scope scope) throws ActionPerformException {
-        return (QueryResult) execute(action, scope);
+        ActionResult result = execute(action, scope);
+        if (result instanceof CompoundResult) {
+            List<ActionResult> flatResults = ((CompoundResult) result).getFlatResults();
+            if (flatResults.size() == 0) {
+                throw new ActionPerformException("No results found, not even an empty result");
+            } else if (flatResults.size() == 1) {
+                return (QueryResult) flatResults.get(0);
+            } else {
+                throw new ActionPerformException("Multiple results returned");
+            }
+        }
+        return (QueryResult) result;
     }
 
     /**

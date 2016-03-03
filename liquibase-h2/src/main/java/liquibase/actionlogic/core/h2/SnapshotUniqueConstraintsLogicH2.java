@@ -2,7 +2,7 @@ package liquibase.actionlogic.core.h2;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.QuerySqlAction;
+import liquibase.action.core.SelectDataAction;
 import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.RowBasedQueryResult;
@@ -14,6 +14,7 @@ import liquibase.item.DatabaseObjectReference;
 import liquibase.item.core.UniqueConstraint;
 import org.apache.velocity.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsLogic {
@@ -26,18 +27,18 @@ public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsL
 
     @Override
     protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
-        QuerySqlAction snapshotAction = (QuerySqlAction) super.createSnapshotAction(relatedTo, action, scope);
-
-        snapshotAction.sql.replace(Clauses.columnList, "TC.CONSTRAINT_NAME, " +
-                "TC.TABLE_CATALOG, " +
-                "TC.TABLE_SCHEMA, " +
-                "TC.TABLE_NAME, " +
-                "FALSE AS IS_DEFERRABLE, " +
-                "FALSE AS INITIALLY_DEFERRED, " +
-                "COLUMN_LIST");
-        snapshotAction.sql.replace("FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC", "FROM INFORMATION_SCHEMA.CONSTRAINTS TC");
-        snapshotAction.sql.remove(Clauses.columnJoinClause);
-        snapshotAction.sql.remove("ORDER BY ORDINAL_POSITION");
+        SelectDataAction snapshotAction = (SelectDataAction) super.createSnapshotAction(relatedTo, action, scope);
+        snapshotAction.columns = new ArrayList<>(Arrays.asList(
+                new SelectDataAction.SelectedColumn("TC", "CONSTRAINT_NAME", null),
+                new SelectDataAction.SelectedColumn("TC", "TABLE_CATALOG", null),
+                new SelectDataAction.SelectedColumn("TC", "TABLE_SCHEMA", null),
+                new SelectDataAction.SelectedColumn("TC", "TABLE_NAME", null),
+                new SelectDataAction.SelectedColumn(null, "FALSE", "IS_DEFERRABLE", true),
+                new SelectDataAction.SelectedColumn(null, "FALSE", "INITIALLY_DEFERRED", true),
+                new SelectDataAction.SelectedColumn("COLUMN_LIST")));
+        snapshotAction.relation.name = "CONSTRAINTS";
+        snapshotAction.joins.clear();
+        snapshotAction.order.clear();
 
         return snapshotAction;
     }

@@ -7,7 +7,7 @@ import liquibase.item.Item;
 
 import java.util.List;
 
-public interface MissingObjectActionGenerator extends ActionGenerator {
+public interface MissingObjectActionGenerator<ItemType extends Item> extends ActionGenerator {
 
-    List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
+    List<? extends Action> fixMissing(ItemType missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope);
 }

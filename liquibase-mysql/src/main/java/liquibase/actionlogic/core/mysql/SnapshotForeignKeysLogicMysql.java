@@ -2,7 +2,7 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.QuerySqlAction;
+import liquibase.action.core.SelectDataAction;
 import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.RowBasedQueryResult;
 import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
@@ -11,11 +11,7 @@ import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.ItemReference;
-import liquibase.item.core.ForeignKey;
-import liquibase.item.core.ForeignKeyReference;
-import liquibase.item.core.Schema;
-import liquibase.item.core.Table;
-import liquibase.util.StringClauses;
+import liquibase.item.core.*;
 
 public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
 
@@ -27,42 +23,43 @@ public class SnapshotForeignKeysLogicMysql extends SnapshotForeignKeysLogic {
     @Override
     protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
-        StringClauses query = new StringClauses(" ").append("SELECT " +
-                "KEY_COL.CONSTRAINT_SCHEMA AS FKTABLE_CAT, " +
-                "KEY_COL.CONSTRAINT_NAME AS FK_NAME, " +
-                "KEY_COL.REFERENCED_TABLE_SCHEMA AS PKTABLE_CAT, " +
-                "KEY_COL.REFERENCED_TABLE_NAME AS PKTABLE_NAME, " +
-                "KEY_COL.REFERENCED_COLUMN_NAME AS PKCOLUMN_NAME, " +
-                "KEY_COL.TABLE_SCHEMA AS FKTABLE_CAT, " +
-                "KEY_COL.TABLE_NAME AS FKTABLE_NAME, " +
-                "KEY_COL.COLUMN_NAME AS FKCOLUMN_NAME, " +
-                "KEY_COL.ORDINAL_POSITION AS KEY_SEQ, " +
-                "CON.UPDATE_RULE AS UPDATE_RULE_STRING, " +
-                "CON.DELETE_RULE AS DELETE_RULE_STRING " +
-                "FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KEY_COL " +
-                "JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS CON " +
-                "ON KEY_COL.CONSTRAINT_SCHEMA=CON.CONSTRAINT_SCHEMA " +
-                "AND KEY_COL.CONSTRAINT_NAME=CON.CONSTRAINT_NAME " +
-                "AND KEY_COL.TABLE_NAME=CON.TABLE_NAME " +
-                "WHERE KEY_COL.REFERENCED_COLUMN_NAME IS NOT NULL");
+        SelectDataAction query = new SelectDataAction("KEY_COL", new RelationReference(Table.class, "INFORMATION_SCHEMA", "KEY_COLUMN_USAGE"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "CONSTRAINT_SCHEMA", "FKTABLE_CAT"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "CONSTRAINT_NAME", "FK_NAME"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "REFERENCED_TABLE_SCHEMA", "PKTABLE_CAT"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "REFERENCED_TABLE_NAME", "PKTABLE_NAME"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "REFERENCED_COLUMN_NAME", "PKCOLUMN_NAME"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "TABLE_SCHEMA", "FKTABLE_CAT"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "TABLE_NAME", "FKTABLE_NAME"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "COLUMN_NAME", "FKCOLUMN_NAME"),
+                new SelectDataAction.SelectedColumn("KEY_COL", "ORDINAL_POSITION", "KEY_SEQ"),
+                new SelectDataAction.SelectedColumn("CON", "UPDATE_RULE", "UPDATE_RULE_STRING"),
+                new SelectDataAction.SelectedColumn("CON", "DELETE_RULE", "DELETE_RULE_STRING")
+        )
+                .addJoin(new SelectDataAction.JoinedRelation(new RelationReference(Table.class, "INFORMATION_SCHEMA", "REFERENTIAL_CONSTRAINTS"), "CON", SelectDataAction.JoinType.inner)
+                        .addOnClause("KEY_COL.CONSTRAINT_SCHEMA=CON.CONSTRAINT_SCHEMA")
+                        .addOnClause("KEY_COL.CONSTRAINT_NAME=CON.CONSTRAINT_NAME")
+                        .addOnClause("KEY_COL.TABLE_NAME=CON.TABLE_NAME"))
+                .addWhere("KEY_COL.REFERENCED_COLUMN_NAME IS NOT NULL");
+
         if (relatedTo.instanceOf(ForeignKey.class)) {
             if (relatedTo.name == null) {
                 ItemReference baseTable = ((ForeignKeyReference) relatedTo).container;
-                query.append("AND KEY_COL.TABLE_NAME=" + database.quoteString(baseTable.name, scope));
-                query.append("AND KEY_COL.TABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope));
+                query.addWhere("KEY_COL.TABLE_NAME=" + database.quoteString(baseTable.name, scope))
+                        .addWhere("KEY_COL.TABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope));
             } else {
-                query.append("AND KEY_COL.CONSTRAINT_NAME=" + database.quoteString(relatedTo.name, scope));
-                query.append("AND KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
+                query.addWhere("KEY_COL.CONSTRAINT_NAME=" + database.quoteString(relatedTo.name, scope))
+                        .addWhere("KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.container.container.name, scope));
             }
         } else if (relatedTo.instanceOf(Table.class)) {
-            query.append("AND KEY_COL.TABLE_NAME=" + database.quoteString(relatedTo.name, scope))
-                    .append("AND KEY_COL.TABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope));
+            query.addWhere("KEY_COL.TABLE_NAME=" + database.quoteString(relatedTo.name, scope))
+                    .addWhere("KEY_COL.TABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope));
         } else if (relatedTo.instanceOf(Schema.class)) {
-            query.append("AND KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.name, scope));
+            query.addWhere("KEY_COL.CONSTRAINT_SCHEMA=" + database.quoteString(relatedTo.name, scope));
         } else {
             throw new ActionPerformException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
-        return new QuerySqlAction(query);
+        return query;
     }
 
     @Override

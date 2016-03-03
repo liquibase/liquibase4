@@ -2,7 +2,9 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
+import liquibase.action.Action;
 import liquibase.action.core.AddAutoIncrementAction;
+import liquibase.action.core.AlterColumnAction;
 import liquibase.action.core.AlterTableAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;

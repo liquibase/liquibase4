@@ -13,7 +13,7 @@ import liquibase.item.core.Table;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MissingIndexActionGenerator implements MissingObjectActionGenerator {
+public class MissingIndexActionGenerator implements MissingObjectActionGenerator<Index> {
 
 
     @Override
@@ -38,11 +38,9 @@ public class MissingIndexActionGenerator implements MissingObjectActionGenerator
     }
 
     @Override
-    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
-        Index index = (Index) missingObject;
-
+    public List<? extends Action> fixMissing(Index missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         ArrayList<CreateIndexesAction> actions = new ArrayList<>();
-        actions.add(new CreateIndexesAction(index));
+        actions.add(new CreateIndexesAction(missingObject));
 
         return actions;
     }

@@ -323,4 +323,4 @@
 | dc4e6f      | true     | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: CREATE TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ("COL_NAME" INTEGER)
 | df2559      | true     | PUBLIC.lowertable                       | **plan**: CREATE TABLE "PUBLIC"."lowertable" ("COL_NAME" INTEGER)
 
-# Test Version: "6ee84e" #
+# Test Version: "b1eea0" #

@@ -14,7 +14,7 @@ import liquibase.item.core.UniqueConstraint;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MissingUniqueConstraintActionGenerator implements MissingObjectActionGenerator {
+public class MissingUniqueConstraintActionGenerator implements MissingObjectActionGenerator<UniqueConstraint> {
 
 
     @Override
@@ -42,11 +42,9 @@ public class MissingUniqueConstraintActionGenerator implements MissingObjectActi
     }
 
     @Override
-    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
-        UniqueConstraint uq = (UniqueConstraint) missingObject;
-
+    public List<? extends Action> fixMissing(UniqueConstraint missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         ArrayList<AddUniqueConstraintsAction> actions = new ArrayList<>();
-        actions.add(new AddUniqueConstraintsAction(uq));
+        actions.add(new AddUniqueConstraintsAction(missingObject));
 
         return actions;
     }

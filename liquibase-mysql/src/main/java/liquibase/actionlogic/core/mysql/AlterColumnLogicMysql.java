@@ -17,7 +17,10 @@ public class AlterColumnLogicMysql extends AlterColumnLogic {
 
     @Override
     protected StringClauses getAlterColumnClauses(AlterColumnAction action, Scope scope) {
-        return super.getAlterColumnClauses(action, scope)
-                .replace("ALTER COLUMN", "MODIFY");
+        StringClauses alterColumnClauses = super.getAlterColumnClauses(action, scope);
+        if (action.alterColumnKeyword == null) {
+            alterColumnClauses.replace("ALTER COLUMN", "MODIFY");
+        }
+        return alterColumnClauses;
     }
 }

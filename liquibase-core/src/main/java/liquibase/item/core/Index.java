@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Index extends AbstractRelationBasedObject<IndexReference> {
 
-    public ItemReference indexSchema;
+    public SchemaReference indexSchema;
     public List<IndexedColumn> columns = new ArrayList<>();
     public String tablespace;
     public Boolean unique;

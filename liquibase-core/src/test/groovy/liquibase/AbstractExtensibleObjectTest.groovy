@@ -2,7 +2,7 @@ package liquibase
 
 import liquibase.action.core.AddAutoIncrementAction
 import liquibase.action.core.CreateTableAction
-import liquibase.action.core.DropTableAction
+import liquibase.action.core.DropTablesAction
 import liquibase.item.ItemReference
 import liquibase.item.core.*
 import spock.lang.Specification
@@ -37,7 +37,7 @@ class AbstractExtensibleObjectTest extends Specification {
         that new AddAutoIncrementAction().getStandardAttributeNames(), containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[])
         that new AddAutoIncrementAction().getStandardAttributeNames(), containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[]) //caching works
 
-        that new DropTableAction().getStandardAttributeNames(), containsInAnyOrder(["table", "cascadeConstraints"] as String[])
+        that new DropTablesAction().getStandardAttributeNames(), containsInAnyOrder(["tables", "cascadeConstraints"] as String[])
 
         (new AbstractExtensibleObject() {}).getStandardAttributeNames().size() == 0
     }

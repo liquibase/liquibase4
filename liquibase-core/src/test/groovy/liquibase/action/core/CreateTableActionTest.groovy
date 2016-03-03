@@ -122,7 +122,7 @@ class CreateTableActionTest extends AbstractActionTest {
      * Even the foreign key permutations are broken up
      */
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def schema = connectionSupplier.allSchemas[0]
         def tableRef = new RelationReference(Table, standardCaseItemName("test_table", Table, scope), schema)
         def testColName = standardCaseItemName("test_col", Column, scope)

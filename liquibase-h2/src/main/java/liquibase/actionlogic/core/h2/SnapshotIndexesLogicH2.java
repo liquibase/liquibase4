@@ -2,11 +2,12 @@ package liquibase.actionlogic.core.h2;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.QuerySqlAction;
+import liquibase.action.core.SelectDataAction;
 import liquibase.actionlogic.core.SnapshotIndexesLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
-import liquibase.util.StringClauses;
+import liquibase.item.core.RelationReference;
+import liquibase.item.core.Table;
 
 public class SnapshotIndexesLogicH2 extends SnapshotIndexesLogic {
 
@@ -19,34 +20,47 @@ public class SnapshotIndexesLogicH2 extends SnapshotIndexesLogic {
     protected Action createSnapshotAction(String jdbcCatalogName, String jdbcSchemaName, String tableName, String indexName, boolean unique, boolean approximate, Scope scope) {
 
         Database database = scope.getDatabase();
-        StringClauses whereClauses = new StringClauses(" AND ");
+
+        SelectDataAction sql = new SelectDataAction(new RelationReference(Table.class, "INFORMATION_SCHEMA", "INDEXES"),
+                new SelectDataAction.SelectedColumn(null, "TABLE_CATALOG", "TABLE_CAT"),
+                new SelectDataAction.SelectedColumn(null, "TABLE_SCHEMA", "TABLE_SCHEM"),
+                new SelectDataAction.SelectedColumn("TABLE_NAME"),
+                new SelectDataAction.SelectedColumn("NON_UNIQUE"),
+                new SelectDataAction.SelectedColumn(null, "TABLE_CATALOG", "INDEX_QUALIFIER"),
+                new SelectDataAction.SelectedColumn("INDEX_NAME"),
+                new SelectDataAction.SelectedColumn(null, "INDEX_TYPE","TYPE"),
+                new SelectDataAction.SelectedColumn("ORDINAL_POSITION"),
+                new SelectDataAction.SelectedColumn("COLUMN_NAME"),
+                new SelectDataAction.SelectedColumn("ASC_OR_DESC"),
+                new SelectDataAction.SelectedColumn("CARDINALITY"),
+                new SelectDataAction.SelectedColumn("PAGES"),
+                new SelectDataAction.SelectedColumn("FILTER_CONDITION"),
+                new SelectDataAction.SelectedColumn("SORT_TYPE")
+        );
 
         if (jdbcCatalogName != null) {
-            whereClauses.append("TABLE_CATALOG=" + database.quoteString(jdbcCatalogName, scope));
+            sql.addWhere("TABLE_CATALOG=" + database.quoteString(jdbcCatalogName, scope));
         }
         if (jdbcSchemaName != null) {
-            whereClauses.append("TABLE_SCHEMA=" + database.quoteString(jdbcSchemaName, scope));
+            sql.addWhere("TABLE_SCHEMA=" + database.quoteString(jdbcSchemaName, scope));
         }
         if (tableName != null) {
-            whereClauses.append("TABLE_NAME=" + database.quoteString(tableName, scope));
+            sql.addWhere("TABLE_NAME=" + database.quoteString(tableName, scope));
         }
         if (indexName != null) {
-            whereClauses.append("INDEX_NAME=" + database.quoteString(indexName, scope));
+            sql.addWhere("INDEX_NAME=" + database.quoteString(indexName, scope));
         }
         if (unique) {
-            whereClauses.append("NON_UNIQUE=FALSE");
+            sql.addWhere("NON_UNIQUE=FALSE");
         }
 
-        StringClauses sql = new StringClauses().append("SELECT")
-                .append("TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM, TABLE_NAME, NON_UNIQUE, TABLE_CATALOG INDEX_QUALIFIER, INDEX_NAME, INDEX_TYPE TYPE, ORDINAL_POSITION, COLUMN_NAME, ASC_OR_DESC, CARDINALITY, PAGES, FILTER_CONDITION, SORT_TYPE")
-                .append("FROM INFORMATION_SCHEMA.INDEXES");
-        if (!whereClauses.isEmpty()) {
-            sql.append("WHERE").append(whereClauses.toString());
-        }
+        sql.addOrder(new SelectDataAction.OrderedByColumn("NON_UNIQUE"),
+                new SelectDataAction.OrderedByColumn("TYPE"),
+                new SelectDataAction.OrderedByColumn("TABLE_SCHEM"),
+                new SelectDataAction.OrderedByColumn("INDEX_NAME"),
+                new SelectDataAction.OrderedByColumn("ORDINAL_POSITION"));
 
-        sql.append("ORDER BY NON_UNIQUE, TYPE, TABLE_SCHEM, INDEX_NAME, ORDINAL_POSITION");
-
-        return new QuerySqlAction(sql);
+        return sql;
     }
 
 

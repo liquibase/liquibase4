@@ -117,7 +117,7 @@ public class SnapshotItemsActionOfflineTest extends AbstractActionTest {
     }
 
     @Override
-    public Object createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null;
     }
 }

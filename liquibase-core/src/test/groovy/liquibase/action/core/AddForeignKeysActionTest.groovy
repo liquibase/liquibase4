@@ -113,7 +113,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def baseTableName = standardCaseItemName("base_table", Table, scope)
         def refTableName = standardCaseItemName("ref_table", Table, scope)
 

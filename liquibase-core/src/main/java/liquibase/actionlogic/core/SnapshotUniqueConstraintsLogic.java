@@ -2,16 +2,14 @@ package liquibase.actionlogic.core;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.QuerySqlAction;
+import liquibase.action.core.SelectDataAction;
 import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.*;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.Item;
-import liquibase.item.ItemReference;
 import liquibase.item.core.*;
-import liquibase.util.StringClauses;
 import liquibase.util.Validate;
 
 import java.util.ArrayList;
@@ -70,42 +68,38 @@ public class SnapshotUniqueConstraintsLogic extends AbstractSnapshotDatabaseObje
             throw Validate.failure("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
 
-        StringClauses query = new StringClauses(" ").append("SELECT")
-                .append(Clauses.columnList, "TC.CONSTRAINT_NAME, " +
-                                (database.supports(Catalog.class, scope) ? "TC.TABLE_CATALOG, " : "NULL AS TABLE_CATALOG, ") +
-                                "TC.TABLE_SCHEMA, " +
-                                "TC.TABLE_NAME, " +
-                                (database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope) ? "TC.IS_DEFERRABLE, " : "NULL AS IS_DEFERRABLE, ") +
-                                (database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope) ? "TC.INITIALLY_DEFERRED, " : "NULL AS INITIALLY_DEFERRED, ") +
-                                "KCU.COLUMN_NAME"
-                ).append("FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC")
-                .append(Clauses.columnJoinClause, "JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU " +
-                        "ON TC.CONSTRAINT_NAME=KCU.CONSTRAINT_NAME " +
-                        (database.supports(Catalog.class, scope) ? "AND TC.TABLE_CATALOG=KCU.TABLE_CATALOG " : "") +
-                        "AND TC.TABLE_SCHEMA=KCU.TABLE_SCHEMA " +
-                        "AND TC.TABLE_NAME=KCU.TABLE_NAME");
+        SelectDataAction query = new SelectDataAction("TC", new RelationReference<View>(View.class, "INFORMATION_SCHEMA", "TABLE_CONSTRAINTS"),
+                new SelectDataAction.SelectedColumn("TC", "CONSTRAINT_NAME", null),
+                (database.supports(Catalog.class, scope) ? new SelectDataAction.SelectedColumn("TC", "TABLE_CATALOG", null) : new SelectDataAction.SelectedColumn(null, "NULL", "TABLE_CATALOG", true)),
+                new SelectDataAction.SelectedColumn("TC", "TABLE_SCHEMA", null),
+                new SelectDataAction.SelectedColumn("TC", "TABLE_NAME", null),
+                (database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope) ? new SelectDataAction.SelectedColumn("TC", "IS_DEFERRABLE", null) : new SelectDataAction.SelectedColumn(null, "NULL", "IS_DEFERRABLE", true)),
+                (database.supports(Database.Feature.DEFERRABLE_CONSTRAINTS, scope) ? new SelectDataAction.SelectedColumn("TC", "INITIALLY_DEFERRED", null) : new SelectDataAction.SelectedColumn(null, "NULL", "INITIALLY_DEFERRED", true)),
+                new SelectDataAction.SelectedColumn("KCU", "COLUMN_NAME", null)
+        )
+                .addJoin(new SelectDataAction.JoinedRelation(new RelationReference(View.class, "INFORMATION_SCHEMA", "KEY_COLUMN_USAGE"), "KCU", SelectDataAction.JoinType.inner)
+                                .addOnClause("TC.CONSTRAINT_NAME=KCU.CONSTRAINT_NAME")
+                                .addOnClause(database.supports(Catalog.class, scope) ? "TC.TABLE_CATALOG=KCU.TABLE_CATALOG" : "")
+                                .addOnClause("TC.TABLE_SCHEMA=KCU.TABLE_SCHEMA")
+                                .addOnClause("TC.TABLE_NAME=KCU.TABLE_NAME")
+                );
 
-        StringClauses whereClause = new StringClauses(" AND ");
         if (catalogName != null) {
-            whereClause.append("TC.CONSTRAINT_CATALOG=" + database.quoteString(catalogName, scope));
+            query.addWhere("TC.CONSTRAINT_CATALOG=" + database.quoteString(catalogName, scope));
         }
         if (schemaName != null) {
-            whereClause.append("TC.CONSTRAINT_SCHEMA=" + database.quoteString(schemaName, scope));
+            query.addWhere("TC.CONSTRAINT_SCHEMA=" + database.quoteString(schemaName, scope));
         }
         if (tableName != null) {
-            whereClause.append("TC.TABLE_NAME=" + database.quoteString(tableName, scope));
+            query.addWhere("TC.TABLE_NAME=" + database.quoteString(tableName, scope));
         }
         if (constraintName != null) {
-            whereClause.append("TC.CONSTRAINT_NAME=" + database.quoteString(constraintName, scope));
+            query.addWhere("TC.CONSTRAINT_NAME=" + database.quoteString(constraintName, scope));
         }
 
-        if (!whereClause.isEmpty()) {
-            query.append("WHERE").append(Clauses.whereClauses, whereClause);
-        }
+        query.addOrder(new SelectDataAction.OrderedByColumn("ORDINAL_POSITION"));
 
-        query.append("ORDER BY ORDINAL_POSITION");
-
-        return new QuerySqlAction(query);
+        return query;
     }
 
     @Override

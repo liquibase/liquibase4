@@ -2,12 +2,15 @@ package liquibase.command;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
-import liquibase.action.core.DropForeignKeyAction;
-import liquibase.action.core.DropTableAction;
+import liquibase.action.core.DropForeignKeysAction;
+import liquibase.action.core.DropSequencesAction;
+import liquibase.action.core.DropTablesAction;
 import liquibase.actionlogic.ActionExecutor;
+import liquibase.database.Database;
 import liquibase.item.ItemReference;
 import liquibase.item.core.ForeignKey;
 import liquibase.item.core.ForeignKeyReference;
+import liquibase.item.core.Sequence;
 import liquibase.item.core.Table;
 
 import java.util.Arrays;
@@ -43,11 +46,17 @@ public class DropAllCommand extends AbstractCommand {
         SnapshotCommand.SnapshotCommandResult snapshotResult = snapshotCommand.execute(scope);
 
         for (ForeignKey foreignKey : snapshotResult.snapshot.get(ForeignKey.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeyAction((ForeignKeyReference) foreignKey.toReference()), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeysAction((ForeignKeyReference) foreignKey.toReference()), scope);
         }
 
         for (Table table : snapshotResult.snapshot.get(Table.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropTableAction(table.toReference()), scope);
+            scope.getSingleton(ActionExecutor.class).execute(new DropTablesAction(table.toReference()), scope);
+        }
+
+        if (scope.getDatabase().supports(Database.Feature.SEQUENCES, scope)) {
+            for (Sequence seq : snapshotResult.snapshot.get(Sequence.class)) {
+                scope.getSingleton(ActionExecutor.class).execute(new DropSequencesAction(seq.toReference()), scope);
+            }
         }
 
         return new CommandResult();

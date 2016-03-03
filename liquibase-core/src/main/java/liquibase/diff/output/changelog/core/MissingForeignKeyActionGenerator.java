@@ -11,7 +11,7 @@ import liquibase.item.core.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MissingForeignKeyActionGenerator implements MissingObjectActionGenerator {
+public class MissingForeignKeyActionGenerator implements MissingObjectActionGenerator<ForeignKey> {
 
 
     @Override
@@ -39,11 +39,9 @@ public class MissingForeignKeyActionGenerator implements MissingObjectActionGene
     }
 
     @Override
-    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
-        ForeignKey fk = (ForeignKey) missingObject;
-
+    public List<? extends Action> fixMissing(ForeignKey missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
         ArrayList<AddForeignKeysAction> actions = new ArrayList<>();
-        actions.add(new AddForeignKeysAction(fk));
+        actions.add(new AddForeignKeysAction(missingObject));
 
         return actions;
     }

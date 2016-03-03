@@ -1,6 +1,8 @@
 package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
+import liquibase.action.ActionStatus;
+import liquibase.action.core.DisableForeignKeyChecksAction;
 import liquibase.action.core.EnableForeignKeyChecksAction;
 import liquibase.actionlogic.AbstractSqlBuilderLogic;
 import liquibase.database.Database;
@@ -23,4 +25,11 @@ public class EnableForeignKeyChecksLogicMysql extends AbstractSqlBuilderLogic<En
     protected StringClauses generateSql(EnableForeignKeyChecksAction action, Scope scope) {
         return new StringClauses().append("SET FOREIGN_KEY_CHECKS=1");
     }
+
+    @Override
+    public ActionStatus checkStatus(EnableForeignKeyChecksAction action, Scope scope) {
+        return new ActionStatus()
+                .assertCorrect(true, "No checks for enabled foreign keys");
+    }
+
 }

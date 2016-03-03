@@ -193,6 +193,20 @@ public abstract class CollectionUtil {
     }
 
     /**
+     * Create a new set containing all the values in the passed list as single-entry lists
+     */
+    public static <T> List<Set<T>> toSingletonSets(List<T> list) {
+        List<Set<T>> returnList = new ArrayList<>();
+        for (T obj : list) {
+            Set<T> objSet = new HashSet<>();
+            objSet.add(obj);
+            returnList.add(objSet);
+        }
+
+        return returnList;
+    }
+
+    /**
      * Add items to an existing list and return the existing list
      */
     public static <T> List<T> addTo(List<T> list, T... items) {

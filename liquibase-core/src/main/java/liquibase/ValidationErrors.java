@@ -138,17 +138,6 @@ public class ValidationErrors {
 //        return this;
 //    }
 
-    public ValidationErrors checkRequiredFields(Enum... requiredFields) {
-        String[] fieldsNames = null;
-        if (requiredFields != null) {
-            fieldsNames = new String[requiredFields.length];
-            for (int i = 0; i < requiredFields.length; i++) {
-                fieldsNames[i] = requiredFields[i].name();
-            }
-        }
-        return checkRequiredFields(fieldsNames);
-    }
-
     /**
      * If an error was added that the given field is required, remove the error.
      */
@@ -187,17 +176,6 @@ public class ValidationErrors {
             }
         }
         return this;
-    }
-
-    public ValidationErrors checkUnsupportedFields(Enum... disallowedFields) {
-        String[] names = new String[0];
-        if (disallowedFields != null) {
-            names = new String[disallowedFields.length];
-            for (int i = 0; i < disallowedFields.length; i++) {
-                names[i] = disallowedFields[i].name();
-            }
-        }
-        return checkUnsupportedFields(names);
     }
 
     /**
@@ -318,10 +296,6 @@ public class ValidationErrors {
             }
         }
         return Collections.unmodifiableList(unsupportedErrorMessages);
-    }
-
-    public ValidationErrors removeUnsupportedField(Enum field) {
-        return removeUnsupportedField(field.name());
     }
 
     public ValidationErrors removeUnsupportedField(String field) {

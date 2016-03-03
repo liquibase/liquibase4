@@ -2,6 +2,7 @@ package liquibase.action
 
 import liquibase.JUnitScope
 import liquibase.Scope
+import liquibase.action.core.CommitAction
 import liquibase.actionlogic.ActionExecutor
 import liquibase.command.DropAllCommand
 import liquibase.database.ConnectionSupplier
@@ -45,8 +46,9 @@ abstract class AbstractActionTest extends Specification {
 
     /**
      * Creates all permutations of the action this test is for. This method is public because it can be used by other tests that operate on all actions of a given type.
+     * Normally don't create multiple permutations of names since that causes an explosion of permutations. Instead, just use a single standard name and test complex names with standard settings in separate tests.
      */
-    public abstract createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope)
+    public abstract List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope)
 
     /**
      * Used by {@link #testAction(java.util.Map, liquibase.action.Action, liquibase.database.ConnectionSupplier, liquibase.Scope)} to create a snapshot that contains everything needed to test the given action.
@@ -115,6 +117,8 @@ abstract class AbstractActionTest extends Specification {
                 def results
                 try {
                     results = plan.execute(scope)
+
+                    scope.getSingleton(ActionExecutor).execute(new CommitAction(), scope)
                 } catch (ActionPerformException e) {
                     LoggerFactory.getLogger(getClass()).warn("Snapshot: " + snapshot.describe())
                     throw e;
@@ -213,10 +217,9 @@ abstract class AbstractActionTest extends Specification {
 
             def executor = scope.getSingleton(ActionExecutor)
 
-            for (def type : [Table, UniqueConstraint, Index, ForeignKey]) {
+            for (def type : [Table, UniqueConstraint, Index, ForeignKey, Sequence, RowData]) {
                 for (def obj : snapshot.get(type)) {
-                    for (
-                            def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
+                    for (def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
                         def errors = executor.validate(action, scope)
                         LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe(true))
                         if (errors.hasErrors()) {
@@ -233,7 +236,7 @@ abstract class AbstractActionTest extends Specification {
      * Called by {@link ActionTestPermutation} to clean up the database as part of {@link Permutation#cleanup}.
      * Default implementation does nothing.
      */
-    protected cleanupDatabase(Snapshot snapshot, Scope scope) {}
+    protected void cleanupDatabase(Snapshot snapshot, Scope scope) {}
 
     AbstractActionTest.TestDetails getTestDetails(Scope scope) {
         return scope.getSingleton(AbstractActionTest.TestDetailsFactory).getTestDetails(this, scope)

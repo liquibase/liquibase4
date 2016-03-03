@@ -14,7 +14,7 @@ import liquibase.item.core.Table;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MissingPrimaryKeyActionGenerator implements MissingObjectActionGenerator {
+public class MissingPrimaryKeyActionGenerator implements MissingObjectActionGenerator<PrimaryKey> {
 
 
     @Override
@@ -42,11 +42,10 @@ public class MissingPrimaryKeyActionGenerator implements MissingObjectActionGene
     }
 
     @Override
-    public List<? extends Action> fixMissing(Item missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
-        PrimaryKey pk = (PrimaryKey) missingObject;
+    public List<? extends Action> fixMissing(PrimaryKey missingObject, Snapshot referenceSnapshot, Snapshot targetSnapshot, Scope scope) {
 
         ArrayList<AddPrimaryKeysAction> actions = new ArrayList<>();
-        actions.add(new AddPrimaryKeysAction(pk));
+        actions.add(new AddPrimaryKeysAction(missingObject));
 
         return actions;
     }

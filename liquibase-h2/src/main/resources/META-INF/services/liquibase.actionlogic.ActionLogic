@@ -7,4 +7,5 @@ liquibase.actionlogic.core.h2.CreateTableLogicH2
 liquibase.actionlogic.core.h2.SnapshotForeignKeysLogicH2
 liquibase.actionlogic.core.h2.SnapshotIndexesLogicH2
 liquibase.actionlogic.core.h2.SnapshotPrimaryKeysLogicH2
+liquibase.actionlogic.core.h2.SnapshotSequencesLogicH2
 liquibase.actionlogic.core.h2.SnapshotUniqueConstraintsLogicH2

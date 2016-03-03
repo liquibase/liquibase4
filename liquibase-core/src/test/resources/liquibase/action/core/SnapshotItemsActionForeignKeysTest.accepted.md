@@ -2,57 +2,67 @@
 
 # Test: "Finds multi-column FKs correctly" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
-| Permutation | Verified | schemaName | OPERATIONS
-| :---------- | :------- | :--------- | :------
-| 0f43a8      | Generic  | LBSCHEMA   | **plan**: getImportedKeys(null, LBSCHEMA, TABLE_NAME)
-| eb7c69      | Generic  | LBSCHEMA2  | **plan**: getImportedKeys(null, LBSCHEMA2, TABLE_NAME)
+| Permutation | Verified | schema    | OPERATIONS
+| :---------- | :------- | :-------- | :------
+| 6e6350      | Generic  | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TABLE_NAME)
+| bbb8e6      | Generic  | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TABLE_NAME)
 
 # Test: "can find all foreignKeys in a fully qualified complex table name" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
 | Permutation | Verified | table                                   | OPERATIONS
 | :---------- | :------- | :-------------------------------------- | :------
-| c9a7d3      | Generic  | LBSCHEMA.ANOTHERUPPERTABLE              | **plan**: getImportedKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
-| 014303      | Generic  | LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE  | **plan**: getImportedKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| 84ceec      | Generic  | LBSCHEMA.ONLY_IN_LBSCHEMA               | **plan**: getImportedKeys(null, LBSCHEMA, ONLY_IN_LBSCHEMA)
-| a214a1      | Generic  | LBSCHEMA.UPPERTABLE                     | **plan**: getImportedKeys(null, LBSCHEMA, UPPERTABLE)
-| 787ea6      | Generic  | LBSCHEMA2.ANOTHERUPPERTABLE             | **plan**: getImportedKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
-| 35a817      | Generic  | LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE | **plan**: getImportedKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| f5e1de      | Generic  | LBSCHEMA2.ONLY_IN_LBSCHEMA2             | **plan**: getImportedKeys(null, LBSCHEMA2, ONLY_IN_LBSCHEMA2)
-| c90d39      | Generic  | LBSCHEMA2.UPPERTABLE                    | **plan**: getImportedKeys(null, LBSCHEMA2, UPPERTABLE)
+| 82ca36      | Generic  | LBSCHEMA.4TEST_table                    | **plan**: getImportedKeys(null, LBSCHEMA, 4TEST_table)
+| a59cad      | Generic  | LBSCHEMA.4test_table                    | **plan**: getImportedKeys(null, LBSCHEMA, 4test_table)
+| 02109b      | Generic  | LBSCHEMA.ANOTHERUPPERTABLE              | **plan**: getImportedKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
+| 0556ea      | Generic  | LBSCHEMA.AnotherMixedTable              | **plan**: getImportedKeys(null, LBSCHEMA, AnotherMixedTable)
+| 2cbd26      | Generic  | LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE  | **plan**: getImportedKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| 6b38df      | Generic  | LBSCHEMA.MixedTable                     | **plan**: getImportedKeys(null, LBSCHEMA, MixedTable)
+| 763654      | Generic  | LBSCHEMA.ONLY_IN_LBSCHEMA               | **plan**: getImportedKeys(null, LBSCHEMA, ONLY_IN_LBSCHEMA)
+| 8f1814      | Generic  | LBSCHEMA.UPPERTABLE                     | **plan**: getImportedKeys(null, LBSCHEMA, UPPERTABLE)
+| 5c8625      | Generic  | LBSCHEMA.anotherlowertable              | **plan**: getImportedKeys(null, LBSCHEMA, anotherlowertable)
+| 86a5d1      | Generic  | LBSCHEMA.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: getImportedKeys(null, LBSCHEMA, crazy!@#\$%^&*()_+{}[]'"table)
+| c4dbeb      | Generic  | LBSCHEMA.lowertable                     | **plan**: getImportedKeys(null, LBSCHEMA, lowertable)
+| 31f94a      | Generic  | LBSCHEMA2.4TEST_table                   | **plan**: getImportedKeys(null, LBSCHEMA2, 4TEST_table)
+| 13e76e      | Generic  | LBSCHEMA2.4test_table                   | **plan**: getImportedKeys(null, LBSCHEMA2, 4test_table)
+| cec2e1      | Generic  | LBSCHEMA2.ANOTHERUPPERTABLE             | **plan**: getImportedKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
+| fe461f      | Generic  | LBSCHEMA2.AnotherMixedTable             | **plan**: getImportedKeys(null, LBSCHEMA2, AnotherMixedTable)
+| dec400      | Generic  | LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE | **plan**: getImportedKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| cf72a3      | Generic  | LBSCHEMA2.MixedTable                    | **plan**: getImportedKeys(null, LBSCHEMA2, MixedTable)
+| 6e579a      | Generic  | LBSCHEMA2.ONLY_IN_LBSCHEMA2             | **plan**: getImportedKeys(null, LBSCHEMA2, ONLY_IN_LBSCHEMA2)
+| d5eec3      | Generic  | LBSCHEMA2.UPPERTABLE                    | **plan**: getImportedKeys(null, LBSCHEMA2, UPPERTABLE)
+| 00b229      | Generic  | LBSCHEMA2.anotherlowertable             | **plan**: getImportedKeys(null, LBSCHEMA2, anotherlowertable)
+| b875ac      | Generic  | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: getImportedKeys(null, LBSCHEMA2, crazy!@#\$%^&*()_+{}[]'"table)
+| 5921e4      | Generic  | LBSCHEMA2.lowertable                    | **plan**: getImportedKeys(null, LBSCHEMA2, lowertable)
 
 # Test: "can find fully qualified complex foreign key names" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
-| Permutation | Verified | fkName                             | schema    | OPERATIONS
+| Permutation | Verified | fk                                 | schema    | OPERATIONS
 | :---------- | :------- | :--------------------------------- | :-------- | :------
-| 8ee244      | Generic  | 4TEST_foreignkey                   | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 7f0da0      | Generic  | 4TEST_foreignkey                   | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 7c57e8      | Generic  | 4test_foreignkey                   | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 005609      | Generic  | 4test_foreignkey                   | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| d4f218      | Generic  | ANOTHERUPPERFOREIGNKEY             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| e56939      | Generic  | ANOTHERUPPERFOREIGNKEY             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| c96e6c      | Generic  | AnotherMixedForeignKey             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 242783      | Generic  | AnotherMixedForeignKey             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 7a2347      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 83b3af      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| dabe84      | Generic  | MixedForeignKey                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 378a65      | Generic  | MixedForeignKey                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| a8492f      | Generic  | UPPERFOREIGNKEY                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 885cde      | Generic  | UPPERFOREIGNKEY                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 146115      | Generic  | anotherlowerforeignkey             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 148ba1      | Generic  | anotherlowerforeignkey             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 03a0cc      | Generic  | crazy!@#\$%^&*()_+{}[]'"foreignkey | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| e5992a      | Generic  | crazy!@#\$%^&*()_+{}[]'"foreignkey | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 7c6c7d      | Generic  | lowerforeignkey                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 5a69f0      | Generic  | lowerforeignkey                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| a5357d      | Generic  | only_in_LBSCHEMA                   | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| 70ecde      | Generic  | only_in_LBSCHEMA                   | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
-| 305ba2      | Generic  | only_in_LBSCHEMA2                  | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
-| f65bca      | Generic  | only_in_LBSCHEMA2                  | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| f6bfa3      | Generic  | 4TEST_foreignkey                   | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| dbfd00      | Generic  | 4TEST_foreignkey                   | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 10c057      | Generic  | 4test_foreignkey                   | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 740ea5      | Generic  | 4test_foreignkey                   | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 5f5585      | Generic  | ANOTHERUPPERFOREIGNKEY             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 4949cf      | Generic  | ANOTHERUPPERFOREIGNKEY             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| b1f4c5      | Generic  | AnotherMixedForeignKey             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 386885      | Generic  | AnotherMixedForeignKey             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 9f375e      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| beb0f5      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"FOREIGNKEY | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 381ea4      | Generic  | MixedForeignKey                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 0909f4      | Generic  | MixedForeignKey                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 268667      | Generic  | UPPERFOREIGNKEY                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 229b19      | Generic  | UPPERFOREIGNKEY                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| b603e8      | Generic  | anotherlowerforeignkey             | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| e5fa2c      | Generic  | anotherlowerforeignkey             | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| a79835      | Generic  | crazy!@#\$%^&*()_+{}[]'"foreignkey | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 2b0a9b      | Generic  | crazy!@#\$%^&*()_+{}[]'"foreignkey | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
+| 7401ea      | Generic  | lowerforeignkey                    | LBSCHEMA  | **plan**: getImportedKeys(null, LBSCHEMA, TEST_TABLE)
+| 219944      | Generic  | lowerforeignkey                    | LBSCHEMA2 | **plan**: getImportedKeys(null, LBSCHEMA2, TEST_TABLE)
 
-# Test Version: "571199" #
+# Test Version: "98fa64" #

@@ -2,7 +2,7 @@ package liquibase.actionlogic.core.h2;
 
 import liquibase.Scope;
 import liquibase.action.Action;
-import liquibase.action.QuerySqlAction;
+import liquibase.action.core.SelectDataAction;
 import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
@@ -11,7 +11,6 @@ import liquibase.exception.ActionPerformException;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.ItemReference;
 import liquibase.item.core.*;
-import liquibase.util.StringClauses;
 
 public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
 
@@ -24,45 +23,48 @@ public class SnapshotForeignKeysLogicH2 extends SnapshotForeignKeysLogic {
     @Override
     protected Action createSnapshotAction(DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
-        StringClauses query = new StringClauses(" ").append("SELECT PKTABLE_CATALOG PKTABLE_CAT, " +
-                "PKTABLE_SCHEMA PKTABLE_SCHEM, " +
-                "PKTABLE_NAME PKTABLE_NAME, " +
-                "PKCOLUMN_NAME, " +
-                "FKTABLE_CATALOG FKTABLE_CAT, " +
-                "FKTABLE_SCHEMA FKTABLE_SCHEM, " +
-                "FKTABLE_NAME, " +
-                "FKCOLUMN_NAME, " +
-                "ORDINAL_POSITION KEY_SEQ, " +
-                "UPDATE_RULE, " +
-                "DELETE_RULE, " +
-                "FK_NAME, " +
-                "PK_NAME, " +
-                "DEFERRABILITY " +
-                "FROM INFORMATION_SCHEMA.CROSS_REFERENCES");
+        SelectDataAction query = new SelectDataAction(new RelationReference(Table.class, "INFORMATION_SCHEMA", "CROSS_REFERENCES"),
+                new SelectDataAction.SelectedColumn(null, "PKTABLE_CATALOG", "PKTABLE_CAT"),
+                new SelectDataAction.SelectedColumn(null, "PKTABLE_SCHEMA", "PKTABLE_SCHEM"),
+                new SelectDataAction.SelectedColumn("PKTABLE_NAME"),
+                new SelectDataAction.SelectedColumn("PKCOLUMN_NAME"),
+                new SelectDataAction.SelectedColumn(null, "FKTABLE_CATALOG", "FKTABLE_CAT"),
+                new SelectDataAction.SelectedColumn(null, "FKTABLE_SCHEMA", "FKTABLE_SCHEM"),
+                new SelectDataAction.SelectedColumn("FKTABLE_NAME"),
+                new SelectDataAction.SelectedColumn("FKCOLUMN_NAME"),
+                new SelectDataAction.SelectedColumn(null, "ORDINAL_POSITION", "KEY_SEQ"),
+                new SelectDataAction.SelectedColumn("UPDATE_RULE"),
+                new SelectDataAction.SelectedColumn("DELETE_RULE"),
+                new SelectDataAction.SelectedColumn("FK_NAME"),
+                new SelectDataAction.SelectedColumn("PK_NAME"),
+                new SelectDataAction.SelectedColumn("DEFERRABILITY"));
+
         if (relatedTo.instanceOf(ForeignKey.class)) {
-            if (relatedTo.name== null) {
+            if (relatedTo.name == null) {
                 ItemReference baseTable = ((ForeignKeyReference) relatedTo).container;
-                query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope))
-                        .append("AND FKTABLE_NAME=" + database.quoteString(baseTable.name, scope));
+                query.addWhere("FKTABLE_SCHEMA=" + database.quoteString(baseTable.container.name, scope))
+                        .addWhere("FKTABLE_NAME=" + database.quoteString(baseTable.name, scope));
             } else {
-                query.append("WHERE FK_NAME=" + database.quoteString(relatedTo.name, scope))
-                        .append("AND FKTABLE_SCHEMA=" + database.quoteString(((ForeignKeyReference) relatedTo).getSchema().name, scope));
+                query.addWhere("FK_NAME=" + database.quoteString(relatedTo.name, scope))
+                        .addWhere("FKTABLE_SCHEMA=" + database.quoteString(((ForeignKeyReference) relatedTo).getSchema().name, scope));
             }
         } else if (relatedTo instanceof RelationReference) {
-            query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope))
-                    .append("AND FKTABLE_NAME=" + database.quoteString(relatedTo.name, scope));
+            query.addWhere("FKTABLE_SCHEMA=" + database.quoteString(relatedTo.container.name, scope))
+                    .addWhere("FKTABLE_NAME=" + database.quoteString(relatedTo.name, scope));
         } else if (relatedTo.instanceOf(Schema.class)) {
-            query.append("WHERE FKTABLE_SCHEMA=" + database.quoteString(relatedTo.name, scope));
+            query.addWhere("FKTABLE_SCHEMA=" + database.quoteString(relatedTo.name, scope));
         } else {
             throw new ActionPerformException("Unexpected relatedTo type: " + relatedTo.getClass().getName());
         }
 
-        query.append("ORDER BY PKTABLE_CAT, " +
-                "PKTABLE_SCHEM, " +
-                "PKTABLE_NAME, " +
-                "FK_NAME, " +
-                "KEY_SEQ");
-        return new QuerySqlAction(query);
+        query.addOrder(
+                new SelectDataAction.OrderedByColumn("PKTABLE_CAT"),
+                new SelectDataAction.OrderedByColumn("PKTABLE_SCHEM"),
+                new SelectDataAction.OrderedByColumn("PKTABLE_NAME"),
+                new SelectDataAction.OrderedByColumn("FK_NAME"),
+                new SelectDataAction.OrderedByColumn("KEY_SEQ"));
+
+        return query;
     }
 
 }

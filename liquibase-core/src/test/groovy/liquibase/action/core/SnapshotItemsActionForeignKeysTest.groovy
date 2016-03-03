@@ -27,7 +27,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
 
         testAction([
                 schema_asTable: schema,
-                fk_asTable: fkName
+                fk_asTable    : fkName
         ], action, conn, scope, { plan, results ->
             assert results instanceof ObjectBasedQueryResult
             assert results.size() == 1;
@@ -100,15 +100,15 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << okIfEmpty("May not support schema-only snapshotting", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            return okIfEmpty("May not support schema-only snapshotting", CollectionUtil.permutationsWithoutNulls([
+            return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
                     it.allSchemas
-            ], new ValidActionFilter(scope)))
-        }
+            ], new ValidActionFilter(scope))
+        })
     }
 
     @Unroll("#featureName: #schema on #conn")
@@ -168,7 +168,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
     }
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null;
     }
 
@@ -196,8 +196,8 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Table(refTable.name, refTable.container))
                 snapshot.add(new Column(refColumn1Name, refTable, DataType.parse("int"), true))
                 snapshot.add(new Column(refColumn2Name, refTable, DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx1_"+refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn1Name)))
-                snapshot.add(new Index(standardCaseItemName("idx2_"+refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn2Name)))
+                snapshot.add(new Index(standardCaseItemName("idx1_" + refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn1Name)))
+                snapshot.add(new Index(standardCaseItemName("idx2_" + refTable.name, Index, scope), refTable, new Index.IndexedColumn(refColumn2Name)))
                 snapshot.add(new ForeignKey(relatedTo.name, relatedTo.container, refTable, [baseColumn1Name], [refColumn1Name]))
                 snapshot.add(new ForeignKey(null, relatedTo.container, refTable, [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Relation)) {
@@ -212,8 +212,8 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
                 snapshot.add(new Table(refTableName.name, refTableName.container))
                 snapshot.add(new Column(refColumn1Name, refTableName, DataType.parse("int"), true))
                 snapshot.add(new Column(refColumn2Name, refTableName, DataType.parse("int"), true))
-                snapshot.add(new Index(standardCaseItemName("idx1_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn( refColumn1Name)))
-                snapshot.add(new Index(standardCaseItemName("idx2_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn( refColumn2Name)))
+                snapshot.add(new Index(standardCaseItemName("idx1_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn(refColumn1Name)))
+                snapshot.add(new Index(standardCaseItemName("idx2_$refTableName.name", Index, scope), refTableName, new Index.IndexedColumn(refColumn2Name)))
                 snapshot.add(new ForeignKey(standardCaseItemName("fk1_" + relatedTo, ForeignKey, scope), relatedTo, refTableName, [baseColumn1Name], [refColumn1Name]))
                 snapshot.add(new ForeignKey(standardCaseItemName("fk2_" + relatedTo, ForeignKey, scope), relatedTo, refTableName, [baseColumn2Name], [refColumn2Name]))
             } else if (relatedTo.instanceOf(Schema)) {
@@ -221,7 +221,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
             }
         }
 
-        for (int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             def baseTable = new RelationReference(Table, standardCaseItemName("test_table_$i", Table, scope), schema)
             def refTable = new RelationReference(Table, standardCaseItemName("ref_table_$i", Table, scope), schema)
 

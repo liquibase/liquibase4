@@ -138,14 +138,19 @@ public interface Database extends Plugin, ExtensibleObject {
         DDL_IN_TRANSACTION(true, "True if the database supports DDL within a transaction. This doesn't specify whether the database auto-commits DDL statements, just whether an error will be thrown if there is an active transaction when a DDL statement is executed"),
         DEFERRABLE_CONSTRAINTS(false, "True if the database supports deferrable constraints"),
         AUTO_INCREMENT(true, "True if the database supports auto-increment/identity columns"),
-        CLUSTERED_INDEXES(false, "True if the database supports creating clustered indexes, regardless of what they call them."),
         DISABLING_FOREIGN_KEYS(false, "True if foreign keys can be temporarily disabled"),
         TABLESPACES(false, "True if tablespaces can be defined"),
         NAMED_PRIMARY_KEYS(true, "True if primary keys can have unique names"),
+
+        INDEXES_CLUSTERED(false, "True if the database supports creating clustered indexes, regardless of what they call them."),
         INDEXES_DESC(true, "True if indexes can be defined as descending"),
         INDEXES_ASC(true, "True if indexes can be defined as ascending"),
-        AUTO_CREATES_INDEXES_FOR_FOREIGN_KEYS(false, "True if indexes are automatically created when a foreign key is created")
-        ;
+        INDEXES_IN_SEPARATE_SCHEMA(false, "True if indexes can be defined in a different schema than the indexed table"),
+
+        AUTO_CREATES_INDEXES_FOR_FOREIGN_KEYS(false, "True if indexes are automatically created when a foreign key is created"),
+
+        SEQUENCES(true, "True if database supports sequences"),
+        SEQUENCE_ORDERED(false, "True if database supports the ORDERED clause when creating sequences");
 
         private boolean supportedByDefault;
         private String description;

@@ -16,8 +16,7 @@ public class CreateIndexesLogicMysql extends CreateIndexesLogic {
 
     @Override
     public ValidationErrors validate(CreateIndexesAction action, Scope scope) {
-        ValidationErrors validate = super.validate(action, scope)
+        return super.validate(action, scope)
                 .checkRequiredFields("indexes.name");
-        return validate;
     }
 }

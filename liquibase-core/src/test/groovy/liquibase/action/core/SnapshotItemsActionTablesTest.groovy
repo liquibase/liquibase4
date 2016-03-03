@@ -136,7 +136,7 @@ class SnapshotItemsActionTablesTest extends AbstractActionTest {
 
 
     @Override
-    def createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
+    List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return null;
     }
 

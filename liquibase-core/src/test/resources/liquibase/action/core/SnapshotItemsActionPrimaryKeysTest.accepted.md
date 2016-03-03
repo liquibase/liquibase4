@@ -2,55 +2,96 @@
 
 # Test: "Finds multi-column PKs correctly" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
-| Permutation | Verified | schemaName | OPERATIONS
-| :---------- | :------- | :--------- | :------
-| 0f43a8      | Generic  | LBSCHEMA   | **plan**: getPrimaryKeys(null, LBSCHEMA, TABLE_NAME)
-| eb7c69      | Generic  | LBSCHEMA2  | **plan**: getPrimaryKeys(null, LBSCHEMA2, TABLE_NAME)
+| Permutation | Verified | schema    | OPERATIONS
+| :---------- | :------- | :-------- | :------
+| 6e6350      | Generic  | LBSCHEMA  | **plan**: getPrimaryKeys(null, LBSCHEMA, TABLE_NAME)
+| bbb8e6      | Generic  | LBSCHEMA2 | **plan**: getPrimaryKeys(null, LBSCHEMA2, TABLE_NAME)
 
 # Test: "can find all primaryKeys in a fully qualified complex table name" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
 | Permutation | Verified | table                                   | OPERATIONS
 | :---------- | :------- | :-------------------------------------- | :------
-| c9a7d3      | Generic  | LBSCHEMA.ANOTHERUPPERTABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
-| 014303      | Generic  | LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE  | **plan**: getPrimaryKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| 84ceec      | Generic  | LBSCHEMA.ONLY_IN_LBSCHEMA               | **plan**: getPrimaryKeys(null, LBSCHEMA, ONLY_IN_LBSCHEMA)
-| a214a1      | Generic  | LBSCHEMA.UPPERTABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, UPPERTABLE)
-| 787ea6      | Generic  | LBSCHEMA2.ANOTHERUPPERTABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
-| 35a817      | Generic  | LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE | **plan**: getPrimaryKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| f5e1de      | Generic  | LBSCHEMA2.ONLY_IN_LBSCHEMA2             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ONLY_IN_LBSCHEMA2)
-| c90d39      | Generic  | LBSCHEMA2.UPPERTABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, UPPERTABLE)
+| 82ca36      | Generic  | LBSCHEMA.4TEST_table                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4TEST_table)
+| a59cad      | Generic  | LBSCHEMA.4test_table                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4test_table)
+| 02109b      | Generic  | LBSCHEMA.ANOTHERUPPERTABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
+| 0556ea      | Generic  | LBSCHEMA.AnotherMixedTable              | **plan**: getPrimaryKeys(null, LBSCHEMA, AnotherMixedTable)
+| 2cbd26      | Generic  | LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE  | **plan**: getPrimaryKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| 6b38df      | Generic  | LBSCHEMA.MixedTable                     | **plan**: getPrimaryKeys(null, LBSCHEMA, MixedTable)
+| 763654      | Generic  | LBSCHEMA.ONLY_IN_LBSCHEMA               | **plan**: getPrimaryKeys(null, LBSCHEMA, ONLY_IN_LBSCHEMA)
+| 8f1814      | Generic  | LBSCHEMA.UPPERTABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, UPPERTABLE)
+| 5c8625      | Generic  | LBSCHEMA.anotherlowertable              | **plan**: getPrimaryKeys(null, LBSCHEMA, anotherlowertable)
+| 86a5d1      | Generic  | LBSCHEMA.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: getPrimaryKeys(null, LBSCHEMA, crazy!@#\$%^&*()_+{}[]'"table)
+| c4dbeb      | Generic  | LBSCHEMA.lowertable                     | **plan**: getPrimaryKeys(null, LBSCHEMA, lowertable)
+| 31f94a      | Generic  | LBSCHEMA2.4TEST_table                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4TEST_table)
+| 13e76e      | Generic  | LBSCHEMA2.4test_table                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4test_table)
+| cec2e1      | Generic  | LBSCHEMA2.ANOTHERUPPERTABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
+| fe461f      | Generic  | LBSCHEMA2.AnotherMixedTable             | **plan**: getPrimaryKeys(null, LBSCHEMA2, AnotherMixedTable)
+| dec400      | Generic  | LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE | **plan**: getPrimaryKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| cf72a3      | Generic  | LBSCHEMA2.MixedTable                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, MixedTable)
+| 6e579a      | Generic  | LBSCHEMA2.ONLY_IN_LBSCHEMA2             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ONLY_IN_LBSCHEMA2)
+| d5eec3      | Generic  | LBSCHEMA2.UPPERTABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, UPPERTABLE)
+| 00b229      | Generic  | LBSCHEMA2.anotherlowertable             | **plan**: getPrimaryKeys(null, LBSCHEMA2, anotherlowertable)
+| b875ac      | Generic  | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: getPrimaryKeys(null, LBSCHEMA2, crazy!@#\$%^&*()_+{}[]'"table)
+| 5921e4      | Generic  | LBSCHEMA2.lowertable                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, lowertable)
 
 # Test: "can find by PrimaryKeyReference with a table name but null primary key name" #
 
-- **connection:** generic[config:standard]
+- **connection:** generic standard
 
-| Permutation | Verified | pkName                                          | OPERATIONS
-| :---------- | :------- | :---------------------------------------------- | :------
-| 516ac9      | Generic  | LBSCHEMA.4TEST_table.UNNAMED                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4TEST_table)
-| bdc842      | Generic  | LBSCHEMA.4test_table.UNNAMED                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4test_table)
-| 8acb9e      | Generic  | LBSCHEMA.ANOTHERUPPERTABLE.UNNAMED              | **plan**: getPrimaryKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
-| 375e0d      | Generic  | LBSCHEMA.AnotherMixedTable.UNNAMED              | **plan**: getPrimaryKeys(null, LBSCHEMA, AnotherMixedTable)
-| 81495b      | Generic  | LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE.UNNAMED  | **plan**: getPrimaryKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| 629fb7      | Generic  | LBSCHEMA.MixedTable.UNNAMED                     | **plan**: getPrimaryKeys(null, LBSCHEMA, MixedTable)
-| 008c16      | Generic  | LBSCHEMA.UPPERTABLE.UNNAMED                     | **plan**: getPrimaryKeys(null, LBSCHEMA, UPPERTABLE)
-| e1d038      | Generic  | LBSCHEMA.anotherlowertable.UNNAMED              | **plan**: getPrimaryKeys(null, LBSCHEMA, anotherlowertable)
-| cf8831      | Generic  | LBSCHEMA.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED  | **plan**: getPrimaryKeys(null, LBSCHEMA, crazy!@#\$%^&*()_+{}[]'"table)
-| 9e8a70      | Generic  | LBSCHEMA.lowertable.UNNAMED                     | **plan**: getPrimaryKeys(null, LBSCHEMA, lowertable)
-| c43512      | Generic  | LBSCHEMA.only_in_LBSCHEMA.UNNAMED               | **plan**: getPrimaryKeys(null, LBSCHEMA, only_in_LBSCHEMA)
-| ec155e      | Generic  | LBSCHEMA2.4TEST_table.UNNAMED                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4TEST_table)
-| 081a49      | Generic  | LBSCHEMA2.4test_table.UNNAMED                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4test_table)
-| 7081a1      | Generic  | LBSCHEMA2.ANOTHERUPPERTABLE.UNNAMED             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
-| 186c8d      | Generic  | LBSCHEMA2.AnotherMixedTable.UNNAMED             | **plan**: getPrimaryKeys(null, LBSCHEMA2, AnotherMixedTable)
-| fb861f      | Generic  | LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE.UNNAMED | **plan**: getPrimaryKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
-| c79780      | Generic  | LBSCHEMA2.MixedTable.UNNAMED                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, MixedTable)
-| 42df0f      | Generic  | LBSCHEMA2.UPPERTABLE.UNNAMED                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, UPPERTABLE)
-| dadc07      | Generic  | LBSCHEMA2.anotherlowertable.UNNAMED             | **plan**: getPrimaryKeys(null, LBSCHEMA2, anotherlowertable)
-| 5387f7      | Generic  | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table.UNNAMED | **plan**: getPrimaryKeys(null, LBSCHEMA2, crazy!@#\$%^&*()_+{}[]'"table)
-| 01ad37      | Generic  | LBSCHEMA2.lowertable.UNNAMED                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, lowertable)
-| 513430      | Generic  | LBSCHEMA2.only_in_LBSCHEMA2.UNNAMED             | **plan**: getPrimaryKeys(null, LBSCHEMA2, only_in_LBSCHEMA2)
+| Permutation | Verified | pk                                                 | OPERATIONS
+| :---------- | :------- | :------------------------------------------------- | :------
+| 46badb      | Generic  | UNNAMED on LBSCHEMA.4TEST_table                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4TEST_table)
+| 37bac9      | Generic  | UNNAMED on LBSCHEMA.4test_table                    | **plan**: getPrimaryKeys(null, LBSCHEMA, 4test_table)
+| cb724a      | Generic  | UNNAMED on LBSCHEMA.ANOTHERUPPERTABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, ANOTHERUPPERTABLE)
+| 2e5e73      | Generic  | UNNAMED on LBSCHEMA.AnotherMixedTable              | **plan**: getPrimaryKeys(null, LBSCHEMA, AnotherMixedTable)
+| 775a84      | Generic  | UNNAMED on LBSCHEMA.CRAZY!@#\$%^&*()_+{}[]'"TABLE  | **plan**: getPrimaryKeys(null, LBSCHEMA, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| b2d12d      | Generic  | UNNAMED on LBSCHEMA.MixedTable                     | **plan**: getPrimaryKeys(null, LBSCHEMA, MixedTable)
+| ccc9c3      | Generic  | UNNAMED on LBSCHEMA.ONLY_IN_LBSCHEMA               | **plan**: getPrimaryKeys(null, LBSCHEMA, ONLY_IN_LBSCHEMA)
+| 3c34be      | Generic  | UNNAMED on LBSCHEMA.UPPERTABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, UPPERTABLE)
+| d1465f      | Generic  | UNNAMED on LBSCHEMA.anotherlowertable              | **plan**: getPrimaryKeys(null, LBSCHEMA, anotherlowertable)
+| b5cdc9      | Generic  | UNNAMED on LBSCHEMA.crazy!@#\$%^&*()_+{}[]'"table  | **plan**: getPrimaryKeys(null, LBSCHEMA, crazy!@#\$%^&*()_+{}[]'"table)
+| db4820      | Generic  | UNNAMED on LBSCHEMA.lowertable                     | **plan**: getPrimaryKeys(null, LBSCHEMA, lowertable)
+| 6d4044      | Generic  | UNNAMED on LBSCHEMA2.4TEST_table                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4TEST_table)
+| 1acae6      | Generic  | UNNAMED on LBSCHEMA2.4test_table                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, 4test_table)
+| 4c1d7b      | Generic  | UNNAMED on LBSCHEMA2.ANOTHERUPPERTABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ANOTHERUPPERTABLE)
+| 685963      | Generic  | UNNAMED on LBSCHEMA2.AnotherMixedTable             | **plan**: getPrimaryKeys(null, LBSCHEMA2, AnotherMixedTable)
+| 4f4d4f      | Generic  | UNNAMED on LBSCHEMA2.CRAZY!@#\$%^&*()_+{}[]'"TABLE | **plan**: getPrimaryKeys(null, LBSCHEMA2, CRAZY!@#\$%^&*()_+{}[]'"TABLE)
+| dc6634      | Generic  | UNNAMED on LBSCHEMA2.MixedTable                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, MixedTable)
+| a1911f      | Generic  | UNNAMED on LBSCHEMA2.ONLY_IN_LBSCHEMA2             | **plan**: getPrimaryKeys(null, LBSCHEMA2, ONLY_IN_LBSCHEMA2)
+| 06740c      | Generic  | UNNAMED on LBSCHEMA2.UPPERTABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, UPPERTABLE)
+| e40e08      | Generic  | UNNAMED on LBSCHEMA2.anotherlowertable             | **plan**: getPrimaryKeys(null, LBSCHEMA2, anotherlowertable)
+| fa1c7e      | Generic  | UNNAMED on LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: getPrimaryKeys(null, LBSCHEMA2, crazy!@#\$%^&*()_+{}[]'"table)
+| 11bdab      | Generic  | UNNAMED on LBSCHEMA2.lowertable                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, lowertable)
 
-# Test Version: "65bf15" #
+# Test: "can find complex pk names with a table" #
+
+- **connection:** generic standard
+
+| Permutation | Verified | pk                                                          | OPERATIONS
+| :---------- | :------- | :---------------------------------------------------------- | :------
+| 1f522c      | Generic  | 4TEST_primarykey on LBSCHEMA.KNOWN_TABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 99af2a      | Generic  | 4TEST_primarykey on LBSCHEMA2.KNOWN_TABLE                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| e35650      | Generic  | 4test_primarykey on LBSCHEMA.KNOWN_TABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 8c4e33      | Generic  | 4test_primarykey on LBSCHEMA2.KNOWN_TABLE                   | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| e215ad      | Generic  | ANOTHERUPPERPRIMARYKEY on LBSCHEMA.KNOWN_TABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| a0e684      | Generic  | ANOTHERUPPERPRIMARYKEY on LBSCHEMA2.KNOWN_TABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| 96e561      | Generic  | AnotherMixedPrimaryKey on LBSCHEMA.KNOWN_TABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 8d975e      | Generic  | AnotherMixedPrimaryKey on LBSCHEMA2.KNOWN_TABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| bbccab      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"PRIMARYKEY on LBSCHEMA.KNOWN_TABLE  | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 1ff47b      | Generic  | CRAZY!@#\$%^&*()_+{}[]'"PRIMARYKEY on LBSCHEMA2.KNOWN_TABLE | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| ccfe55      | Generic  | MixedPrimaryKey on LBSCHEMA.KNOWN_TABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| e0f6a8      | Generic  | MixedPrimaryKey on LBSCHEMA2.KNOWN_TABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| 4ee846      | Generic  | UPPERPRIMARYKEY on LBSCHEMA.KNOWN_TABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| cb0427      | Generic  | UPPERPRIMARYKEY on LBSCHEMA2.KNOWN_TABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| 0a9ccc      | Generic  | anotherlowerprimarykey on LBSCHEMA.KNOWN_TABLE              | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 29d917      | Generic  | anotherlowerprimarykey on LBSCHEMA2.KNOWN_TABLE             | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| f5cf37      | Generic  | crazy!@#\$%^&*()_+{}[]'"primarykey on LBSCHEMA.KNOWN_TABLE  | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 671ed8      | Generic  | crazy!@#\$%^&*()_+{}[]'"primarykey on LBSCHEMA2.KNOWN_TABLE | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+| 0b9382      | Generic  | lowerprimarykey on LBSCHEMA.KNOWN_TABLE                     | **plan**: getPrimaryKeys(null, LBSCHEMA, KNOWN_TABLE)
+| 56122e      | Generic  | lowerprimarykey on LBSCHEMA2.KNOWN_TABLE                    | **plan**: getPrimaryKeys(null, LBSCHEMA2, KNOWN_TABLE)
+
+# Test Version: "fbaea5" #
