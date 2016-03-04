@@ -734,4 +734,4 @@
 | b779a0      | Generic  | int          | TESTCOL | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
 | 96a19d      | Generic  | varchar(20)  | TESTCOL | **plan**: getColumns(null, LBSCHEMA, TESTTABLE, TESTCOL)
 
-# Test Version: "c69ae6" #
+# Test Version: "4edd7d" #

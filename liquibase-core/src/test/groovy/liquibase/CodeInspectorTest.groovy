@@ -15,7 +15,7 @@ import spock.lang.Unroll
 /**
  * General tests of code-structure and tests for violations of required patterns.
  */
-public class CodeInspector extends Specification {
+public class CodeInspectorTest extends Specification {
 
     @Unroll("#featureName: #objectType.name")
     def "plugin classes are correctly configured"() {
@@ -49,13 +49,13 @@ public class CodeInspector extends Specification {
     @Unroll("featureName: #actionClass")
     def "action classes have tests"() {
         when:
-        getClass().forName(actionClass+"Test")
+        getClass().forName(actionClass + "Test")
 
         then:
         noExceptionThrown()
 
         where:
-        actionClass << TestUtil.getClasses(Action)*.name
+        actionClass << TestUtil.getClasses(Action)*.name.findAll { !it.contains("Mock") }
     }
 //
 //    @Unroll("featureName: #logicClass")

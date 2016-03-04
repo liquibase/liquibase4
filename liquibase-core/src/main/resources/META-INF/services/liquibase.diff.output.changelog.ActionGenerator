@@ -5,3 +5,4 @@ liquibase.diff.output.changelog.core.MissingPrimaryKeyActionGenerator
 liquibase.diff.output.changelog.core.MissingSequenceActionGenerator
 liquibase.diff.output.changelog.core.MissingRowDataActionGenerator
 liquibase.diff.output.changelog.core.MissingUniqueConstraintActionGenerator
+liquibase.diff.output.changelog.core.MissingViewActionGenerator

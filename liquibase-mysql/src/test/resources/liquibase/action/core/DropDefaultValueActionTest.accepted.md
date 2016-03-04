@@ -67,4 +67,4 @@
 | eadefc      | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                   |          | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ALTER COLUMN `UPPERCOLUMN` DROP DEFAULT
 | e6c9a9      | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                   | int      | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ALTER COLUMN `UPPERCOLUMN` DROP DEFAULT
 
-# Test Version: "5fc081" #
+# Test Version: "c63cae" #

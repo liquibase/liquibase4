@@ -447,4 +447,4 @@
 | d05615      | Generic  | LBSCHEMA2.lowertable.lowercolumn                                       |          | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "lowercolumn" DROP DEFAULT
 | ba3d63      | Generic  | LBSCHEMA2.lowertable.lowercolumn                                       | int      | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "lowercolumn" DROP DEFAULT
 
-# Test Version: "5fc081" #
+# Test Version: "c63cae" #

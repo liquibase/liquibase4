@@ -82,8 +82,6 @@ public class MysqlDatabase extends AbstractJdbcDatabase {
                 return false;
             case AUTO_CREATES_INDEXES_FOR_FOREIGN_KEYS:
                 return true;
-            case SEQUENCES:
-                return false;
             default:
                 return super.supports(feature, scope);
         }

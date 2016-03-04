@@ -15,7 +15,6 @@ public class Column extends AbstractRelationBasedObject<ColumnReference> {
     public AutoIncrementInformation autoIncrementInformation;
     public Boolean nullable;
     public Object defaultValue;
-    public String remarks;
 
     /**
      * Set to true if the column is not a real column, but a computed value. Note: normal columns on a view are not "virtual", even though they are technically computed.

@@ -17,4 +17,4 @@
 | 34526e      | true     | add id int    | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` add id int
 | 58e26b      | true     | add id int    | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` add id int
 
-# Test Version: "57a643" #
+# Test Version: "2fa724" #

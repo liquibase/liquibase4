@@ -27,7 +27,7 @@ class DropSequencesActionTest extends AbstractActionTest {
         where:
         [conn, scope, action] << okIfEmpty("Sequences may not be supported", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
-            if (!scope.database.supports(Database.Feature.SEQUENCES, scope)) {
+            if (!scope.database.supports(Sequence, scope)) {
                 return []
             }
 

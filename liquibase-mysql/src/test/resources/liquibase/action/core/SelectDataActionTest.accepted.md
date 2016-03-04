@@ -555,4 +555,4 @@
 | 580e76      | true     | test_tableCOLUMN1 AS my_col | rightOuter join on join_table1 AS t1 ON 1=1                                             | COLUMN1 DESC | test_table | test_table    |       | **plan**: SELECT test_table.`COLUMN1` AS my_col FROM `test_table` test_table RIGHT OUTER JOIN `join_table1` t1 ON 1=1
 | 5ce93b      | true     | test_tableCOLUMN1 AS my_col | rightOuter join on join_table1 AS t1 ON 1=1                                             | COLUMN1 DESC | test_table | test_table    | 1=1   | **plan**: SELECT test_table.`COLUMN1` AS my_col FROM `test_table` test_table RIGHT OUTER JOIN `join_table1` t1 ON 1=1 WHERE 1=1
 
-# Test Version: "770792" #
+# Test Version: "5cca99" #

@@ -2,10 +2,7 @@ package liquibase.database;
 
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
-import liquibase.item.DatabaseObject;
-import liquibase.item.DatabaseObjectReference;
-import liquibase.item.Item;
-import liquibase.item.ItemReference;
+import liquibase.item.*;
 import liquibase.item.core.*;
 import liquibase.plugin.AbstractPlugin;
 import liquibase.util.SmartMap;
@@ -386,11 +383,11 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
 
 
     /**
-     * If the objectType is a Column, PrimaryKey or UniqueConstraint then return 1. Otherwise, checks if the database supports Catalogs and/or Schemas to determine the length.
+     * If the objectType is a {@link liquibase.item.AbstractRelationBasedObject.RelationBasedObjectReference} then return 1. Otherwise, checks if the database supports Catalogs and/or Schemas to determine the length.
      * Used by {@link Database#quoteObjectName(DatabaseObjectReference, Scope)}
      */
     protected int getMaxObjectPathLength(Class<? extends Item> objectType, Scope scope) {
-        if (Column.class.isAssignableFrom(objectType) || PrimaryKey.class.isAssignableFrom(objectType) || UniqueConstraint.class.isAssignableFrom(objectType)) {
+        if (AbstractRelationBasedObject.class.isAssignableFrom(objectType)) {
             return 1;
         } else {
             int length = 1;

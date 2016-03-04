@@ -2238,4 +2238,4 @@
 | ad79d1      | Generic  | IndexedColumn{name=lowercolumn}                    | lowerindex                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: CREATE INDEX "lowerindex" ON "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn")
 | c2dda3      | Generic  | IndexedColumn{name=lowercolumn}                    | lowerindex                    | LBSCHEMA2.lowertable                    | **plan**: CREATE INDEX "lowerindex" ON "LBSCHEMA2"."lowertable" ("lowercolumn")
 
-# Test Version: "e8b6dd" #
+# Test Version: "335db3" #

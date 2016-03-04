@@ -242,4 +242,4 @@
 | a70e6e      | true     | lowercolumn                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: INSERT INTO "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn") VALUES ('42')
 | b8e9c3      | true     | lowercolumn                    | PUBLIC.lowertable                       | **plan**: INSERT INTO "PUBLIC"."lowertable" ("lowercolumn") VALUES ('42')
 
-# Test Version: "0bd1ac" #
+# Test Version: "8e510c" #

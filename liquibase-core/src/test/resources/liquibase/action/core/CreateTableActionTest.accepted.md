@@ -803,4 +803,4 @@
 | b875ac      | Generic  | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: CREATE TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ("COL_NAME" INTEGER)
 | 5921e4      | Generic  | LBSCHEMA2.lowertable                    | **plan**: CREATE TABLE "LBSCHEMA2"."lowertable" ("COL_NAME" INTEGER)
 
-# Test Version: "b1eea0" #
+# Test Version: "37cc74" #

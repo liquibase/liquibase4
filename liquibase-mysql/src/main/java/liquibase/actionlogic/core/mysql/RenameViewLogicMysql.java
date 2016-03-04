@@ -8,6 +8,7 @@ import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.util.StringClauses;
 
 public class RenameViewLogicMysql extends RenameViewLogic {
+
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
         return MysqlDatabase.class;
@@ -15,7 +16,6 @@ public class RenameViewLogicMysql extends RenameViewLogic {
 
     @Override
     protected StringClauses generateSql(RenameViewAction action, Scope scope) {
-        return super.generateSql(action, scope)
-                .replace("RENAME", "RENAME TABLE");
+        return super.generateSql(action, scope).replace("VIEW", "TABLE");
     }
 }

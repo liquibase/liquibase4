@@ -108,4 +108,4 @@
 | d03897      | Generic  | crazy!@#\$%^&*()_+{}[]'"index on KNOWN_TABLE | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
 | 764513      | Generic  | lowerindex on KNOWN_TABLE                    | **plan**: getIndexInfo(null, null, KNOWN_TABLE, false, true)
 
-# Test Version: "1f2385" #
+# Test Version: "6e7d81" #

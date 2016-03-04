@@ -227,4 +227,4 @@
 | f3877d      | true     | PUBLIC.lowertable.crazy!@#\$%^&*()_+{}[]'"column                       | int           | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" int
 | 0aa6b1      | true     | PUBLIC.lowertable.lowercolumn                                          | int           | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" int
 
-# Test Version: "15d028" #
+# Test Version: "7a00cf" #

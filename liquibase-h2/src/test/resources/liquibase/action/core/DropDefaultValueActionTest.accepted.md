@@ -447,4 +447,4 @@
 | 5ddd8b      | true     | PUBLIC.lowertable.lowercolumn                                          |          | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" DROP DEFAULT
 | 813f08      | true     | PUBLIC.lowertable.lowercolumn                                          | int      | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" DROP DEFAULT
 
-# Test Version: "5fc081" #
+# Test Version: "c63cae" #

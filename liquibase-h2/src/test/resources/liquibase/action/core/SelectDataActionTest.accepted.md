@@ -586,4 +586,4 @@
 | 3b474a      | true     | TEST_TABLECOLUMN1 AS my_col | rightOuter join on JOIN_TABLE1 AS t1 ON 1=1                                             | COLUMN1 DESC | TEST_TABLE | TEST_TABLE    |       | **plan**: SELECT TEST_TABLE."COLUMN1" AS my_col FROM "TEST_TABLE" TEST_TABLE RIGHT OUTER JOIN "JOIN_TABLE1" t1 ON 1=1
 | ad659d      | true     | TEST_TABLECOLUMN1 AS my_col | rightOuter join on JOIN_TABLE1 AS t1 ON 1=1                                             | COLUMN1 DESC | TEST_TABLE | TEST_TABLE    | 1=1   | **plan**: SELECT TEST_TABLE."COLUMN1" AS my_col FROM "TEST_TABLE" TEST_TABLE RIGHT OUTER JOIN "JOIN_TABLE1" t1 ON 1=1 WHERE 1=1
 
-# Test Version: "770792" #
+# Test Version: "5cca99" #

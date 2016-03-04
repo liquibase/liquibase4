@@ -25,7 +25,7 @@ public class SnapshotSequencesLogic extends AbstractSnapshotDatabaseObjectsLogic
 
     @Override
     protected boolean supportsScope(Scope scope) {
-        return super.supportsScope(scope) && scope.getDatabase().supports(Database.Feature.SEQUENCES, scope);
+        return super.supportsScope(scope) && scope.getDatabase().supports(Sequence.class, scope);
     }
 
     @Override
@@ -72,17 +72,20 @@ public class SnapshotSequencesLogic extends AbstractSnapshotDatabaseObjectsLogic
                 new SelectDataAction.SelectedColumn("CACHE_SIZE"),
                 new SelectDataAction.SelectedColumn("IS_CYCLE")
         );
-
+        if (scope.getDatabase().supports(Catalog.class, scope)) {
+            action.addColumn(new SelectDataAction.SelectedColumn("SEQUENCE_CATALOG"));
+        }
+        if (scope.getDatabase().supports(Schema.class, scope)) {
+            action.addColumn(new SelectDataAction.SelectedColumn("SEQUENCE_SCHEMA"));
+        }
 
         if (sequenceName != null) {
             action.addWhere("SEQUENCE_NAME=" + scope.getDatabase().quoteString(sequenceName, scope));
         }
         if (schemaName != null) {
-            action.addColumn(new SelectDataAction.SelectedColumn("SEQUENCE_SCHEMA"));
             action.addWhere("SEQUENCE_SCHEMA=" + scope.getDatabase().quoteString(schemaName, scope));
         }
         if (catalogName != null) {
-            action.addColumn(new SelectDataAction.SelectedColumn("SEQUENCE_CATALOG"));
             action.addWhere("SEQUENCE_CATALOG=" + scope.getDatabase().quoteString(catalogName, scope));
         }
 

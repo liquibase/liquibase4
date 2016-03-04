@@ -37,4 +37,4 @@
 | f284c0      | Generic  | crazy!@#\$%^&*()_+{}[]'"sequence           | **plan**: DROP SEQUENCE "crazy!@#\$%^&*()_+{}[]'""sequence"
 | ee11fd      | Generic  | lowersequence                              | **plan**: DROP SEQUENCE "lowersequence"
 
-# Test Version: "7ceff7" #
+# Test Version: "dbf3d1" #

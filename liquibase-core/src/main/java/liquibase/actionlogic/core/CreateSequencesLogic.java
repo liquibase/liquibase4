@@ -40,7 +40,7 @@ public class CreateSequencesLogic extends AbstractActionLogic<CreateSequencesAct
 
     @Override
     protected boolean supportsScope(Scope scope) {
-        return super.supportsScope(scope) && scope.getDatabase().supports(Database.Feature.SEQUENCES, scope);
+        return super.supportsScope(scope) && scope.getDatabase().supports(Sequence.class, scope);
     }
 
     @Override

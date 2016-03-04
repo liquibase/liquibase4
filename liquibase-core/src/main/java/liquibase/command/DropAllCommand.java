@@ -2,16 +2,11 @@ package liquibase.command;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
-import liquibase.action.core.DropForeignKeysAction;
-import liquibase.action.core.DropSequencesAction;
-import liquibase.action.core.DropTablesAction;
+import liquibase.action.core.*;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.database.Database;
 import liquibase.item.ItemReference;
-import liquibase.item.core.ForeignKey;
-import liquibase.item.core.ForeignKeyReference;
-import liquibase.item.core.Sequence;
-import liquibase.item.core.Table;
+import liquibase.item.core.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,19 +40,28 @@ public class DropAllCommand extends AbstractCommand {
         snapshotCommand.relatedObjects.addAll(containers);
         SnapshotCommand.SnapshotCommandResult snapshotResult = snapshotCommand.execute(scope);
 
+        ActionExecutor executor = scope.getSingleton(ActionExecutor.class);
         for (ForeignKey foreignKey : snapshotResult.snapshot.get(ForeignKey.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropForeignKeysAction((ForeignKeyReference) foreignKey.toReference()), scope);
+            executor.execute(new DropForeignKeysAction((ForeignKeyReference) foreignKey.toReference()), scope);
         }
+        executor.execute(new CommitAction(), scope);
+
+        for (View view : snapshotResult.snapshot.get(View.class)) {
+            executor.execute(new DropViewsAction(view.toReference()), scope);
+        }
+        executor.execute(new CommitAction(), scope);
 
         for (Table table : snapshotResult.snapshot.get(Table.class)) {
-            scope.getSingleton(ActionExecutor.class).execute(new DropTablesAction(table.toReference()), scope);
+            executor.execute(new DropTablesAction(table.toReference()), scope);
         }
+        executor.execute(new CommitAction(), scope);
 
-        if (scope.getDatabase().supports(Database.Feature.SEQUENCES, scope)) {
+        if (scope.getDatabase().supports(Sequence.class, scope)) {
             for (Sequence seq : snapshotResult.snapshot.get(Sequence.class)) {
-                scope.getSingleton(ActionExecutor.class).execute(new DropSequencesAction(seq.toReference()), scope);
+                executor.execute(new DropSequencesAction(seq.toReference()), scope);
             }
         }
+        executor.execute(new CommitAction(), scope);
 
         return new CommandResult();
     }

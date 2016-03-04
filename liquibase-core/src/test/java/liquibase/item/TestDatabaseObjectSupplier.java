@@ -100,7 +100,8 @@ public class TestDatabaseObjectSupplier<T extends DatabaseObject> extends Abstra
         try {
             List<ItemReference> returnList = new ArrayList<>();
             if (containers == null) {
-                containers = new ArrayList<>(null);
+                containers = new ArrayList<>();
+                containers.add(null);
             }
 
             Class<? extends ItemReference> referenceType = type.getConstructor().newInstance().toReference().getClass();

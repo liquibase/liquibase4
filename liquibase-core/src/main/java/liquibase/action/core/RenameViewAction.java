@@ -7,6 +7,6 @@ import liquibase.item.core.RelationReference;
  * Renames a view. {@link liquibase.actionlogic.ActionLogic} implementations should handle the case where the schema changes as part of the rename.
  */
 public class RenameViewAction extends AbstractAction {
-    public RelationReference oldViewName;
-    public RelationReference newViewName;
+    public RelationReference oldName;
+    public RelationReference newName;
 }

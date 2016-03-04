@@ -37,4 +37,4 @@
 | 5038f1      | true     | crazy!@#\$%^&*()_+{}[]'"sequence           | **plan**: DROP SEQUENCE "crazy!@#\$%^&*()_+{}[]'""sequence"
 | 251299      | true     | lowersequence                              | **plan**: DROP SEQUENCE "lowersequence"
 
-# Test Version: "7ceff7" #
+# Test Version: "dbf3d1" #

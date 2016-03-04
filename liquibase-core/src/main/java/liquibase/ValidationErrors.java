@@ -319,7 +319,7 @@ public class ValidationErrors {
     }
 
     public ValidationErrors checkField(String field, FieldCheck check) {
-        if (objectToValidate == null) {
+        if (objectToValidate == null || hasErrors()) {
             return this;
         }
 

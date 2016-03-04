@@ -149,7 +149,6 @@ public interface Database extends Plugin, ExtensibleObject {
 
         AUTO_CREATES_INDEXES_FOR_FOREIGN_KEYS(false, "True if indexes are automatically created when a foreign key is created"),
 
-        SEQUENCES(true, "True if database supports sequences"),
         SEQUENCE_ORDERED(false, "True if database supports the ORDERED clause when creating sequences");
 
         private boolean supportedByDefault;

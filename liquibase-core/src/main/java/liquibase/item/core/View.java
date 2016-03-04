@@ -1,9 +1,11 @@
 package liquibase.item.core;
 
+import liquibase.util.StringClauses;
+
 public class View extends Relation {
 
-    public Boolean containsFullDefinition;
-    public String definition;
+    public StringClauses definition;
+    public boolean completeDefinition = false;
 
     public View() {
     }
@@ -13,6 +15,11 @@ public class View extends Relation {
     }
 
     public View(String name, SchemaReference schema) {
+        this(name, schema, null);
+    }
+
+    public View(String name, SchemaReference schema, StringClauses definition) {
         super(name, schema);
+        this.definition = definition;
     }
 }

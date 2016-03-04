@@ -33,7 +33,7 @@ class CreateSequencesActionTest extends AbstractActionTest {
         [conn, scope, action] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
-            if (!scope.database.supports(Database.Feature.SEQUENCES, scope)) {
+            if (!scope.database.supports(Sequence, scope)) {
                 return []
             }
 

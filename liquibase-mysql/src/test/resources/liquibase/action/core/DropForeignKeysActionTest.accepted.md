@@ -47,4 +47,4 @@
 | 8828d5      | true     | lowerforeignkey                    | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` DROP FOREIGN KEY `lowerforeignkey`
 | 272cc4      | true     | lowerforeignkey                    | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` DROP FOREIGN KEY `lowerforeignkey`
 
-# Test Version: "8081a4" #
+# Test Version: "fb6f4e" #
