@@ -8,6 +8,7 @@ import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
+import liquibase.item.core.RelationReference
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
@@ -39,10 +40,12 @@ class DropTablesActionTest extends AbstractActionTest {
 
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        return TestUtil.createAllPermutations(DropTablesAction, [
-                tables            : CollectionUtil.toSingletonLists(getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)),
-                cascadeConstraints: [true, false]
-        ])
+        return CollectionUtil.addTo(
+                TestUtil.createAllPermutations(DropTablesAction, [
+                        tables            : CollectionUtil.toSingletonLists(getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)),
+                        cascadeConstraints: [true, false]
+                ]),
+                new DropTablesAction(new RelationReference(Table, null, null))) //add null-name action
     }
 
     @Override

@@ -29,7 +29,7 @@ public class RenameColumnLogic extends AbstractSqlBuilderLogic<RenameColumnActio
                     @Override
                     public String check(String newName) {
                         if (newName.equals(action.oldName)) {
-                            return "Cannot rename to the same name";
+                            return "cannot rename to the same name";
                         }
                         return null;
                     }

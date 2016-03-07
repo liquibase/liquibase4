@@ -378,7 +378,16 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
             objectType = DatabaseObject.class;
         }
 
-        return StringUtil.join(reference.truncate(getMaxObjectPathLength(objectType, scope)).asList(), ".", new StringUtil.DatabaseObjectNameFormatter(objectType, scope));
+        List<String> parts = reference.asList();
+        int maxLength = getMaxObjectPathLength(objectType, scope);
+        if (parts.size() > maxLength) {
+            parts = new ArrayList<>(parts);
+            Collections.reverse(parts);
+            parts = parts.subList(0, maxLength);
+            Collections.reverse(parts);
+        }
+
+        return StringUtil.join(parts, ".", new StringUtil.DatabaseObjectNameFormatter(objectType, scope));
     }
 
 

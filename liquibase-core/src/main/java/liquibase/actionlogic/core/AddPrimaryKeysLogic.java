@@ -42,11 +42,11 @@ public class AddPrimaryKeysLogic extends AbstractActionLogic<AddPrimaryKeysActio
             errors.checkUnsupportedFields("primaryKeys.tablespace");
         }
 
-        errors.checkField("primaryKeys", new ValidationErrors.FieldCheck<PrimaryKey>() {
+        errors.checkField("primaryKeys.clustered", new ValidationErrors.FieldCheck<Boolean>() {
             @Override
-            public String check(PrimaryKey pk) {
-                if (pk.clustered != null && pk.clustered) {
-                    return "adding a clustered primary key is not supported";
+            public String check(Boolean clustered) {
+                if (clustered != null && clustered) {
+                    return "not supported";
                 }
                 return null;
             }

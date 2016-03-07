@@ -31,7 +31,9 @@ public class MysqlDatabase extends AbstractJdbcDatabase {
     public void setConnection(DatabaseConnection conn, Scope scope) {
         if (conn instanceof JdbcConnection) {
             Connection underlyingConnection = ((JdbcConnection) conn).getUnderlyingConnection();
-            ((JDBC4Connection) underlyingConnection).setUseInformationSchema(true);
+            if (underlyingConnection instanceof JDBC4Connection) {
+                ((JDBC4Connection) underlyingConnection).setUseInformationSchema(true);
+            }
         }
         super.setConnection(conn, scope);
     }

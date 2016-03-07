@@ -30,7 +30,7 @@ public class DropTablesLogic extends AbstractActionLogic<DropTablesAction> {
     @Override
     public ValidationErrors validate(DropTablesAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
-                .checkRequiredFields("tables");
+                .checkRequiredFields("tables", "tables.name");
 
         if (!supportsDropTableCascadeConstraints()) {
             errors.checkUnsupportedFields("cascadeConstraints");

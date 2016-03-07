@@ -29,6 +29,7 @@ public class CreateTableLogicH2 extends CreateTableLogic {
         ValidationErrors errors = super.validate(action, scope);
 
         errors.removeUnsupportedField("primaryKey");
+        errors.removeUnsupportedField("columns.autoIncrementInformation");
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns) {
@@ -53,22 +54,15 @@ public class CreateTableLogicH2 extends CreateTableLogic {
 
     @Override
     public ActionResult execute(CreateTableAction action, Scope scope) throws ActionPerformException {
-        DelegateResult result = new DelegateResult(action, null,
-                new ExecuteSqlAction(generateSql(action, scope).toString()),
-                action.table.remarks == null ? null : new ExecuteSqlAction(new StringClauses(" ")
-                        .append("COMMENT ON TABLE")
-                        .append(scope.getDatabase().quoteObjectName(action.table.toReference(), scope))
-                        .append("IS")
-                        .append(scope.getDatabase().quoteString(action.table.remarks, scope)))
-        );
+        DelegateResult result = new DelegateResult(action, null, new ExecuteSqlAction(generateSql(action, scope).toString()));
+
+        if (action.table.remarks != null) {
+            result.addActions(new SetRemarksAction(action.table.toReference(), action.table.remarks));
+        }
 
         for (Column column : CollectionUtil.createIfNull(action.columns)) {
-            String columnRemarks = column.remarks;
-            if (columnRemarks != null) {
-                SetRemarksAction remarksAction = new SetRemarksAction();
-                remarksAction.object = new ColumnReference(action.table.name, column.name);
-                remarksAction.remarks = columnRemarks;
-                result.addActions(remarksAction);
+            if (column.remarks != null) {
+                result.addActions(new SetRemarksAction(new ColumnReference(column.name, action.table.toReference()), column.remarks));
             }
         }
 

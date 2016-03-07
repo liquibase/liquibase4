@@ -2,6 +2,7 @@ package liquibase
 
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
+import liquibase.actionlogic.AbstractLogicTest
 import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
@@ -57,18 +58,18 @@ public class CodeInspectorTest extends Specification {
         where:
         actionClass << TestUtil.getClasses(Action)*.name.findAll { !it.contains("Mock") }
     }
-//
-//    @Unroll("featureName: #logicClass")
-//    def "logic classes have tests"() {
-//        when:
-//        def testClass = getClass().forName(logicClass+"Test")
-//
-//        then:
-//        noExceptionThrown()
-//        testClass.metaClass.getMetaMethod("validation failures are as expected") != null
-//
-//        where:
-//        logicClass << TestUtil.getClasses(ActionLogic)*.name
-//    }
+
+    @Unroll("featureName: #logicClass")
+    def "logic classes have tests"() {
+        when:
+        def testClass = getClass().forName(logicClass+"Test")
+
+        then:
+        noExceptionThrown()
+        assert AbstractLogicTest.isAssignableFrom(testClass)
+
+        where:
+        logicClass << TestUtil.getClasses(ActionLogic)*.name.findAll { !it.contains("Mock")  && !it.contains("Snapshot")} //exclude SnapshotLogicTests because they don't correspond to a unique action
+    }
 
 }

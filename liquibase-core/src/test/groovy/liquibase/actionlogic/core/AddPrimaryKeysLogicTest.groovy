@@ -5,16 +5,15 @@ import liquibase.actionlogic.AbstractLogicTest
 import liquibase.database.core.GenericConnectionSupplier
 
 class AddPrimaryKeysLogicTest extends AbstractLogicTest {
-
-    def "validation failures are as expected"() {
-        expect:
-        collectAllValidationErrors(new AddPrimaryKeysActionTest(), new GenericConnectionSupplier()) == """
+    @Override
+    String getExpectedValidationErrors() {
+        return """
 AddPrimaryKeysAction.primaryKeys is required
+AddPrimaryKeysAction.primaryKeys.clustered: not supported
 AddPrimaryKeysAction.primaryKeys.columns is required
 AddPrimaryKeysAction.primaryKeys.columns.name is required
 AddPrimaryKeysAction.primaryKeys.relation is required
 AddPrimaryKeysAction.primaryKeys.tablespace is not supported
-AddPrimaryKeysAction.primaryKeys: adding a clustered primary key is not supported
 """.trim()
     }
 }

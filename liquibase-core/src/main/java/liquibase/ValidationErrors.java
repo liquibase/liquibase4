@@ -338,7 +338,7 @@ public class ValidationErrors {
             } else {
                 String errorMessage = check.check(value);
                 if (errorMessage != null) {
-                    this.addError(field + " " + errorMessage);
+                    this.addError(field + ": " + errorMessage);
                 }
             }
         }

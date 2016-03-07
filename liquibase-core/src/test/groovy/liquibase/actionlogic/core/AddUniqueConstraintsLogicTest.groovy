@@ -6,9 +6,9 @@ import liquibase.database.core.GenericConnectionSupplier
 
 class AddUniqueConstraintsLogicTest extends AbstractLogicTest {
 
-    def "validation failures are as expected"() {
-        expect:
-        collectAllValidationErrors(new AddUniqueConstraintsActionTest(), new GenericConnectionSupplier()) == """
+    @Override
+    String getExpectedValidationErrors() {
+        return """
 AddUniqueConstraintsAction.uniqueConstraints is required
 AddUniqueConstraintsAction.uniqueConstraints.backingIndex is not supported
 AddUniqueConstraintsAction.uniqueConstraints.columns is required

@@ -5,9 +5,10 @@ import liquibase.actionlogic.AbstractLogicTest
 import liquibase.database.core.GenericConnectionSupplier
 
 class CreateTableLogicTest extends AbstractLogicTest {
-    def "validation failures are as expected"() {
-        expect:
-        collectAllValidationErrors(new CreateTableActionTest(), new GenericConnectionSupplier()) == """
+
+    @Override
+    String getExpectedValidationErrors() {
+        return """
 CreateTableAction.columns is required
 CreateTableAction.columns.name is required
 CreateTableAction.columns.type is required
@@ -19,10 +20,10 @@ CreateTableAction.foreignKeys.columnChecks is required
 CreateTableAction.foreignKeys.initiallyDeferred is not supported
 CreateTableAction.foreignKeys.referencedTable is required
 CreateTableAction.foreignKeys.relation is required
+CreateTableAction.primaryKey.clustered: not supported
 CreateTableAction.primaryKey.columns is required
 CreateTableAction.primaryKey.relation is required
 CreateTableAction.primaryKey.tablespace is not supported
-CreateTableAction.primaryKey: adding a clustered primary key is not supported
 CreateTableAction.table is required
 CreateTableAction.table.name is required
 CreateTableAction.table.tablespace is not supported

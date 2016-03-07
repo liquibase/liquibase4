@@ -28,14 +28,14 @@ public class RenameViewLogic extends AbstractSqlBuilderLogic<RenameViewAction> {
                     @Override
                     public String check(ItemReference obj) {
                         if (obj.name.equals(action.oldName.name)) {
-                            return "Cannot rename to the same name";
+                            return "cannot rename to the same name";
                         }
 
                         if (obj.container != null && action.oldName.container == null) {
-                            return "Cannot rename to a different "+ obj.container.type.getSimpleName();
+                            return "cannot rename to a different "+ obj.container.type.getSimpleName();
                         }
                         if (obj.container != null && !obj.container.equals(action.oldName.container, true)) {
-                            return "Cannot rename to a different "+ obj.container.type.getSimpleName();
+                            return "cannot rename to a different "+ obj.container.type.getSimpleName();
                         }
                         return null;
                     }

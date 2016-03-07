@@ -35,16 +35,19 @@ public class SetRemarksLogicMysql extends AbstractActionLogic<SetRemarksAction> 
 
     @Override
     public ValidationErrors validate(SetRemarksAction action, Scope scope) {
-        return super.validate(action, scope)
+        ValidationErrors errors = super.validate(action, scope)
                 .checkRequiredFields("object", "object.type");
-    }
 
-    @Override
-    public int getPriority(SetRemarksAction action, Scope scope) {
-        if (action.object != null && action.object.type != null && !Table.class.isAssignableFrom(action.object.type)) {
-            return PRIORITY_NOT_APPLICABLE;
-        }
-        return super.getPriority(action, scope);
+        errors.checkField("object.type", new ValidationErrors.FieldCheck<Class>() {
+            @Override
+            public String check(Class obj) {
+                if (!Table.class.isAssignableFrom(obj)) {
+                    return "only supports tables";
+                }
+                return null;
+            }
+        });
+        return errors;
     }
 
     @Override

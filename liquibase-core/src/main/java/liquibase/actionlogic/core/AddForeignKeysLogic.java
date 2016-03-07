@@ -38,7 +38,8 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
     @Override
     public ValidationErrors validate(AddForeignKeysAction action, Scope scope) {
         ValidationErrors validationErrors = super.validate(action, scope)
-                .checkRequiredFields("foreignKeys.relation", "foreignKeys.relation.name",
+                .checkRequiredFields("foreignKeys",
+                        "foreignKeys.relation", "foreignKeys.relation.name",
                         "foreignKeys.referencedTable","foreignKeys.referencedTable.name",
                         "foreignKeys.columnChecks", "foreignKeys.columnChecks.baseColumn", "foreignKeys.columnChecks.referencedColumn");
 

@@ -34,21 +34,7 @@ public class SetRemarksLogicH2 extends AbstractActionLogic<SetRemarksAction> {
     @Override
     public ValidationErrors validate(SetRemarksAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields("object", "object.type");
-    }
-
-    @Override
-    public int getPriority(SetRemarksAction action, Scope scope) {
-        if (action.object != null && action.object.type != null && !Table.class.isAssignableFrom(action.object.type)
-                && !View.class.isAssignableFrom(action.object.type)
-                && !Column.class.isAssignableFrom(action.object.type)
-                && !Index.class.isAssignableFrom(action.object.type)
-                && !Schema.class.isAssignableFrom(action.object.type)
-                && !Sequence.class.isAssignableFrom(action.object.type)
-                ) {
-            return PRIORITY_NOT_APPLICABLE;
-        }
-        return super.getPriority(action, scope);
+                .checkRequiredFields("object", "object.type", "object.name");
     }
 
     @Override

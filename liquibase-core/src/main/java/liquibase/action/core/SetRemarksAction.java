@@ -17,4 +17,12 @@ public class SetRemarksAction extends AbstractAction {
     public DatabaseObjectReference object;
 
     public String remarks;
+
+    public SetRemarksAction() {
+    }
+
+    public SetRemarksAction(DatabaseObjectReference object, String remarks) {
+        this.object = object;
+        this.remarks = remarks;
+    }
 }
