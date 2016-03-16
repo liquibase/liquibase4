@@ -49,4 +49,4 @@
 | 5cdacd      | true     | table_name.column_name | INTEGER  | true       | 10        | **plan**: ALTER TABLE `table_name` MODIFY `column_name` INTEGER AUTO_INCREMENT<br>ALTER TABLE `table_name` AUTO_INCREMENT=10
 | f0d0a3      | true     | table_name.column_name | INTEGER  | true       | 2         | **plan**: ALTER TABLE `table_name` MODIFY `column_name` INTEGER AUTO_INCREMENT<br>ALTER TABLE `table_name` AUTO_INCREMENT=2
 
-# Test Version: "9932ac" #
+# Test Version: "7f0d80" #

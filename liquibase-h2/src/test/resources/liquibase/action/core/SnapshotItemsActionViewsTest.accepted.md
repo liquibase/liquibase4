@@ -74,4 +74,4 @@
 | ffdbda      | true     | false              | select * from PUBLIC.test_table    | crazy!@#\$%^&*()_+{}[]'"view | PUBLIC    | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA", "REMARKS" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='crazy!@#\$%^&*()_+{}[]''"view' AND TABLE_SCHEMA='PUBLIC'
 | 1790a0      | true     | false              | select * from PUBLIC.test_table    | lowerview                    | PUBLIC    | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA", "REMARKS" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='lowerview' AND TABLE_SCHEMA='PUBLIC'
 
-# Test Version: "1a1883" #
+# Test Version: "5b6153" #

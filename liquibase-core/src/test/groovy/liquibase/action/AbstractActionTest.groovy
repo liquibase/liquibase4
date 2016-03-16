@@ -193,6 +193,20 @@ abstract class AbstractActionTest extends Specification {
     }
 
     /**
+     * Creates ItemReferences with the given name for each container in the passed containers.
+     */
+    protected <T extends ItemReference> List<T> standardCaseReferences(Class<T> relationType, String name, List<? extends ItemReference> containers, Scope scope) {
+        List<T> returnList = new ArrayList<>();
+        for (ItemReference container : containers) {
+            def ref = relationType.newInstance()
+            ref.name = standardCaseItemName(name, ref.type, scope)
+            ref.container = container
+            returnList.add(ref)
+        }
+        return returnList
+    }
+
+        /**
      * Called by {@link ActionTestPermutation} to setup the database as part of {@link Permutation#setup}.
      * Default implementation:
      * <ol>

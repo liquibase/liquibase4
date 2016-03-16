@@ -29,17 +29,22 @@ public class CreateTableAction extends AbstractAction {
         this.table = table;
     }
 
-    public CreateTableAction addColumn(ColumnReference column, String type) {
-        return addColumn(new Column(column.name, column.getRelation(), DataType.parse(type), true));
+    public CreateTableAction addColumn(ColumnReference column, DataType type) {
+        return addColumn(new Column(column.name, column.getRelation(), type, true));
     }
 
-    public CreateTableAction addColumn(String columnName, String type) {
-        return addColumn(new Column(columnName, table.toReference(), DataType.parse(type), true));
+    public CreateTableAction addColumn(String columnName, DataType type) {
+        return addColumn(new Column(columnName, table.toReference(), type, true));
     }
 
     public CreateTableAction addColumn(Column column) {
         columns.add(column);
 
+        return this;
+    }
+
+    public CreateTableAction setPrimaryKey(PrimaryKey primaryKey) {
+        this.primaryKey = primaryKey;
         return this;
     }
 }

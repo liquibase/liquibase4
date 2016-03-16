@@ -65,4 +65,4 @@
 | 8ab58e      | true     | select * from PUBLIC.test_table    | crazy!@#\$%^&*()_+{}[]'"view | PUBLIC    | **plan**: CREATE VIEW "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""view" AS select * from PUBLIC.test_table
 | c56ef3      | true     | select * from PUBLIC.test_table    | lowerview                    | PUBLIC    | **plan**: CREATE VIEW "PUBLIC"."lowerview" AS select * from PUBLIC.test_table
 
-# Test Version: "86bdbf" #
+# Test Version: "6a77c7" #

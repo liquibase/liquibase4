@@ -19,7 +19,7 @@ public abstract class AbstractSqlBuilderLogic<ActionType extends AbstractAction>
      * If you override {@link #execute(AbstractAction, Scope)} to use something like {@link liquibase.action.core.AlterTableAction}, the output from
      * this method would include just the definition that goes into AlterTableAction.
      */
-    protected abstract StringClauses generateSql(ActionType action, Scope scope);
+    protected abstract StringClauses generateSql(ActionType action, Scope scope) throws ActionPerformException;
 
     /**
      * Wraps the output of {@link #generateSql(AbstractAction, Scope)} in a {@link DelegateResult} containing an {@link ExecuteSqlAction}.

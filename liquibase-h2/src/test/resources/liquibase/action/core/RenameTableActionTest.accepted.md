@@ -227,4 +227,4 @@
 | 0c9c48      | true     | PUBLIC.lowertable                       | PUBLIC.anotherlowertable                | **plan**: ALTER TABLE "PUBLIC"."anotherlowertable" RENAME TO "PUBLIC"."lowertable"
 | bffe8d      | true     | PUBLIC.lowertable                       | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" RENAME TO "PUBLIC"."lowertable"
 
-# Test Version: "52a9f9" #
+# Test Version: "13cec8" #

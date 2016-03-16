@@ -88,7 +88,7 @@ public class AbstractExtensibleObject implements ExtensibleObject {
         return fields;
     }
 
-    protected  <T> T get(String attribute, T defaultValue, Class<T> type) {
+    protected <T> T get(String attribute, T defaultValue, Class<T> type) {
         Object value;
         if (attribute.contains(".")) {
             List path = getValuePath(attribute, type);
@@ -230,7 +230,31 @@ public class AbstractExtensibleObject implements ExtensibleObject {
         try {
             AbstractExtensibleObject clone = (AbstractExtensibleObject) super.clone();
             for (String attr : getAttributeNames()) {
-                clone.set(attr, this.get(attr, Object.class));
+                Object value = this.get(attr, Object.class);
+                if (value instanceof Collection) {
+                    try {
+                        Collection valueClone = (Collection) value.getClass().newInstance();
+                        for (Object obj : ((Collection) value)) {
+                            valueClone.add(obj);
+                        }
+                        value = valueClone;
+                    } catch (Exception e) {
+                        //keep original object
+                    }
+                } else if (value instanceof Map) {
+                    try {
+                        Map valueClone = (Map) value.getClass().newInstance();
+                        for (Map.Entry obj : ((Map<?, ?>) value).entrySet()) {
+                            valueClone.put(obj.getKey(), obj.getValue());
+                        }
+                        value = valueClone;
+                    } catch (Exception e) {
+                        //keep original object
+                    }
+                } else if (value instanceof AbstractExtensibleObject) {
+                    value = ((AbstractExtensibleObject) value).clone();
+                }
+                clone.set(attr, value);
             }
 
             return clone;

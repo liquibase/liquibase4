@@ -19,4 +19,4 @@
 | eea9d3      | true     | lbcat2.lowerview                    | **plan**: DROP VIEW `lbcat2`.`lowerview`
 | b0fa01      | true     | lowerview                           | **plan**: DROP VIEW `lowerview`
 
-# Test Version: "c957d3" #
+# Test Version: "d18c1e" #

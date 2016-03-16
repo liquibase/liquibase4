@@ -35,4 +35,4 @@
 | 16916b      | true     | select * from lbcat2.test_table | crazy!@#\$%^&*()_+{}[]'"view | lbcat2 | **plan**: CREATE VIEW `lbcat2`.`crazy!@#\$%^&*()_+{}[]'"view` AS select * from lbcat2.test_table
 | eda719      | true     | select * from lbcat2.test_table | lowerview                    | lbcat2 | **plan**: CREATE VIEW `lbcat2`.`lowerview` AS select * from lbcat2.test_table
 
-# Test Version: "86bdbf" #
+# Test Version: "6a77c7" #

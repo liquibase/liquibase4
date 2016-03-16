@@ -140,6 +140,10 @@ public class ActionStatus {
                 correct = ((ItemReference) correctValue).equals((ItemReference) checkValue, true);
             } else {
                 correct = correctValue.equals(checkValue);
+
+                if (!correct && checkValue != null) { //fall back to string comparison in case there are slight datatype differences
+                    correct = correctValue.toString().equals(checkValue.toString());
+                }
             }
         }
         return assertCorrect(correct, "'" + propertyName + "' is incorrect on " + objectToCheck.describe() + " (expected '" + correctValue + "' got '" + checkValue + "')");

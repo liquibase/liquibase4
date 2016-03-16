@@ -67,4 +67,4 @@
 | 762945      | true     | INT NOT NULL     | UPPERCOLUMN                    | CRAZY!@#\$%^&*()_+{}[]'"COLUMN | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` CHANGE COLUMN `CRAZY!@#\$%^&*()_+{}[]'"COLUMN` `UPPERCOLUMN` INT NOT NULL
 | 08787c      | true     | INT NOT NULL     | UPPERCOLUMN                    | CRAZY!@#\$%^&*()_+{}[]'"COLUMN | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` CHANGE COLUMN `CRAZY!@#\$%^&*()_+{}[]'"COLUMN` `UPPERCOLUMN` INT NOT NULL
 
-# Test Version: "ad9ac8" #
+# Test Version: "1f5286" #

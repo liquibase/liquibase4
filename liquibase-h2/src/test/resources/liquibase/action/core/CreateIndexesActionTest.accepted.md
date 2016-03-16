@@ -2238,4 +2238,4 @@
 | 3c2fd1      | true     | IndexedColumn{name=lowercolumn}                    | lowerindex                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: CREATE INDEX "lowerindex" ON "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn")
 | 610fcd      | true     | IndexedColumn{name=lowercolumn}                    | lowerindex                    | PUBLIC.lowertable                       | **plan**: CREATE INDEX "lowerindex" ON "PUBLIC"."lowertable" ("lowercolumn")
 
-# Test Version: "335db3" #
+# Test Version: "0ac611" #

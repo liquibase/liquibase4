@@ -35,4 +35,4 @@
 | ac925c      | true     | lbcat2.lowertable                    | **plan**: getTables(lbcat2, null, lowertable, [TABLE])
 | cb2f55      | true     | lbcat2.only_in_lbcat2                | **plan**: getTables(lbcat2, null, only\_in\_lbcat2, [TABLE])
 
-# Test Version: "4d1f87" #
+# Test Version: "c706b5" #

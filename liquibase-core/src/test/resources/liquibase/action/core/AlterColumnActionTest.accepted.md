@@ -227,4 +227,4 @@
 | 726f55      | Generic  | LBSCHEMA2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | int           | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" int
 | d86fa2      | Generic  | LBSCHEMA2.lowertable.lowercolumn                                       | int           | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "lowercolumn" int
 
-# Test Version: "7a00cf" #
+# Test Version: "92028f" #

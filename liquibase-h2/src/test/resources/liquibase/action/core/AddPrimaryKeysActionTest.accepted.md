@@ -74,4 +74,4 @@
 | dc4e6f      | true     | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ADD PRIMARY KEY ("COL_NAME")
 | df2559      | true     | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" ADD PRIMARY KEY ("COL_NAME")
 
-# Test Version: "a72945" #
+# Test Version: "cf1d58" #

@@ -8,7 +8,10 @@ public class StringDataTypeLogic extends DataTypeLogic {
 
     @Override
     public int getPriority(DataType type, Scope scope) {
-        return PRIORITY_SPECIALIZED;
+        if (type != null && type.standardType != null && type.standardType.valueType != null && type.standardType.valueType.equals(String.class)) {
+            return PRIORITY_SPECIALIZED;
+        }
+        return PRIORITY_NOT_APPLICABLE;
     }
 
     @Override

@@ -116,6 +116,7 @@ class SelectDataActionTest extends AbstractActionTest {
         expect:
 
         testAction([
+                distinct_asTable : action.distinct,
                 columns_asTable      : action.columns,
                 order_asTable        : action.order,
                 relation_asTable     : action.relation,
@@ -154,40 +155,64 @@ class SelectDataActionTest extends AbstractActionTest {
         def joinRef1 = new RelationReference(Table, standardCaseItemName("join_table1", Table, scope))
         def joinRef2 = new RelationReference(Table, standardCaseItemName("join_table2", Table, scope))
 
-        return TestUtil.createAllPermutations(SelectDataAction, [
-                relation     : [tableRef],
-                columns      : [
-                        [],
-                        [new SelectDataAction.SelectedColumn(column1Name)], //one column
-                        [new SelectDataAction.SelectedColumn(column1Name), new SelectDataAction.SelectedColumn(column2Name)], //two columns
-                        [new SelectDataAction.SelectedColumn(null, "*", null, true)], //all columns
-                        [new SelectDataAction.SelectedColumn(null, null, "NULL_VAL", true)], //null computed value
-                        [new SelectDataAction.SelectedColumn(null, null, "NO_NAME", false)], //null not-computed value
-                        [new SelectDataAction.SelectedColumn(tableRef.name, column1Name, null)], //qualified column
-                        [new SelectDataAction.SelectedColumn(null, column1Name, "my_col")], //aliased column
-                        [new SelectDataAction.SelectedColumn(tableRef.name, column1Name, "my_col")], //qualified and aliased column
-                ],
-                order        : [
-                        [new SelectDataAction.OrderedByColumn(null, column1Name, SelectDataAction.OrderDirection.ASC)],
-                        [new SelectDataAction.OrderedByColumn(null, column1Name, SelectDataAction.OrderDirection.DESC)],
-                ],
-                relationAlias: [tableRef.name],
-                joins        : [
-                        [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.inner).addOnClause("1=1")],
-                        [new SelectDataAction.JoinedRelation(joinRef1, "t1", SelectDataAction.JoinType.inner).addOnClause("1=1")],
-                        [new SelectDataAction.JoinedRelation(joinRef1, "t1", SelectDataAction.JoinType.leftOuter).addOnClause("1=1")],
-                        [new SelectDataAction.JoinedRelation(joinRef1, "t1", SelectDataAction.JoinType.rightOuter).addOnClause("1=1")],
-                        [
-                                new SelectDataAction.JoinedRelation(joinRef1, "t1", SelectDataAction.JoinType.leftOuter).addOnClause("1=1"),
-                                new SelectDataAction.JoinedRelation(joinRef2, "t2", SelectDataAction.JoinType.rightOuter).addOnClause("1=1"),
+
+        def tableAlias = standardCaseItemName("t1", Table, scope)
+        def joinAlias = standardCaseItemName("j1", Table, scope)
+        def join2Alias = standardCaseItemName("j2", Table, scope)
+
+        return TestUtil.createAllPermutations(SelectDataAction,  //no aliases
+                [
+                        distinct: [true, false],
+                        relation    : [tableRef],
+                        columns     : [
+                                [new SelectDataAction.SelectedColumn(column1Name)], //one column
+                                [new SelectDataAction.SelectedColumn(column1Name), new SelectDataAction.SelectedColumn(column2Name)], //two columns
+                                [new SelectDataAction.SelectedColumn(null, "*", null, true)], //all columns
+                                [new SelectDataAction.SelectedColumn(null, null, "NULL_VAL", true)], //null computed value
+                                [new SelectDataAction.SelectedColumn(null, null, "NO_NAME", false)], //null not-computed value
+                                [new SelectDataAction.SelectedColumn(null, column1Name, "my_col")], //aliased column
                         ],
-                        [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.inner)], //no ON clause
-                        [new SelectDataAction.JoinedRelation(null, null, SelectDataAction.JoinType.inner).addOnClause("1=1")], //no join table name
-                ],
-                where        : [
-                        new StringClauses().append("1=1")
+                        order       : [
+                                [new SelectDataAction.OrderedByColumn(null, column1Name, SelectDataAction.OrderDirection.ASC)],
+                                [new SelectDataAction.OrderedByColumn(null, column1Name, SelectDataAction.OrderDirection.DESC)],
+                        ],
+                        joins       : [
+                                [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.inner).addOnClause("1=1")],
+                                [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.leftOuter).addOnClause("1=1")],
+                                [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.rightOuter).addOnClause("1=1")],
+                                [new SelectDataAction.JoinedRelation(joinRef1, null, SelectDataAction.JoinType.inner)], //no ON clause
+                                [new SelectDataAction.JoinedRelation(null, null, SelectDataAction.JoinType.inner).addOnClause("1=1")], //no join table name
+                        ],
+                        where       : [
+                                new StringClauses().append("1=1")
+                        ]
+                ])
+                .plus(TestUtil.createAllPermutations(SelectDataAction, //yes aliases
+                [
+                        relation             : [tableRef],
+                        columns              : [
+                                [new SelectDataAction.SelectedColumn(tableAlias, column1Name, null)], //qualified column
+                                [new SelectDataAction.SelectedColumn(tableAlias, column1Name, "my_col")], //qualified and aliased column
+                        ],
+                        order                : [
+                                [new SelectDataAction.OrderedByColumn(tableAlias, column1Name, SelectDataAction.OrderDirection.ASC)],
+                                [new SelectDataAction.OrderedByColumn(tableAlias, column1Name, SelectDataAction.OrderDirection.DESC)],
+                        ],
+                        relationAlias: [tableAlias],
+                        joins                : [
+                                [new SelectDataAction.JoinedRelation(joinRef1, joinAlias, SelectDataAction.JoinType.inner).addOnClause("1=1")],
+                                [new SelectDataAction.JoinedRelation(joinRef1, joinAlias, SelectDataAction.JoinType.leftOuter).addOnClause("1=1")],
+                                [new SelectDataAction.JoinedRelation(joinRef1, joinAlias, SelectDataAction.JoinType.rightOuter).addOnClause("1=1")],
+                                [
+                                        new SelectDataAction.JoinedRelation(joinRef1, joinAlias, SelectDataAction.JoinType.leftOuter).addOnClause("1=1"),
+                                        new SelectDataAction.JoinedRelation(joinRef2, join2Alias, SelectDataAction.JoinType.rightOuter).addOnClause("1=1"),
+                                ],
+                        ],
+                        where                : [
+                                new StringClauses().append("1=1")
+                        ]
                 ]
-        ])
+        ).findAll { it.relationAlias != null })
     }
 
     @Override

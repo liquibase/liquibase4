@@ -50,4 +50,4 @@
 | 51aa18      | true     | false              | select * from lbcat2.test_table | crazy!@#\$%^&*()_+{}[]'"view | lbcat2 | **plan**: SELECT `TABLE_NAME`, `VIEW_DEFINITION`, `TABLE_SCHEMA` FROM `INFORMATION_SCHEMA`.`VIEWS` WHERE TABLE_NAME='crazy!@#\\$%^&*()_+{}[]''"view' AND TABLE_SCHEMA='lbcat2'
 | 27e193      | true     | false              | select * from lbcat2.test_table | lowerview                    | lbcat2 | **plan**: SELECT `TABLE_NAME`, `VIEW_DEFINITION`, `TABLE_SCHEMA` FROM `INFORMATION_SCHEMA`.`VIEWS` WHERE TABLE_NAME='lowerview' AND TABLE_SCHEMA='lbcat2'
 
-# Test Version: "1a1883" #
+# Test Version: "5b6153" #

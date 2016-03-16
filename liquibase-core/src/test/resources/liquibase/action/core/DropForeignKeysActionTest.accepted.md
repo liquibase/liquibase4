@@ -227,4 +227,4 @@
 | 6a740c      | Generic  | lowerforeignkey                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" DROP CONSTRAINT "lowerforeignkey"
 | ffe04e      | Generic  | lowerforeignkey                    | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" DROP CONSTRAINT "lowerforeignkey"
 
-# Test Version: "fb6f4e" #
+# Test Version: "770abe" #

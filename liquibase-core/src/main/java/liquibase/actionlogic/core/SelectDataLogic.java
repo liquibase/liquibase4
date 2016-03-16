@@ -10,13 +10,15 @@ import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.core.Column;
+import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
 public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
 
     public enum Clauses {
         columns,
-        whereClause
+        whereClauses,
+        distinct
     }
 
     @Override
@@ -64,8 +66,12 @@ public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
         }
 
         StringClauses returnSql = new StringClauses()
-                .append("SELECT")
-                .append(Clauses.columns, columns)
+                .append("SELECT");
+        if (ObjectUtil.defaultIfNull(action.distinct, false)) {
+            returnSql.append(Clauses.distinct, "DISTINCT");
+        }
+
+        returnSql.append(Clauses.columns, columns)
                 .append("FROM")
                 .append(scope.getDatabase().quoteObjectName(action.relation, scope));
         if (action.relationAlias != null) {
@@ -96,7 +102,7 @@ public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
         }
 
         if (action.where != null && !action.where.isEmpty()) {
-            returnSql.append("WHERE").append(Clauses.whereClause, action.where);
+            returnSql.append("WHERE").append(Clauses.whereClauses, action.where);
         }
 
         return returnSql;

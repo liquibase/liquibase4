@@ -3967,4 +3967,4 @@
 | b5a177      | Generic  | INT NOT NULL     | lowercolumn                    | crazy!@#\$%^&*()_+{}[]'"column | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" RENAME COLUMN "crazy!@#\$%^&*()_+{}[]'""column" TO "lowercolumn"
 | 321a24      | Generic  | INT NOT NULL     | lowercolumn                    | crazy!@#\$%^&*()_+{}[]'"column | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" RENAME COLUMN "crazy!@#\$%^&*()_+{}[]'""column" TO "lowercolumn"
 
-# Test Version: "ad9ac8" #
+# Test Version: "1f5286" #

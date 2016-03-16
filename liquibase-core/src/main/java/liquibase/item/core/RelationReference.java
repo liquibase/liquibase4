@@ -8,7 +8,7 @@ import liquibase.item.AbstractSchemaBasedObject;
 public class RelationReference<ThisType extends Relation> extends AbstractSchemaBasedObject.SchemaBasedObjectReference {
 
     public RelationReference() {
-        super(null);
+        super(Relation.class);
     }
 
     public RelationReference(Class<ThisType> type, String name, SchemaReference schema) {

@@ -30,6 +30,9 @@ public class ActionLogicFactory  extends AbstractPluginFactory<ActionLogic> {
     @Override
     protected int getPriority(ActionLogic obj, Scope scope, Object... args) {
         Action action = (Action) args[0];
+        if (action == null) {
+            return Plugin.PRIORITY_NOT_APPLICABLE;
+        }
         try {
             if (obj instanceof AbstractActionLogic && !action.getClass().isAssignableFrom(((AbstractActionLogic) obj).getSupportedAction())) {
                 return Plugin.PRIORITY_NOT_APPLICABLE;

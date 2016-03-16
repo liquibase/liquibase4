@@ -30,7 +30,7 @@ class CreateTableActionTest extends AbstractActionTest {
     @Unroll("#featureName #table")
     def "create simple table with complex name"() {
         expect:
-        def action = new CreateTableAction(new Table(table.name, table.container)).addColumn(standardCaseItemName("col_name", Column, scope), new DataType(DataType.StandardType.INTEGER).toString())
+        def action = new CreateTableAction(new Table(table.name, table.container)).addColumn(standardCaseItemName("col_name", Column, scope), new DataType(DataType.StandardType.INTEGER))
 
         testAction([table_asTable: table.toString()],
                 action, conn, scope)
@@ -49,7 +49,7 @@ class CreateTableActionTest extends AbstractActionTest {
     @Unroll("#featureName: #columnName")
     def "create simple table with complex column name"() {
         expect:
-        def action = new CreateTableAction(new Table(standardCaseItemName("table_name", Table, scope))).addColumn(columnName, new DataType(DataType.StandardType.INTEGER).toString())
+        def action = new CreateTableAction(new Table(standardCaseItemName("table_name", Table, scope))).addColumn(columnName, new DataType(DataType.StandardType.INTEGER))
 
         testAction([
                 column_asTable: columnName.toString()

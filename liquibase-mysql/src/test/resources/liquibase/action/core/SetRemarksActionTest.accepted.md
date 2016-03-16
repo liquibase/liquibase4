@@ -37,4 +37,4 @@
 | 4a2c25      | true     | lbcat2.only_in_lbcat2                | Table      | Simple remarks           | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` COMMENT 'Simple remarks'
 | 56da23      | true     | lbcat2.only_in_lbcat2                | Table      | crazy!@#\$%^&*()_+{}[]'" | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` COMMENT 'crazy!@#\\$%^&*()_+{}[]''"'
 
-# Test Version: "cb141d" #
+# Test Version: "939134" #

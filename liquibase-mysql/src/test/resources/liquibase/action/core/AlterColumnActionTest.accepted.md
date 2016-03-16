@@ -37,4 +37,4 @@
 | 837305      | true     | lbcat2.only_in_lbcat2.CRAZY!@#\$%^&*()_+{}[]'"COLUMN                | int           | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` MODIFY `CRAZY!@#\$%^&*()_+{}[]'"COLUMN` int
 | 8b7ad6      | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                   | int           | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` MODIFY `UPPERCOLUMN` int
 
-# Test Version: "7a00cf" #
+# Test Version: "92028f" #

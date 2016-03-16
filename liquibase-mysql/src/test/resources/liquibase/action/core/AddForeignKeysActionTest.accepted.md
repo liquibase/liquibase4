@@ -243,4 +243,4 @@
 | 0ea170      | true     | ID TO ID_REF | null       | setNull    | null              | test_fk | lbcat2.ref_table | lbcat2.base_table | restrict   | **plan**: ALTER TABLE `lbcat2`.`base_table` ADD CONSTRAINT `test_fk` FOREIGN KEY (`ID`) REFERENCES `lbcat2`.`ref_table` (`ID_REF`) ON DELETE SET NULL ON UPDATE RESTRICT
 | f8526c      | true     | ID TO ID_REF | null       | setNull    | null              | test_fk | lbcat2.ref_table | lbcat2.base_table | setNull    | **plan**: ALTER TABLE `lbcat2`.`base_table` ADD CONSTRAINT `test_fk` FOREIGN KEY (`ID`) REFERENCES `lbcat2`.`ref_table` (`ID_REF`) ON DELETE SET NULL ON UPDATE SET NULL
 
-# Test Version: "5ae40b" #
+# Test Version: "895301" #

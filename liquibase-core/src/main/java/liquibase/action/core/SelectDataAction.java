@@ -14,6 +14,8 @@ import java.util.*;
  */
 public class SelectDataAction extends AbstractAction {
 
+    public Boolean distinct;
+
     /**
      * Relation to select from
      */
@@ -274,7 +276,7 @@ public class SelectDataAction extends AbstractAction {
 
         @Override
         public String toString() {
-            String string = ""+name;
+            String string = name;
 
             if (qualifier != null) {
                 string = qualifier+string;

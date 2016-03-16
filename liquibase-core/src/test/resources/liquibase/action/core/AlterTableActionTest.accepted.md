@@ -29,4 +29,4 @@
 | a24b53      | Generic  | add id int    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" add id int
 | d9ddcd      | Generic  | add id int    | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" add id int
 
-# Test Version: "2fa724" #
+# Test Version: "16ec2a" #

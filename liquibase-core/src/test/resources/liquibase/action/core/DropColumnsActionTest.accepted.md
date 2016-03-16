@@ -227,4 +227,4 @@
 | a8e77c      | Generic  | LBSCHEMA2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" DROP COLUMN "crazy!@#\$%^&*()_+{}[]'""column"
 | d05615      | Generic  | LBSCHEMA2.lowertable.lowercolumn                                       | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" DROP COLUMN "lowercolumn"
 
-# Test Version: "0ca28f" #
+# Test Version: "42e0ff" #

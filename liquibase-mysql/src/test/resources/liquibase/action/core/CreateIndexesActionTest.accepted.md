@@ -113,4 +113,4 @@
 | 8e908d      | true     | IndexedColumn{name=UPPERCOLUMN}                    | UPPERINDEX                    | lbcat2.lowertable                    | **plan**: CREATE INDEX `UPPERINDEX` ON `lbcat2`.`lowertable` (`UPPERCOLUMN`)
 | 238a49      | true     | IndexedColumn{name=UPPERCOLUMN}                    | UPPERINDEX                    | lbcat2.only_in_lbcat2                | **plan**: CREATE INDEX `UPPERINDEX` ON `lbcat2`.`only_in_lbcat2` (`UPPERCOLUMN`)
 
-# Test Version: "335db3" #
+# Test Version: "0ac611" #
