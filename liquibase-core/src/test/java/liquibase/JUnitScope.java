@@ -20,7 +20,6 @@ public class JUnitScope extends Scope {
 
     public enum Attr {
         connectionSupplier,
-        itemNameStrategy
     }
 
     private JUnitScope() throws Exception {

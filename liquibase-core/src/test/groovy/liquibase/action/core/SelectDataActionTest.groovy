@@ -4,12 +4,10 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
-import liquibase.action.core.SelectDataAction
 import liquibase.actionlogic.CompoundResult
 import liquibase.actionlogic.RowBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
 import liquibase.item.core.RowData
@@ -43,7 +41,7 @@ class SelectDataActionTest extends AbstractActionTest {
                     [it],
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SelectDataAction, [
-                            relation: getItemReferences(Table, it.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                            relation: getItemReferences(Table, it.allSchemas, scope),
                             columns : [[new SelectDataAction.SelectedColumn(standardCaseItemName("test_col", Column, scope))]]
                     ])
             ], new ValidActionFilter(scope))
@@ -71,7 +69,7 @@ class SelectDataActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SelectDataAction, [
                             relation: [new RelationReference(Table, standardCaseItemName("test_table", Table, scope))],
-                            columns : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                            columns : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                 return new SelectDataAction.SelectedColumn(it)
                             })),
                     ])
@@ -103,7 +101,7 @@ class SelectDataActionTest extends AbstractActionTest {
                     TestUtil.createAllPermutationsWithoutNulls(SelectDataAction, [
                             relation: [new RelationReference(Table, standardCaseItemName("test_table", Table, scope))],
                             columns : [[new SelectDataAction.SelectedColumn(standardCaseItemName("test_col", Column, scope))]],
-                            joins   : CollectionUtil.toSingletonLists(getItemReferences(Table, it.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                            joins   : CollectionUtil.toSingletonLists(getItemReferences(Table, it.allSchemas, scope).collect({
                                 return new SelectDataAction.JoinedRelation(it, "t", SelectDataAction.JoinType.inner).addOnClause("test_table.id=t.id")
                             })),
                     ])

@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.*
@@ -35,7 +34,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
                             primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
-                                    name    : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    name    : getItemNames(Column, scope),
                                     relation: it.getAllSchemas().collect({
                                         return new RelationReference(Table, standardCaseItemName("table_name", Table, scope), it)
                                     }),
@@ -62,7 +61,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                     TestUtil.createAllPermutationsWithoutNulls(AddPrimaryKeysAction, [
                             primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
                                     name    : null,
-                                    relation: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    relation: getItemReferences(Table, it.getAllSchemas(), scope),
                                     columns : [[new PrimaryKey.PrimaryKeyColumn(standardCaseItemName("col_name", Column, scope))]]
                             ]))
                     ])
@@ -87,7 +86,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
                             primaryKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(PrimaryKey, [
                                     name    : null,
                                     relation:  [new RelationReference(Table, standardCaseItemName("table_name", Table, scope))],
-                                    columns : CollectionUtil.toSingletonLists(getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(PrimaryKey, scope).collect({
                                         return new PrimaryKey.PrimaryKeyColumn(it)
                                     })),
                             ]))

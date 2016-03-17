@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.ColumnReference
 import liquibase.item.core.RelationReference
@@ -38,8 +37,8 @@ class SetDefaultValueActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SetDefaultValueAction, [
                             column        : TestUtil.createAllPermutations(ColumnReference, [
-                                    name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    container: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                                    name     : getItemNames(Column, scope),
+                                    container: getItemReferences(Table, it.getAllSchemas(), scope)
                             ]),
                             columnDataType: [DataType.parse("int")],
                             defaultValue  : [null],
@@ -67,8 +66,8 @@ class SetDefaultValueActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SetDefaultValueAction, [
                             column        : TestUtil.createAllPermutations(ColumnReference, [
-                                    name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    container: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                                    name     : getItemNames(Column, scope),
+                                    container: getItemReferences(Table, it.getAllSchemas(), scope)
                             ]),
                             columnDataType: [DataType.parse("int")],
                             defaultValue  : [50],

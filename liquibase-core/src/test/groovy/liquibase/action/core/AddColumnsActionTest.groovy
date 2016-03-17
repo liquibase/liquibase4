@@ -5,7 +5,6 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.*
@@ -33,8 +32,8 @@ class AddColumnsActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(Column, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
             ])
         }
 

@@ -4,12 +4,9 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
-import liquibase.action.ActionStatus
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.database.Database
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.*
 import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
@@ -43,7 +40,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SnapshotItemsAction, [
                             typeToSnapshot: [Sequence],
-                            relatedTo     : CollectionUtil.toSingletonSets(getItemReferences(Sequence, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope))
+                            relatedTo     : CollectionUtil.toSingletonSets(getItemReferences(Sequence, it.getAllSchemas(), scope))
                     ])
             ], new ValidActionFilter(scope))
         })
@@ -169,7 +166,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         def snapshot = new Snapshot(scope)
         for (
-                def ref : getItemReferences(Sequence, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
+                def ref : getItemReferences(Sequence, connectionSupplier.getAllSchemas(), scope)) {
             snapshot.add(new Sequence(ref.name, ref.container))
         }
         return snapshot

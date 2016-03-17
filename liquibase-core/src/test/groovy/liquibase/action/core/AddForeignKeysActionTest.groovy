@@ -46,9 +46,9 @@ class AddForeignKeysActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                    getItemNames(ForeignKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(Column, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
+                    getItemNames(ForeignKey, scope),
             ])
         }
 
@@ -76,7 +76,7 @@ class AddForeignKeysActionTest extends AbstractActionTest {
 
         where:
         [conn, scope, schema] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
-            def scope = JUnitScope.getInstance(it).child(JUnitScope.Attr.itemNameStrategy, TestItemSupplier.NameStrategy.COMPLEX_NAMES)
+            def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],

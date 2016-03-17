@@ -7,7 +7,6 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.ItemReference
@@ -47,7 +46,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(UniqueConstraint, scope).collect({
                         return new UniqueConstraintReference(it)
                     }),
             ])
@@ -79,7 +78,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(UniqueConstraint, scope).collect({
                         return new UniqueConstraintReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))
                     }),
             ])
@@ -111,7 +110,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemReferences(Table, it.getAllSchemas(), scope).collect({
                         new UniqueConstraintReference(null, it)
                     }),
             ])
@@ -143,7 +142,7 @@ class SnapshotItemsActionUniqueConstraintsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
             ])
         }
     }

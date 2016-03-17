@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RowData
 import liquibase.item.core.Table
@@ -45,7 +44,7 @@ class AlterNullableActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(AlterNullableAction, [
                 nullable             : [true, false],
-                column               : getItemReferences(Column.class, getItemReferences(Table, connectionSupplier.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                column               : getItemReferences(Column.class, getItemReferences(Table, connectionSupplier.allSchemas, scope), scope),
                 constraintName       : ["nn_const_lower", "NN_CONST_UPPER", "crazy!@#\\\$%^&*()_+{}[]'\"_const"],
                 columnDataType       : [new DataType(DataType.StandardType.INTEGER)],
                 valueForExistingNulls: [3],

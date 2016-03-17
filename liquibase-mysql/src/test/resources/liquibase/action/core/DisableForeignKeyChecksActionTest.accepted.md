@@ -2,7 +2,7 @@
 
 # Test: "foreign keys are disabled" #
 
-## Permutation dfad36 (verified) ##
+## Permutation dfad364 (verified) ##
 
 - **connection:** mysql caseInsensitive
 
@@ -10,4 +10,4 @@
 
 - **plan:** SET FOREIGN_KEY_CHECKS=0
 
-# Test Version: "103bb4" #
+# Test Version: "154660" #

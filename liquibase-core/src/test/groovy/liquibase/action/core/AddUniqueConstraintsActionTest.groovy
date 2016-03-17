@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.Column
@@ -37,7 +36,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
-                                    name    : getItemNames(UniqueConstraint, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    name    : getItemNames(UniqueConstraint, scope),
                                     relation: it.allSchemas.collect({
                                         return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope), it)
                                     }),
@@ -64,7 +63,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                     TestUtil.createAllPermutationsWithoutNulls(AddUniqueConstraintsAction, [
                             uniqueConstraints: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(UniqueConstraint, [
                                     name    : [standardCaseItemName("uq_name", UniqueConstraint.class, scope)],
-                                    relation: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    relation: getItemReferences(Table, it.getAllSchemas(), scope),
                                     columns : [[standardCaseItemName("column_name", Column.class, scope)]],
                             ]))
                     ])
@@ -92,7 +91,7 @@ public class AddUniqueConstraintsActionTest extends AbstractActionTest {
                                     relation: it.allSchemas.collect({
                                         return new RelationReference(Table.class, standardCaseItemName("table_name", Table, scope), it)
                                     }),
-                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)),
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, scope)),
                             ]))
                     ])
             ])

@@ -6,8 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.database.Database
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Sequence
 import liquibase.item.core.SequenceReference
 import liquibase.snapshot.Snapshot
@@ -43,7 +41,7 @@ class DropSequencesActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(DropSequencesAction, [
                 sequences: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(SequenceReference, [
-                        name     : getItemNames(Sequence, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                        name     : getItemNames(Sequence, scope),
                         container: connectionSupplier.getAllSchemas()
                 ]))
         ])

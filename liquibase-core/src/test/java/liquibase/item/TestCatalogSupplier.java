@@ -7,7 +7,7 @@ import liquibase.item.core.Catalog;
 import java.util.List;
 
 /**
- * Keeps catalogs from being used by {@link TestDatabaseObjectSupplier#getNames(Class, NameStrategy, Scope)}
+ * Keeps catalogs from being used by {@link TestItemSupplier#getNames(Class, Scope)}
  */
 public class TestCatalogSupplier extends TestDatabaseObjectSupplier {
 
@@ -20,7 +20,7 @@ public class TestCatalogSupplier extends TestDatabaseObjectSupplier {
     }
 
     @Override
-    public List<String> getNames(Class type, NameStrategy nameStrategy, Scope scope) {
+    public List<String> getNames(Class type, Scope scope) {
         throw new UnexpectedLiquibaseException("Look up catalogs with ConnectionSupplier.getAllCatalogs()");
     }
 }

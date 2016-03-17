@@ -7,7 +7,6 @@ import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.DatabaseConnection
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.ItemReference
@@ -43,7 +42,7 @@ class SnapshotItemsActionTablesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [scope],
                     [it],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                    getItemReferences(Table, it.getAllSchemas(), scope)
             ])
         }
     }
@@ -143,7 +142,7 @@ class SnapshotItemsActionTablesTest extends AbstractActionTest {
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
-        for (ItemReference table : getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
+        for (ItemReference table : getItemReferences(Table, connectionSupplier.getAllSchemas(), scope)) {
             snapshot.add(new Table(table.name, table.container))
             snapshot.add(new Column(standardCaseItemName("id", Column, scope), table, DataType.parse("int"), true))
         }

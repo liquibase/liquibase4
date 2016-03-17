@@ -5,7 +5,6 @@ import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.Column
@@ -34,8 +33,8 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(AddAutoIncrementAction, [
                             column  : TestUtil.createAllPermutationsWithoutNulls(ColumnReference, [
-                                    name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    container: getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    name     : getItemNames(Column, scope),
+                                    container: getItemReferences(Table, it.getAllSchemas(), scope),
                             ]),
                             dataType: [new DataType(DataType.StandardType.INTEGER)]
                     ])

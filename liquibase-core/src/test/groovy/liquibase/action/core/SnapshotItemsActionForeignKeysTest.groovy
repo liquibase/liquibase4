@@ -7,7 +7,6 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.ItemReference
@@ -45,7 +44,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(ForeignKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemNames(ForeignKey, scope),
                     it.getAllSchemas(),
             ])
         }
@@ -76,7 +75,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
             ])
         }
     }

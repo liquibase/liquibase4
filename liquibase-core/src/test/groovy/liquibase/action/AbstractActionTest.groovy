@@ -11,7 +11,6 @@ import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
-import liquibase.item.TestItemSupplier
 import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin
@@ -24,7 +23,6 @@ import liquibase.item.core.*
 
 import liquibase.util.CollectionUtil
 import liquibase.util.StringUtil
-import liquibase.util.TestUtil
 import org.junit.Assert
 import org.junit.Assume
 import org.slf4j.LoggerFactory
@@ -158,17 +156,17 @@ abstract class AbstractActionTest extends Specification {
     }
 
     /**
-     * Convenience method to {@link liquibase.item.TestItemSupplier#getReferences(java.lang.Class, java.util.List, liquibase.item.TestItemSupplier.NameStrategy, liquibase.Scope)}
+     * Convenience method to {@link liquibase.item.TestItemSupplier#getReferences(Class < T >, List < ? extends ItemReference >, Scope)}
      */
-    protected List<ItemReference> getItemReferences(Class<? extends Item> itemType, List<? extends ItemReference> containers, TestItemSupplier.NameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getReferences(itemType, containers, strategy, scope)
+    protected List<ItemReference> getItemReferences(Class<? extends Item> itemType, List<? extends ItemReference> containers, Scope scope) {
+        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getReferences(itemType, containers, scope)
     }
 
     /**
-     * Convenience method to {@link liquibase.item.TestItemSupplier#getNames(java.lang.Class, liquibase.item.TestItemSupplier.NameStrategy, liquibase.Scope)}
+     * Convenience method to {@link liquibase.item.TestItemSupplier#getNames(Class < T >, Scope)}
      */
-    protected List<String> getItemNames(Class<? extends Item> itemType, TestItemSupplier.NameStrategy strategy, Scope scope) {
-        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getNames(itemType, strategy, scope)
+    protected List<String> getItemNames(Class<? extends Item> itemType, Scope scope) {
+        return scope.getSingleton(TestItemSupplierFactory).getItemSupplier(itemType, scope).getNames(itemType, scope)
     }
 
     /**

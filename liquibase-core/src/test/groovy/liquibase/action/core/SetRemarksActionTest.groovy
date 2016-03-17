@@ -6,9 +6,7 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
-import liquibase.item.core.Sequence
 import liquibase.item.core.Table
 import liquibase.item.core.View
 import liquibase.item.datatype.DataType
@@ -43,9 +41,9 @@ class SetRemarksActionTest extends AbstractActionTest {
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(SetRemarksAction, [
-                object : getItemReferences(Column.class, getItemReferences(Table.class, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
-                        .plus(getItemReferences(Table, connectionSupplier.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
-                        .plus(getItemReferences(View, connectionSupplier.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope))),
+                object : getItemReferences(Column.class, getItemReferences(Table.class, connectionSupplier.getAllSchemas(), scope), scope)
+                        .plus(getItemReferences(Table, connectionSupplier.allSchemas, scope)
+                        .plus(getItemReferences(View, connectionSupplier.allSchemas, scope))),
                 remarks: ["Simple remarks", "crazy!@#\\\$%^&*()_+{}[]'\""],
         ])
     }

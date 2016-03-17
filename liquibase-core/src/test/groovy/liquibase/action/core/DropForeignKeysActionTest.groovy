@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.ForeignKey
 import liquibase.item.core.ForeignKeyReference
@@ -42,8 +41,8 @@ class DropForeignKeysActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(DropForeignKeysAction, [
                 foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(ForeignKeyReference, [
-                        name     : getItemNames(ForeignKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                        name     : getItemNames(ForeignKey, scope),
+                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), scope)
                 ]))
         ])
     }

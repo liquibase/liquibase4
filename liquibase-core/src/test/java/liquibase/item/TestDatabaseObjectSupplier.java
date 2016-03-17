@@ -23,43 +23,10 @@ public class TestDatabaseObjectSupplier<T extends DatabaseObject> extends Abstra
     }
 
     /**
-     * Calls to {@link #getSimpleNames(Class, Scope)} or {@link #getComplexNames(Class, Scope)} depending on the passed {@link NameStrategy}
+     * Returns a list of various names, some complex, for the given type.
      */
     @Override
-    public List<String> getNames(Class<T> type, NameStrategy nameStrategy, Scope scope) {
-        if (nameStrategy == NameStrategy.COMPLEX_NAMES) {
-            return getComplexNames(type, scope);
-        } else {
-            return getSimpleNames(type, scope);
-        }
-    }
-
-    /**
-     * Returns a list of simple names for the given type. Used by {@link #getNames(Class, NameStrategy, Scope)} for {@link NameStrategy#SIMPLE_NAMES}.
-     */
-    protected List<String> getSimpleNames(Class<T> type, Scope scope) {
-        List<String> returnList = new ArrayList<>();
-
-        int objectsToCreate = 10;
-
-        Database database = ObjectUtil.defaultIfNull(scope.getDatabase(), new GenericDatabase());
-        if (database.getIdentifierCaseHandling(type, false, scope) == Database.IdentifierCaseHandling.LOWERCASE) {
-            for (int i = 1; i <= objectsToCreate; i++) {
-                returnList.add(type.getSimpleName().toLowerCase() + i);
-            }
-        } else {
-            for (int i = 1; i <= objectsToCreate; i++) {
-                returnList.add(type.getSimpleName().toUpperCase() + i);
-            }
-        }
-
-        return returnList;
-    }
-
-    /**
-     * Returns a list of complex names for the given type. Used by {@link #getNames(Class, NameStrategy, Scope)} for {@link NameStrategy#COMPLEX_NAMES}.
-     */
-    protected  List<String> getComplexNames(Class<T> type, Scope scope) {
+    public List<String> getNames(Class<T> type, Scope scope) {
         List<String> returnList = new ArrayList<>();
 
         returnList.add("lower" + type.getSimpleName().toLowerCase());
@@ -93,10 +60,10 @@ public class TestDatabaseObjectSupplier<T extends DatabaseObject> extends Abstra
     }
 
     /**
-     * Uses {@link #getNames(Class, NameStrategy, Scope)} to construct references, plus if containers has non-null values, adds object names "ONLY_IN_X" where X is the container's name.
+     * Uses {@link TestItemSupplier#getNames(Class, Scope)} to construct references, plus if containers has non-null values, adds object names "ONLY_IN_X" where X is the container's name.
      */
     @Override
-    public List<ItemReference> getReferences(Class<T> type, List<? extends ItemReference> containers, NameStrategy nameStrategy, Scope scope) {
+    public List<ItemReference> getReferences(Class<T> type, List<? extends ItemReference> containers, Scope scope) {
         try {
             List<ItemReference> returnList = new ArrayList<>();
             if (containers == null) {
@@ -106,7 +73,7 @@ public class TestDatabaseObjectSupplier<T extends DatabaseObject> extends Abstra
 
             Class<? extends ItemReference> referenceType = type.getConstructor().newInstance().toReference().getClass();
 
-            List<String> baseNames = new ArrayList<>(getNames(type, nameStrategy, scope));
+            List<String> baseNames = new ArrayList<>(getNames(type, scope));
 
             for (ItemReference container : containers) {
                 List<String> names = new ArrayList<>(baseNames);

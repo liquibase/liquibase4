@@ -2,7 +2,7 @@
 
 # Test: "commit throws no exceptions" #
 
-## Permutation dfad36 (verified) ##
+## Permutation dfad364 (verified) ##
 
 - **connection:** mysql caseInsensitive
 
@@ -10,4 +10,4 @@
 
 - **plan:** COMMIT
 
-# Test Version: "2bf317" #
+# Test Version: "a97d40" #

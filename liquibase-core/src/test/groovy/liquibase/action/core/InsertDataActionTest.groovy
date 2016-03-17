@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
 import liquibase.item.core.RowData
@@ -35,8 +34,8 @@ class InsertDataActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(InsertDataAction, [
                             data: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(RowData, [
-                                    relation: getItemReferences(Table, it.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    data    : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                                    relation: getItemReferences(Table, it.allSchemas, scope),
+                                    data    : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                         return new RowData.Cell(it, 42)
                                     }))
                             ]))

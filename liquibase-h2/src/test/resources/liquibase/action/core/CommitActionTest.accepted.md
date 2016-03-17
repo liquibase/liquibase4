@@ -2,7 +2,7 @@
 
 # Test: "commit throws no exceptions" #
 
-## Permutation bf4851 (verified) ##
+## Permutation bf4851c (verified) ##
 
 - **connection:** h2 standard
 
@@ -10,4 +10,4 @@
 
 - **plan:** COMMIT
 
-# Test Version: "2bf317" #
+# Test Version: "a97d40" #

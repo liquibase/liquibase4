@@ -7,7 +7,6 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.ItemReference
@@ -50,7 +49,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(PrimaryKey, scope).collect({
                         return new SnapshotItemsAction(new PrimaryKeyReference(it))
                     }),
             ], new ValidActionFilter(scope))
@@ -91,7 +90,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
                     [scope],
                     CollectionUtil.permutationsWithoutNulls([
                             it.allSchemas,
-                            getItemNames(PrimaryKey, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                            getItemNames(PrimaryKey, scope)
                     ]).collect({
                         def ref = new PrimaryKeyReference(it[1], new RelationReference(Table, tableName, it[0]))
 
@@ -126,7 +125,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemReferences(Table, it.getAllSchemas(), scope).collect({
                         new PrimaryKeyReference(null, it)
                     }),
             ])
@@ -158,7 +157,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
             ])
         }
     }

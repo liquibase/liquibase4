@@ -7,7 +7,6 @@ import liquibase.action.Action
 import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
 import liquibase.item.core.RowData
@@ -49,7 +48,7 @@ class InsertDataFromQueryActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(InsertDataFromQueryAction, [
                 destination: TestUtil.createAllPermutations(RelationReference, [
-                        name     : getItemNames(View, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                        name     : getItemNames(View, scope),
                         container: connectionSupplier.getAllSchemas()
                 ]).each {
                     it.type = Table

@@ -6,15 +6,9 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.exception.UnexpectedLiquibaseException
-import liquibase.item.DatabaseObjectReference
-import liquibase.item.ItemReference
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
-import liquibase.item.core.SchemaReference
 import liquibase.item.core.Table
-import liquibase.item.core.View
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
@@ -48,9 +42,9 @@ class RenameColumnActionTest extends AbstractActionTest {
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(RenameColumnAction, [
-                oldName : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                newName : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                relation: getItemReferences(Table, connectionSupplier.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                oldName : getItemNames(Column, scope),
+                newName : getItemNames(Column, scope),
+                relation: getItemReferences(Table, connectionSupplier.allSchemas, scope),
                 columnDefinition: [new StringClauses().append("INT NOT NULL")],
         ])
     }

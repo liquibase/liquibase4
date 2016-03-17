@@ -6,17 +6,14 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
-import liquibase.item.core.RowData
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
 import liquibase.util.StringClauses
 import liquibase.util.TestUtil
-import spock.lang.Specification
 import spock.lang.Unroll
 
 class UpdateDataActionTest extends AbstractActionTest {
@@ -40,8 +37,8 @@ class UpdateDataActionTest extends AbstractActionTest {
                     [it],
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(UpdateDataAction, [
-                            relation: getItemReferences(Table, it.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                            columns : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                            relation: getItemReferences(Table, it.allSchemas, scope),
+                            columns : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                 return new UpdateDataAction.UpdatedColumn(it, 42)
                             }))
                     ])

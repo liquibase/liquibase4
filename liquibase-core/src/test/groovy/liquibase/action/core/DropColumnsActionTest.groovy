@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.ColumnReference
 import liquibase.item.core.RelationReference
@@ -15,7 +14,6 @@ import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
 import liquibase.util.TestUtil
-import spock.lang.Specification
 import spock.lang.Unroll
 
 class DropColumnsActionTest extends AbstractActionTest {
@@ -46,8 +44,8 @@ class DropColumnsActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(DropColumnsAction, [
                 columns: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(ColumnReference, [
-                        name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                        name     : getItemNames(Column, scope),
+                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), scope)
                 ]))
         ])
     }

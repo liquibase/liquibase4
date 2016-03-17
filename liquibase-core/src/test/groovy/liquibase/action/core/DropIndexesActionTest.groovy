@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.Index
 import liquibase.item.core.IndexReference
@@ -44,8 +43,8 @@ class DropIndexesActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(DropIndexesAction, [
                 indexes: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(IndexReference, [
-                        name       : getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                        container  : getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                        name       : getItemNames(Index, scope),
+                        container  : getItemReferences(Table, connectionSupplier.getAllSchemas(), scope),
                         indexSchema: connectionSupplier.getAllSchemas()
                 ]))
         ])

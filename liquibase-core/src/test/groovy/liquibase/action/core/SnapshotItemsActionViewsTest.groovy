@@ -7,8 +7,6 @@ import liquibase.action.Action
 import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.database.Database
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
 import liquibase.item.core.Table
@@ -45,7 +43,7 @@ class SnapshotItemsActionViewsTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(SnapshotItemsAction, [
                             typeToSnapshot: [View],
-                            relatedTo     : CollectionUtil.toSingletonSets(getItemReferences(View, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope))
+                            relatedTo     : CollectionUtil.toSingletonSets(getItemReferences(View, it.getAllSchemas(), scope))
                     ])
             ], new ValidActionFilter(scope))
         }
@@ -161,7 +159,7 @@ class SnapshotItemsActionViewsTest extends AbstractActionTest {
         def tableName = standardCaseItemName("test_table", Table, scope)
 
         for (
-                def ref : getItemReferences(View, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
+                def ref : getItemReferences(View, connectionSupplier.getAllSchemas(), scope)) {
             if (tablesCreatedInSchemas.add(ref.schema.toString())) {
                 def table = new Table(tableName, ref.schema)
                 snapshot.add(table)

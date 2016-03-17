@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.Index
 import liquibase.item.core.RelationReference
@@ -36,9 +35,9 @@ class CreateIndexesActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutations(CreateIndexesAction, [
                             indexes: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(Index, [
-                                    name    : getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    relation: getItemReferences(Table, it.allSchemas, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                                    name    : getItemNames(Index, scope),
+                                    relation: getItemReferences(Table, it.allSchemas, scope),
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                         return new Index.IndexedColumn(it)
                                     })),
                             ]))

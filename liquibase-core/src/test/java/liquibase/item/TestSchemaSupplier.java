@@ -7,7 +7,7 @@ import liquibase.item.core.Schema;
 import java.util.List;
 
 /**
- * Keeps schemas from being used by {@link TestDatabaseObjectSupplier#getNames(Class, NameStrategy, Scope)}
+ * Keeps schemas from being used by {@link TestItemSupplier#getNames(Class, Scope)}
  */
 public class TestSchemaSupplier extends TestDatabaseObjectSupplier {
 
@@ -20,7 +20,7 @@ public class TestSchemaSupplier extends TestDatabaseObjectSupplier {
     }
 
     @Override
-    public List<String> getNames(Class type, NameStrategy nameStrategy, Scope scope) {
+    public List<String> getNames(Class type, Scope scope) {
         throw new UnexpectedLiquibaseException("Look up schemas with ConnectionSupplier.getAllSchemas()");
     }
 }

@@ -2,7 +2,7 @@
 
 # Test: "commit throws no exceptions" #
 
-## Permutation 29e131 _NOT VERIFIED: Generic_ ##
+## Permutation 29e1317 _NOT VERIFIED: Generic_ ##
 
 - **connection:** generic standard
 
@@ -10,4 +10,4 @@
 
 - **plan:** COMMIT
 
-# Test Version: "2bf317" #
+# Test Version: "a97d40" #

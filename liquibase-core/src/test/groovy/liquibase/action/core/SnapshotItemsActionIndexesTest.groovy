@@ -8,7 +8,6 @@ import liquibase.actionlogic.ObjectBasedQueryResult
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.ItemReference
@@ -44,7 +43,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(Index, scope).collect({
                         return new IndexReference(it)
                     }),
             ], new ValidActionFilter(scope))
@@ -75,7 +74,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemNames(Index, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemNames(Index, scope).collect({
                         return new IndexReference(it, new RelationReference(Table, standardCaseItemName("known_table", Table, scope)))
                     }),
             ])
@@ -107,7 +106,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect({
+                    getItemReferences(Table, it.getAllSchemas(), scope).collect({
                         new IndexReference(null, it)
                     }),
             ])
@@ -139,7 +138,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                    getItemReferences(Table, it.getAllSchemas(), scope),
             ])
         }
     }

@@ -6,8 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.DatabaseObjectReference
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.RelationReference
 import liquibase.item.core.SchemaReference
@@ -44,8 +42,8 @@ class RenameViewActionTest extends AbstractActionTest {
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(RenameViewAction, [
-                oldName: getItemReferences(View, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                newName: getItemReferences(View, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                oldName: getItemReferences(View, connectionSupplier.getAllSchemas(), scope),
+                newName: getItemReferences(View, connectionSupplier.getAllSchemas(), scope),
         ])
     }
 

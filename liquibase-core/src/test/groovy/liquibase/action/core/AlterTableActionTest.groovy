@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
@@ -40,7 +39,7 @@ class AlterTableActionTest extends AbstractActionTest {
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(AlterTableAction, [
-                table        : getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                table        : getItemReferences(Table, connectionSupplier.getAllSchemas(), scope),
                 newDefinition: [new StringClauses().append("add").append("id int")]
         ])
 

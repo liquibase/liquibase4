@@ -6,10 +6,8 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
 import liquibase.item.core.ColumnReference
-import liquibase.item.core.RelationReference
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
@@ -43,8 +41,8 @@ class AlterColumnActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(AlterColumnAction, [
                 column       : TestUtil.createAllPermutations(ColumnReference, [
-                        name     : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
-                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                        name     : getItemNames(Column, scope),
+                        container: getItemReferences(Table, connectionSupplier.getAllSchemas(), scope)
                 ]),
                 newDefinition: [new StringClauses().append("int")]
         ])

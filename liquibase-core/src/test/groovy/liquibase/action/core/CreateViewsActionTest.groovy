@@ -6,10 +6,7 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.item.TestItemSupplier
 import liquibase.item.core.Column
-import liquibase.item.core.Index
-import liquibase.item.core.RelationReference
 import liquibase.item.core.Table
 import liquibase.item.core.View
 import liquibase.item.datatype.DataType
@@ -17,7 +14,6 @@ import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
 import liquibase.util.StringClauses
 import liquibase.util.TestUtil
-import spock.lang.Specification
 import spock.lang.Unroll
 
 class CreateViewsActionTest extends AbstractActionTest {
@@ -39,7 +35,7 @@ class CreateViewsActionTest extends AbstractActionTest {
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(CreateViewsAction, [
                             views: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(View, [
-                                    name      : getItemNames(View, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                                    name      : getItemNames(View, scope),
                                     schema    : it.allSchemas,
                                     definition: [new StringClauses()],
                             ]).each {
@@ -82,7 +78,7 @@ class CreateViewsActionTest extends AbstractActionTest {
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(CreateViewsAction, [
                 views: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(View, [
-                        name      : getItemNames(View, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope),
+                        name      : getItemNames(View, scope),
                         schema    : connectionSupplier.allSchemas,
                         definition: [new StringClauses()],
                 ]).each {

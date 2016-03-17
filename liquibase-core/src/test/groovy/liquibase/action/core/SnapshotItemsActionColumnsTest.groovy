@@ -8,7 +8,6 @@ import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
-import liquibase.item.TestItemSupplier
 import liquibase.snapshot.Snapshot
 import liquibase.snapshot.SnapshotFactory
 
@@ -71,7 +70,7 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    getItemReferences(Table, it.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)
+                    getItemReferences(Table, it.getAllSchemas(), scope)
             ])
         }
     }
@@ -286,9 +285,9 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope)
-        for (ItemReference tableName : getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
+        for (ItemReference tableName : getItemReferences(Table, connectionSupplier.getAllSchemas(), scope)) {
             snapshot.add(new Table(tableName.name, tableName.container))
-            for (def columnName : getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope)) {
+            for (def columnName : getItemNames(Column, scope)) {
                 snapshot.add(new Column(columnName, tableName, DataType.parse("int"), true))
             }
         }
@@ -297,9 +296,9 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
     }
 
     List<ColumnReference> getColumnNamesWithTables(ConnectionSupplier connectionSupplier, Scope scope) {
-        getItemNames(Column, TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collectMany {
+        getItemNames(Column, scope).collectMany {
             def colName = it
-            return getItemReferences(Table, connectionSupplier.getAllSchemas(), TestItemSupplier.NameStrategy.COMPLEX_NAMES, scope).collect {
+            return getItemReferences(Table, connectionSupplier.getAllSchemas(), scope).collect {
                 return new ColumnReference(colName, it)
             }
         }
