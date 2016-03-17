@@ -311,7 +311,7 @@ public class ValidationErrors {
 
     public ValidationErrors check(String errorMessage, ErrorCheck check) {
         if (!hasErrors()) {
-            if (!check.check()) {
+            if (!check.isValid()) {
                 addError(errorMessage);
             }
         }
@@ -347,7 +347,7 @@ public class ValidationErrors {
 
     public interface ErrorCheck {
 
-        boolean check();
+        boolean isValid();
     }
 
     public interface FieldCheck<T> {

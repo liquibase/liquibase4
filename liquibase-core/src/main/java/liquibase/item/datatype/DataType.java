@@ -1,6 +1,7 @@
 package liquibase.item.datatype;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
 import liquibase.util.StringClauses;
 import liquibase.util.StringUtil;
 
@@ -79,6 +80,16 @@ public class DataType extends AbstractExtensibleObject {
             dataType.valueType = dataType.standardType.valueType;
         }
         return dataType;
+    }
+
+    public static DataType forType(Class type) {
+        for (DataType.StandardType standardType : DataType.StandardType.values()) {
+            if (standardType.valueType.equals(type)) {
+                return new DataType(standardType);
+            }
+        }
+
+        return new DataType();
     }
 
     /**

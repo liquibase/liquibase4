@@ -3,9 +3,11 @@ package liquibase.actionlogic.core;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
+import liquibase.action.UpdateSqlAction;
 import liquibase.actionlogic.AbstractSqlLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ExecuteResult;
+import liquibase.actionlogic.UpdateResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -13,25 +15,26 @@ import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
+public class UpdateSqlLogic extends AbstractSqlLogic<UpdateSqlAction> {
 
     @Override
-    protected Class<ExecuteSqlAction> getSupportedAction() {
-        return ExecuteSqlAction.class;
+    protected Class<UpdateSqlAction> getSupportedAction() {
+        return UpdateSqlAction.class;
     }
 
     @Override
-    public ValidationErrors validate(ExecuteSqlAction action, Scope scope) {
+    public ValidationErrors validate(UpdateSqlAction action, Scope scope) {
         return super.validate(action, scope)
                 .checkRequiredFields("sql");
     }
 
     @Override
-    public int getPriority(ExecuteSqlAction action, Scope scope) {
-        if (action instanceof ExecuteSqlAction) {
+    public int getPriority(UpdateSqlAction action, Scope scope) {
+        if (action instanceof UpdateSqlAction) {
             Database database = scope.getDatabase();
             if (database == null || (!(database instanceof AbstractJdbcDatabase))) {
                 return PRIORITY_NOT_APPLICABLE;
@@ -45,18 +48,18 @@ public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
 
 
     @Override
-    public ActionResult execute(ExecuteSqlAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(UpdateSqlAction action, Scope scope) throws ActionPerformException {
         AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
         DatabaseConnection connection = database.getConnection();
 
         Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
-        try {
-            Statement stmt = jdbcConnection.createStatement();
-            stmt.execute(action.sql.toString());
+        try (Statement stmt = jdbcConnection.createStatement()) {
+            int rows = stmt.executeUpdate(action.sql.toString());
+
+            return new UpdateResult(action, rows);
         } catch (SQLException e) {
             throw new ActionPerformException("Error executing SQL: "+action.sql.toString(), e);
         }
-        return new ExecuteResult(action);
 
     }
 }

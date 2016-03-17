@@ -2,6 +2,7 @@ liquibase.actionlogic.core.mysql.AddAutoIncrementLogicMysql
 liquibase.actionlogic.core.mysql.AddColumnsLogicMysql
 liquibase.actionlogic.core.mysql.AddForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.AlterColumnLogicMysql
+liquibase.actionlogic.core.mysql.AlterNullableLogicMysql
 liquibase.actionlogic.core.mysql.CreateIndexesLogicMysql
 liquibase.actionlogic.core.mysql.CreateTableLogicMysql
 liquibase.actionlogic.core.mysql.DisableForeignKeyChecksLogicMysql

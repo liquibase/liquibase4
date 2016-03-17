@@ -3,6 +3,7 @@ liquibase.actionlogic.core.h2.AddColumnsLogicH2
 liquibase.actionlogic.core.h2.AddForeignKeysLogicH2
 liquibase.actionlogic.core.h2.AddPrimaryKeysLogicH2
 liquibase.actionlogic.core.h2.AddUniqueConstraintsLogicH2
+liquibase.actionlogic.core.h2.AlterNullableLogicH2
 liquibase.actionlogic.core.h2.CreateTableLogicH2
 liquibase.actionlogic.core.h2.RenameColumnLogicH2
 liquibase.actionlogic.core.h2.RenameTableLogicH2

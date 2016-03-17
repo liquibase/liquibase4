@@ -2,6 +2,7 @@ liquibase.actionlogic.core.AddAutoIncrementLogic
 liquibase.actionlogic.core.AddColumnsLogic
 liquibase.actionlogic.core.AddForeignKeysLogic
 liquibase.actionlogic.core.AddLookupTableLogic
+liquibase.actionlogic.core.AlterNullableLogic
 liquibase.actionlogic.core.AddPrimaryKeysLogic
 liquibase.actionlogic.core.AddUniqueConstraintsLogic
 liquibase.actionlogic.core.AlterColumnLogic
@@ -12,21 +13,21 @@ liquibase.actionlogic.core.CreateSequencesLogic
 liquibase.actionlogic.core.CreateTableLogic
 liquibase.actionlogic.core.CreateViewsLogic
 liquibase.actionlogic.core.DropColumnsLogic
-liquibase.actionlogic.core.SetDefaultValueLogic
 liquibase.actionlogic.core.DropForeignKeysLogic
 liquibase.actionlogic.core.DropIndexesLogic
 liquibase.actionlogic.core.DropSequencesLogic
 liquibase.actionlogic.core.DropTablesLogic
 liquibase.actionlogic.core.DropViewsLogic
 liquibase.actionlogic.core.ExecuteSqlLogic
-liquibase.actionlogic.core.InsertDataLogic
 liquibase.actionlogic.core.InsertDataFromQueryLogic
+liquibase.actionlogic.core.InsertDataLogic
 liquibase.actionlogic.core.QueryJdbcMetaDataLogic
 liquibase.actionlogic.core.QuerySqlLogic
 liquibase.actionlogic.core.RenameColumnLogic
 liquibase.actionlogic.core.RenameTableLogic
 liquibase.actionlogic.core.RenameViewLogic
 liquibase.actionlogic.core.SelectDataLogic
+liquibase.actionlogic.core.SetDefaultValueLogic
 liquibase.actionlogic.core.SnapshotColumnsLogic
 liquibase.actionlogic.core.SnapshotColumnsLogicOffline
 liquibase.actionlogic.core.SnapshotForeignKeysLogic
@@ -39,3 +40,5 @@ liquibase.actionlogic.core.SnapshotTablesLogicOffline
 liquibase.actionlogic.core.SnapshotUniqueConstraintsLogic
 liquibase.actionlogic.core.SnapshotUniqueConstraintsLogicOffline
 liquibase.actionlogic.core.SnapshotViewsLogic
+liquibase.actionlogic.core.UpdateDataLogic
+liquibase.actionlogic.core.UpdateSqlLogic

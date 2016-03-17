@@ -141,6 +141,7 @@ public interface Database extends Plugin, ExtensibleObject {
         DISABLING_FOREIGN_KEYS(false, "True if foreign keys can be temporarily disabled"),
         TABLESPACES(false, "True if tablespaces can be defined"),
         NAMED_PRIMARY_KEYS(true, "True if primary keys can have unique names"),
+        NAMED_NOT_NULL_CONSTRAINTS(false, "True if not null constraints can be named"),
 
         INDEXES_CLUSTERED(false, "True if the database supports creating clustered indexes, regardless of what they call them."),
         INDEXES_DESC(true, "True if indexes can be defined as descending"),
