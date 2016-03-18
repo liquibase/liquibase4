@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ActionStatus;
 import liquibase.action.core.AlterTableAction;
-import liquibase.action.core.SetRemarksAction;
+import liquibase.action.core.AlterRemarksAction;
 import liquibase.actionlogic.AbstractActionLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
@@ -21,7 +21,7 @@ import liquibase.util.StringClauses;
 /**
  * Currently only supports setting comments on tables because adding it to columns requires knowing the column definition.
  */
-public class SetRemarksLogicMysql extends AbstractActionLogic<SetRemarksAction> {
+public class AlterRemarksLogicMysql extends AbstractActionLogic<AlterRemarksAction> {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
@@ -29,12 +29,12 @@ public class SetRemarksLogicMysql extends AbstractActionLogic<SetRemarksAction> 
     }
 
     @Override
-    protected Class<? extends SetRemarksAction> getSupportedAction() {
-        return SetRemarksAction.class;
+    protected Class<? extends AlterRemarksAction> getSupportedAction() {
+        return AlterRemarksAction.class;
     }
 
     @Override
-    public ValidationErrors validate(SetRemarksAction action, Scope scope) {
+    public ValidationErrors validate(AlterRemarksAction action, Scope scope) {
         ValidationErrors errors = super.validate(action, scope)
                 .checkRequiredFields("object", "object.type");
 
@@ -51,7 +51,7 @@ public class SetRemarksLogicMysql extends AbstractActionLogic<SetRemarksAction> 
     }
 
     @Override
-    public ActionResult execute(SetRemarksAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(AlterRemarksAction action, Scope scope) throws ActionPerformException {
         String remarks;
         if (action.remarks == null) {
             remarks = "''";
@@ -67,7 +67,7 @@ public class SetRemarksLogicMysql extends AbstractActionLogic<SetRemarksAction> 
     }
 
     @Override
-    public ActionStatus checkStatus(SetRemarksAction action, Scope scope) {
+    public ActionStatus checkStatus(AlterRemarksAction action, Scope scope) {
         ActionStatus status = new ActionStatus();
         try {
             DatabaseObject item = scope.getSingleton(SnapshotFactory.class).snapshot(action.object, scope);

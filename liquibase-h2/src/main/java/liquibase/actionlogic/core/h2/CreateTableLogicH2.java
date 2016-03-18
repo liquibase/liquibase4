@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.CreateTableAction;
-import liquibase.action.core.SetRemarksAction;
+import liquibase.action.core.AlterRemarksAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.core.CreateTableLogic;
@@ -15,7 +15,6 @@ import liquibase.item.core.Column;
 import liquibase.item.core.ColumnReference;
 import liquibase.item.core.PrimaryKey;
 import liquibase.util.CollectionUtil;
-import liquibase.util.StringClauses;
 
 public class CreateTableLogicH2 extends CreateTableLogic {
 
@@ -57,12 +56,12 @@ public class CreateTableLogicH2 extends CreateTableLogic {
         DelegateResult result = new DelegateResult(action, null, new ExecuteSqlAction(generateSql(action, scope).toString()));
 
         if (action.table.remarks != null) {
-            result.addActions(new SetRemarksAction(action.table.toReference(), action.table.remarks));
+            result.addActions(new AlterRemarksAction(action.table.toReference(), action.table.remarks));
         }
 
         for (Column column : CollectionUtil.createIfNull(action.columns)) {
             if (column.remarks != null) {
-                result.addActions(new SetRemarksAction(new ColumnReference(column.name, action.table.toReference()), column.remarks));
+                result.addActions(new AlterRemarksAction(new ColumnReference(column.name, action.table.toReference()), column.remarks));
             }
         }
 

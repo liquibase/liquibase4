@@ -7,15 +7,15 @@ import liquibase.item.datatype.DataType;
 /**
  * Sets the default value on an existing column. To drop the default value, set the value to null;
  */
-public class SetDefaultValueAction extends AbstractAction {
+public class AlterDefaultValueAction extends AbstractAction {
     public ColumnReference column;
     public DataType columnDataType;
     public Object defaultValue;
 
-    public SetDefaultValueAction() {
+    public AlterDefaultValueAction() {
     }
 
-    public SetDefaultValueAction(ColumnReference column, Object defaultValue, DataType columnDataType) {
+    public AlterDefaultValueAction(ColumnReference column, Object defaultValue, DataType columnDataType) {
         this.column = column;
         this.defaultValue = defaultValue;
         this.columnDataType = columnDataType;

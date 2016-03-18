@@ -16,7 +16,7 @@ import liquibase.util.StringClauses
 import liquibase.util.TestUtil
 import spock.lang.Unroll
 
-class SetRemarksActionTest extends AbstractActionTest {
+class AlterRemarksActionTest extends AbstractActionTest {
 
     @Unroll("#featureName: #action on #conn")
     def "can set remarks from createAllActionPermutations"() {
@@ -40,7 +40,7 @@ class SetRemarksActionTest extends AbstractActionTest {
 
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
-        return TestUtil.createAllPermutations(SetRemarksAction, [
+        return TestUtil.createAllPermutations(AlterRemarksAction, [
                 object : getItemReferences(Column.class, getItemReferences(Table.class, connectionSupplier.getAllSchemas(), scope), scope)
                         .plus(getItemReferences(Table, connectionSupplier.allSchemas, scope)
                         .plus(getItemReferences(View, connectionSupplier.allSchemas, scope))),
@@ -51,7 +51,7 @@ class SetRemarksActionTest extends AbstractActionTest {
     @Override
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         def snapshot = new Snapshot(scope)
-        def object = ((SetRemarksAction) action).object
+        def object = ((AlterRemarksAction) action).object
 
         if (object.instanceOf(Column)) {
             snapshot.add(new Table(object.container.name, object.container.container))

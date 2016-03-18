@@ -4,7 +4,7 @@ import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.Action;
 import liquibase.action.core.CreateTableAction;
-import liquibase.action.core.SetRemarksAction;
+import liquibase.action.core.AlterRemarksAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
 import liquibase.actionlogic.core.CreateTableLogic;
@@ -59,7 +59,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
         for (Column column : CollectionUtil.createIfNull(action.columns)) {
             String columnRemarks = column.remarks;
             if (columnRemarks != null) {
-                SetRemarksAction remarksAction = new SetRemarksAction();
+                AlterRemarksAction remarksAction = new AlterRemarksAction();
                 remarksAction.object = new ColumnReference(action.table.name, column.name);
                 remarksAction.remarks = columnRemarks;
                 result.addActions(remarksAction);

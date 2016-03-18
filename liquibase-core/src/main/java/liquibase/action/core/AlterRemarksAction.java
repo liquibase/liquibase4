@@ -10,7 +10,7 @@ import liquibase.item.core.ColumnReference;
  * There is no SQL-standard for setting remarks, so each database implementation must implement it's own logic class or setting remarks will not be supported.
  * Logic implementations can be a single class to support objects on any type, or separate logic classes for each type, depending on what works best.
  */
-public class SetRemarksAction extends AbstractAction {
+public class AlterRemarksAction extends AbstractAction {
     /**
      * The object to set the remarks on
      */
@@ -18,10 +18,10 @@ public class SetRemarksAction extends AbstractAction {
 
     public String remarks;
 
-    public SetRemarksAction() {
+    public AlterRemarksAction() {
     }
 
-    public SetRemarksAction(DatabaseObjectReference object, String remarks) {
+    public AlterRemarksAction(DatabaseObjectReference object, String remarks) {
         this.object = object;
         this.remarks = remarks;
     }

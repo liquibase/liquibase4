@@ -6,14 +6,14 @@ liquibase.actionlogic.core.mysql.AlterNullableLogicMysql
 liquibase.actionlogic.core.mysql.CreateIndexesLogicMysql
 liquibase.actionlogic.core.mysql.CreateTableLogicMysql
 liquibase.actionlogic.core.mysql.DisableForeignKeyChecksLogicMysql
-liquibase.actionlogic.core.mysql.SetDefaultValueLogicMysql
+liquibase.actionlogic.core.mysql.AlterDefaultValueLogicMysql
 liquibase.actionlogic.core.mysql.DropForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.DropIndexesLogicMysql
 liquibase.actionlogic.core.mysql.EnableForeignKeyChecksLogicMysql
 liquibase.actionlogic.core.mysql.RenameColumnLogicMysql
 liquibase.actionlogic.core.mysql.RenameTableLogicMysql
 liquibase.actionlogic.core.mysql.RenameViewLogicMysql
-liquibase.actionlogic.core.mysql.SetRemarksLogicMysql
+liquibase.actionlogic.core.mysql.AlterRemarksLogicMysql
 liquibase.actionlogic.core.mysql.SnapshotForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.SnapshotIndexesLogicMysql
 liquibase.actionlogic.core.mysql.SnapshotPrimaryKeysLogicMysql

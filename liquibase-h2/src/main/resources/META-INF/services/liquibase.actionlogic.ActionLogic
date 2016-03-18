@@ -8,7 +8,7 @@ liquibase.actionlogic.core.h2.CreateTableLogicH2
 liquibase.actionlogic.core.h2.RenameColumnLogicH2
 liquibase.actionlogic.core.h2.RenameTableLogicH2
 liquibase.actionlogic.core.h2.RenameViewLogicH2
-liquibase.actionlogic.core.h2.SetRemarksLogicH2
+liquibase.actionlogic.core.h2.AlterRemarksLogicH2
 liquibase.actionlogic.core.h2.SnapshotForeignKeysLogicH2
 liquibase.actionlogic.core.h2.SnapshotIndexesLogicH2
 liquibase.actionlogic.core.h2.SnapshotPrimaryKeysLogicH2

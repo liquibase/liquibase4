@@ -471,4 +471,4 @@
 | 4e52c26     | true     | PUBLIC.TEST_TABLE.TEST_COLUMN    | VARCHAR(50) |              |                   | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ALTER COLUMN "TEST_COLUMN" DROP DEFAULT
 | 3c4d03a     | true     | PUBLIC.TEST_TABLE.TEST_COLUMN    | VARCHAR(50) | test value   | java.lang.String  | **plan**: ALTER TABLE "PUBLIC"."TEST_TABLE" ALTER COLUMN "TEST_COLUMN" SET DEFAULT 'test value'
 
-# Test Version: "0ca2a0" #
+# Test Version: "017363" #

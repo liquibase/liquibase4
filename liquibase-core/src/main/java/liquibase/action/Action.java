@@ -1,7 +1,7 @@
 package liquibase.action;
 
 import liquibase.ExtensibleObject;
-import liquibase.action.core.SetDefaultValueAction;
+import liquibase.action.core.AlterDefaultValueAction;
 
 /**
  * Implementations of Action describe interactions to perform against the outside environment.
@@ -14,7 +14,7 @@ import liquibase.action.core.SetDefaultValueAction;
  *     <ul>
  *         <li>"Create" actions should pass instances of the objects to create, such as {@link liquibase.item.core.Table} or {@link liquibase.item.core.Index}</li>
  *         <li>"Create" actions should allow many objects to be included in a single action, such as a List of Columns to allow {@link liquibase.actionlogic.ActionLogic} implementations to group creation as possible to improve performance</li>
- *         <li>"Drop" actions should normally only apply to a single object because while you could pass a collection of ObjectReferences to drop, there is normally additional info or parameters that is needed for the drop such as a data type in {@link SetDefaultValueAction}.
+ *         <li>"Drop" actions should normally only apply to a single object because while you could pass a collection of ObjectReferences to drop, there is normally additional info or parameters that is needed for the drop such as a data type in {@link AlterDefaultValueAction}.
  *         Even if there no other paramters currently, there may be more down the road.
  *         NOTE: if there are overriding performance reasons, it may make sense to create a multi-object drop, such as {@link liquibase.action.core.DropColumnsAction}</li>
  *         <li>Normally {@link liquibase.item.ItemReference} fields should not include "Name" as part of the field name. Just use "table" or "column" etc.</li>

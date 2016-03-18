@@ -32,7 +32,7 @@ liquibase.actionlogic.core.RenameColumnLogic
 liquibase.actionlogic.core.RenameTableLogic
 liquibase.actionlogic.core.RenameViewLogic
 liquibase.actionlogic.core.SelectDataLogic
-liquibase.actionlogic.core.SetDefaultValueLogic
+liquibase.actionlogic.core.AlterDefaultValueLogic
 liquibase.actionlogic.core.SnapshotColumnsLogic
 liquibase.actionlogic.core.SnapshotColumnsLogicOffline
 liquibase.actionlogic.core.SnapshotForeignKeysLogic

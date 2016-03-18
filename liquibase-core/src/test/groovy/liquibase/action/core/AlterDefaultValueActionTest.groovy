@@ -16,7 +16,7 @@ import liquibase.util.CollectionUtil
 import liquibase.util.TestUtil
 import spock.lang.Unroll
 
-class SetDefaultValueActionTest extends AbstractActionTest {
+class AlterDefaultValueActionTest extends AbstractActionTest {
 
     @Unroll("#featureName: #action on #conn")
     def "can drop default values on complex names"() {
@@ -35,7 +35,7 @@ class SetDefaultValueActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    TestUtil.createAllPermutationsWithoutNulls(SetDefaultValueAction, [
+                    TestUtil.createAllPermutationsWithoutNulls(AlterDefaultValueAction, [
                             column        : TestUtil.createAllPermutations(ColumnReference, [
                                     name     : getItemNames(Column, scope),
                                     container: getItemReferences(Table, it.getAllSchemas(), scope)
@@ -64,7 +64,7 @@ class SetDefaultValueActionTest extends AbstractActionTest {
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
                     [scope],
-                    TestUtil.createAllPermutationsWithoutNulls(SetDefaultValueAction, [
+                    TestUtil.createAllPermutationsWithoutNulls(AlterDefaultValueAction, [
                             column        : TestUtil.createAllPermutations(ColumnReference, [
                                     name     : getItemNames(Column, scope),
                                     container: getItemReferences(Table, it.getAllSchemas(), scope)
@@ -103,7 +103,7 @@ class SetDefaultValueActionTest extends AbstractActionTest {
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return CollectionUtil.permutationsWithoutNulls([
-                TestUtil.createAllPermutations(SetDefaultValueAction, [
+                TestUtil.createAllPermutations(AlterDefaultValueAction, [
                         column: TestUtil.createAllPermutations(ColumnReference, [
                                 name     : [standardCaseItemName("test_column", Column, scope)],
                                 container: standardCaseReferences(RelationReference, "test_table", connectionSupplier.allSchemas, scope),
@@ -132,13 +132,13 @@ class SetDefaultValueActionTest extends AbstractActionTest {
     protected Snapshot createSnapshot(Action action, ConnectionSupplier connectionSupplier, Scope scope) {
         Snapshot snapshot = new Snapshot(scope);
 
-        def tableRef = ((SetDefaultValueAction) action).column.relation
+        def tableRef = ((AlterDefaultValueAction) action).column.relation
         snapshot.add(new Table(tableRef.name, tableRef.schema))
 
-        def testColumn = new Column((((SetDefaultValueAction) action).column).name, tableRef, ((SetDefaultValueAction) action).columnDataType, false)
-        if (((SetDefaultValueAction) action).defaultValue == null) { //set something to drop
+        def testColumn = new Column((((AlterDefaultValueAction) action).column).name, tableRef, ((AlterDefaultValueAction) action).columnDataType, false)
+        if (((AlterDefaultValueAction) action).defaultValue == null) { //set something to drop
 
-            def standardType = ((SetDefaultValueAction) action).columnDataType.standardType
+            def standardType = ((AlterDefaultValueAction) action).columnDataType.standardType
             if (standardType.valueType.equals(String)) {
                 testColumn.defaultValue = "original default value"
             } else {

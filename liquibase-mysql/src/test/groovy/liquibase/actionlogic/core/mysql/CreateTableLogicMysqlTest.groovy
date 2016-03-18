@@ -32,7 +32,7 @@ CreateTableAction.uniqueConstraints.disabled is not supported
 CreateTableAction.uniqueConstraints.initiallyDeferred is not supported
 CreateTableAction.uniqueConstraints.relation is required
 CreateTableAction.uniqueConstraints.tablespace is not supported
-CreateTableAction: Step error: SetRemarksAction.object.type: only supports tables
+CreateTableAction: Step error: AlterRemarksAction.object.type: only supports tables
 CreateTableAction: a nullable auto-increment column is not supported
 CreateTableAction: delete rule SET DEFAULT is not supported
 CreateTableAction: update rule SET DEFAULT is not supported

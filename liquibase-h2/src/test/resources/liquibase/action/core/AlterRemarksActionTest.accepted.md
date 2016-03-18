@@ -865,4 +865,4 @@
 | a739a67     | true     | PUBLIC.lowerview                                                              | View       | Simple remarks           | **plan**: COMMENT ON VIEW "PUBLIC"."lowerview" IS 'Simple remarks'
 | ab52d4e     | true     | PUBLIC.lowerview                                                              | View       | crazy!@#\$%^&*()_+{}[]'" | **plan**: COMMENT ON VIEW "PUBLIC"."lowerview" IS 'crazy!@#\$%^&*()_+{}[]''"'
 
-# Test Version: "970042" #
+# Test Version: "eae2fb" #

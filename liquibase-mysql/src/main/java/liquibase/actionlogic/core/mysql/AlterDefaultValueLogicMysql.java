@@ -3,15 +3,15 @@ package liquibase.actionlogic.core.mysql;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.AlterColumnAction;
-import liquibase.action.core.SetDefaultValueAction;
+import liquibase.action.core.AlterDefaultValueAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
-import liquibase.actionlogic.core.SetDefaultValueLogic;
+import liquibase.actionlogic.core.AlterDefaultValueLogic;
 import liquibase.database.Database;
 import liquibase.database.core.mysql.MysqlDatabase;
 import liquibase.exception.ActionPerformException;
 
-public class SetDefaultValueLogicMysql extends SetDefaultValueLogic {
+public class AlterDefaultValueLogicMysql extends AlterDefaultValueLogic {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
@@ -19,7 +19,7 @@ public class SetDefaultValueLogicMysql extends SetDefaultValueLogic {
     }
 
     @Override
-    public ActionResult execute(SetDefaultValueAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(AlterDefaultValueAction action, Scope scope) throws ActionPerformException {
         DelegateResult result = (DelegateResult) super.execute(action, scope);
         for (Action delegateAction : result.getActions()) {
             if (delegateAction instanceof AlterColumnAction) {

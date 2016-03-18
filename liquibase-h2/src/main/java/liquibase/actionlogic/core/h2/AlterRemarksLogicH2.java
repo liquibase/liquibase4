@@ -4,22 +4,20 @@ import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ActionStatus;
 import liquibase.action.ExecuteSqlAction;
-import liquibase.action.core.SetRemarksAction;
+import liquibase.action.core.AlterRemarksAction;
 import liquibase.actionlogic.AbstractActionLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
-import liquibase.actionlogic.core.SnapshotForeignKeysLogic;
 import liquibase.database.Database;
 import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.DatabaseObject;
 import liquibase.item.DatabaseObjectReference;
-import liquibase.item.Item;
 import liquibase.item.core.*;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.util.StringClauses;
 
-public class SetRemarksLogicH2 extends AbstractActionLogic<SetRemarksAction> {
+public class AlterRemarksLogicH2 extends AbstractActionLogic<AlterRemarksAction> {
 
     @Override
     protected Class<? extends Database> getRequiredDatabase() {
@@ -27,18 +25,18 @@ public class SetRemarksLogicH2 extends AbstractActionLogic<SetRemarksAction> {
     }
 
     @Override
-    protected Class<? extends SetRemarksAction> getSupportedAction() {
-        return SetRemarksAction.class;
+    protected Class<? extends AlterRemarksAction> getSupportedAction() {
+        return AlterRemarksAction.class;
     }
 
     @Override
-    public ValidationErrors validate(SetRemarksAction action, Scope scope) {
+    public ValidationErrors validate(AlterRemarksAction action, Scope scope) {
         return super.validate(action, scope)
                 .checkRequiredFields("object", "object.type", "object.name");
     }
 
     @Override
-    public ActionResult execute(SetRemarksAction action, Scope scope) throws ActionPerformException {
+    public ActionResult execute(AlterRemarksAction action, Scope scope) throws ActionPerformException {
         Database database = scope.getDatabase();
         String objectName = database.quoteObjectName(action.object, scope);
         if (action.object.instanceOf(Column.class)) {
@@ -54,7 +52,7 @@ public class SetRemarksLogicH2 extends AbstractActionLogic<SetRemarksAction> {
     }
 
     @Override
-    public ActionStatus checkStatus(SetRemarksAction action, Scope scope) {
+    public ActionStatus checkStatus(AlterRemarksAction action, Scope scope) {
         ActionStatus status = new ActionStatus();
         try {
             DatabaseObject item = scope.getSingleton(SnapshotFactory.class).snapshot(action.object, scope);
