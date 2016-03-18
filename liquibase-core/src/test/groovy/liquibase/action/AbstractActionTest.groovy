@@ -229,7 +229,7 @@ abstract class AbstractActionTest extends Specification {
 
             def executor = scope.getSingleton(ActionExecutor)
 
-            for (def type : [Table, View, UniqueConstraint, Index, ForeignKey, Sequence, RowData]) {
+            for (def type : [Table, View, UniqueConstraint, Index, ForeignKey, Sequence, RowData, StoredProcedure]) {
                 for (def obj : snapshot.get(type)) {
                     for (def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
                         def errors = executor.validate(action, scope)

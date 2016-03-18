@@ -152,4 +152,4 @@
 | c13fb35     | true     | int          | TESTCOL | **plan**: getColumns(lbcat, null, testtable, TESTCOL)
 | 7b537bc     | true     | varchar(20)  | TESTCOL | **plan**: getColumns(lbcat, null, testtable, TESTCOL)
 
-# Test Version: "78458e" #
+# Test Version: "c1c8a4" #

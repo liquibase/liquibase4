@@ -67,6 +67,10 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
                         errors.addError("getIndexInfo requires a 3rd argument (table name)");
                     }
                 }
+            } else if (action.method.equals("getProcedures")) {
+                if (action.arguments.size() != 3) {
+                    errors.addError("getProcedures requires 3 arguments");
+                }
             } else {
                 errors.addError("Unknown method '" + action.method + "' for validation");
             }
@@ -112,7 +116,12 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
                 try (ResultSet rs = getMetaData(scope).getIndexInfo((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2), (Boolean) arguments.get(3), (Boolean) arguments.get(4))) {
                     return new RowBasedQueryResult(action, database.extract(rs, scope));
                 }
+            } else if (method.equals("getProcedures")) {
+                try (ResultSet rs = getMetaData(scope).getProcedures((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
             }
+
             throw new ActionPerformException("Unknown method '" + method + "'");
         } catch (Exception e) {
             throw new ActionPerformException(e);

@@ -11,12 +11,14 @@ liquibase.actionlogic.core.AlterTableLogic
 liquibase.actionlogic.core.CommitLogic
 liquibase.actionlogic.core.CreateIndexesLogic
 liquibase.actionlogic.core.CreateSequencesLogic
+liquibase.actionlogic.core.CreateStoredProceduresLogic
 liquibase.actionlogic.core.CreateTableLogic
 liquibase.actionlogic.core.CreateViewsLogic
 liquibase.actionlogic.core.DropColumnsLogic
 liquibase.actionlogic.core.DropForeignKeysLogic
 liquibase.actionlogic.core.DropIndexesLogic
 liquibase.actionlogic.core.DropSequencesLogic
+liquibase.actionlogic.core.DropStoredProceduresLogic
 liquibase.actionlogic.core.DropTablesLogic
 liquibase.actionlogic.core.DropViewsLogic
 liquibase.actionlogic.core.ExecuteSqlLogic
@@ -36,6 +38,7 @@ liquibase.actionlogic.core.SnapshotIndexesLogic
 liquibase.actionlogic.core.SnapshotPrimaryKeysLogic
 liquibase.actionlogic.core.SnapshotPrimaryKeysLogicOffline
 liquibase.actionlogic.core.SnapshotSequencesLogic
+liquibase.actionlogic.core.SnapshotStoredProceduresLogic
 liquibase.actionlogic.core.SnapshotTablesLogic
 liquibase.actionlogic.core.SnapshotTablesLogicOffline
 liquibase.actionlogic.core.SnapshotUniqueConstraintsLogic

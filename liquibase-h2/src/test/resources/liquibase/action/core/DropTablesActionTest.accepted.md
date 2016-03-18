@@ -73,4 +73,4 @@
 | 9457b6f     | true     | true    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: DROP TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" CASCADE
 | bcf9d46     | true     | true    | PUBLIC.lowertable                       | **plan**: DROP TABLE "PUBLIC"."lowertable" CASCADE
 
-# Test Version: "1bb603" #
+# Test Version: "ef390b" #

@@ -37,4 +37,4 @@
 | e04cc52     | true     | UPPERINDEX                    | lbcat2.lowertable                    | null        | **plan**: DROP INDEX `UPPERINDEX` ON `lbcat2`.`lowertable`
 | 62dd12e     | true     | UPPERINDEX                    | lbcat2.only_in_lbcat2                | null        | **plan**: DROP INDEX `UPPERINDEX` ON `lbcat2`.`only_in_lbcat2`
 
-# Test Version: "f7bc3c" #
+# Test Version: "d1ec55" #

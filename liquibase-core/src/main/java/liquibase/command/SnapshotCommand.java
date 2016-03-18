@@ -3,14 +3,11 @@ package liquibase.command;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.database.Database;
-import liquibase.item.core.Sequence;
-import liquibase.item.core.View;
+import liquibase.item.core.*;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
-import liquibase.item.core.ForeignKey;
-import liquibase.item.core.Table;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,7 +35,7 @@ public class SnapshotCommand extends AbstractCommand<SnapshotCommand.SnapshotCom
     @Override
     protected SnapshotCommandResult run(Scope scope) throws Exception {
 
-        Set<Class<? extends Item>> types = new HashSet((List) Arrays.asList(Table.class, View.class, ForeignKey.class)); //TODO: scope.getSingleton(DatabaseObjectFactory.class).getStandardTypes();
+        Set<Class<? extends Item>> types = new HashSet((List) Arrays.asList(Table.class, View.class, ForeignKey.class, StoredProcedure.class)); //TODO: scope.getSingleton(DatabaseObjectFactory.class).getStandardTypes();
 
         if (scope.getDatabase().supports(Sequence.class, scope)) {
             types.add(Sequence.class);

@@ -4,6 +4,7 @@ import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.item.Item;
+import liquibase.item.core.StoredProcedure;
 
 import java.util.Arrays;
 
@@ -42,6 +43,14 @@ public class H2Database extends AbstractJdbcDatabase {
         } else {
             return length;
         }
+    }
+
+    @Override
+    public boolean supports(Class<? extends Item> type, Scope scope) {
+        if (StoredProcedure.class.isAssignableFrom(type)) {
+            return false;
+        }
+        return super.supports(type, scope);
     }
 
     @Override

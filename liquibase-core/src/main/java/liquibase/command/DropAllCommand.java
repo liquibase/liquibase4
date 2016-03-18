@@ -61,6 +61,13 @@ public class DropAllCommand extends AbstractCommand {
                 executor.execute(new DropSequencesAction(seq.toReference()), scope);
             }
         }
+
+        if (scope.getDatabase().supports(StoredProcedure.class, scope)) {
+            for (StoredProcedure proc : snapshotResult.snapshot.get(StoredProcedure.class)) {
+                executor.execute(new DropStoredProceduresAction(proc.toReference()), scope);
+            }
+        }
+
         executor.execute(new CommitAction(), scope);
 
         return new CommandResult();

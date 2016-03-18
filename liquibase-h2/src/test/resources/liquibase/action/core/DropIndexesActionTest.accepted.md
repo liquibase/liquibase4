@@ -237,4 +237,4 @@
 | 47da00c     | true     | lowerindex                    | PUBLIC.lowertable                       | null        | **plan**: DROP INDEX "PUBLIC"."lowerindex"
 | e243589     | true     | lowerindex                    | null                                    | null        | **plan**: DROP INDEX "lowerindex"
 
-# Test Version: "f7bc3c" #
+# Test Version: "d1ec55" #

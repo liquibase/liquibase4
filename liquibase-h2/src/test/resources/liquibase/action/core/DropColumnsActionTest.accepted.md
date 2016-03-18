@@ -227,4 +227,4 @@
 | a5f57a8     | true     | PUBLIC.lowertable.crazy!@#\$%^&*()_+{}[]'"column                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" DROP COLUMN "crazy!@#\$%^&*()_+{}[]'""column"
 | 5ddd8ba     | true     | PUBLIC.lowertable.lowercolumn                                          | **plan**: ALTER TABLE "PUBLIC"."lowertable" DROP COLUMN "lowercolumn"
 
-# Test Version: "5dbcb8" #
+# Test Version: "7f65e9" #

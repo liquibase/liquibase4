@@ -37,4 +37,4 @@
 | 1b9ea13     | true     | lbcat2.only_in_lbcat2.CRAZY!@#\$%^&*()_+{}[]'"COLUMN                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` DROP COLUMN `CRAZY!@#\$%^&*()_+{}[]'"COLUMN`
 | eadefc4     | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                   | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` DROP COLUMN `UPPERCOLUMN`
 
-# Test Version: "5dbcb8" #
+# Test Version: "7f65e9" #

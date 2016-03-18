@@ -795,4 +795,4 @@
 | 7a134d5     | Generic  | lowercolumn                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ADD "lowercolumn" INTEGER
 | 7806db4     | Generic  | lowercolumn                    | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ADD "lowercolumn" INTEGER
 
-# Test Version: "215a31" #
+# Test Version: "1951a4" #

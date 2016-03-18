@@ -433,4 +433,4 @@
 | b57f0ef     | true     | UPPERCOLUMN                    | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD `UPPERCOLUMN` INTEGER NULL
 | a4b1375     | true     | UPPERCOLUMN                    | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD `UPPERCOLUMN` INTEGER NULL
 
-# Test Version: "215a31" #
+# Test Version: "1951a4" #

@@ -1,2 +1,3 @@
 liquibase.action.core.AddAutoIncrementActionTest$TestDetails
+liquibase.action.core.CreateStoredProceduresActionTest$TestDetails
 liquibase.action.core.SnapshotItemsActionPrimaryKeysTest$TestDetails
