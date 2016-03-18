@@ -26,7 +26,7 @@ public class AddPrimaryKeysActionTest extends AbstractActionTest {
         ], action, conn, scope)
 
         where:
-        [conn, scope, action] << okIfEmpty("cannot add named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("cannot add named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([

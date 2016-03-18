@@ -39,7 +39,7 @@ public class ValidationErrors {
             List path = objectToValidate.getValuePath(requiredFieldName, Object.class);
 
             boolean parentNull = false;
-            for (int i=0; i<path.size()-1; i++) {
+            for (int i = 0; i < path.size() - 1; i++) {
                 if (!isSet(path.get(i))) {
                     parentNull = true;
                     break;
@@ -108,11 +108,11 @@ public class ValidationErrors {
         if (requiredFieldName.contains(".")) {
             String[] parentFields = requiredFieldName.split("\\.");
             String currentPath = null;
-            for (int i=0; i<parentFields.length-1; i++) { //don''t recheck current field
-                if (i==0) {
+            for (int i = 0; i < parentFields.length - 1; i++) { //don''t recheck current field
+                if (i == 0) {
                     currentPath = parentFields[i];
                 } else {
-                    currentPath = currentPath+"."+parentFields[i];
+                    currentPath = currentPath + "." + parentFields[i];
                 }
                 Object value = objectToValidate.get(currentPath, Object.class);
                 if (value == null || (value instanceof Collection) && ((Collection) value).size() == 0) {
@@ -302,22 +302,34 @@ public class ValidationErrors {
         Iterator<String> messages = errorMessages.iterator();
         while (messages.hasNext()) {
             String message = messages.next();
-            if (message.equals(field+" is not supported")) {
+            if (message.equals(field + " is not supported")) {
                 messages.remove();
             }
         }
         return this;
     }
 
-    public ValidationErrors check(String errorMessage, ErrorCheck check) {
+    /**
+     * Run the passed {@link liquibase.ValidationErrors.ErrorCheck} against {@link #objectToValidate}.
+     * If the check returns a non-null message, add it as an error.
+     * Does not run if there are already errors.
+     */
+    public ValidationErrors check(ErrorCheck check) {
         if (!hasErrors()) {
-            if (!check.isValid()) {
-                addError(errorMessage);
+            String errorMessage = check.check();
+            if (errorMessage != null) {
+                addError(": " + errorMessage);
             }
         }
         return this;
     }
 
+    /**
+     * Run the passed {@link liquibase.ValidationErrors.FieldCheck} against the given field on {@link #objectToValidate}.
+     * The object passed to {@link liquibase.ValidationErrors.FieldCheck#check(Object)} is the value of the field.
+     * If the check returns a non-null message, add it as an error.
+     * Does not run if there are already errors.
+     */
     public ValidationErrors checkField(String field, FieldCheck check) {
         if (objectToValidate == null || hasErrors()) {
             return this;
@@ -347,9 +359,15 @@ public class ValidationErrors {
 
     public interface ErrorCheck {
 
-        boolean isValid();
+        /**
+         * If there is an error, return an error message. If no error, return null.
+         */
+        String check();
     }
 
+    /**
+     * If there is an error, return an error message. If no error, return null.
+     */
     public interface FieldCheck<T> {
         String check(T obj);
     }

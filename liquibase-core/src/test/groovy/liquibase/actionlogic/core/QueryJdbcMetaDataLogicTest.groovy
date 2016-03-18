@@ -1,9 +1,9 @@
 package liquibase.actionlogic.core
 
 import liquibase.action.AbstractActionTest
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class QueryJdbcMetaDataLogicTest extends AbstractLogicTest {
+class QueryJdbcMetaDataLogicTest extends AbstractActionLogicTest {
     @Override
     String getExpectedValidationErrors() {
         return null;

@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class RenameColumnLogicTest extends AbstractLogicTest {
+class RenameColumnLogicTest extends AbstractActionLogicTest {
     @Override
     String getExpectedValidationErrors() {
         return """

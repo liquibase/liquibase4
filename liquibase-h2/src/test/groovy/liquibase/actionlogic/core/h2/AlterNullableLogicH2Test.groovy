@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core.h2
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AlterNullableLogicH2Test extends AbstractLogicTest {
+class AlterNullableLogicH2Test extends AbstractActionLogicTest {
 
     @Override
     protected String getExpectedValidationErrors() {

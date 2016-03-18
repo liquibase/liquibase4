@@ -2,7 +2,7 @@ package liquibase
 
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
@@ -66,7 +66,7 @@ public class CodeInspectorTest extends Specification {
 
         then:
         noExceptionThrown()
-        assert AbstractLogicTest.isAssignableFrom(testClass)
+        assert AbstractActionLogicTest.isAssignableFrom(testClass)
 
         where:
         logicClass << TestUtil.getClasses(ActionLogic)*.name.findAll { !it.contains("Mock")  && !it.contains("Snapshot")} //exclude SnapshotLogicTests because they don't correspond to a unique action

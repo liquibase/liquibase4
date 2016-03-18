@@ -1,9 +1,8 @@
 package liquibase.actionlogic.core.h2
 
-import liquibase.actionlogic.AbstractLogicTest
-import spock.lang.Specification
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AddForeignKeysLogicH2Test extends AbstractLogicTest {
+class AddForeignKeysLogicH2Test extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

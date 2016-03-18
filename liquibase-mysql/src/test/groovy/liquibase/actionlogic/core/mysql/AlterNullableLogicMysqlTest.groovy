@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core.mysql
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AlterNullableLogicMysqlTest extends AbstractLogicTest {
+class AlterNullableLogicMysqlTest extends AbstractActionLogicTest {
     @Override
     protected String getExpectedValidationErrors() {
         return """

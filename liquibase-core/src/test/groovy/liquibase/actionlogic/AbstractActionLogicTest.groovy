@@ -18,7 +18,7 @@ import spock.lang.Specification
  * Base class for testing {@link ActionLogic} implementations.
  * {@link liquibase.CodeInspectorTest} will check that all ActionLogic implementations have a corresponding test that extends this class.
  */
-public abstract class AbstractLogicTest extends Specification {
+public abstract class AbstractActionLogicTest extends Specification {
 
     /**
      * Automatically checks all invalid error messages for permutations of an action.

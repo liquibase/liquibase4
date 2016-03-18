@@ -37,4 +37,4 @@
 | 663a4f2     | true     | crazy!@#\$%^&*()_+{}[]'"view           | **plan**: DROP VIEW "crazy!@#\$%^&*()_+{}[]'""view"
 | b8aa009     | true     | lowerview                              | **plan**: DROP VIEW "lowerview"
 
-# Test Version: "4496fe" #
+# Test Version: "e7c1d0" #

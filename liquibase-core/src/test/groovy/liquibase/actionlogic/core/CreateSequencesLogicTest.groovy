@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core;
 
-import liquibase.actionlogic.AbstractLogicTest;
+import liquibase.actionlogic.AbstractActionLogicTest;
 
-public class CreateSequencesLogicTest extends AbstractLogicTest {
+public class CreateSequencesLogicTest extends AbstractActionLogicTest {
     @Override
     public String getExpectedValidationErrors() {
         return """

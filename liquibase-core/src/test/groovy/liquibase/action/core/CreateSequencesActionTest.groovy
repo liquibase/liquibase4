@@ -6,7 +6,6 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
-import liquibase.database.Database
 import liquibase.item.core.Sequence
 import liquibase.snapshot.Snapshot
 import liquibase.util.CollectionUtil
@@ -30,7 +29,7 @@ class CreateSequencesActionTest extends AbstractActionTest {
         ], action, conn, scope)
 
         where:
-        [conn, scope, action] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             if (!scope.database.supports(Sequence, scope)) {

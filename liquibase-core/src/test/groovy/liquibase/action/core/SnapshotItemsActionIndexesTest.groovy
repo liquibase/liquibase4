@@ -38,7 +38,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, indexRef] << okIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, indexRef] << ignoreIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],
@@ -163,7 +163,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, tableName] << okIfEmpty("May not support snapshotting indexes without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, tableName] << ignoreIfEmpty("May not support snapshotting indexes without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([
@@ -194,7 +194,7 @@ class SnapshotItemsActionIndexesTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << okIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << ignoreIfEmpty("May not support snapshotting indexes without a table", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([

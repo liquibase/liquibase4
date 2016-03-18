@@ -30,7 +30,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             if (!scope.database.supports(Sequence, scope)) {
                 return [];
@@ -61,7 +61,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             if (!scope.database.supports(Sequence, scope)) {
                 return [];
@@ -94,7 +94,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             if (!scope.database.supports(Sequence, scope)) {
                 return [];
@@ -144,7 +144,7 @@ class SnapshotItemsActionSequencesTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, createAction] << okIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, createAction] << ignoreIfEmpty("May not support sequences", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             if (!scope.database.supports(Sequence, scope)) {
                 return [];

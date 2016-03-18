@@ -1,11 +1,8 @@
 package liquibase.actionlogic.core.h2
 
-import liquibase.action.core.AddColumnsActionTest
-import liquibase.actionlogic.AbstractLogicTest
-import liquibase.actionlogic.core.AddColumnsLogicTest
-import liquibase.database.core.h2.H2ConnectionSupplier
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AddColumnsLogicH2Test extends AbstractLogicTest {
+class AddColumnsLogicH2Test extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

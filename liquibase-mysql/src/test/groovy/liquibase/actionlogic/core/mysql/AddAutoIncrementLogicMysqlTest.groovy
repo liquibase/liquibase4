@@ -1,9 +1,8 @@
 package liquibase.actionlogic.core.mysql
 
-import liquibase.actionlogic.AbstractLogicTest
-import spock.lang.Specification
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AddAutoIncrementLogicMysqlTest extends AbstractLogicTest {
+class AddAutoIncrementLogicMysqlTest extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

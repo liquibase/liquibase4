@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core.mysql
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AddForeignKeysLogicMysqlTest extends AbstractLogicTest {
+class AddForeignKeysLogicMysqlTest extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

@@ -734,4 +734,4 @@
 | 816891e     | true     | int          | TESTCOL | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 | e25e769     | true     | varchar(20)  | TESTCOL | **plan**: getColumns(null, PUBLIC, TESTTABLE, TESTCOL)
 
-# Test Version: "8e6a90" #
+# Test Version: "78458e" #

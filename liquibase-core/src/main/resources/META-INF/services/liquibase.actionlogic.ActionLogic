@@ -3,6 +3,7 @@ liquibase.actionlogic.core.AddColumnsLogic
 liquibase.actionlogic.core.AddForeignKeysLogic
 liquibase.actionlogic.core.AddLookupTableLogic
 liquibase.actionlogic.core.AlterNullableLogic
+liquibase.actionlogic.core.AlterSequenceLogic
 liquibase.actionlogic.core.AddPrimaryKeysLogic
 liquibase.actionlogic.core.AddUniqueConstraintsLogic
 liquibase.actionlogic.core.AlterColumnLogic

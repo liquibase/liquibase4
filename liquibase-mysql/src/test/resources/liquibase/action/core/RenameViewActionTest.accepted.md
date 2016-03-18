@@ -47,4 +47,4 @@
 | bb4e31f     | true     | lbcat2.only_in_lbcat2               | lbcat2.crazy!@#\$%^&*()_+{}[]'"view | **plan**: RENAME TABLE `lbcat2`.`crazy!@#\$%^&*()_+{}[]'"view` TO `lbcat2`.`only_in_lbcat2`
 | 8418099     | true     | lbcat2.only_in_lbcat2               | lbcat2.lowerview                    | **plan**: RENAME TABLE `lbcat2`.`lowerview` TO `lbcat2`.`only_in_lbcat2`
 
-# Test Version: "18ee2c" #
+# Test Version: "047eeb" #

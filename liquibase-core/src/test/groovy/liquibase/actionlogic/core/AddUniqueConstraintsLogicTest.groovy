@@ -1,10 +1,8 @@
 package liquibase.actionlogic.core
 
-import liquibase.action.core.AddUniqueConstraintsActionTest
-import liquibase.actionlogic.AbstractLogicTest
-import liquibase.database.core.GenericConnectionSupplier
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AddUniqueConstraintsLogicTest extends AbstractLogicTest {
+class AddUniqueConstraintsLogicTest extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

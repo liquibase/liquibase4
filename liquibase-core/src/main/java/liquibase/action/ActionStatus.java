@@ -47,6 +47,12 @@ public class ActionStatus {
         return add(Status.unknown, exception.getMessage() + " (" + exception.getClass().getName() + ")");
     }
 
+    /*
+     * Add the given exception as an {@link liquibase.action.ActionStatus.Status#unknown} message;
+     */
+    public ActionStatus unknown(String message) {
+        return add(Status.unknown, message);
+    }
 
     /**
      * Convience method to call {@link #add(Status, String)} using {@link Status#notApplied} if the applied flag is false.
@@ -213,6 +219,10 @@ public class ActionStatus {
         String out = getStatus().name;
 
         String message = getMessage();
+        if (out.equals("Unknown") && message == null && !atLeastOneAssertion) {
+            message = "no assertions made";
+        }
+
         if (message != null) {
             out += ": " + message;
         }

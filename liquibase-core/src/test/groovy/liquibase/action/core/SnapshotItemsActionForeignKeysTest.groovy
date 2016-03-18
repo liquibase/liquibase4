@@ -99,7 +99,7 @@ class SnapshotItemsActionForeignKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << okIfEmpty("May not support schema-only snapshotting", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << ignoreIfEmpty("May not support schema-only snapshotting", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([

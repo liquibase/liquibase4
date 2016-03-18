@@ -1,10 +1,8 @@
 package liquibase.actionlogic.core
 
-import liquibase.action.core.CreateTableActionTest
-import liquibase.actionlogic.AbstractLogicTest
-import liquibase.database.core.GenericConnectionSupplier
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class CreateTableLogicTest extends AbstractLogicTest {
+class CreateTableLogicTest extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

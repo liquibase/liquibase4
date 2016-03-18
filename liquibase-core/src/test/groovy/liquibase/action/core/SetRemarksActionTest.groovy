@@ -27,7 +27,7 @@ class SetRemarksActionTest extends AbstractActionTest {
         ], action, conn, scope)
 
         where:
-        [conn, scope, action] << okIfEmpty("May not support remarks", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("May not support remarks", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([

@@ -1,9 +1,8 @@
 package liquibase.actionlogic.core
 
-import liquibase.actionlogic.AbstractLogicTest
-import spock.lang.Specification
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class AlterTableLogicTest extends AbstractLogicTest {
+class AlterTableLogicTest extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

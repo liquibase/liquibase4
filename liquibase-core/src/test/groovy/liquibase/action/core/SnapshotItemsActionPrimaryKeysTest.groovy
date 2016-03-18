@@ -39,7 +39,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             if (!((TestDetails) getTestDetails(scope)).testNamedPrimaryKeys()) {
@@ -76,7 +76,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("No permutations that support named primary keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             if (!((TestDetails) getTestDetails(scope)).testNamedPrimaryKeys()) {
@@ -182,7 +182,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, tableName] << okIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, tableName] << ignoreIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([
@@ -213,7 +213,7 @@ class SnapshotItemsActionPrimaryKeysTest extends AbstractActionTest {
 
 
         where:
-        [conn, scope, schemaName] << okIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, schemaName] << ignoreIfEmpty("May not support snapshotting PKs without a table name", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
 
             return CollectionUtil.permutationsWithoutNulls([

@@ -1,9 +1,9 @@
 package liquibase.actionlogic.core
 
 import liquibase.action.AbstractActionTest
-import liquibase.actionlogic.AbstractLogicTest;
+import liquibase.actionlogic.AbstractActionLogicTest;
 
-public class UpdateSqlLogicTest extends AbstractLogicTest{
+public class UpdateSqlLogicTest extends AbstractActionLogicTest{
 
     @Override
     String getExpectedValidationErrors() {

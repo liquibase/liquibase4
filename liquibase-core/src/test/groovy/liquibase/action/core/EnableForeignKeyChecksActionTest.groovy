@@ -44,7 +44,7 @@ class EnableForeignKeyChecksActionTest extends AbstractActionTest {
         })
 
         where:
-        [conn, scope, action] << okIfEmpty("cannot enable foreign keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+        [conn, scope, action] << ignoreIfEmpty("cannot enable foreign keys", JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
             def scope = JUnitScope.getInstance(it)
             return CollectionUtil.permutationsWithoutNulls([
                     [it],

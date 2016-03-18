@@ -1,8 +1,8 @@
 package liquibase.actionlogic.core
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
-class DropViewsLogicTest extends AbstractLogicTest {
+class DropViewsLogicTest extends AbstractActionLogicTest {
     @Override
     String getExpectedValidationErrors() {
         return """

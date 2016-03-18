@@ -52,4 +52,4 @@
 | 0a17ee3     | true     | UPPERCOLUMN                    | lbcat2.lowertable                    | **plan**: INSERT INTO `lbcat2`.`lowertable` (`UPPERCOLUMN`) VALUES (42)
 | 3f791d2     | true     | UPPERCOLUMN                    | lbcat2.only_in_lbcat2                | **plan**: INSERT INTO `lbcat2`.`only_in_lbcat2` (`UPPERCOLUMN`) VALUES (42)
 
-# Test Version: "5f8281" #
+# Test Version: "a915de" #

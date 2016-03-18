@@ -1,9 +1,9 @@
 package liquibase.actionlogic.core.mysql
 
-import liquibase.actionlogic.AbstractLogicTest
+import liquibase.actionlogic.AbstractActionLogicTest
 
 class RenameViewLogicMysqlTest
-        extends AbstractLogicTest {
+        extends AbstractActionLogicTest {
 
     @Override
     String getExpectedValidationErrors() {

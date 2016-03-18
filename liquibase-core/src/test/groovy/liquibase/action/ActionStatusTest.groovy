@@ -13,7 +13,7 @@ class ActionStatusTest extends Specification {
 
         where:
         status                                                                                         | expected
-        new ActionStatus()                                                                             | "Unknown"
+        new ActionStatus()                                                                             | "Unknown: no assertions made"
         new ActionStatus().assertCorrect(true, "Don't show")                                           | "Applied"
         new ActionStatus().assertApplied(true, "Don't show")                                           | "Applied"
         new ActionStatus().assertApplied(true, "Don't show")                                           | "Applied"
