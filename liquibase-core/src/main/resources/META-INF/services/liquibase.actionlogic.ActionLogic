@@ -14,6 +14,8 @@ liquibase.actionlogic.core.CreateSequencesLogic
 liquibase.actionlogic.core.CreateStoredProceduresLogic
 liquibase.actionlogic.core.CreateTableLogic
 liquibase.actionlogic.core.CreateViewsLogic
+liquibase.actionlogic.core.DeleteDataLogic
+liquibase.actionlogic.core.DropAllForeignKeysLogic
 liquibase.actionlogic.core.DropColumnsLogic
 liquibase.actionlogic.core.DropForeignKeysLogic
 liquibase.actionlogic.core.DropIndexesLogic

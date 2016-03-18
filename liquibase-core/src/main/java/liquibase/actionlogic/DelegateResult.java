@@ -30,7 +30,7 @@ public class DelegateResult extends ActionResult {
     }
 
     /**
-     * Returns an unmodifyable list of the actions to delegate to.
+     * Returns an unmodifiable list of the actions to delegate to.
      */
     public List<Action> getActions() {
         return Collections.unmodifiableList(actions);

@@ -18,10 +18,6 @@ import spock.lang.Unroll
 
 class UpdateDataActionTest extends AbstractActionTest {
 
-//    relation;
-//    columns
-//    where
-
     @Unroll("#featureName: #action on #conn")
     def "can update with complex names"() {
         expect:
