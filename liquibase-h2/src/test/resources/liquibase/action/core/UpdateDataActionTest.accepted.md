@@ -246,4 +246,4 @@
 | b15c9c8     | true     | UpdatedColumn{name=lowercolumn, value=42}                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: UPDATE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" SET "lowercolumn"=42
 | 69a85b8     | true     | UpdatedColumn{name=lowercolumn, value=42}                    | PUBLIC.lowertable                       | **plan**: UPDATE "PUBLIC"."lowertable" SET "lowercolumn"=42
 
-# Test Version: "f01c71" #
+# Test Version: "d08fee" #

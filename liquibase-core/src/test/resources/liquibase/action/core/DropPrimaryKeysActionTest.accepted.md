@@ -249,4 +249,4 @@
 | 957d73f     | Generic  | null                               | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" DROP PRIMARY KEY
 | eb971a7     | Generic  | null                               | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" DROP PRIMARY KEY
 
-# Test Version: "c7c355" #
+# Test Version: "4a3878" #

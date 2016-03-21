@@ -74,4 +74,4 @@
 | 3a6b890     | Generic  | false              | select * from LBSCHEMA2.test_table | crazy!@#\$%^&*()_+{}[]'"view | LBSCHEMA2 | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='crazy!@#\$%^&*()_+{}[]''"view' AND TABLE_SCHEMA='LBSCHEMA2'
 | cb9841e     | Generic  | false              | select * from LBSCHEMA2.test_table | lowerview                    | LBSCHEMA2 | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='lowerview' AND TABLE_SCHEMA='LBSCHEMA2'
 
-# Test Version: "952ca6" #
+# Test Version: "e3a31d" #

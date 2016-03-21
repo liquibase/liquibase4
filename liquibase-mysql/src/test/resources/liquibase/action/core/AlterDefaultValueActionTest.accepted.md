@@ -91,4 +91,4 @@
 | d0568f4     | true     | lbcat2.test_table.TEST_COLUMN | VARCHAR(50) |              |                   | **plan**: ALTER TABLE `lbcat2`.`test_table` ALTER COLUMN `TEST_COLUMN` DROP DEFAULT
 | 006fbbd     | true     | lbcat2.test_table.TEST_COLUMN | VARCHAR(50) | test value   | java.lang.String  | **plan**: ALTER TABLE `lbcat2`.`test_table` ALTER COLUMN `TEST_COLUMN` SET DEFAULT 'test value'
 
-# Test Version: "017363" #
+# Test Version: "3a3d8c" #

@@ -227,4 +227,4 @@
 | bdc0641     | true     | lowerforeignkey                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" DROP CONSTRAINT "lowerforeignkey"
 | c180d70     | true     | lowerforeignkey                    | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" DROP CONSTRAINT "lowerforeignkey"
 
-# Test Version: "61e170" #
+# Test Version: "f2ba4f" #

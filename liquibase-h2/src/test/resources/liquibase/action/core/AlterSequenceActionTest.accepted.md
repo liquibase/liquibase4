@@ -1005,4 +1005,4 @@
 | 4a8fbe7     | true     | PUBLIC.crazy!@#\$%^&*()_+{}[]'"sequence    | **plan**: ALTER SEQUENCE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""sequence" MAXVALUE 10
 | e6936f3     | true     | PUBLIC.lowersequence                       | **plan**: ALTER SEQUENCE "PUBLIC"."lowersequence" MAXVALUE 10
 
-# Test Version: "d0bafc" #
+# Test Version: "7181f2" #

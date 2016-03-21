@@ -56,4 +56,4 @@
 | e3d1e6d     | true     | UpdatedColumn{name=UPPERCOLUMN, value=42}                    | lbcat2.lowertable                    | **plan**: UPDATE `lbcat2`.`lowertable` SET `UPPERCOLUMN`=42
 | b56b1b7     | true     | UpdatedColumn{name=UPPERCOLUMN, value=42}                    | lbcat2.only_in_lbcat2                | **plan**: UPDATE `lbcat2`.`only_in_lbcat2` SET `UPPERCOLUMN`=42
 
-# Test Version: "f01c71" #
+# Test Version: "d08fee" #

@@ -37,4 +37,4 @@
 | be3168d     | true     | true    | lbcat2.lowertable                    | **plan**: DROP TABLE `lbcat2`.`lowertable` CASCADE
 | 3237ab8     | true     | true    | lbcat2.only_in_lbcat2                | **plan**: DROP TABLE `lbcat2`.`only_in_lbcat2` CASCADE
 
-# Test Version: "ef390b" #
+# Test Version: "3d4953" #

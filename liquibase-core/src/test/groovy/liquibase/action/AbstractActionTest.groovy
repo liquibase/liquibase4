@@ -94,11 +94,13 @@ abstract class AbstractActionTest extends Specification {
 
             parameters.put("connection", connectionSupplier.toString());
 
-            TestMD.test(specificationContext.currentIteration.parent.spec.getPackage() + "." + specificationContext.currentIteration.parent.spec.name, specificationContext.currentIteration.parent.name, scope.database.class)
+            TestMD.test(specificationContext.currentIteration.parent.spec.getPackage() + "." + specificationContext.currentIteration.parent.spec.name, specificationContext.currentIteration.parent.name, (scope.database == null ? GenericDatabase.class : scope.database.class))
                     .withPermutation(parameters)
                     .addOperations(plan: plan.describe(false))
                     .setup({
-                if (scope.database instanceof GenericDatabase) {
+                if (scope.database == null) {
+                    throw SetupResult.OK
+                } else if (scope.database instanceof GenericDatabase) {
                     throw new SetupResult.CannotVerify("Generic");
                 }
 
@@ -116,7 +118,9 @@ abstract class AbstractActionTest extends Specification {
                 try {
                     results = plan.execute(scope)
 
-                    scope.getSingleton(ActionExecutor).execute(new CommitAction(), scope)
+                    if (scope.database != null) {
+                        scope.getSingleton(ActionExecutor).execute(new CommitAction(), scope)
+                    }
                 } catch (ActionPerformException e) {
                     LoggerFactory.getLogger(getClass()).warn("Snapshot: " + snapshot.describe())
                     throw e;
@@ -204,7 +208,7 @@ abstract class AbstractActionTest extends Specification {
         return returnList
     }
 
-        /**
+    /**
      * Called by {@link ActionTestPermutation} to setup the database as part of {@link Permutation#setup}.
      * Default implementation:
      * <ol>
@@ -231,7 +235,8 @@ abstract class AbstractActionTest extends Specification {
 
             for (def type : [Table, View, UniqueConstraint, Index, ForeignKey, Sequence, RowData, StoredProcedure]) {
                 for (def obj : snapshot.get(type)) {
-                    for (def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
+                    for (
+                            def action : scope.getSingleton(ActionGeneratorFactory).fixMissing(obj, snapshot, new Snapshot(scope), scope)) {
                         def errors = executor.validate(action, scope)
                         LoggerFactory.getLogger(this.getClass()).debug("Setup action: " + executor.createPlan(action, scope).describe(true))
                         if (errors.hasErrors()) {

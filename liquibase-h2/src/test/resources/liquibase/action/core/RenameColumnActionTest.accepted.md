@@ -3967,4 +3967,4 @@
 | 8aba7d9     | true     | INT NOT NULL     | lowercolumn                    | crazy!@#\$%^&*()_+{}[]'"column | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" RENAME TO "lowercolumn"
 | 7e4f0a6     | true     | INT NOT NULL     | lowercolumn                    | crazy!@#\$%^&*()_+{}[]'"column | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" RENAME TO "lowercolumn"
 
-# Test Version: "afcf6f" #
+# Test Version: "246281" #

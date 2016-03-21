@@ -346,4 +346,4 @@
 | ac925cd     | true     | lbcat2.lowertable                    | **plan**: CREATE TABLE `lbcat2`.`lowertable` (`COL_NAME` INTEGER NULL)
 | cb2f558     | true     | lbcat2.only_in_lbcat2                | **plan**: CREATE TABLE `lbcat2`.`only_in_lbcat2` (`COL_NAME` INTEGER NULL)
 
-# Test Version: "6e899b" #
+# Test Version: "917c7e" #

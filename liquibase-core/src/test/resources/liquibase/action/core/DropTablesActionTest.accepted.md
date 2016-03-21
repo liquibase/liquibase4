@@ -73,4 +73,4 @@
 | 588a69d     | Generic  | true    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: DROP TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" CASCADE
 | 6e14b07     | Generic  | true    | LBSCHEMA2.lowertable                    | **plan**: DROP TABLE "LBSCHEMA2"."lowertable" CASCADE
 
-# Test Version: "ef390b" #
+# Test Version: "3d4953" #

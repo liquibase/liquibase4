@@ -27,4 +27,4 @@
 | 1c13b44     | true     | lbcat2.only_in_lbcat2                |       | **plan**: DELETE FROM `lbcat2`.`only_in_lbcat2`
 | a1c4b13     | true     | lbcat2.only_in_lbcat2                | 1=1   | **plan**: DELETE FROM `lbcat2`.`only_in_lbcat2` WHERE 1=1
 
-# Test Version: "864499" #
+# Test Version: "8da7df" #

@@ -25,6 +25,7 @@ liquibase.actionlogic.core.DropStoredProceduresLogic
 liquibase.actionlogic.core.DropUniqueConstraintsLogic
 liquibase.actionlogic.core.DropTablesLogic
 liquibase.actionlogic.core.DropViewsLogic
+liquibase.actionlogic.core.ExecuteShellCommandLogic
 liquibase.actionlogic.core.ExecuteSqlLogic
 liquibase.actionlogic.core.InsertDataFromQueryLogic
 liquibase.actionlogic.core.InsertDataLogic

@@ -47,4 +47,4 @@
 | 5a730bd     | true     | loweruniqueconstraint                    | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` DROP KEY `loweruniqueconstraint`
 | 8871bed     | true     | loweruniqueconstraint                    | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` DROP KEY `loweruniqueconstraint`
 
-# Test Version: "3bb64f" #
+# Test Version: "3abd4a" #

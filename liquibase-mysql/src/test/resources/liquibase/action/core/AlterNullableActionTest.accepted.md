@@ -127,4 +127,4 @@
 | 1fd4466     | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                          | INTEGER        | false    | 3                     | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` MODIFY `UPPERCOLUMN` INTEGER NOT NULL
 | c052a18     | true     | lbcat2.only_in_lbcat2.UPPERCOLUMN                                          | INTEGER        | true     |                       | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` MODIFY `UPPERCOLUMN` INTEGER NULL
 
-# Test Version: "d5d23d" #
+# Test Version: "f73d88" #

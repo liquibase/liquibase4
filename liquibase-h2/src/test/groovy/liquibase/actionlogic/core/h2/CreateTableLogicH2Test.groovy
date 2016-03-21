@@ -20,7 +20,6 @@ CreateTableAction.foreignKeys.referencedTable is required
 CreateTableAction.foreignKeys.relation is required
 CreateTableAction.primaryKey.clustered: not supported
 CreateTableAction.primaryKey.columns is required
-CreateTableAction.primaryKey.name is not supported
 CreateTableAction.primaryKey.relation is required
 CreateTableAction.primaryKey.tablespace is not supported
 CreateTableAction.table is required

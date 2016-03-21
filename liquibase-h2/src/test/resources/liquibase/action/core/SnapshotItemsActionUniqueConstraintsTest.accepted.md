@@ -119,4 +119,4 @@
 | c6f12ef     | true     | crazy!@#\$%^&*()_+{}[]'"uniqueconstraint on UNNAMED | **plan**: SELECT TC."CONSTRAINT_NAME", TC."TABLE_CATALOG", TC."TABLE_SCHEMA", TC."TABLE_NAME", FALSE AS IS_DEFERRABLE, FALSE AS INITIALLY_DEFERRED, "COLUMN_LIST" FROM "INFORMATION_SCHEMA"."CONSTRAINTS" TC WHERE TC.CONSTRAINT_NAME='crazy!@#\$%^&*()_+{}[]''"uniqueconstraint'
 | 6ba762d     | true     | loweruniqueconstraint on UNNAMED                    | **plan**: SELECT TC."CONSTRAINT_NAME", TC."TABLE_CATALOG", TC."TABLE_SCHEMA", TC."TABLE_NAME", FALSE AS IS_DEFERRABLE, FALSE AS INITIALLY_DEFERRED, "COLUMN_LIST" FROM "INFORMATION_SCHEMA"."CONSTRAINTS" TC WHERE TC.CONSTRAINT_NAME='loweruniqueconstraint'
 
-# Test Version: "5fc9e0" #
+# Test Version: "afd142" #

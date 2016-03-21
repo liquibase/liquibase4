@@ -15,4 +15,4 @@
 | b8cba0e     | true     | lbcat2.existing_table.COL1 | fk_name        | lbcat2.new_table.ID | INTEGER           |                | **plan**: CREATE TABLE `lbcat2`.`new_table` (`ID` INTEGER NOT NULL, PRIMARY KEY (`ID`))<br>INSERT INTO `lbcat2`.`new_table` SELECT DISTINCT `COL1` FROM `lbcat2`.`existing_table`<br>ALTER TABLE `lbcat2`.`existing_table` ADD CONSTRAINT `fk_name` FOREIGN KEY (`COL1`) REFERENCES `lbcat2`.`new_table` (`ID`)
 | 8f8124a     | true     | lbcat2.existing_table.COL1 | fk_name        | lbcat2.new_table.ID | INTEGER           | pk_name        | **plan**: CREATE TABLE `lbcat2`.`new_table` (`ID` INTEGER NOT NULL, PRIMARY KEY (`ID`))<br>INSERT INTO `lbcat2`.`new_table` SELECT DISTINCT `COL1` FROM `lbcat2`.`existing_table`<br>ALTER TABLE `lbcat2`.`existing_table` ADD CONSTRAINT `fk_name` FOREIGN KEY (`COL1`) REFERENCES `lbcat2`.`new_table` (`ID`)
 
-# Test Version: "17beb3" #
+# Test Version: "72500a" #

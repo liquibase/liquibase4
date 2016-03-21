@@ -701,4 +701,4 @@
 | dc4e6fc     | true     | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: CREATE TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ("COL_NAME" INTEGER)
 | df2559a     | true     | PUBLIC.lowertable                       | **plan**: CREATE TABLE "PUBLIC"."lowertable" ("COL_NAME" INTEGER)
 
-# Test Version: "6e899b" #
+# Test Version: "917c7e" #

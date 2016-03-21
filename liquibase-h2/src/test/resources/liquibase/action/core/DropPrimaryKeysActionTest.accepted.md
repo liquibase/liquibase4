@@ -249,4 +249,4 @@
 | 2ee94b4     | true     | null                               | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" DROP PRIMARY KEY
 | 8af7a86     | true     | null                               | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" DROP PRIMARY KEY
 
-# Test Version: "482672" #
+# Test Version: "4a3878" #

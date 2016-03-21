@@ -61,6 +61,9 @@ public abstract class AbstractActionLogicTest extends Specification {
     protected ConnectionSupplier getConnectionSupplier(Scope scope) {
         ConnectionSupplier correctSupplier;
         Database db = scope.getDatabase()
+        if (db == null) {
+            return null;
+        }
         for (ConnectionSupplier supplier : scope.getSingleton(ConnectionSupplierFactory).connectionSuppliers) {
             if (supplier.database.getClass().equals(db.getClass())) {
                 if (correctSupplier == null) {
@@ -89,10 +92,14 @@ public abstract class AbstractActionLogicTest extends Specification {
             databaseClass = GenericDatabase.class;
         }
 
-        def database = databaseClass.newInstance()
-        database.setConnection(new MockJdbcConnection(), scope)
+        if (databaseClass == null) {
+            return null;
+        } else {
+            def database = databaseClass.newInstance()
+            database.setConnection(new MockJdbcConnection(), scope)
 
-        return database;
+            return database;
+        }
     }
 
     /**

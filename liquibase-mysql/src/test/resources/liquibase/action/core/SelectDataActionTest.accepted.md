@@ -471,4 +471,4 @@
 | ce757d2     | true     | t1COLUMN1 AS my_col |          | rightOuter join on join_table1 AS j1 ON 1=1                                             | t1.COLUMN1 DESC | test_table | t1            |       | **plan**: SELECT t1.`COLUMN1` AS my_col FROM `test_table` t1 RIGHT OUTER JOIN `join_table1` j1 ON 1=1
 | 2f31c48     | true     | t1COLUMN1 AS my_col |          | rightOuter join on join_table1 AS j1 ON 1=1                                             | t1.COLUMN1 DESC | test_table | t1            | 1=1   | **plan**: SELECT t1.`COLUMN1` AS my_col FROM `test_table` t1 RIGHT OUTER JOIN `join_table1` j1 ON 1=1 WHERE 1=1
 
-# Test Version: "3629b5" #
+# Test Version: "f4b7f6" #
