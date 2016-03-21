@@ -28,6 +28,7 @@ public class CreateTableLogicH2 extends CreateTableLogic {
         ValidationErrors errors = super.validate(action, scope);
 
         errors.removeUnsupportedField("primaryKey");
+        errors.removeUnsupportedField("primaryKey.name");
         errors.removeUnsupportedField("columns.autoIncrementInformation");
 
         if (!errors.hasErrors()) {

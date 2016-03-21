@@ -6,6 +6,7 @@ liquibase.actionlogic.core.mysql.AlterNullableLogicMysql
 liquibase.actionlogic.core.mysql.CreateIndexesLogicMysql
 liquibase.actionlogic.core.mysql.CreateTableLogicMysql
 liquibase.actionlogic.core.mysql.DisableForeignKeyChecksLogicMysql
+liquibase.actionlogic.core.mysql.DropUniqueConstraintsLogicMysql
 liquibase.actionlogic.core.mysql.AlterDefaultValueLogicMysql
 liquibase.actionlogic.core.mysql.DropForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.DropIndexesLogicMysql

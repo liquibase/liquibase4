@@ -19,8 +19,10 @@ liquibase.actionlogic.core.DropAllForeignKeysLogic
 liquibase.actionlogic.core.DropColumnsLogic
 liquibase.actionlogic.core.DropForeignKeysLogic
 liquibase.actionlogic.core.DropIndexesLogic
+liquibase.actionlogic.core.DropPrimaryKeysLogic
 liquibase.actionlogic.core.DropSequencesLogic
 liquibase.actionlogic.core.DropStoredProceduresLogic
+liquibase.actionlogic.core.DropUniqueConstraintsLogic
 liquibase.actionlogic.core.DropTablesLogic
 liquibase.actionlogic.core.DropViewsLogic
 liquibase.actionlogic.core.ExecuteSqlLogic

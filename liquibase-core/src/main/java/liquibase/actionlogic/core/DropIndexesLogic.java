@@ -80,7 +80,7 @@ public class DropIndexesLogic extends AbstractActionLogic<DropIndexesAction> {
         ActionStatus status = new ActionStatus();
         try {
             for (IndexReference index : action.indexes) {
-                return status.assertCorrect(scope.getSingleton(SnapshotFactory.class).snapshot(index, scope) == null, "Index " + index + " was not dropped");
+                status.assertCorrect(scope.getSingleton(SnapshotFactory.class).snapshot(index, scope) == null, "Index " + index + " was not dropped");
             }
         } catch (ActionPerformException e) {
             return status.unknown(e);
