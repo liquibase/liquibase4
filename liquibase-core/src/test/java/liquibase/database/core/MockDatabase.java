@@ -4,6 +4,7 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.MockJdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.item.DatabaseObject;
 import liquibase.item.DatabaseObjectReference;
@@ -16,7 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MockDatabase extends AbstractExtensibleObject implements Database {
+public class MockDatabase extends GenericDatabase {
 
     private DatabaseConnection connection;
 
@@ -24,6 +25,9 @@ public class MockDatabase extends AbstractExtensibleObject implements Database {
     private Map<Class<? extends Item>, Boolean> supports = new HashMap<>();
     private boolean supportsAutoIncrement = true;
 
+    public MockDatabase() {
+        connection = new MockJdbcConnection();
+    }
 
     @Override
     public int getPriority(Scope scope) {

@@ -1,2 +1,2 @@
 liquibase.item.datatype.core.DefaultDataTypeLogic
-liquibase.item.datatype.core.StringDataTypeLogic
+liquibase.item.datatype.core.NumberDataTypeLogic

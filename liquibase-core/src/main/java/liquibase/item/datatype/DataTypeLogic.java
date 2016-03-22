@@ -26,7 +26,7 @@ public abstract class DataTypeLogic extends AbstractPlugin {
             return "NULL";
         }
 
-        return value.toString();
+        return scope.getDatabase().quoteString(value.toString(), scope);
     }
 
     /**

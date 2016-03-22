@@ -11,8 +11,11 @@ import liquibase.actionlogic.*;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.core.Column;
 import liquibase.item.core.RowData;
+import liquibase.item.datatype.DataType;
+import liquibase.item.datatype.DataTypeLogic;
 import liquibase.item.datatype.DataTypeLogicFactory;
 import liquibase.util.StringClauses;
+import org.omg.CORBA.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +43,6 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     public ActionStatus checkStatus(InsertDataAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
         try {
-            DataTypeLogicFactory dataTypeLogicFactory = scope.getSingleton(DataTypeLogicFactory.class);
-
             for (RowData row : action.data) {
                 SelectDataAction selectAction = new SelectDataAction(row.relation);
                 for (RowData.Cell cell : row.data) {
@@ -49,7 +50,7 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
                     selectAction.addWhere(
                             scope.getDatabase().quoteObjectName(cell.columnName, Column.class, scope)
                                     + (cell.value == null ? " IS " : "=")
-                                    + dataTypeLogicFactory.getDataTypeLogic(cell.type, scope).toSql(cell.value, cell.type, scope)
+                                    + getCellType(cell, scope).toSql(cell.value, cell.type, scope)
                     );
                 }
                 QueryResult query = scope.getSingleton(ActionExecutor.class).query(selectAction, scope);
@@ -59,6 +60,21 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
             result.unknown(e);
         }
         return result;
+    }
+
+    protected DataTypeLogic getCellType(RowData.Cell cell, Scope scope) {
+        DataTypeLogicFactory dataTypeLogicFactory = scope.getSingleton(DataTypeLogicFactory.class);
+
+
+        if (cell.type == null) {
+            if (cell.value == null) {
+                return dataTypeLogicFactory.getDataTypeLogic(new DataType((DataType.StandardType) null), scope);
+            } else {
+                return dataTypeLogicFactory.getDataTypeLogic(DataType.forType(cell.value.getClass()), scope);
+            }
+        } else {
+            return dataTypeLogicFactory.getDataTypeLogic(cell.type, scope);
+        }
     }
 
     @Override
@@ -72,13 +88,11 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     }
 
     protected StringClauses generateSql(RowData row, InsertDataAction action, Scope scope) {
-        DataTypeLogicFactory dataTypeLogicFactory = scope.getSingleton(DataTypeLogicFactory.class);
-
         StringClauses columnsClause = new StringClauses("(", ", ", ")");
         StringClauses valueListClause = new StringClauses("(", ", ", ")");
         for (RowData.Cell cell : row.data) {
             columnsClause.append(scope.getDatabase().quoteObjectName(cell.columnName, Column.class, scope));
-            valueListClause.append(dataTypeLogicFactory.getDataTypeLogic(cell.type, scope).toSql(cell.value, cell.type, scope));
+            valueListClause.append(getCellType(cell, scope).toSql(cell.value, cell.type, scope));
         }
 
         return new StringClauses()

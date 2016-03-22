@@ -29,6 +29,7 @@ liquibase.actionlogic.core.ExecuteShellCommandLogic
 liquibase.actionlogic.core.ExecuteSqlLogic
 liquibase.actionlogic.core.InsertDataFromQueryLogic
 liquibase.actionlogic.core.InsertDataLogic
+liquibase.actionlogic.core.LoadDataLogic
 liquibase.actionlogic.core.QueryJdbcMetaDataLogic
 liquibase.actionlogic.core.QuerySqlLogic
 liquibase.actionlogic.core.RenameColumnLogic
