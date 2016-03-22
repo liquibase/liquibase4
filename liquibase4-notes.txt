@@ -1,0 +1,4 @@
+Left undone:
+- "Insert or Update" Action. Is it similar to MERGE, or is that just for loading from one table to another?
+-CLOB/BLOB loading
+- Full file encoding support in LoadDataActoin
