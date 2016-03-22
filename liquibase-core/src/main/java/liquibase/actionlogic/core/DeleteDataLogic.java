@@ -32,7 +32,7 @@ public class DeleteDataLogic  extends AbstractActionLogic<DeleteDataAction> {
 
     @Override
     public ActionStatus checkStatus(DeleteDataAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Nothing to check");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

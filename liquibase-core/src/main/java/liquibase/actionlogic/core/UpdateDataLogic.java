@@ -36,7 +36,7 @@ public class UpdateDataLogic extends AbstractActionLogic<UpdateDataAction> {
 
     @Override
     public ActionStatus checkStatus(UpdateDataAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Nothing to check");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

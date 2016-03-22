@@ -47,7 +47,7 @@ public class InsertDataFromQueryLogic extends AbstractSqlBuilderLogic<InsertData
 
     @Override
     public ActionStatus checkStatus(InsertDataFromQueryAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Cannot check data");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

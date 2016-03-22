@@ -25,6 +25,6 @@ public class CommitLogic extends AbstractActionLogic<CommitAction> {
 
     @Override
     public ActionStatus checkStatus(CommitAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Nothing to check");
+        return new ActionStatus().nothingToCheck();
     }
 }

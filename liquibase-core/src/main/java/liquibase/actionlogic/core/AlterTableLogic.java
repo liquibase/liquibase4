@@ -28,7 +28,7 @@ public class AlterTableLogic extends AbstractActionLogic<AlterTableAction> {
     @Override
     public ActionStatus checkStatus(AlterTableAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
-        result.assertCorrect(true, "Low-level action with no assertions to perform");
+        result.nothingToCheck();
 
         return result;
     }

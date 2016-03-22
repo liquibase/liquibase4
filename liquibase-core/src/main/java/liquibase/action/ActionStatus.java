@@ -248,6 +248,13 @@ public class ActionStatus {
     }
 
     /**
+     * Mark status as OK when there is nothing to check.
+     */
+    public ActionStatus nothingToCheck() {
+        return assertApplied(true, "nothing to check");
+    }
+
+    /**
      * Enumeration of possible {@link ActionStatus} states
      */
     public enum Status {

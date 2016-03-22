@@ -43,7 +43,7 @@ public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
 
     @Override
     public ActionStatus checkStatus(SelectDataAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "No side effects, nothing to check");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

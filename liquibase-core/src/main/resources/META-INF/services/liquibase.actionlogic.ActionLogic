@@ -32,9 +32,11 @@ liquibase.actionlogic.core.InsertDataLogic
 liquibase.actionlogic.core.LoadDataLogic
 liquibase.actionlogic.core.MergeColumnsLogic
 liquibase.actionlogic.core.ModifyDataTypeLogic
+liquibase.actionlogic.core.OutputMessageLogic
 liquibase.actionlogic.core.QueryJdbcMetaDataLogic
 liquibase.actionlogic.core.QuerySqlLogic
 liquibase.actionlogic.core.RenameColumnLogic
+liquibase.actionlogic.core.RenameSequenceLogic
 liquibase.actionlogic.core.RenameTableLogic
 liquibase.actionlogic.core.RenameViewLogic
 liquibase.actionlogic.core.SelectDataLogic
@@ -52,5 +54,6 @@ liquibase.actionlogic.core.SnapshotTablesLogicOffline
 liquibase.actionlogic.core.SnapshotUniqueConstraintsLogic
 liquibase.actionlogic.core.SnapshotUniqueConstraintsLogicOffline
 liquibase.actionlogic.core.SnapshotViewsLogic
+liquibase.actionlogic.core.ThrowExceptionLogic
 liquibase.actionlogic.core.UpdateDataLogic
 liquibase.actionlogic.core.UpdateSqlLogic

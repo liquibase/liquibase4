@@ -55,7 +55,7 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
 
     @Override
     public ActionStatus checkStatus(LoadDataAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Cannot check");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

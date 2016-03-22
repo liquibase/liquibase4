@@ -43,7 +43,7 @@ public class ExecuteShellCommandLogic extends AbstractActionLogic<ExecuteShellCo
 
     @Override
     public ActionStatus checkStatus(ExecuteShellCommandAction action, Scope scope) {
-        return new ActionStatus().assertCorrect(true, "Cannot check");
+        return new ActionStatus().nothingToCheck();
     }
 
     @Override

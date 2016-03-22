@@ -67,7 +67,7 @@ public class CreateViewsLogic extends AbstractActionLogic<CreateViewsAction> {
                 if (snapshotView == null) {
                     result.assertApplied(false, "View '" + actionView.toReference() + "' not found");
                 } else {
-                    result.assertCorrect(true, "Nothing else to check");
+                    result.nothingToCheck();
                 }
             }
             return result;
