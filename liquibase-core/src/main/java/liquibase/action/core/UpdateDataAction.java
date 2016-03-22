@@ -31,7 +31,9 @@ public class UpdateDataAction extends AbstractAction implements UpdateAction {
 
     public UpdateDataAction(RelationReference relation, StringClauses where, UpdatedColumn... columns) {
         this.relation = relation;
-        this.where = where;
+        if (where != null) {
+            this.where = where;
+        }
         this.columns.addAll(Arrays.asList(CollectionUtil.createIfNull(columns)));
     }
 

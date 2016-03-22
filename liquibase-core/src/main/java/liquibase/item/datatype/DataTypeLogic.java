@@ -1,6 +1,7 @@
 package liquibase.item.datatype;
 
 import liquibase.Scope;
+import liquibase.item.FunctionCall;
 import liquibase.plugin.AbstractPlugin;
 
 public abstract class DataTypeLogic extends AbstractPlugin {
@@ -26,6 +27,9 @@ public abstract class DataTypeLogic extends AbstractPlugin {
             return "NULL";
         }
 
+        if (value instanceof FunctionCall) {
+            return ((FunctionCall) value).value;
+        }
         return scope.getDatabase().quoteString(value.toString(), scope);
     }
 

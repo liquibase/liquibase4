@@ -244,4 +244,13 @@
 | ae72187     | Generic  | lowercolumn                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: INSERT INTO "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn") VALUES (42)
 | 2837ff9     | Generic  | lowercolumn                    | LBSCHEMA2.lowertable                    | **plan**: INSERT INTO "LBSCHEMA2"."lowertable" ("lowercolumn") VALUES (42)
 
-# Test Version: "bdaa84" #
+# Test: "merge statement works" #
+
+- **connection:** generic standard
+
+| Permutation | Verified | columns            | columnsForUpdateCheck | relation                                   | OPERATIONS
+| :---------- | :------- | :----------------- | :-------------------- | :----------------------------------------- | :------
+| 5d6f011     | Generic  | ID, NAME, ID, NAME | ID                    | LBSCHEMA.TEST_TABLE, LBSCHEMA.TEST_TABLE   | **plan**: MERGE INTO "LBSCHEMA"."TEST_TABLE" dst USING ( SELECT 1 as "ID", 'user 1 - new' as "NAME" ) src ON (dst."ID"=src."ID") WHEN MATCHED THEN UPDATE SET "NAME"='user 1 - new' WHEN NOT MATCHED THEN INSERT ("ID", "NAME") VALUES (1, 'user 1 - new')<br>MERGE INTO "LBSCHEMA"."TEST_TABLE" dst USING ( SELECT 3 as "ID", 'user 3 - new' as "NAME" ) src ON (dst."ID"=src."ID") WHEN MATCHED THEN UPDATE SET "NAME"='user 3 - new' WHEN NOT MATCHED THEN INSERT ("ID", "NAME") VALUES (3, 'user 3 - new')
+| ce7064b     | Generic  | ID, NAME, ID, NAME | ID                    | LBSCHEMA2.TEST_TABLE, LBSCHEMA2.TEST_TABLE | **plan**: MERGE INTO "LBSCHEMA2"."TEST_TABLE" dst USING ( SELECT 1 as "ID", 'user 1 - new' as "NAME" ) src ON (dst."ID"=src."ID") WHEN MATCHED THEN UPDATE SET "NAME"='user 1 - new' WHEN NOT MATCHED THEN INSERT ("ID", "NAME") VALUES (1, 'user 1 - new')<br>MERGE INTO "LBSCHEMA2"."TEST_TABLE" dst USING ( SELECT 3 as "ID", 'user 3 - new' as "NAME" ) src ON (dst."ID"=src."ID") WHEN MATCHED THEN UPDATE SET "NAME"='user 3 - new' WHEN NOT MATCHED THEN INSERT ("ID", "NAME") VALUES (3, 'user 3 - new')
+
+# Test Version: "44f27b" #

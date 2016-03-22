@@ -18,7 +18,7 @@ public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
     public enum Clauses {
         columns,
         whereClauses,
-        distinct
+        orderByColumns, distinct
     }
 
     @Override
@@ -103,6 +103,22 @@ public class SelectDataLogic extends AbstractSqlBuilderLogic<SelectDataAction> {
 
         if (action.where != null && !action.where.isEmpty()) {
             returnSql.append("WHERE").append(Clauses.whereClauses, action.where);
+        }
+
+        if (action.order != null && action.order.size() > 0) {
+            StringClauses orderClauses = new StringClauses(", ");
+            for (SelectDataAction.OrderedByColumn column : action.order) {
+                String columnString = scope.getDatabase().quoteObjectName(column.name, Column.class, scope);
+                if (column.qualifier != null) {
+                    columnString = column.qualifier + "." + columnString;
+                }
+                if (column.direction != null) {
+                    columnString += " "+column.direction.name();
+                }
+
+                orderClauses.append(columnString);
+            }
+            returnSql.append("ORDER BY").append(Clauses.orderByColumns, orderClauses);
         }
 
         return returnSql;

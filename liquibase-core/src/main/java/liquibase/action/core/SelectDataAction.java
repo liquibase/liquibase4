@@ -279,11 +279,11 @@ public class SelectDataAction extends AbstractAction {
             String string = name;
 
             if (qualifier != null) {
-                string = qualifier+string;
+                string = qualifier + string;
             }
 
             if (alias != null) {
-                string += " AS "+alias;
+                string += " AS " + alias;
             }
 
             if (this.virtual) {
@@ -307,7 +307,7 @@ public class SelectDataAction extends AbstractAction {
     public static class OrderedByColumn extends AbstractExtensibleObject {
         public String qualifier;
         public String name;
-        public OrderDirection direction = OrderDirection.ASC;
+        public OrderDirection direction;
 
         public OrderedByColumn() {
         }
@@ -329,7 +329,7 @@ public class SelectDataAction extends AbstractAction {
 
         @Override
         public String toString() {
-            return (this.qualifier == null ? "" : this.qualifier + ".") + this.name + " " + direction;
+            return (this.qualifier == null ? "" : this.qualifier + ".") + this.name + (direction == null ? "" : " " + direction);
         }
     }
 

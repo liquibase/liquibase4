@@ -223,6 +223,7 @@ class SelectDataActionTest extends AbstractActionTest {
         def selectAction = (SelectDataAction) action
         snapshot.add(new Table(selectAction.relation.name, selectAction.relation.schema))
         RowData row1 = new RowData(selectAction.relation)
+        def seenColumns = new HashSet<String>()
         for (SelectDataAction.SelectedColumn column : selectAction.columns) {
             def columnName = column.name
             if (column.virtual) {
@@ -230,9 +231,12 @@ class SelectDataActionTest extends AbstractActionTest {
             }
             snapshot.add(new Column(columnName, selectAction.relation, dataType, true))
             row1.add(columnName, 12, dataType)
+            seenColumns.add(columnName)
         }
+
         snapshot.add(new Column(idColumnName, selectAction.relation, dataType, true))
         row1.add(idColumnName, 111, dataType)
+        seenColumns.add(idColumnName)
 
         snapshot.add(row1)
 
@@ -244,6 +248,12 @@ class SelectDataActionTest extends AbstractActionTest {
             joinRow.add(idColumnName, 111, dataType)
 
             snapshot.add(joinRow)
+        }
+
+        for (SelectDataAction.OrderedByColumn orderCol : action.order) {
+            if (seenColumns.add(orderCol.name)) {
+                snapshot.add(new Column(orderCol.name, selectAction.relation, dataType, true))
+            }
         }
 
 

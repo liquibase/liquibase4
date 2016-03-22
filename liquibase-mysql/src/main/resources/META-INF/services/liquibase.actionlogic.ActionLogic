@@ -12,6 +12,7 @@ liquibase.actionlogic.core.mysql.DropForeignKeysLogicMysql
 liquibase.actionlogic.core.mysql.DropIndexesLogicMysql
 liquibase.actionlogic.core.mysql.EnableForeignKeyChecksLogicMysql
 liquibase.actionlogic.core.mysql.InsertDataLogicMysql
+liquibase.actionlogic.core.mysql.MergeColumnsLogicMysql
 liquibase.actionlogic.core.mysql.RenameColumnLogicMysql
 liquibase.actionlogic.core.mysql.RenameTableLogicMysql
 liquibase.actionlogic.core.mysql.RenameViewLogicMysql
