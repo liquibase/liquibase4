@@ -81,6 +81,24 @@ LoadDataAction.table is required
 
     }
 
+    def "uses columnsForUpdateCheck"() {
+        when:
+        def scope = JUnitScope.instance.child(Scope.Attr.resourceAccessor, resourceAccessor)
+
+        def action = new LoadDataAction()
+        action.table = new RelationReference(Table, "test_table")
+        action.path = "com/example/simpleWithLineFeed.csv"
+        action.columns = [new LoadDataAction.LoadDataColumn("name", new DataType(DataType.StandardType.VARCHAR, 10)), new LoadDataAction.LoadDataColumn("age", new DataType(DataType.StandardType.INTEGER))]
+        action.columnsForUpdateCheck = ["name"]
+        def result = new LoadDataLogic().execute(action, scope)
+
+        then:
+        result.actions.collect({
+            return scope.getSingleton(ActionExecutor).createPlan(it, scope.child(Scope.Attr.database, new MockDatabase()))
+        })*.describe(false).join("\n") == "MERGE INTO `test_table` dst USING ( SELECT 'Bob Johnson' as `name`, 42 as `age` ) src ON (dst.`name`=src.`name`) WHEN MATCHED THEN UPDATE SET `age`=42 WHEN NOT MATCHED THEN INSERT (`name`, `age`) VALUES ('Bob Johnson', 42)\n" +
+                "MERGE INTO `test_table` dst USING ( SELECT 'John Doe' as `name`, 23 as `age` ) src ON (dst.`name`=src.`name`) WHEN MATCHED THEN UPDATE SET `age`=23 WHEN NOT MATCHED THEN INSERT (`name`, `age`) VALUES ('John Doe', 23)"
+    }
+
     def "throws an error if the file doesn't exist"() {
         when:
         def action = new LoadDataAction()

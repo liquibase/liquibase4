@@ -4,16 +4,18 @@
 
 - **connection:** generic standard
 
-| Permutation | Verified | columns          | relation   | types                    | values                       | OPERATIONS
-| :---------- | :------- | :--------------- | :--------- | :----------------------- | :--------------------------- | :------
-| 4959589     | Generic  | COLUMN1          | TEST_TABLE | BIGINT                   | 123142                       | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (123142)
-| 34c9e33     | Generic  | COLUMN1          | TEST_TABLE | FLOAT                    | 12.5                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (12.5)
-| 2157872     | Generic  | COLUMN1          | TEST_TABLE | INTEGER                  | 42                           | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (42)
-| 74617ee     | Generic  | COLUMN1          | TEST_TABLE | INTEGER                  | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
-| 90f0da8     | Generic  | COLUMN1          | TEST_TABLE | VARCHAR(50)              | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
-| 1588d74     | Generic  | COLUMN1          | TEST_TABLE | VARCHAR(50)              | test string                  | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES ('test string')
-| 13e0af8     | Generic  | COLUMN1, COLUMN2 | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 2362)
-| 1aed3dd     | Generic  | COLUMN1, COLUMN2 | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 'test string 2')
+| Permutation | Verified | columns          | columnsForUpdateCheck | relation   | types                    | values                       | OPERATIONS
+| :---------- | :------- | :--------------- | :-------------------- | :--------- | :----------------------- | :--------------------------- | :------
+| 4959589     | Generic  | COLUMN1          |                       | TEST_TABLE | BIGINT                   | 123142                       | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (123142)
+| 34c9e33     | Generic  | COLUMN1          |                       | TEST_TABLE | FLOAT                    | 12.5                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (12.5)
+| 2157872     | Generic  | COLUMN1          |                       | TEST_TABLE | INTEGER                  | 42                           | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (42)
+| 74617ee     | Generic  | COLUMN1          |                       | TEST_TABLE | INTEGER                  | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
+| 90f0da8     | Generic  | COLUMN1          |                       | TEST_TABLE | VARCHAR(50)              | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
+| 1588d74     | Generic  | COLUMN1          |                       | TEST_TABLE | VARCHAR(50)              | test string                  | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES ('test string')
+| 13e0af8     | Generic  | COLUMN1, COLUMN2 |                       | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 2362)
+| 1aed3dd     | Generic  | COLUMN1, COLUMN2 |                       | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 'test string 2')
+| e89bc1b     | Generic  | COLUMN1, COLUMN2 | COLUMN1               | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: MERGE INTO "TEST_TABLE" dst USING ( SELECT 'test string 1' as "COLUMN1", 2362 as "COLUMN2" ) src ON (dst."COLUMN1"=src."COLUMN1") WHEN MATCHED THEN UPDATE SET "COLUMN2"=2362 WHEN NOT MATCHED THEN INSERT ("COLUMN1", "COLUMN2") VALUES ('test string 1', 2362)
+| fa75102     | Generic  | COLUMN1, COLUMN2 | COLUMN1               | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: MERGE INTO "TEST_TABLE" dst USING ( SELECT 'test string 1' as "COLUMN1", 'test string 2' as "COLUMN2" ) src ON (dst."COLUMN1"=src."COLUMN1") WHEN MATCHED THEN UPDATE SET "COLUMN2"='test string 2' WHEN NOT MATCHED THEN INSERT ("COLUMN1", "COLUMN2") VALUES ('test string 1', 'test string 2')
 
 # Test: "can insert with just numbers but complex names" #
 
@@ -242,4 +244,4 @@
 | ae72187     | Generic  | lowercolumn                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: INSERT INTO "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn") VALUES (42)
 | 2837ff9     | Generic  | lowercolumn                    | LBSCHEMA2.lowertable                    | **plan**: INSERT INTO "LBSCHEMA2"."lowertable" ("lowercolumn") VALUES (42)
 
-# Test Version: "64a2f6" #
+# Test Version: "bdaa84" #

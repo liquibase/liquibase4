@@ -6,7 +6,7 @@
 
 | Permutation | Verified | path                   | table                | OPERATIONS
 | :---------- | :------- | :--------------------- | :------------------- | :------
-| 32fd142     | Generic  | com/example/simple.csv | LBSCHEMA.TEST_TABLE  | **plan**: loadData(columns=[LoadDataColumn{dataType=VARCHAR, header=name}, LoadDataColumn{dataType=VARCHAR, header=username}, LoadDataColumn{dataType=INTEGER, header=age}], path=com/example/simple.csv, table=LBSCHEMA.TEST_TABLE)
-| fb4dd88     | Generic  | com/example/simple.csv | LBSCHEMA2.TEST_TABLE | **plan**: loadData(columns=[LoadDataColumn{dataType=VARCHAR, header=name}, LoadDataColumn{dataType=VARCHAR, header=username}, LoadDataColumn{dataType=INTEGER, header=age}], path=com/example/simple.csv, table=LBSCHEMA2.TEST_TABLE)
+| 32fd142     | Generic  | com/example/simple.csv | LBSCHEMA.TEST_TABLE  | **plan**: loadData(columns=[LoadDataColumn{dataType=VARCHAR, header=name, skip=false}, LoadDataColumn{dataType=VARCHAR, header=username, skip=false}, LoadDataColumn{dataType=INTEGER, header=age, skip=false}], path=com/example/simple.csv, table=LBSCHEMA.TEST_TABLE)
+| fb4dd88     | Generic  | com/example/simple.csv | LBSCHEMA2.TEST_TABLE | **plan**: loadData(columns=[LoadDataColumn{dataType=VARCHAR, header=name, skip=false}, LoadDataColumn{dataType=VARCHAR, header=username, skip=false}, LoadDataColumn{dataType=INTEGER, header=age, skip=false}], path=com/example/simple.csv, table=LBSCHEMA2.TEST_TABLE)
 
-# Test Version: "fad8ac" #
+# Test Version: "275183" #

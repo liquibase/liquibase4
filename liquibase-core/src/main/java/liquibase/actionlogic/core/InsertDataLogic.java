@@ -8,6 +8,7 @@ import liquibase.action.ExecuteSqlAction;
 import liquibase.action.core.SelectDataAction;
 import liquibase.action.core.InsertDataAction;
 import liquibase.actionlogic.*;
+import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.core.Column;
 import liquibase.item.core.RowData;
@@ -15,7 +16,6 @@ import liquibase.item.datatype.DataType;
 import liquibase.item.datatype.DataTypeLogic;
 import liquibase.item.datatype.DataTypeLogicFactory;
 import liquibase.util.StringClauses;
-import org.omg.CORBA.UNKNOWN;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,10 @@ import java.util.List;
 public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
 
     public enum Clauses {
-        columns,
+        mergeSelect,
+        mergeWhere,
+        insertColumns,
+        updateColumns,
         valueList
     }
 
@@ -33,10 +36,28 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     }
 
     @Override
-    public ValidationErrors validate(InsertDataAction action, Scope scope) {
+    public ValidationErrors validate(final InsertDataAction action, Scope scope) {
         return super.validate(action, scope)
                 .checkRequiredFields("data",
-                        "data.relation", "data.relation.name");
+                        "data.relation", "data.relation.name")
+                .check(new ValidationErrors.ErrorCheck() {
+                    @Override
+                    public String check() {
+                        if (action.columnsForUpdateCheck.size() > 0) {
+                            for (String columnForCheck : action.columnsForUpdateCheck) {
+                                for (RowData row : action.data) {
+                                    for (String dataColumn : row.getColumns()) {
+                                        if (!dataColumn.equals(columnForCheck)) {
+                                            return null;
+                                        }
+                                    }
+                                }
+                            }
+                            return "there must be at least one column in rowData not in columnsForUpdateCheck";
+                        }
+                        return null;
+                    }
+                });
     }
 
     @Override
@@ -81,13 +102,17 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     public ActionResult execute(InsertDataAction action, Scope scope) throws ActionPerformException {
         List<ExecuteSqlAction> returnList = new ArrayList<>();
         for (RowData row : action.data) {
-            returnList.add(new ExecuteSqlAction(generateSql(row, action, scope)));
+            if (action.columnsForUpdateCheck.size() > 0) {
+                returnList.add(new ExecuteSqlAction(generateMergeSql(row, action, scope)));
+            } else {
+                returnList.add(new ExecuteSqlAction(generateInsertSql(row, action, scope)));
+            }
         }
 
         return new DelegateResult(action, null, returnList.toArray(new Action[returnList.size()]));
     }
 
-    protected StringClauses generateSql(RowData row, InsertDataAction action, Scope scope) {
+    protected StringClauses generateInsertSql(RowData row, InsertDataAction action, Scope scope) {
         StringClauses columnsClause = new StringClauses("(", ", ", ")");
         StringClauses valueListClause = new StringClauses("(", ", ", ")");
         for (RowData.Cell cell : row.data) {
@@ -98,8 +123,45 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
         return new StringClauses()
                 .append("INSERT").append("INTO")
                 .append(scope.getDatabase().quoteObjectName(row.relation, scope))
-                .append(Clauses.columns, columnsClause)
+                .append(Clauses.insertColumns, columnsClause)
                 .append("VALUES")
                 .append(Clauses.valueList, valueListClause);
     }
+
+    protected StringClauses generateMergeSql(RowData row, InsertDataAction action, Scope scope) {
+        StringClauses mergeSelectClauses = new StringClauses(", ");
+        StringClauses columnsClause = new StringClauses("(", ", ", ")");
+        StringClauses updateColumnsClause = new StringClauses(", ");
+        StringClauses valueListClause = new StringClauses("(", ", ", ")");
+        Database database = scope.getDatabase();
+
+        for (RowData.Cell cell : row.data) {
+            String valueAsSql = getCellType(cell, scope).toSql(cell.value, cell.type, scope);
+            String quotedColumnName = database.quoteObjectName(cell.columnName, Column.class, scope);
+
+            mergeSelectClauses.append(valueAsSql +" as "+ quotedColumnName);
+
+            columnsClause.append(quotedColumnName);
+            valueListClause.append(valueAsSql);
+
+            if (!action.columnsForUpdateCheck.contains(cell.columnName)) {
+                updateColumnsClause.append(quotedColumnName +"="+ valueAsSql);
+            }
+        }
+
+        StringClauses onClause = new StringClauses("("," AND ",")");
+        for (String column : action.columnsForUpdateCheck) {
+            onClause.append("dst." + database.quoteObjectName(column, Column.class, scope) + "=src." + database.quoteObjectName(column, Column.class, scope));
+        }
+
+        return new StringClauses()
+                .append("MERGE").append("INTO")
+                .append(database.quoteObjectName(row.relation, scope)).append("dst")
+                .append("USING")
+                .append("(").append("SELECT").append(Clauses.mergeSelect, mergeSelectClauses).append(")").append("src")
+                .append("ON").append(Clauses.mergeWhere, onClause)
+                .append("WHEN MATCHED THEN UPDATE SET").append(Clauses.updateColumns, updateColumnsClause)
+                .append("WHEN NOT MATCHED THEN INSERT").append(Clauses.insertColumns, columnsClause).append("VALUES").append(Clauses.valueList, valueListClause);
+    }
+
 }

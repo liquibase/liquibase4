@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Updates existing data.
+ * For mixed insert/updates, use {@link InsertDataAction} with {@link InsertDataAction#columnsForUpdateCheck}.
+ */
 public class UpdateDataAction extends AbstractAction implements UpdateAction {
     public RelationReference relation;
     public List<UpdatedColumn> columns = new ArrayList<>();

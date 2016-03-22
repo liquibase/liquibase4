@@ -4,16 +4,18 @@
 
 - **connection:** h2 standard
 
-| Permutation | Verified | columns          | relation   | types                    | values                       | OPERATIONS
-| :---------- | :------- | :--------------- | :--------- | :----------------------- | :--------------------------- | :------
-| 9f12dab     | true     | COLUMN1          | TEST_TABLE | BIGINT                   | 123142                       | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (123142)
-| 057f6db     | true     | COLUMN1          | TEST_TABLE | FLOAT                    | 12.5                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (12.5)
-| 42ae1a5     | true     | COLUMN1          | TEST_TABLE | INTEGER                  | 42                           | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (42)
-| f74aed7     | true     | COLUMN1          | TEST_TABLE | INTEGER                  | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
-| ed9e88b     | true     | COLUMN1          | TEST_TABLE | VARCHAR(50)              | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
-| 8d1796e     | true     | COLUMN1          | TEST_TABLE | VARCHAR(50)              | test string                  | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES ('test string')
-| c79f590     | true     | COLUMN1, COLUMN2 | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 2362)
-| 018fa99     | true     | COLUMN1, COLUMN2 | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 'test string 2')
+| Permutation | Verified | columns          | columnsForUpdateCheck | relation   | types                    | values                       | OPERATIONS
+| :---------- | :------- | :--------------- | :-------------------- | :--------- | :----------------------- | :--------------------------- | :------
+| 9f12dab     | true     | COLUMN1          |                       | TEST_TABLE | BIGINT                   | 123142                       | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (123142)
+| 057f6db     | true     | COLUMN1          |                       | TEST_TABLE | FLOAT                    | 12.5                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (12.5)
+| 42ae1a5     | true     | COLUMN1          |                       | TEST_TABLE | INTEGER                  | 42                           | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (42)
+| f74aed7     | true     | COLUMN1          |                       | TEST_TABLE | INTEGER                  | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
+| ed9e88b     | true     | COLUMN1          |                       | TEST_TABLE | VARCHAR(50)              | null                         | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES (NULL)
+| 8d1796e     | true     | COLUMN1          |                       | TEST_TABLE | VARCHAR(50)              | test string                  | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1") VALUES ('test string')
+| c79f590     | true     | COLUMN1, COLUMN2 |                       | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 2362)
+| 018fa99     | true     | COLUMN1, COLUMN2 |                       | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") VALUES ('test string 1', 'test string 2')
+| e0deba8     | true     | COLUMN1, COLUMN2 | COLUMN1               | TEST_TABLE | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: MERGE INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") KEY ("COLUMN1") VALUES ('test string 1', 2362)
+| f1db91a     | true     | COLUMN1, COLUMN2 | COLUMN1               | TEST_TABLE | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: MERGE INTO "TEST_TABLE" ("COLUMN1", "COLUMN2") KEY ("COLUMN1") VALUES ('test string 1', 'test string 2')
 
 # Test: "can insert with just numbers but complex names" #
 
@@ -242,4 +244,13 @@
 | a70e6e4     | true     | lowercolumn                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: INSERT INTO "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ("lowercolumn") VALUES (42)
 | b8e9c36     | true     | lowercolumn                    | PUBLIC.lowertable                       | **plan**: INSERT INTO "PUBLIC"."lowertable" ("lowercolumn") VALUES (42)
 
-# Test Version: "64a2f6" #
+# Test: "merge statement works" #
+
+- **connection:** h2 standard
+
+| Permutation | Verified | columns            | columnsForUpdateCheck | relation                                   | OPERATIONS
+| :---------- | :------- | :----------------- | :-------------------- | :----------------------------------------- | :------
+| 28be386     | true     | ID, NAME, ID, NAME | ID                    | LBSCHEMA2.TEST_TABLE, LBSCHEMA2.TEST_TABLE | **plan**: MERGE INTO "LBSCHEMA2"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (1, 'user 1 - new')<br>MERGE INTO "LBSCHEMA2"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (3, 'user 3 - new')
+| d51ae5e     | true     | ID, NAME, ID, NAME | ID                    | PUBLIC.TEST_TABLE, PUBLIC.TEST_TABLE       | **plan**: MERGE INTO "PUBLIC"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (1, 'user 1 - new')<br>MERGE INTO "PUBLIC"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (3, 'user 3 - new')
+
+# Test Version: "44f27b" #

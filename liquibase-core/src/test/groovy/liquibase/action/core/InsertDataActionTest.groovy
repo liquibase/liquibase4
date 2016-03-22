@@ -4,17 +4,21 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
+import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.item.core.Column
+import liquibase.item.core.PrimaryKey
 import liquibase.item.core.RelationReference
 import liquibase.item.core.RowData
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
+import liquibase.snapshot.SnapshotFactory
 import liquibase.util.CollectionUtil
 import liquibase.util.TestUtil
 import spock.lang.Unroll
+import testmd.util.StringUtils
 
 class InsertDataActionTest extends AbstractActionTest {
 
@@ -38,8 +42,70 @@ class InsertDataActionTest extends AbstractActionTest {
                                     data    : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                         return new RowData.Cell(it, 42)
                                     }))
-                            ]))
+                            ])),
                     ])
+            ], new ValidActionFilter(scope))
+        }
+    }
+
+    @Unroll("#featureName: #action on #conn")
+    def "merge statement works"() {
+        def snapshot = new Snapshot(scope)
+
+        def tableRef = ((InsertDataAction) action).data[0].relation
+        snapshot.add(new Table(tableRef.name, tableRef.schema))
+
+        final def idCol = standardCaseItemName("id", Column, scope)
+        final def nameCol = standardCaseItemName("name", Column, scope)
+
+        snapshot.add(new Column(idCol, tableRef, new DataType(DataType.StandardType.INTEGER), false))
+
+        snapshot.add(new Column(nameCol, tableRef, new DataType(DataType.StandardType.VARCHAR, 20), false))
+        snapshot.add(new PrimaryKey(null, tableRef, idCol))
+        snapshot.add(new RowData(tableRef)
+                .add(idCol, 1, new DataType(DataType.StandardType.INTEGER))
+                .add(nameCol, "user 1 - orig", new DataType(DataType.StandardType.VARCHAR)))
+
+        snapshot.add(new RowData(tableRef)
+                .add(idCol, 2, new DataType(DataType.StandardType.INTEGER))
+                .add(nameCol, "user 2 - orig", new DataType(DataType.StandardType.VARCHAR)))
+
+        testAction([
+                relation_asTable             : action.data*.relation,
+                columns_asTable              : action.data*.getColumns(),
+                columnsForUpdateCheck_asTable: action.columnsForUpdateCheck
+        ], snapshot, action, conn, scope, {
+            plan, results ->
+                def rs = ((Scope) scope).getSingleton(ActionExecutor).query(new SelectDataAction(tableRef, new SelectDataAction.SelectedColumn(null, "*", null, true)).addOrder(new SelectDataAction.OrderedByColumn(idCol)), scope).rows
+                assert rs.size() == 3
+                assert rs[0].toString().toLowerCase() == "[id=1, name=user 1 - new]"
+                assert rs[1].toString().toLowerCase() == "[id=2, name=user 2 - orig]"
+                assert rs[2].toString().toLowerCase() == "[id=3, name=user 3 - new]"
+        })
+
+        where:
+        [conn, scope, action] << JUnitScope.instance.getSingleton(ConnectionSupplierFactory).connectionSuppliers.collectMany {
+            def scope = JUnitScope.getInstance(it)
+            def idColName = standardCaseItemName("id", Column, scope)
+            def nameColName = standardCaseItemName("name", Column, scope)
+
+            return CollectionUtil.permutationsWithoutNulls([
+                    [it],
+                    [scope],
+                    it.allSchemas.collect({
+                        def table = new RelationReference(Table, standardCaseItemName("test_table", Table, scope), it);
+                        return new InsertDataAction([
+                                new RowData(table)
+                                        .add(idColName, 1, new DataType(DataType.StandardType.INTEGER))
+                                        .add(nameColName, "user 1 - new", new DataType(DataType.StandardType.VARCHAR, 20)),
+
+                                new RowData(table)
+                                        .add(idColName, 3, new DataType(DataType.StandardType.INTEGER))
+                                        .add(nameColName, "user 3 - new", new DataType(DataType.StandardType.VARCHAR)),
+                        ])
+                    }).each {
+                        it.columnsForUpdateCheck = [idColName]
+                    }
             ], new ValidActionFilter(scope))
         }
     }
@@ -48,10 +114,11 @@ class InsertDataActionTest extends AbstractActionTest {
     def "can add columns with various options"() {
         expect:
         testAction([
-                relation_asTable: action.data*.relation,
-                columns_asTable : action.data*.getColumns(),
-                values_asTable  : action.data*.getValues(),
-                types_asTable  : action.data*.getTypes(),
+                relation_asTable             : action.data*.relation,
+                columns_asTable              : action.data*.getColumns(),
+                values_asTable               : action.data*.getValues(),
+                types_asTable                : action.data*.getTypes(),
+                columnsForUpdateCheck_asTable: action.columnsForUpdateCheck,
         ], action, conn, scope)
 
         where:
@@ -73,7 +140,7 @@ class InsertDataActionTest extends AbstractActionTest {
 
 
         return TestUtil.createAllPermutations(InsertDataAction, [
-                data: [
+                data                 : [
                         [],
                         [new RowData(tableRef).add(column1Name, 42, new DataType(DataType.StandardType.INTEGER))], //insert an integer
                         [new RowData(tableRef).add(column1Name, 123142, new DataType(DataType.StandardType.BIGINT))], //insert a bigint
@@ -84,14 +151,15 @@ class InsertDataActionTest extends AbstractActionTest {
                         [new RowData(tableRef).add(column1Name, null, new DataType(DataType.StandardType.VARCHAR, 50))], //insert a null varchar
 
                         [new RowData(tableRef)  //insert two columns: both varchar
-                            .add(column1Name, "test string 1", new DataType(DataType.StandardType.VARCHAR, 50))
-                             .add(column2Name, "test string 2", new DataType(DataType.StandardType.VARCHAR, 50))
+                                 .add(column1Name, "test string 1", new DataType(DataType.StandardType.VARCHAR, 50))
+                                 .add(column2Name, "test string 2", new DataType(DataType.StandardType.VARCHAR, 50))
                         ],
                         [new RowData(tableRef)  //insert two columns: one varchar, one int
                                  .add(column1Name, "test string 1", new DataType(DataType.StandardType.VARCHAR, 50))
                                  .add(column2Name, 2362, new DataType(DataType.StandardType.INTEGER))
                         ],
-                ]
+                ],
+                columnsForUpdateCheck: [[column1Name]],
         ])
     }
 
@@ -108,7 +176,12 @@ class InsertDataActionTest extends AbstractActionTest {
             for (def cell : row.data) {
                 if (seenColumns.get(row.relation).add(cell.columnName)) {
                     def dataType = cell.type ?: new DataType(DataType.StandardType.INTEGER);
-                    snapshot.add(new Column(cell.columnName, row.relation, dataType, true))
+                    def mergeCheck = ((InsertDataAction) action).columnsForUpdateCheck.contains(cell.columnName)
+                    snapshot.add(new Column(cell.columnName, row.relation, dataType, !mergeCheck))
+
+                    if (mergeCheck) {
+                        snapshot.add(new PrimaryKey(null, row.relation, cell.columnName))
+                    }
                 }
             }
         }

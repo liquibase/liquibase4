@@ -4,16 +4,18 @@
 
 - **connection:** mysql caseInsensitive
 
-| Permutation | Verified | columns          | relation   | types                    | values                       | OPERATIONS
-| :---------- | :------- | :--------------- | :--------- | :----------------------- | :--------------------------- | :------
-| 01a0823     | true     | COLUMN1          | test_table | BIGINT                   | 123142                       | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (123142)
-| d8128ba     | true     | COLUMN1          | test_table | FLOAT                    | 12.5                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (12.5)
-| 38ede25     | true     | COLUMN1          | test_table | INTEGER                  | 42                           | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (42)
-| 042da47     | true     | COLUMN1          | test_table | INTEGER                  | null                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (NULL)
-| 8f142d4     | true     | COLUMN1          | test_table | VARCHAR(50)              | null                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (NULL)
-| 449f2dc     | true     | COLUMN1          | test_table | VARCHAR(50)              | test string                  | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES ('test string')
-| c136cc5     | true     | COLUMN1, COLUMN2 | test_table | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 2362)
-| 4673b1e     | true     | COLUMN1, COLUMN2 | test_table | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 'test string 2')
+| Permutation | Verified | columns          | columnsForUpdateCheck | relation   | types                    | values                       | OPERATIONS
+| :---------- | :------- | :--------------- | :-------------------- | :--------- | :----------------------- | :--------------------------- | :------
+| 01a0823     | true     | COLUMN1          |                       | test_table | BIGINT                   | 123142                       | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (123142)
+| d8128ba     | true     | COLUMN1          |                       | test_table | FLOAT                    | 12.5                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (12.5)
+| 38ede25     | true     | COLUMN1          |                       | test_table | INTEGER                  | 42                           | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (42)
+| 042da47     | true     | COLUMN1          |                       | test_table | INTEGER                  | null                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (NULL)
+| 8f142d4     | true     | COLUMN1          |                       | test_table | VARCHAR(50)              | null                         | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES (NULL)
+| 449f2dc     | true     | COLUMN1          |                       | test_table | VARCHAR(50)              | test string                  | **plan**: INSERT INTO `test_table` (`COLUMN1`) VALUES ('test string')
+| c136cc5     | true     | COLUMN1, COLUMN2 |                       | test_table | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 2362)
+| 4673b1e     | true     | COLUMN1, COLUMN2 |                       | test_table | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 'test string 2')
+| e7c1547     | true     | COLUMN1, COLUMN2 | COLUMN1               | test_table | VARCHAR(50), INTEGER     | test string 1, 2362          | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 2362) ON DUPLICATE KEY UPDATE `COLUMN2`=2362
+| 853d22a     | true     | COLUMN1, COLUMN2 | COLUMN1               | test_table | VARCHAR(50), VARCHAR(50) | test string 1, test string 2 | **plan**: INSERT INTO `test_table` (`COLUMN1`, `COLUMN2`) VALUES ('test string 1', 'test string 2') ON DUPLICATE KEY UPDATE `COLUMN2`='test string 2'
 
 # Test: "can insert with just numbers but complex names" #
 
@@ -52,4 +54,13 @@
 | 0a17ee3     | true     | UPPERCOLUMN                    | lbcat2.lowertable                    | **plan**: INSERT INTO `lbcat2`.`lowertable` (`UPPERCOLUMN`) VALUES (42)
 | 3f791d2     | true     | UPPERCOLUMN                    | lbcat2.only_in_lbcat2                | **plan**: INSERT INTO `lbcat2`.`only_in_lbcat2` (`UPPERCOLUMN`) VALUES (42)
 
-# Test Version: "64a2f6" #
+# Test: "merge statement works" #
+
+- **connection:** mysql caseInsensitive
+
+| Permutation | Verified | columns            | columnsForUpdateCheck | relation                             | OPERATIONS
+| :---------- | :------- | :----------------- | :-------------------- | :----------------------------------- | :------
+| 07ac780     | true     | ID, NAME, ID, NAME | ID                    | lbcat.test_table, lbcat.test_table   | **plan**: INSERT INTO `lbcat`.`test_table` (`ID`, `NAME`) VALUES (1, 'user 1 - new') ON DUPLICATE KEY UPDATE `NAME`='user 1 - new'<br>INSERT INTO `lbcat`.`test_table` (`ID`, `NAME`) VALUES (3, 'user 3 - new') ON DUPLICATE KEY UPDATE `NAME`='user 3 - new'
+| 02f993a     | true     | ID, NAME, ID, NAME | ID                    | lbcat2.test_table, lbcat2.test_table | **plan**: INSERT INTO `lbcat2`.`test_table` (`ID`, `NAME`) VALUES (1, 'user 1 - new') ON DUPLICATE KEY UPDATE `NAME`='user 1 - new'<br>INSERT INTO `lbcat2`.`test_table` (`ID`, `NAME`) VALUES (3, 'user 3 - new') ON DUPLICATE KEY UPDATE `NAME`='user 3 - new'
+
+# Test Version: "44f27b" #

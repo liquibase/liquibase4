@@ -15,6 +15,7 @@ import liquibase.item.core.RowData;
 import liquibase.item.datatype.DataType;
 import liquibase.resource.InputStreamList;
 import liquibase.util.CollectionUtil;
+import liquibase.util.ObjectUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -72,13 +73,14 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
             }
 
             InsertDataAction insertAction = new InsertDataAction();
+            insertAction.columnsForUpdateCheck = action.columnsForUpdateCheck;
             for (CsvRecord record : records) {
                 RowData rowData = new RowData(action.table);
                 for (int i = 0; i < headers.length; i++) {
                     String header = headers[i];
                     LoadDataAction.LoadDataColumn column = columnConfigs[i];
 
-                    if (column.skip) {
+                    if (ObjectUtil.defaultIfNull(column.skip, false)) {
                         continue;
                     }
                     rowData.add(column.columnName, getValue(record.get(header), column, action, scope), column.dataType);

@@ -63,12 +63,13 @@ John Doe, jdoe, 23
     @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         return TestUtil.createAllPermutations(LoadDataAction, [
-                table           : connectionSupplier.allSchemas.collect {
+                table                : connectionSupplier.allSchemas.collect {
                     return new RelationReference(Table, standardCaseItemName("test_table", Table, scope), it)
                 },
-                path            : ["com/example/simple.csv"],
-                commentLineStart: [(char) '-', (char) '#'],
-                encoding        : ["UTF-8", "ASCII"]
+                path                 : ["com/example/simple.csv"],
+                commentLineStart     : [(char) '-', (char) '#'],
+                encoding             : ["UTF-8", "ASCII"],
+                columnsForUpdateCheck: [[standardCaseItemName("name", Column, scope)]]
         ])
     }
 
