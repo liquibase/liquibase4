@@ -24,7 +24,7 @@ public class CompositeResourceAccessor extends AbstractExtensibleObject implemen
     public InputStreamList openStreams(String path) throws LiquibaseException {
         InputStreamList returnList = new InputStreamList();
         for (ResourceAccessor accessor : resourceAccessors) {
-            returnList.addAll(accessor.openStreams(path));
+            returnList.addAll(CollectionUtil.createIfNull(accessor.openStreams(path)));
         }
         return returnList;
     }

@@ -5,6 +5,8 @@ import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.resource.JUnitResourceAccessor;
+import liquibase.resource.MockResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 import liquibase.util.SmartMap;
 
 import java.util.HashMap;
@@ -47,6 +49,18 @@ public class JUnitScope extends Scope {
 
     public static JUnitScope getInstance(ConnectionSupplier supplier) throws DatabaseException {
         return (JUnitScope) supplier.connect(getInstance());
+    }
+
+    public JUnitScope withMockResource(String path, String data) {
+        ResourceAccessor accessor = this.getResourceAccessor();
+        if (accessor instanceof MockResourceAccessor) {
+            ((MockResourceAccessor) accessor).addData(path, data);
+            return this;
+        }
+
+        accessor = new MockResourceAccessor();
+        ((MockResourceAccessor) accessor).addData(path, data);
+        return (JUnitScope) this.child(Scope.Attr.resourceAccessor, accessor);
     }
 
     @Override

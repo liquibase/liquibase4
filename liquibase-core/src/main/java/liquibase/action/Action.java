@@ -2,6 +2,7 @@ package liquibase.action;
 
 import liquibase.ExtensibleObject;
 import liquibase.action.core.AlterDefaultValueAction;
+import liquibase.changelog.ChangeSetEntry;
 
 /**
  * Implementations of Action describe interactions to perform against the outside environment.
@@ -20,7 +21,7 @@ import liquibase.action.core.AlterDefaultValueAction;
  *         <li>Normally {@link liquibase.item.ItemReference} fields should not include "Name" as part of the field name. Just use "table" or "column" etc.</li>
  *     </ul>
  */
-public interface Action extends ExtensibleObject {
+public interface Action extends ChangeSetEntry, ExtensibleObject {
 
     /**
      * Return a text description of this action.
