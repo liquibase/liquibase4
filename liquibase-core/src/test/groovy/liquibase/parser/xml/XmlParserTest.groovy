@@ -1,8 +1,9 @@
-package liquibase.parser.core.xml
+package liquibase.parser.xml
 
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.exception.ParseException
+import liquibase.parser.xml.XmlParser
 import liquibase.resource.MockResourceAccessor
 import spock.lang.Specification
 

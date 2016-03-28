@@ -38,15 +38,6 @@ public class ConnectionSupplierFactory extends AbstractPluginFactory<ConnectionS
             }
 
             this.connectionSuppliers = new HashSet<>(suppliers);
-            if (this.connectionSuppliers.size() > 1) { //don't want to include the UnsupportedSupplier
-                Iterator<ConnectionSupplier> iterator = this.connectionSuppliers.iterator();
-                while (iterator.hasNext()) {
-                    ConnectionSupplier supplier = iterator.next();
-                    if (supplier instanceof GenericConnectionSupplier) {
-                        iterator.remove();
-                    }
-                }
-            }
         }
         return this.connectionSuppliers;
     }

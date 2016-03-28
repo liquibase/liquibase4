@@ -8,6 +8,9 @@ import liquibase.util.StringClauses;
  */
 public class ExecuteSqlAction extends AbstractSqlAction {
 
+    public ExecuteSqlAction() {
+    }
+
     public ExecuteSqlAction(String sql) {
         super(sql);
     }

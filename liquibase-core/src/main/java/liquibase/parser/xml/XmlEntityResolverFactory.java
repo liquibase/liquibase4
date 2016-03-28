@@ -1,4 +1,4 @@
-package liquibase.parser.core.xml;
+package liquibase.parser.xml;
 
 import liquibase.Scope;
 import liquibase.plugin.AbstractPluginFactory;
@@ -8,7 +8,7 @@ import liquibase.plugin.AbstractPluginFactory;
  */
 public class XmlEntityResolverFactory extends AbstractPluginFactory<XmlEntityResolver> {
 
-    public XmlEntityResolverFactory(Scope factoryScope) {
+    protected XmlEntityResolverFactory(Scope factoryScope) {
         super(factoryScope);
     }
 

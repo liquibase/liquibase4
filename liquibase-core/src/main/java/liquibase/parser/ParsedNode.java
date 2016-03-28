@@ -4,6 +4,7 @@ import liquibase.AbstractExtensibleObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParsedNode extends AbstractExtensibleObject {
 
@@ -16,6 +17,16 @@ public class ParsedNode extends AbstractExtensibleObject {
 
     public ParsedNode(String name) {
         this.name = name;
+    }
+
+    public ParsedNode(String name, Map<String, Object> children, Object value) {
+        this.name = name;
+        for (Map.Entry<String, Object> child : children.entrySet()) {
+            ParsedNode childNode = new ParsedNode(child.getKey());
+            childNode.setValue(child.getValue());
+            this.children.add(childNode);
+        }
+        this.value = value;
     }
 
     public ParsedNode addChild(String name, Object value) {

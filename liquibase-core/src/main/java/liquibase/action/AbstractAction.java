@@ -1,6 +1,7 @@
 package liquibase.action;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
 import liquibase.util.StringUtil;
 
 /**
@@ -8,6 +9,18 @@ import liquibase.util.StringUtil;
  * If your class is an update or query, be sure to also implement {@link liquibase.action.UpdateAction} or {@link liquibase.action.UpdateAction}.
  */
 public abstract class AbstractAction extends AbstractExtensibleObject implements Action {
+
+    /**
+     * Default implementation returns {@link #PRIORITY_DEFAULT} if the actionName matches this class's simpleName.
+     * Otherwise, returns {@link #PRIORITY_NOT_APPLICABLE}
+     */
+    @Override
+    public int getPriority(String actionName, Scope scope) {
+        if (actionName.equals(StringUtil.lowerCaseFirst(this.getClass().getSimpleName()))) {
+            return PRIORITY_DEFAULT;
+        }
+        return PRIORITY_NOT_APPLICABLE;
+    }
 
     /**
      * Standard implementation uses reflection to list out the set properties on this object.

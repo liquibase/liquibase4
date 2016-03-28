@@ -1,6 +1,7 @@
-package liquibase.parser.core.xml
+package liquibase.parser.xml
 
 import liquibase.JUnitScope
+import liquibase.parser.xml.XmlParser
 import spock.lang.Specification
 import spock.lang.Unroll
 

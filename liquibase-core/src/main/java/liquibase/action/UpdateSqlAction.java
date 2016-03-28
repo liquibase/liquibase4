@@ -7,6 +7,9 @@ import liquibase.util.StringClauses;
  */
 public class UpdateSqlAction extends AbstractSqlAction implements UpdateAction {
 
+    public UpdateSqlAction() {
+    }
+
     public UpdateSqlAction(String sql) {
         super(sql);
     }

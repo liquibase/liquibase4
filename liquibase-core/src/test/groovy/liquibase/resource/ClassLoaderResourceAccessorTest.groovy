@@ -30,6 +30,7 @@ class ClassLoaderResourceAccessorTest extends Specification {
 liquibase/exception/ActionPerformException.class
 liquibase/exception/DatabaseException.class
 liquibase/exception/LiquibaseException.class
+liquibase/exception/ParseException.class
 liquibase/exception/UnexpectedLiquibaseException.class
 """.trim()
 
@@ -45,6 +46,7 @@ liquibase/exception/UnexpectedLiquibaseException.class
 liquibase/exception/ActionPerformException.class
 liquibase/exception/DatabaseException.class
 liquibase/exception/LiquibaseException.class
+liquibase/exception/ParseException.class
 liquibase/exception/UnexpectedLiquibaseException.class
 liquibase/exception/ValidationErrorsTest.class
 """.trim()

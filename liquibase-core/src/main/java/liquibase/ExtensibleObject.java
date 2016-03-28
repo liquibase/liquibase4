@@ -1,7 +1,11 @@
 package liquibase;
 
+import liquibase.changelog.ChangeSet;
+
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * This interface defines how objects can be extended with additional attributes at runtime without subclassing and exposes the ability to query attributes without resorting to reflection.
@@ -14,12 +18,17 @@ public interface ExtensibleObject extends Cloneable {
     /**
      * Return the names of all the set attributes. If an attribute is null the name may or may not be returned.
      */
-    Set<String> getAttributeNames();
+    SortedSet<String> getAttributeNames();
 
     /**
      * Returns the names of standard attributes. Any other attributes can be set, but this list is helpful for testing and tools.
      */
     Set<String> getStandardAttributeNames();
+
+    /**
+     * Return the stored type of the given attribute. Include any applicable generics information.
+     */
+    Type getAttributeType(String attribute);
 
     /**
      * Returnsn true if the given attribute is set and not null.
@@ -53,6 +62,7 @@ public interface ExtensibleObject extends Cloneable {
 
     /**
      * Sets the value of the given attribute.
+     * Subclasses can override this method to provide conversion business logic, but must remember that fields can be set directly when no type conversion is needed.
      */
     ExtensibleObject set(String attribute, Object value);
 

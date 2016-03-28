@@ -1,6 +1,8 @@
-package liquibase.parser.core.xml
+package liquibase.parser.xml
 
 import liquibase.JUnitScope
+import liquibase.parser.xml.LiquibaseXmlEntityResolver
+import liquibase.parser.xml.XmlEntityResolverFactory
 import spock.lang.Specification
 
 class XmlEntityResolverFactoryTest extends Specification {

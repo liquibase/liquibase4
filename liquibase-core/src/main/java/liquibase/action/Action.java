@@ -1,8 +1,10 @@
 package liquibase.action;
 
 import liquibase.ExtensibleObject;
+import liquibase.Scope;
 import liquibase.action.core.AlterDefaultValueAction;
-import liquibase.changelog.ChangeSetEntry;
+import liquibase.parser.mapping.core.ActionNodeMapping;
+import liquibase.plugin.Plugin;
 
 /**
  * Implementations of Action describe interactions to perform against the outside environment.
@@ -21,7 +23,7 @@ import liquibase.changelog.ChangeSetEntry;
  *         <li>Normally {@link liquibase.item.ItemReference} fields should not include "Name" as part of the field name. Just use "table" or "column" etc.</li>
  *     </ul>
  */
-public interface Action extends ChangeSetEntry, ExtensibleObject {
+public interface Action extends ExtensibleObject, Plugin {
 
     /**
      * Return a text description of this action.
@@ -32,4 +34,10 @@ public interface Action extends ChangeSetEntry, ExtensibleObject {
      * Used for equals() testing as well as logging and testing.
      */
     String describe();
+
+    /**
+     * Return the priority for this object for the given actionName.
+     * Used by {@link ActionNodeMapping} to know what object to create for a given {@link liquibase.parser.ParsedNode}.
+     */
+    int getPriority(String actionName, Scope scope);
 }

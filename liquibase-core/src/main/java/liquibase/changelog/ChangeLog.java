@@ -12,4 +12,10 @@ public class ChangeLog extends AbstractExtensibleObject implements ChangeLogEntr
 
     public List<ChangeLogEntry> changeLogEntries = new ArrayList<>();
 
+
+    public ChangeLog addEntry(ChangeLogEntry entry) {
+        this.changeLogEntries.add(entry);
+        return this;
+    }
+
 }

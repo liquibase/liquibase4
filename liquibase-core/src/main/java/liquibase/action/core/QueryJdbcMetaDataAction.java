@@ -17,6 +17,9 @@ public class QueryJdbcMetaDataAction extends AbstractAction implements QueryActi
     public String method;
     public List<Object> arguments;
 
+    public QueryJdbcMetaDataAction() {
+    }
+
     public QueryJdbcMetaDataAction(String method, Object... arguments) {
         this.method = method;
         this.arguments = Arrays.asList(CollectionUtil.createIfNull(arguments));

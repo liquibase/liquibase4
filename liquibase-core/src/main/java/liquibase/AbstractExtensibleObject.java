@@ -7,6 +7,7 @@ import liquibase.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -37,19 +38,32 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     }
 
     @Override
-    public Set<String> getAttributeNames() {
-        HashSet<String> returnSet = new HashSet<>(attributes.keySet());
+    public SortedSet<String> getAttributeNames() {
+        SortedSet<String> returnSet = new TreeSet<>(attributes.keySet());
         for (String field : getAttributeFields().keySet()) {
             if (has(field)) {
                 returnSet.add(field);
             }
         }
-        return Collections.unmodifiableSet(returnSet);
+        return Collections.unmodifiableSortedSet(returnSet);
     }
 
     @Override
     public Set<String> getStandardAttributeNames() {
         return getAttributeFields().keySet();
+    }
+
+    /**
+     * Default implementation returns the genericType of the field, if the attribute is a field. Otherwise, returns Object.class.
+     */
+    @Override
+    public Type getAttributeType(String attribute) {
+        Field field = getAttributeFields().get(attribute);
+        if (field == null) {
+            return Object.class;
+        } else {
+            return field.getGenericType();
+        }
     }
 
     /**

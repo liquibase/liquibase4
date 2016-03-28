@@ -12,6 +12,9 @@ public abstract class AbstractSqlAction extends AbstractAction {
     public StringClauses sql;
     public String endDelimiter;
 
+    public AbstractSqlAction() {
+    }
+
     public AbstractSqlAction(String sql) {
         this.sql = new StringClauses().append(sql);
     }

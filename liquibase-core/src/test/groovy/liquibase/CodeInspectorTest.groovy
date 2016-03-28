@@ -9,6 +9,8 @@ import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
 import liquibase.item.TestItemSupplier
 import liquibase.item.datatype.DataTypeLogic
+import liquibase.parser.xml.XmlEntityResolver
+import liquibase.parser.mapping.ParsedNodeMapping
 import liquibase.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -37,12 +39,15 @@ public class CodeInspectorTest extends Specification {
 
         where:
         objectType << [
+                Action,
+                ActionGenerator,
                 ActionLogic,
                 ConnectionSupplier,
                 Database,
                 DataTypeLogic,
-                ActionGenerator,
                 TestItemSupplier,
+                XmlEntityResolver,
+                ParsedNodeMapping,
                 AbstractActionTest.TestDetails,
         ]
     }

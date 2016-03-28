@@ -1,4 +1,4 @@
-package liquibase.parser.core.xml;
+package liquibase.parser.xml;
 
 import liquibase.Scope;
 import liquibase.exception.ParseException;
@@ -26,7 +26,7 @@ public class XmlParser extends AbstractParser {
 
     private SAXParserFactory saxParserFactory;
 
-    public XmlParser() {
+    protected XmlParser() {
         saxParserFactory = SAXParserFactory.newInstance();
         saxParserFactory.setValidating(true);
         saxParserFactory.setNamespaceAware(true);
@@ -34,7 +34,7 @@ public class XmlParser extends AbstractParser {
 
     @Override
     public int getPriority(String path, Scope scope) {
-        if (path.toLowerCase().endsWith("xsd") && scope.getResourceAccessor() != null) {
+        if (path.toLowerCase().endsWith(".xml") && scope.getResourceAccessor() != null) {
             return PRIORITY_DEFAULT;
         }
         return PRIORITY_NOT_APPLICABLE;
@@ -94,7 +94,10 @@ public class XmlParser extends AbstractParser {
         }
     }
 
-    public static class XmlParserEntityResolver implements EntityResolver2 {
+    /**
+     * {@link EntityResolver2} that finds local copies of XSD files before falling back to the network.
+     */
+    protected static class XmlParserEntityResolver implements EntityResolver2 {
 
         private Scope scope;
 
@@ -143,7 +146,7 @@ public class XmlParser extends AbstractParser {
 
     }
 
-    public static class XmlParserSaxHandler extends DefaultHandler {
+    protected static class XmlParserSaxHandler extends DefaultHandler {
 
         private Deque<ParsedNode> nodeQueue = new ArrayDeque<>();
         private StringBuilder text = null;

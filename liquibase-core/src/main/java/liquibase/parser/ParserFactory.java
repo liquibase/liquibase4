@@ -8,7 +8,7 @@ import liquibase.plugin.AbstractPluginFactory;
  */
 public class ParserFactory extends AbstractPluginFactory<Parser> {
 
-    public ParserFactory(Scope factoryScope) {
+    protected ParserFactory(Scope factoryScope) {
         super(factoryScope);
     }
 

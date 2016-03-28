@@ -1,0 +1,4 @@
+liquibase.parser.mapping.core.ChangeLogEntryNodeMapping
+liquibase.parser.mapping.core.ActionNodeMapping
+liquibase.parser.mapping.core.ItemReferenceNodeMapping
+liquibase.parser.mapping.core.DefaultParsedNodeMapping

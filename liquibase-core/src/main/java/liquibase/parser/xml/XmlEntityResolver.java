@@ -1,4 +1,4 @@
-package liquibase.parser.core.xml;
+package liquibase.parser.xml;
 
 import liquibase.Scope;
 import liquibase.exception.ParseException;

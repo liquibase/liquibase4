@@ -6,6 +6,10 @@ import liquibase.util.StringClauses;
  * Describes a SQL-based query action.
  */
 public class QuerySqlAction extends AbstractSqlAction implements QueryAction {
+
+    public QuerySqlAction() {
+    }
+
     public QuerySqlAction(String sql) {
         super(sql);
     }
