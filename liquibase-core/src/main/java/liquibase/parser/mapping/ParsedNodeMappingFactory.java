@@ -47,9 +47,9 @@ public class ParsedNodeMappingFactory extends AbstractPluginFactory<ParsedNodeMa
     }
 
     /**
-     * Convenience method to call {@link ParsedNodeMapping#toParsedNode(Object, Class, String, Scope)} on the correct {@link ParsedNodeMapping}.
+     * Convenience method to call {@link ParsedNodeMapping#toParsedNode(Object, Class, String, ParsedNode, Scope)} on the correct {@link ParsedNodeMapping}.
      */
-    public ParsedNode toParsedNode(Object object, Class containerType, String containerAttribute, Scope scope) throws ParseException {
+    public ParsedNode toParsedNode(Object object, Class containerType, String containerAttribute, ParsedNode parentNode, Scope scope) throws ParseException {
         if (object == null) {
             return null;
         }
@@ -59,7 +59,7 @@ public class ParsedNodeMappingFactory extends AbstractPluginFactory<ParsedNodeMa
             throw new ParseException("Cannot find ParsedNodeMapping for "+new DefaultParsedNodeMapping().describeParams(null, object.getClass(), containerType, containerAttribute));
         }
 
-        return mapping.toParsedNode(object, containerType, containerAttribute, scope);
+        return mapping.toParsedNode(object, containerType, containerAttribute, parentNode, scope);
     }
 
 

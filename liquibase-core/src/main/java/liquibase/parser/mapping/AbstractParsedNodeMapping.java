@@ -20,12 +20,21 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
     /**
      * Default implementation uses {@link #getNodeName(ExtensibleObject, Class, String, Scope)} for the returned ParsedNode's name,
      * then copies all values from the original object to the parsed node.
-     * If any attributes or objects in collections are {@link ExtensibleObject}s, this method will call {@link ParsedNodeMappingFactory#toParsedNode(Object, Class, String, Scope)} on the value
+     * If any attributes or objects in collections are {@link ExtensibleObject}s, this method will call {@link ParsedNodeMappingFactory#toParsedNode(Object, Class, String, ParsedNode, Scope)} on the value
      * before setting it in the returned parsed node.
      */
     @Override
-    public ParsedNode toParsedNode(ObjectType objectToConvert, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        ParsedNode node = new ParsedNode(getNodeName(objectToConvert, containerType, containerAttribute, scope));
+    public ParsedNode toParsedNode(ObjectType objectToConvert, Class containerType, String containerAttribute, ParsedNode parentNode, Scope scope) throws ParseException {
+        ParsedNode node;
+        String nodeName = containerAttribute;
+        if (nodeName == null) {
+            nodeName = getNodeName(objectToConvert, containerType, containerAttribute, scope);
+        }
+        if (parentNode == null) {
+            node = ParsedNode.createRootNode(nodeName);
+        } else {
+            node = parentNode.addChild(nodeName);
+        }
         for (String attr : objectToConvert.getAttributeNames()) {
             Object childValue = objectToConvert.get(attr, Object.class);
             if (childValue instanceof Collection) {
@@ -33,27 +42,21 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                     continue;
                 }
 
-                Collection parsedNodeChildCollection;
-                if (childValue instanceof List) {
-                    parsedNodeChildCollection = new ArrayList();
-                } else if (childValue instanceof SortedSet) {
-                    parsedNodeChildCollection = new TreeSet();
-                } else if (childValue instanceof Set) {
-                    parsedNodeChildCollection = new HashSet();
-                } else {
-                    throw new ParseException("Unexpected collection type: " + childValue.getClass().getName());
-                }
+                ParsedNode collectionNode = node.addChild(attr);
                 for (Object childObject : (Collection) childValue) {
                     if (childObject instanceof ExtensibleObject) {
-                        childObject = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode((ExtensibleObject) childObject, objectToConvert.getClass(), attr, scope);
+                        scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childObject, objectToConvert.getClass(), null, collectionNode, scope);
+                    } else {
+                        collectionNode.addChild("value").setValue(childObject);
                     }
-                    parsedNodeChildCollection.add(childObject);
                 }
-                childValue = parsedNodeChildCollection;
-            } else if (childValue instanceof ExtensibleObject) {
-                childValue = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode((ExtensibleObject) childValue, objectToConvert.getClass(), attr, scope);
+            } else {
+                if (childValue instanceof ExtensibleObject) {
+                    childValue = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childValue, objectToConvert.getClass(), attr, node, scope);
+                }
+                node.addChild(attr).setValue(childValue);
             }
-            node.addChild(attr, childValue);
+
         }
         return node;
     }
@@ -68,7 +71,10 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
     public ObjectType toObject(ParsedNode parsedNode, Class<ObjectType> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         ObjectType returnObject = createObject(parsedNode, objectType, containerType, containerAttribute, scope);
 
-        for (ParsedNode child : parsedNode.children) {
+        for (ParsedNode child : parsedNode.getChildren()) {
+            if (!returnObject.getStandardAttributeNames().contains(child.name)) {
+                throw new ParseException("Unexpected attribute: " + returnObject.getClass() + "." + child.name);
+            }
             Type attributeType = returnObject.getAttributeType(child.name);
             Class attributeClass;
             Class collectionElementClass = Object.class;
@@ -91,24 +97,27 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
             if (Collection.class.isAssignableFrom(attributeClass)) {
                 Collection collection = returnObject.get(child.name, Collection.class);
                 collection.clear();
-                if (child.value instanceof Collection) {
-                    for (Object valueEntry : (Collection) child.value) {
-                        if (valueEntry instanceof ParsedNode) {
-                            collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) valueEntry, collectionElementClass, returnObject.getClass(), child.name, scope));
-                        } else {
-                            collection.add(ObjectUtil.convert(valueEntry, collectionElementClass));
-                        }
+
+                if (child.getChildren().size() > 0) {
+                    for (ParsedNode valueEntry : child.getChildren()) {
+                        collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) valueEntry, collectionElementClass, returnObject.getClass(), child.name, scope));
                     }
                 } else if (child.value instanceof ParsedNode) {
                     collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.value, collectionElementClass, returnObject.getClass(), child.name, scope));
                 } else {
-                    collection.add(ObjectUtil.convert(child.value, collectionElementClass));
+                    if (child.value != null) {
+                        collection.add(ObjectUtil.convert(child.value, collectionElementClass));
+                    }
                 }
             } else {
-                if (child.value instanceof ParsedNode) {
-                    returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.value, attributeClass, returnObject.getClass(), child.name, scope));
+                if (child.getChildren().size() == 0) {
+                    if (child.value instanceof ParsedNode) {
+                        returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.value, attributeClass, returnObject.getClass(), child.name, scope));
+                    } else {
+                        returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.name, scope));
+                    }
                 } else {
-                    returnObject.set(child.name, child.value);
+                    returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.name, scope));
                 }
             }
         }

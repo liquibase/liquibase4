@@ -20,7 +20,7 @@ public interface ParsedNodeMapping<ObjectType> extends Plugin {
     /**
      * Return the priority for this implementation for the given options.
      * @param parsedNode the node to parse. May be null if this mapping will be used to create a parsedNode.
-     * @param objectType the type of the object to create via {@link #toObject(ParsedNode, Class, Class, String, Scope)} and/or to parse via {@link #toParsedNode(Object, Class, String, Scope)}
+     * @param objectType the type of the object to create via {@link #toObject(ParsedNode, Class, Class, String, Scope)} and/or to parse via {@link #toParsedNode(Object, Class, String, ParsedNode, Scope)}
      * @param containerType the {@link Type} of the object containing the object to convert to a ParsedNode and/or to save the object created to.
      * @param containerAttribute the attribute on the containerType containing the object to convert to a ParsedNode and/or to save the object created to.
      */
@@ -29,7 +29,7 @@ public interface ParsedNodeMapping<ObjectType> extends Plugin {
     /**
      * Converts the given objectToConvert into a parsed node. Using the containerType and/or containerAttribute as needed.
      */
-    ParsedNode toParsedNode(ObjectType objectToConvert, Class containerType, String containerAttribute, Scope scope) throws ParseException;
+    ParsedNode toParsedNode(ObjectType objectToConvert, Class containerType, String containerAttribute, ParsedNode parentNode, Scope scope) throws ParseException;
 
     /**
      * Converts the given parsedNode into an object of the given objectType. Use the containerType and/or containerAttribute as needed.

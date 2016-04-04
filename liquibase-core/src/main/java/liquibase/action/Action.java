@@ -4,6 +4,7 @@ import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.action.core.AlterDefaultValueAction;
 import liquibase.parser.mapping.core.ActionNodeMapping;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.plugin.Plugin;
 
 /**
@@ -40,4 +41,11 @@ public interface Action extends ExtensibleObject, Plugin {
      * Used by {@link ActionNodeMapping} to know what object to create for a given {@link liquibase.parser.ParsedNode}.
      */
     int getPriority(String actionName, Scope scope);
+
+    /**
+     * Creates {@link ParsedNodePreprocessor} instances to setup in the {@link liquibase.parser.preprocessor.ParsedNodePreprocessorFactory}.
+     * Because every action normally needs to do preprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
+     * Can return null if no preprocessors are needed.
+     */
+    ParsedNodePreprocessor[] createPreprocessors();
 }

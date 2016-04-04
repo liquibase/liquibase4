@@ -2,6 +2,8 @@ package liquibase.action;
 
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 import liquibase.util.StringUtil;
 
 /**
@@ -30,7 +32,7 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
         String name = getClass().getSimpleName();
         name = name.replaceFirst("Action$", "");
         name = StringUtil.lowerCaseFirst(name);
-        return name+"("+ StringUtil.join(this, ", ", new StringUtil.DefaultFormatter())+")";
+        return name + "(" + StringUtil.join(this, ", ", new StringUtil.DefaultFormatter()) + ")";
     }
 
     /**
@@ -55,5 +57,15 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
     @Override
     public String toString() {
         return this.describe();
+    }
+
+    /**
+     * Default implementation creates a {@link AbstractActionPreprocessor}.
+     */
+    public ParsedNodePreprocessor[] createPreprocessors() {
+        return new ParsedNodePreprocessor[]{new AbstractActionPreprocessor(getClass()) {
+            //just standard logic
+        }
+        };
     }
 }

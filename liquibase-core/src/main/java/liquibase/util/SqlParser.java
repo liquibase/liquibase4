@@ -16,7 +16,6 @@ public class SqlParser {
     public static StringClauses parse(String sqlBlock, boolean preserveWhitespace, boolean preserveComments) {
         StringClauses clauses = new StringClauses(preserveWhitespace?"":" ");
 
-        int i =0;
         SimpleSqlGrammar t = new SimpleSqlGrammar(new StringReader(sqlBlock));
         try {
             Token token = t.getNextToken();
@@ -30,7 +29,7 @@ public class SqlParser {
                         clauses.append(new StringClauses.Comment(token.image));
                     }
                 } else {
-                    clauses.append(token.image+":"+i++, token.image);
+                    clauses.append(token.image, token.image);
                 }
                 token = t.getNextToken();
             }

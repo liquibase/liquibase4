@@ -1,6 +1,7 @@
 package liquibase.changelog;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.database.Database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ public class ChangeLog extends AbstractExtensibleObject implements ChangeLogEntr
 
     public String physicalPath;
     public String logicalPath;
+    public Database.QuotingStrategy objectQuotingStrategy;
 
     public List<ChangeLogEntry> changeLogEntries = new ArrayList<>();
 

@@ -21,8 +21,8 @@ class ParsedNodeMappingFactoryTest extends Specification {
         mappingFactory.toObject(null, ChangeSet, ChangeLog, "changeLogEntries", scope) == null
         mappingFactory.toObject(null, null, ChangeLog, "changeLogEntries", scope) == null
 
-        mappingFactory.toParsedNode(null, ChangeLog, "changeLogEntries", scope) == null
-        mappingFactory.toParsedNode(null, null, "changeLogEntries", scope) == null
+        mappingFactory.toParsedNode(null, ChangeLog, "changeLogEntries", null, scope) == null
+        mappingFactory.toParsedNode(null, null, "changeLogEntries", null, scope) == null
     }
 
     /**
@@ -33,24 +33,28 @@ class ParsedNodeMappingFactoryTest extends Specification {
         when:
         def scope = JUnitScope.instance
         def mappingFactory = scope.getSingleton(ParsedNodeMappingFactory)
-        def node = mappingFactory.toParsedNode(object, null, null, scope)
-        def rebuiltObject = mappingFactory.toObject(node, object.getClass(), null, null, scope)
+        def node = mappingFactory.toParsedNode(object, null, null, null, scope)
 
         then:
         node.describe() == expectedNodeDesc
+
+        when:
+        def rebuiltObject = mappingFactory.toObject(node, object.getClass(), null, null, scope)
+
+        then:
         rebuiltObject.describe() == object.describe()
-        mappingFactory.toParsedNode(rebuiltObject, null, null, scope).describe() == expectedNodeDesc
+        mappingFactory.toParsedNode(rebuiltObject, null, null, null, scope).describe() == expectedNodeDesc
 
         where:
         [desc, object, expectedNodeDesc] << [
-                ["simple empty changelog", new ChangeLog(), "ParsedNode{name=changeLog}"],
+                ["simple empty changelog", new ChangeLog(), "ParsedNode{changeLog}"],
 
                 ["changelog with string properties set",
                  new ChangeLog().each {
                      it.logicalPath = "com/example/logical.xml"
                      it.physicalPath = "com/example/physical.xml"
                  },
-                 "ParsedNode{children=[ParsedNode{name=logicalPath, value=com/example/logical.xml}, ParsedNode{name=physicalPath, value=com/example/physical.xml}], name=changeLog}"],
+                 "ParsedNode{changeLog, children=[ParsedNode{logicalPath=com/example/logical.xml}, ParsedNode{physicalPath=com/example/physical.xml}]}"],
 
                 ["changelog with empty changeSets",
                  new ChangeLog().each {
@@ -59,7 +63,7 @@ class ParsedNodeMappingFactoryTest extends Specification {
                      it.addEntry(new ChangeSet("1", "bob", "com/example/path"))
                      it.addEntry(new ChangeSet("2", "bob", "com/example/path"))
                  },
-                 "ParsedNode{children=[ParsedNode{name=changeLogEntries, value=[ParsedNode{children=[ParsedNode{name=author, value=bob}, ParsedNode{name=id, value=1}, ParsedNode{name=logicalPath, value=com/example/path}], name=changeSet}, ParsedNode{children=[ParsedNode{name=author, value=bob}, ParsedNode{name=id, value=2}, ParsedNode{name=logicalPath, value=com/example/path}], name=changeSet}]}, ParsedNode{name=logicalPath, value=com/example/logical.xml}, ParsedNode{name=physicalPath, value=com/example/physical.xml}], name=changeLog}"],
+                 "ParsedNode{changeLog, children=[ParsedNode{changeLogEntries, children=[ParsedNode{changeSet, children=[ParsedNode{author=bob}, ParsedNode{id=1}, ParsedNode{logicalPath=com/example/path}]}, ParsedNode{changeSet, children=[ParsedNode{author=bob}, ParsedNode{id=2}, ParsedNode{logicalPath=com/example/path}]}]}, ParsedNode{logicalPath=com/example/logical.xml}, ParsedNode{physicalPath=com/example/physical.xml}]}"],
 
                 ["changelog with a changeSet with an action", new ChangeLog().each {
                     it.logicalPath = "com/example/logical.xml"
@@ -72,7 +76,7 @@ class ParsedNodeMappingFactoryTest extends Specification {
                                 it.columnDefinition = new StringClauses().append("int not null")
                             })))
                 },
-                 "ParsedNode{children=[ParsedNode{name=changeLogEntries, value=[ParsedNode{children=[ParsedNode{name=actions, value=[ParsedNode{children=[ParsedNode{name=columnDefinition, value=int not null}, ParsedNode{name=newName, value=new_name}, ParsedNode{name=oldName, value=old_name}, ParsedNode{name=relation, value=ParsedNode{children=[ParsedNode{name=container, value=ParsedNode{children=[ParsedNode{name=name, value=schema_name}, ParsedNode{name=type, value=liquibase.item.core.Schema}, ParsedNode{name=virtual, value=false}], name=schemaReference}}, ParsedNode{name=name, value=table_name}, ParsedNode{name=type, value=liquibase.item.core.Table}, ParsedNode{name=virtual, value=false}], name=relationReference}}], name=renameColumnAction}]}, ParsedNode{name=author, value=bob}, ParsedNode{name=id, value=1}, ParsedNode{name=logicalPath, value=com/example/path}], name=changeSet}]}, ParsedNode{name=logicalPath, value=com/example/logical.xml}], name=changeLog}"]
+                 "ParsedNode{changeLog, children=[ParsedNode{changeLogEntries, children=[ParsedNode{changeSet, children=[ParsedNode{actions, children=[ParsedNode{renameColumnAction, children=[ParsedNode{columnDefinition=int not null}, ParsedNode{newName=new_name}, ParsedNode{oldName=old_name}, ParsedNode{relation, children=[ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}, ParsedNode{container=ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}}, ParsedNode{name=table_name}, ParsedNode{type=class liquibase.item.core.Table}, ParsedNode{virtual=false}]}, ParsedNode{relation=ParsedNode{relation, children=[ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}, ParsedNode{container=ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}}, ParsedNode{name=table_name}, ParsedNode{type=class liquibase.item.core.Table}, ParsedNode{virtual=false}]}}]}]}, ParsedNode{author=bob}, ParsedNode{id=1}, ParsedNode{logicalPath=com/example/path}]}]}, ParsedNode{logicalPath=com/example/logical.xml}]}"]
         ]
     }
 }

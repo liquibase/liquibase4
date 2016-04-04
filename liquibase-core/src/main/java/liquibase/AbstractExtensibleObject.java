@@ -240,6 +240,22 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     }
 
     @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    /**
+     * Default implementation counts objects equal if their describe() methods return equal strings.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        return obj instanceof AbstractExtensibleObject && this.describe().equals(((AbstractExtensibleObject) obj).describe());
+    }
+
+    @Override
     public Object clone() {
         try {
             AbstractExtensibleObject clone = (AbstractExtensibleObject) super.clone();

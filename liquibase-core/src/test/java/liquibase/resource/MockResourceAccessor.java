@@ -10,6 +10,23 @@ public class MockResourceAccessor extends AbstractExtensibleObject implements Re
 
     private Map<String, List<byte[]>> dataByPath = new HashMap<>();
 
+    public MockResourceAccessor() {
+    }
+
+    public MockResourceAccessor(Map<String, ?> values) {
+        super(values);
+    }
+
+    public MockResourceAccessor addMockXsd(String rootElement) {
+        this.addData("liquibase/parser/core/xml/mock.xsd", "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema' "+
+        "targetNamespace='http://www.liquibase.org/xml/ns/mock' xmlns='http://www.liquibase.org/xml/ns/mock' "+
+        "elementFormDefault='qualified'>\n"+
+        "<xsd:element name='"+rootElement+"'/>\n"+
+        "</xsd:schema>");
+
+        return this;
+    }
+
     @Override
     public InputStreamList openStreams(String path) throws LiquibaseException {
         List<byte[]> list = dataByPath.get(path);

@@ -22,7 +22,9 @@ public class ObjectUtil {
         }
 
         try {
-            if (Number.class.isAssignableFrom(targetClass)) {
+            if (Enum.class.isAssignableFrom(targetClass)) {
+                Enum.valueOf((Class<Enum>) targetClass, object.toString());
+            } else if (Number.class.isAssignableFrom(targetClass)) {
                 if (object instanceof Number) {
                     Number number = (Number) object;
                     String numberAsString = number.toString();

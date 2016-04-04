@@ -1,46 +1,281 @@
 package liquibase.parser;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.exception.ParseException;
+import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.util.ObjectUtil;
+import liquibase.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Represents an abstract syntax tree that can eventually be loaded into an object.
+ * By using a ParsedNode rather, we can make most of the parsing logic independent of the original file format.
+ * <br><br>
+ * This object is similar in theory to an XML DOM but is lighter-weight and not XML-specific.
+ * Each node has a name as well as a value and/or children ParsedNodes.
+ * <br><br>
+ * In order to maintain parent/children references, these objects are created and managed through methods and cannot be constructed directly.
+ *
+ * @see Parser
+ * @see liquibase.parser.mapping.ParsedNodeMapping
+ */
 public class ParsedNode extends AbstractExtensibleObject {
 
+    //parent and children are private so that they are managed through business logic to maintain references
+    private ParsedNode parent;
+    private List<ParsedNode> children = new ArrayList<>();
+
+    /**
+     * The name of the node.
+     */
     public String name;
-    public List<ParsedNode> children = new ArrayList<>();
     public Object value;
 
-    public ParsedNode() {
+    /**
+     * Creates a new root ParsedNode.
+     */
+    public static ParsedNode createRootNode(String name) {
+        return new ParsedNode(name);
     }
 
-    public ParsedNode(String name) {
+    private ParsedNode(String name) {
         this.name = name;
     }
 
-    public ParsedNode(String name, Map<String, Object> children, Object value) {
-        this.name = name;
-        for (Map.Entry<String, Object> child : children.entrySet()) {
-            ParsedNode childNode = new ParsedNode(child.getKey());
-            childNode.setValue(child.getValue());
-            this.children.add(childNode);
+    private ParsedNode(ParsedNode parent) {
+        if (parent == null) {
+            throw new UnexpectedLiquibaseException("Cannot create parsed node with no parent");
         }
-        this.value = value;
+        this.parent = parent;
     }
 
-    public ParsedNode addChild(String name, Object value) {
-        children.add(new ParsedNode(name).setValue(value));
-        return this;
+    private ParsedNode(String name, ParsedNode parent) {
+        this(parent);
+        this.name = name;
     }
 
+    /**
+     * Uses an custom format vs. {@link AbstractExtensibleObject} to be more readable
+     */
+    public String describe() {
+        return (getClass().getSimpleName()
+                + "{" + name + (value == null ? "" : ("=" + value))
+                + (children == null || children.size() == 0 ? "" : ", children=" + new StringUtil.DefaultFormatter().toString(children)))
+                + "}";
+    }
+
+    /**
+     * Sets the "value" of this parsed node.
+     *
+     * @return this parsed node.
+     */
     public ParsedNode setValue(Object value) {
         this.value = value;
         return this;
     }
 
-    public ParsedNode addChild(ParsedNode node) {
-        this.children.add(node);
-        return this;
+    /**
+     * Returns this node's parent.
+     */
+    public ParsedNode getParent() {
+        return parent;
+    }
+
+
+    /**
+     * Creates a new child node with the given name and adds it to this object's children.
+     *
+     * @return the new child node.
+     */
+    public ParsedNode addChild(String name) {
+        ParsedNode child = new ParsedNode(name, this);
+        children.add(child);
+        return child;
+    }
+
+    /**
+     * Finds a child with the given name.
+     *
+     * @param createIfNeeded If true, creates a new child node on this node if one doesn't already exist. If false, returns null if no match is found.
+     * @throws ParseException If multiple children have the give name
+     */
+    public ParsedNode getChild(String name, boolean createIfNeeded) throws ParseException {
+        ParsedNode returnNode = null;
+        for (ParsedNode child : children) {
+            if (Objects.equals(child.name, name)) {
+                if (returnNode == null) {
+                    returnNode = child;
+                } else {
+                    throw new ParseException("Multiple children match " + name);
+                }
+            }
+        }
+
+        if (returnNode == null && createIfNeeded) {
+            returnNode = this.addChild(name);
+        }
+        return returnNode;
+    }
+
+    /**
+     * Finds the child with the given name and returns the value in that child.
+     * If no child matches the name, returns null.
+     *
+     * @param returnType  convert the value to the given type using {@link ObjectUtil#convert(Object, Class)}
+     * @param removeChild if true, remove the child (if it exists) after returning the value.
+     * @throws ParseException if multiple children match the given name
+     */
+    public <T> T getChildValue(String name, Class<T> returnType, boolean removeChild) throws ParseException {
+        ParsedNode child = getChild(name, false);
+        if (child == null) {
+            return null;
+        }
+        Object returnValue = child.value;
+        if (removeChild) {
+            child.remove();
+        }
+        return ObjectUtil.convert(returnValue, returnType);
+    }
+
+
+    /**
+     * Returns all children that match the given filter.
+     *
+     * @param recursive If true, search recursively down the children until a match is found.
+     */
+    public List<ParsedNode> getChildren(ParsedNodeFilter filter, boolean recursive) {
+        List<ParsedNode> returnList = new ArrayList<>();
+        getChildren(filter, recursive, returnList);
+        return Collections.unmodifiableList(returnList);
+    }
+
+    /**
+     * Convenience method for {@link #getChildren(ParsedNodeFilter, boolean)} to find nodes by name.
+     */
+    public List<ParsedNode> getChildren(String nodeName, boolean recursive) {
+        return getChildren(new ParsedNodeNameFilter(nodeName), recursive);
+    }
+
+    private void getChildren(ParsedNodeFilter filter, boolean recursive, List<ParsedNode> list) {
+        for (ParsedNode child : this.children) {
+            if (filter.matches(child)) {
+                list.add(child);
+            } else if (recursive) {
+                child.getChildren(filter, recursive, list);
+            }
+        }
+    }
+
+    /**
+     * Removes direct children that match the given filter.
+     */
+    public void removeChildren(ParsedNodeFilter filter) throws ParseException {
+        Iterator<ParsedNode> childIterator = children.iterator();
+        while (childIterator.hasNext()) {
+            ParsedNode child = childIterator.next();
+            if (filter.matches(child)) {
+                childIterator.remove();
+                child.parent = null;
+            }
+        }
+    }
+
+    /**
+     * Convenience method for {@link #removeChildren(ParsedNodeFilter)} to remove nodes by name.
+     */
+    public void removeChildren(String childName) throws ParseException {
+        removeChildren(new ParsedNodeNameFilter(childName));
+    }
+
+    /**
+     * Removes this node from its parent.
+     *
+     * @throws ParseException if this is the root node
+     */
+    public void remove() throws ParseException {
+        if (this.parent == null) {
+            throw new ParseException("Cannot remove root node");
+        }
+
+        Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
+        while (parentChildIterator.hasNext()) {
+            ParsedNode child = parentChildIterator.next();
+            if (child == this) {
+                parentChildIterator.remove();
+                break;
+            }
+        }
+        this.parent = null;
+
+    }
+
+    /**
+     * Returns the list of child nodes, unmodifiable.
+     */
+    public List<ParsedNode> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+
+    /**
+     * Moves the direct children that match the given filter to the newParent.
+     */
+    public void moveChildren(ParsedNodeFilter filter, ParsedNode newParent) {
+        Iterator<ParsedNode> childIterator = children.iterator();
+        while (childIterator.hasNext()) {
+            ParsedNode child = childIterator.next();
+            if (filter.matches(child)) {
+
+                childIterator.remove();
+                newParent.children.add(child);
+                child.parent = newParent;
+            }
+        }
+
+    }
+
+    /**
+     * Convenience method for {@link #moveChildren(ParsedNodeFilter, ParsedNode)} by child name
+     */
+    public void moveChildren(String childName, ParsedNode newParent) {
+        moveChildren(new ParsedNodeNameFilter(childName), newParent);
+    }
+
+    /**
+     * Move this node to the passed new parent.
+     */
+    public void moveTo(ParsedNode newParent) {
+        Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
+        while (parentChildIterator.hasNext()) {
+            ParsedNode child = parentChildIterator.next();
+            if (child == this) {
+                parentChildIterator.remove();
+                break;
+            }
+        }
+        this.parent = newParent;
+        newParent.children.add(this);
+
+    }
+
+    /**
+     * Interface for finding parsed nodes.
+     */
+    public interface ParsedNodeFilter {
+        boolean matches(ParsedNode node);
+    }
+
+    private static class ParsedNodeNameFilter implements ParsedNodeFilter {
+        private final String nodeName;
+
+        public ParsedNodeNameFilter(String nodeName) {
+            this.nodeName = nodeName;
+        }
+
+        @Override
+        public boolean matches(ParsedNode node) {
+            return Objects.equals(node.name, nodeName);
+        }
     }
 }

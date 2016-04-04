@@ -36,7 +36,7 @@ class XmlParserTest extends Specification {
         def parsedNode = new XmlParser().parse("com/example/test.xml", scope)
 
         then:
-        parsedNode.toString() == "ParsedNode{children=[ParsedNode{name=schemaLocation, value=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}, ParsedNode{name=attr1, value=A}, ParsedNode{name=attr2, value=B}], name=rootNode}"
+        parsedNode.toString() == "ParsedNode{rootNode, children=[ParsedNode{schemaLocation=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}, ParsedNode{attr1=A}, ParsedNode{attr2=B}]}"
     }
 
     def "can parse a file with attributes and a text body"() {
@@ -45,7 +45,7 @@ class XmlParserTest extends Specification {
         def parsedNode = new XmlParser().parse("com/example/test.xml", scope)
 
         then:
-        parsedNode.toString() == "ParsedNode{children=[ParsedNode{name=schemaLocation, value=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}, ParsedNode{name=attr1, value=A}, ParsedNode{name=attr2, value=B}], name=rootNode, value=Body Here}"
+        parsedNode.toString() == "ParsedNode{rootNode=Body Here, children=[ParsedNode{schemaLocation=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}, ParsedNode{attr1=A}, ParsedNode{attr2=B}]}"
     }
 
     def "whitespace around text body is ignored"() {
@@ -54,7 +54,7 @@ class XmlParserTest extends Specification {
         def parsedNode = new XmlParser().parse("com/example/test.xml", scope)
 
         then:
-        parsedNode.toString() == "ParsedNode{children=[ParsedNode{name=schemaLocation, value=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}], name=rootNode, value=Body Here}"
+        parsedNode.toString() == "ParsedNode{rootNode=Body Here, children=[ParsedNode{schemaLocation=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}]}"
     }
 
     def "nested nodes work"() {
@@ -72,17 +72,7 @@ class XmlParserTest extends Specification {
         def parsedNode = new XmlParser().parse("com/example/test.xml", scope)
 
         then:
-        parsedNode.toString().replaceAll("[\\s\\r\\n]", "") == """ParsedNode{children=[
-    ParsedNode{name=schemaLocation,value=http://www.liquibase.org/xml/ns/mockhttp://www.liquibase.org/xml/ns/dbchangelog/mock.xsd},
-    ParsedNode{name=child1, value=Child 1},
-    ParsedNode{name=child2, value=Child 2},
-    ParsedNode{name=child1, value=Child 1 again},
-    ParsedNode{children=[
-        ParsedNode{name=innerNode},
-        ParsedNode{name=innerNode2, value=Inner Node}
-    ], name=parent}
-], name=rootNode
-}""".replaceAll("[\\s\\r\\n]", "") //clean up formatting introduced by breaking up for readability
+        parsedNode.toString() == "ParsedNode{rootNode, children=[ParsedNode{schemaLocation=http://www.liquibase.org/xml/ns/mock http://www.liquibase.org/xml/ns/dbchangelog/mock.xsd}, ParsedNode{child1=Child 1}, ParsedNode{child2=Child 2}, ParsedNode{child1=Child 1 again}, ParsedNode{parent, children=[ParsedNode{innerNode}, ParsedNode{innerNode2=Inner Node}]}]}"
     }
 
     def "invalid XML throws an exception"() {
@@ -115,13 +105,7 @@ class XmlParserTest extends Specification {
     def createScope(String path, String data) {
         def mockAccessor = new MockResourceAccessor()
         mockAccessor.addData(path, data)
-        mockAccessor.addData("liquibase/parser/core/xml/mock.xsd", """
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://www.liquibase.org/xml/ns/mock" xmlns="http://www.liquibase.org/xml/ns/mock"
-	elementFormDefault="qualified">
-  <xsd:element name="rootNode"/>
-</xsd:schema>
-""")
+        mockAccessor.addMockXsd("rootNode")
 
         return JUnitScope.instance.child(Scope.Attr.resourceAccessor, mockAccessor)
     }

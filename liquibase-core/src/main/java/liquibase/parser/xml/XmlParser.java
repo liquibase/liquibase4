@@ -26,7 +26,7 @@ public class XmlParser extends AbstractParser {
 
     private SAXParserFactory saxParserFactory;
 
-    protected XmlParser() {
+    public XmlParser() {
         saxParserFactory = SAXParserFactory.newInstance();
         saxParserFactory.setValidating(true);
         saxParserFactory.setNamespaceAware(true);
@@ -166,18 +166,24 @@ public class XmlParser extends AbstractParser {
 
         @Override
         public void startElement(String uri, String localName, String qualifiedName, Attributes attributes) throws SAXException {
-            ParsedNode node = new ParsedNode(localName);
+            ParsedNode parentNode = null;
+            if (!nodeQueue.isEmpty()) {
+                parentNode = nodeQueue.peek();
+            }
+
+            ParsedNode node;
+            if (parentNode == null) {
+                node = ParsedNode.createRootNode(localName);
+            } else {
+                node = parentNode.addChild(localName);
+            }
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    node.addChild(attributes.getLocalName(i), attributes.getValue(i));
+                    node.addChild(attributes.getLocalName(i)).setValue(attributes.getValue(i));
                 }
             }
-            if (nodeQueue.isEmpty()) {
-                nodeQueue.push(node);
-            } else {
-                nodeQueue.peek().addChild(node);
-                nodeQueue.push(node);
-            }
+
+            nodeQueue.push(node);
 
             text = new StringBuilder();
         }
