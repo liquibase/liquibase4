@@ -12,6 +12,8 @@
                             <xsd:sequence>
                                 <xsd:group ref="changeSetChildren" minOccurs="0" maxOccurs="unbounded" />
                             </xsd:sequence>
+                            <xsd:attribute name="id" type="xsd:string" use="required"/>
+                            <xsd:attribute name="author" type="xsd:string" use="required"/>
                         </xsd:complexType>
                     </xsd:element>
                 </xsd:choice>
@@ -32,7 +34,7 @@
         <xsd:complexType>
             <xsd:attribute name="name" type="xsd:string" use="required"/>
             <xsd:attribute name="type" type="xsd:string" use="required"/>
-            <xsd:attribute name="nullable" type="xsd:boolean" use="required"/>
+            <xsd:attribute name="nullable" type="xsd:boolean"/>
         </xsd:complexType>
     </xsd:element>
 
