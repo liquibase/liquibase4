@@ -70,7 +70,11 @@ public class FileSystemResourceAccessorTest extends Specification {
         expect:
         createResourceAccessor("liquibase").list(null, null, false).join("\n") == """
 AbstractExtensibleObject.class
+DependencyObject.class
 ExtensibleObject.class
+ExtensibleObjectAttribute.class
+ObjectMetaData\$Attribute.class
+ObjectMetaData.class
 Scope\$Attr.class
 Scope.class
 SingletonObject.class

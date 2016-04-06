@@ -55,7 +55,7 @@ public class AlterSequenceLogic extends AbstractSqlBuilderLogic<AlterSequenceAct
      * Used by {@link #validate(AlterSequenceAction, Scope)}
      */
     protected boolean hasSomethingToAlter(AlterSequenceAction action, Scope scope) {
-        for (String attr : action.getAttributeNames()) {
+        for (String attr : action.getAttributes()) {
             if (attr.equals("sequence")) {
                 continue;
             }

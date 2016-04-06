@@ -1,6 +1,7 @@
 package liquibase.database;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
  * <br><br>
  * Besides the properties defined on this object, you can use the following parameters:
  * <ul>
- *     <li>productName</li>
- *     <li>version</li>
+ * <li>productName</li>
+ * <li>version</li>
  * </ul>
  */
 @SuppressWarnings("UnusedParameters")
@@ -40,12 +40,12 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
     public String databaseProductVersion;
 
     /**
-     *  Version defaults to a high number to support newest features by default.
+     * Version defaults to a high number to support newest features by default.
      */
     public int databaseMajorVersion = 999;
 
     /**
-     *  Version defaults to a high number to support newest features by default.
+     * Version defaults to a high number to support newest features by default.
      */
     public int databaseMinorVersion = 999;
 
@@ -161,11 +161,11 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
      */
     @Override
     public void configureDatabase(Database database, Scope scope) {
-        Set<String> standardDatabaseAttributes = database.getStandardAttributeNames();
-        for (String paramName : this.getAttributeNames()) {
-            if (standardDatabaseAttributes.contains(paramName)) {
+        ObjectMetaData objectMetaData = this.getObjectMetaData();
+        for (String paramName : this.getAttributes()) {
+            if (objectMetaData.getAttribute(paramName) != null) {
                 try {
-                database.set(paramName, this.get(paramName, Object.class));
+                    database.set(paramName, this.get(paramName, Object.class));
                 } catch (Throwable e) {
                     LoggerFactory.getLogger(getClass()).warn("Error setting database parameter " + paramName + ": " + e.getMessage(), e);
                 }

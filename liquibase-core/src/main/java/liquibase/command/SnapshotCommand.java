@@ -2,7 +2,6 @@ package liquibase.command;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
-import liquibase.database.Database;
 import liquibase.item.core.*;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
@@ -14,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class SnapshotCommand extends AbstractCommand<SnapshotCommand.SnapshotCommandResult> {
+public class SnapshotCommand extends AbstractLiquibaseCommand<SnapshotCommand.SnapshotCommandResult> {
 
     public Set<ItemReference> relatedObjects = new HashSet<>();
 

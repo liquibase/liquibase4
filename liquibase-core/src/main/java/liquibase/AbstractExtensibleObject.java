@@ -7,7 +7,6 @@ import liquibase.util.StringUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -38,7 +37,7 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     }
 
     @Override
-    public SortedSet<String> getAttributeNames() {
+    public SortedSet<String> getAttributes() {
         SortedSet<String> returnSet = new TreeSet<>(attributes.keySet());
         for (String field : getAttributeFields().keySet()) {
             if (has(field)) {
@@ -49,22 +48,24 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     }
 
     @Override
-    public Set<String> getStandardAttributeNames() {
-        return getAttributeFields().keySet();
+    public ObjectMetaData getObjectMetaData() {
+        ObjectMetaData metaData = new ObjectMetaData();
+
+        for (Field field : getAttributeFields().values()) {
+            ObjectMetaData.Attribute attribute = new ObjectMetaData.Attribute(field.getName());
+            attribute.type = field.getGenericType();
+
+            ExtensibleObjectAttribute annotation = field.getAnnotation(ExtensibleObjectAttribute.class);
+            if (annotation != null) {
+                attribute.description = annotation.description();
+                attribute.required = annotation.required();
+            }
+
+            metaData.attributes.add(attribute);
+        }
+        return metaData;
     }
 
-    /**
-     * Default implementation returns the genericType of the field, if the attribute is a field. Otherwise, returns Object.class.
-     */
-    @Override
-    public Type getAttributeType(String attribute) {
-        Field field = getAttributeFields().get(attribute);
-        if (field == null) {
-            return Object.class;
-        } else {
-            return field.getGenericType();
-        }
-    }
 
     /**
      * Return true if the given key is defined.
@@ -259,7 +260,7 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     public Object clone() {
         try {
             AbstractExtensibleObject clone = (AbstractExtensibleObject) super.clone();
-            for (String attr : getAttributeNames()) {
+            for (String attr : getAttributes()) {
                 Object value = this.get(attr, Object.class);
                 if (value instanceof Collection) {
                     try {

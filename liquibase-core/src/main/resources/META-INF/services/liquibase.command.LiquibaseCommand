@@ -1,0 +1,3 @@
+liquibase.command.DropAllCommand
+liquibase.command.SnapshotCommand
+liquibase.command.UpdateCommand

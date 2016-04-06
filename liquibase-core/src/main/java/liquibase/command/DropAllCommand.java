@@ -4,7 +4,6 @@ import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.core.*;
 import liquibase.actionlogic.ActionExecutor;
-import liquibase.database.Database;
 import liquibase.item.ItemReference;
 import liquibase.item.core.*;
 
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * Drops all objects in the given {@link #containers}.
  */
-public class DropAllCommand extends AbstractCommand {
+public class DropAllCommand extends AbstractLiquibaseCommand {
 
     public Set<ItemReference> containers = new HashSet<>();
 

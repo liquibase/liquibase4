@@ -3,6 +3,7 @@ package liquibase.parser.preprocessor.core.changelog;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.exception.ParseException;
+import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.AbstractParsedNodePreprocessor;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
@@ -13,30 +14,24 @@ import liquibase.util.StringUtil;
  */
 public abstract class AbstractActionPreprocessor extends AbstractParsedNodePreprocessor {
 
-    public final Class<? extends Action> actionType;
     public final String standardNodeName;
 
     public AbstractActionPreprocessor(Class<? extends Action> actionType) {
-        this.actionType = actionType;
-        standardNodeName = StringUtil.lowerCaseFirst(actionType.getSimpleName());
-    }
-
-    /**
-     * Runs before {@link ChangeSetPreprocessor} because ChangeSetPreprocessor expects action nodes to end in "Action"
-     */
-    @Override
-    public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
-        return new Class[]{ChangeSetPreprocessor.class};
+        try {
+            standardNodeName = actionType.newInstance().getName();
+        } catch (Exception e) {
+            throw new UnexpectedLiquibaseException(e);
+        }
     }
 
     /**
      * Return other node names that need to be translated to {@link #standardNodeName}.
-     * Default implementation returns standardNodeName without the "Action" at the end.
+     * Default implementation returns null.
+     *
+     * @see StandardActionPreprocessor for aliasing that is done automatically for all actions.
      */
     protected String[] getAliases() {
-        return new String[] {
-                standardNodeName.replaceFirst("Action$", "")
-        };
+        return null;
     }
 
     /**
@@ -46,9 +41,12 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
     @Override
     public void process(ParsedNode node, Scope scope) throws ParseException {
         for (ParsedNode changeSet : node.getChildren("changeSet", true)) {
-            for (String alias : getAliases()) {
-                for (ParsedNode wrongName : changeSet.getChildren(alias, true)) {
-                    wrongName.name = standardNodeName;
+            String[] aliases = getAliases();
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    for (ParsedNode wrongName : changeSet.getChildren(alias, true)) {
+                        wrongName.name = standardNodeName;
+                    }
                 }
             }
 

@@ -27,6 +27,11 @@ import liquibase.plugin.Plugin;
 public interface Action extends ExtensibleObject, Plugin {
 
     /**
+     * Return the name of this action. Used to find the correct action class when parsing changeSet elements.
+     */
+    String getName();
+
+    /**
      * Return a text description of this action.
      * Two Action instances should return the same description if and only if they are equivalent calls.
      * This function should return a description of this action that contains enough information to know everything the Action is going to do and nothing that has no impact on what the Action does.
@@ -43,9 +48,11 @@ public interface Action extends ExtensibleObject, Plugin {
     int getPriority(String actionName, Scope scope);
 
     /**
-     * Creates {@link ParsedNodePreprocessor} instances to setup in the {@link liquibase.parser.preprocessor.ParsedNodePreprocessorFactory}.
-     * Because every action normally needs to do preprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
+     * Creates a custom {@link ParsedNodePreprocessor} instance to setup in the {@link liquibase.parser.preprocessor.ParsedNodePreprocessorFactory}.
+     * Because many action need to do custom preprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
      * Can return null if no preprocessors are needed.
+     *
+     * @see liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor for preprocessing that is always done for actions.
      */
-    ParsedNodePreprocessor[] createPreprocessors();
+    ParsedNodePreprocessor createPreprocessor();
 }

@@ -1,6 +1,7 @@
 package liquibase.parser.mapping;
 
 import liquibase.ExtensibleObject;
+import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.ParsedNode;
@@ -35,7 +36,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         } else {
             node = parentNode.addChild(nodeName);
         }
-        for (String attr : objectToConvert.getAttributeNames()) {
+        for (String attr : objectToConvert.getAttributes()) {
             Object childValue = objectToConvert.get(attr, Object.class);
             if (childValue instanceof Collection) {
                 if (((Collection) childValue).size() == 0) {
@@ -72,10 +73,11 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         ObjectType returnObject = createObject(parsedNode, objectType, containerType, containerAttribute, scope);
 
         for (ParsedNode child : parsedNode.getChildren()) {
-            if (!returnObject.getStandardAttributeNames().contains(child.name)) {
+            ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.name);
+            if (attribute == null) {
                 throw new ParseException("Unexpected attribute: " + returnObject.getClass() + "." + child.name);
             }
-            Type attributeType = returnObject.getAttributeType(child.name);
+            Type attributeType = attribute.type;
             Class attributeClass;
             Class collectionElementClass = Object.class;
             if (attributeType instanceof ParameterizedType) {

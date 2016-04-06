@@ -19,6 +19,11 @@ public class ActionNodeMapping extends AbstractParsedNodeMapping<Action> {
     }
 
     @Override
+    protected String getNodeName(Action object, Class containerType, String containerAttribute, Scope scope) {
+        return object.getName();
+    }
+
+    @Override
     public int getPriority(ParsedNode parsedNode, Class objectType, Type containerType, String containerAttribute, Scope scope) {
         if (Action.class.isAssignableFrom(objectType)) {
             return PRIORITY_SPECIALIZED;
@@ -28,10 +33,10 @@ public class ActionNodeMapping extends AbstractParsedNodeMapping<Action> {
 
     @Override
     protected Action createObject(ParsedNode parsedNode, Class<Action> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        if (parsedNode.name.endsWith("Action")) {
-            return scope.getSingleton(ActionFactory.class).getAction(parsedNode.name, scope);
-        } else {
-            throw new ParseException("Unknown node name: "+parsedNode.name);
+        Action action = scope.getSingleton(ActionFactory.class).getAction(parsedNode.name, scope);
+        if (action == null) {
+            throw new ParseException("Unknown action: " + parsedNode.name);
         }
+        return action;
     }
 }

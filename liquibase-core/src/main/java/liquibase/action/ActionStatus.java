@@ -115,7 +115,7 @@ public class ActionStatus {
             excludeFields = new HashSet<>();
         }
 
-        for (String property : correctObject.getAttributeNames()) {
+        for (String property : correctObject.getAttributes()) {
             if (!excludeFields.contains(property)) {
                 assertPropertyCorrect(correctObject, objectToCheck, property);
             }

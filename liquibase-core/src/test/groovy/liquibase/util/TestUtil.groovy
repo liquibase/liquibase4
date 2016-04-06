@@ -23,7 +23,7 @@ public abstract class TestUtil {
         for (Map<String, Object> parameterValues : CollectionUtil.permutations(defaultValues, addNulls)) {
             T obj = type.newInstance();
             for (Map.Entry<String, ?> entry : parameterValues.entrySet()) {
-                if (!obj.getStandardAttributeNames().contains(entry.getKey())) {
+                if (obj.getObjectMetaData().getAttribute(entry.getKey()) == null) {
                     throw new RuntimeException("No attribute "+entry.getKey()+" on "+type.getName())
                 }
                 obj.set(entry.getKey(), entry.getValue());
@@ -35,7 +35,7 @@ public abstract class TestUtil {
     }
 
 
-    def static getClasses(Class baseClass) {
+    static Set<Class> getClasses(Class baseClass) {
         if (allClasses == null) {
             allClasses = [:]
             findAllClasses("liquibase")

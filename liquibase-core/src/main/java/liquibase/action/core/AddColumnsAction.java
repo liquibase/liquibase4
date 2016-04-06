@@ -34,36 +34,34 @@ public class AddColumnsAction extends AbstractAction {
         }
     }
 
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(AddColumnsAction.class) {
-                    @Override
-                    public String[] getAliases() {
-                        return new String[]{"addColumn", "addColumns"};
-                    }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AddColumnsAction.class) {
+            @Override
+            public String[] getAliases() {
+                return new String[]{"addColumn"};
+            }
 
-                    /**
-                     * <ul>
-                     *  <li>Creates a "columns" node and moves all addColumns.column nodes to it</li>
-                     *  <li>Copies a tableName value from "addColumns" to "column" nodes</li>
-                     *  <li>Creates "column.relation" node</li>
-                     * </ul>
-                     */
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode) throws ParseException {
-                        String tableName = actionNode.getChildValue("tableName", String.class, true);
+            /**
+             * <ul>
+             *  <li>Creates a "columns" node and moves all addColumns.column nodes to it</li>
+             *  <li>Copies a tableName value from "addColumns" to "column" nodes</li>
+             *  <li>Creates "column.relation" node</li>
+             * </ul>
+             */
+            @Override
+            protected void processActionNode(ParsedNode actionNode) throws ParseException {
+                String tableName = actionNode.getChildValue("tableName", String.class, true);
 
-                        ParsedNode columns = actionNode.getChild("columns", true);
-                        actionNode.moveChildren("column", columns);
+                ParsedNode columns = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columns);
 
-                        for (ParsedNode column : actionNode.getChildren("column", true)) {
-                            ParsedNode relation = column.addChild("relation");
-                            relation.addChild("name").setValue(tableName);
-                        }
-
-                        super.processActionNode(actionNode);
-                    }
+                for (ParsedNode column : actionNode.getChildren("column", true)) {
+                    ParsedNode relation = column.addChild("relation");
+                    relation.addChild("name").setValue(tableName);
                 }
+
+                super.processActionNode(actionNode);
+            }
         };
     }
 }

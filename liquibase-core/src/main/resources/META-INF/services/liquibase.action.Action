@@ -1,5 +1,4 @@
 liquibase.action.ExecuteSqlAction
-liquibase.action.MockAction
 liquibase.action.QuerySqlAction
 liquibase.action.UpdateSqlAction
 liquibase.action.core.AddAutoIncrementAction

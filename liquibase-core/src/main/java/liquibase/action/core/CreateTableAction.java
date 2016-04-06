@@ -1,9 +1,12 @@
 package liquibase.action.core;
 
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
 import liquibase.item.core.*;
 import liquibase.item.datatype.DataType;
-import liquibase.util.CollectionUtil;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,5 +49,28 @@ public class CreateTableAction extends AbstractAction {
     public CreateTableAction setPrimaryKey(PrimaryKey primaryKey) {
         this.primaryKey = primaryKey;
         return this;
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(CreateTableAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode) throws ParseException {
+                super.processActionNode(actionNode);
+                ParsedNode tableNode = actionNode.getChild("table", true);
+
+                ParsedNode tableName = actionNode.getChild("tableName", false);
+                tableName.moveTo(tableNode);
+                tableName.name = "name";
+
+                RelationReference relation = new RelationReference(Table.class, tableNode.getChildValue("name", String.class, false));
+
+                ParsedNode columnsNode = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columnsNode);
+                for (ParsedNode column : columnsNode.getChildren("column", false)) {
+                    column.addChild("relation").setValue(relation);
+                }
+            }
+        };
     }
 }

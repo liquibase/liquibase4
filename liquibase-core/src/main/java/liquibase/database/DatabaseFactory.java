@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.Properties;
+import java.util.ServiceLoader;
 
 /**
  * PluginFactory to create the correct Database implementation based on available extensions.
@@ -93,12 +94,11 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
                             String databaseClass,
                             String driverPropertiesClass,
                             String additionalDriverPropertiesPath,
-                            ResourceAccessor resourceAccessor,
                             Scope scope) throws DatabaseException {
         DatabaseConnection connection = null;
         try {
             if (url.startsWith("offline:")) {
-                connection = new OfflineConnection(url, resourceAccessor);
+                connection = new OfflineConnection(url, scope.getResourceAccessor());
             } else {
 
                Properties driverProperties;
@@ -115,7 +115,7 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
                     driverProperties.put("password", password);
                 }
                 if (additionalDriverPropertiesPath != null) {
-                    try(InputStreamList propertiesFiles = resourceAccessor.openStreams(additionalDriverPropertiesPath)) {
+                    try(InputStreamList propertiesFiles = scope.getResourceAccessor().openStreams(additionalDriverPropertiesPath)) {
                         if (propertiesFiles == null) {
                             throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + additionalDriverPropertiesPath + "'");
                         } else {
@@ -126,10 +126,19 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
                     }
                 }
 
-                Connection jdbcConnection;
+                Connection jdbcConnection = null;
                 try {
                     if (driverClass == null) {
-                        jdbcConnection =  DriverManager.getConnection(url, driverProperties);
+                        for (Driver driver : ServiceLoader.load(java.sql.Driver.class, scope.getClassLoader())) {
+                            if (driver.acceptsURL(url)) {
+                                jdbcConnection = driver.connect(url, driverProperties);
+                                break;
+                            }
+                        }
+
+                        if (jdbcConnection == null) { //fall back to standard DriverManager.getConnection
+                            jdbcConnection =  DriverManager.getConnection(url, driverProperties);
+                        }
                     } else {
                         Driver driver = (Driver) Class.forName(driverClass, true, scope.getClassLoader(true)).newInstance();
                         jdbcConnection = driver.connect(url, driverProperties);

@@ -28,18 +28,18 @@ class AbstractExtensibleObjectTest extends Specification {
         fieldObject.column = new ColumnReference("x", "y")
 
         then:
-        that nonFieldObject.getAttributeNames(), containsInAnyOrder(["value1", "value2", "value3"] as String[])
-        that fieldObject.getAttributeNames(), containsInAnyOrder(["value1", "value2", "startWith", "autoIncrementInformation", "column"] as String[])
+        that nonFieldObject.getAttributes(), containsInAnyOrder(["value1", "value2", "value3"] as String[])
+        that fieldObject.getAttributes(), containsInAnyOrder(["value1", "value2", "startWith", "autoIncrementInformation", "column"] as String[])
     }
 
-    def "getStandardAttributeNames"() {
+    def "getObjectMetaData attributes are created for standard attributes"() {
         expect:
-        that new AddAutoIncrementAction().getStandardAttributeNames(), containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[])
-        that new AddAutoIncrementAction().getStandardAttributeNames(), containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[]) //caching works
+        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[])
+        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[]) //caching works
 
-        that new DropTablesAction().getStandardAttributeNames(), containsInAnyOrder(["tables", "cascadeConstraints"] as String[])
+        that new DropTablesAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["tables", "cascadeConstraints"] as String[])
 
-        (new AbstractExtensibleObject() {}).getStandardAttributeNames().size() == 0
+        (new AbstractExtensibleObject() {}).getObjectMetaData().attributes.size() == 0
     }
 
     def "get/set works with non-field values"() {

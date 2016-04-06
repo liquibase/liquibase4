@@ -108,7 +108,7 @@ public class StringUtil {
 
     public static String join(ExtensibleObject extensibleObject, String delimiter, StringUtilsFormatter formatter) {
         List<String> list = new ArrayList<>();
-        for (String attribute : new TreeSet<>(extensibleObject.getAttributeNames())) {
+        for (String attribute : new TreeSet<>(extensibleObject.getAttributes())) {
             String formattedValue = formatter.toString(extensibleObject.get(attribute, Object.class));
             if (formattedValue != null) {
                 list.add(attribute + "=" + formattedValue);

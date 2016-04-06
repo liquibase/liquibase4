@@ -12,13 +12,15 @@ import liquibase.util.StringUtil;
  */
 public abstract class AbstractAction extends AbstractExtensibleObject implements Action {
 
+    private String name;
+
     /**
      * Default implementation returns {@link #PRIORITY_DEFAULT} if the actionName matches this class's simpleName.
      * Otherwise, returns {@link #PRIORITY_NOT_APPLICABLE}
      */
     @Override
     public int getPriority(String actionName, Scope scope) {
-        if (actionName.equals(StringUtil.lowerCaseFirst(this.getClass().getSimpleName()))) {
+        if (actionName.equals(getName())) {
             return PRIORITY_DEFAULT;
         }
         return PRIORITY_NOT_APPLICABLE;
@@ -29,10 +31,20 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
      */
     @Override
     public String describe() {
-        String name = getClass().getSimpleName();
-        name = name.replaceFirst("Action$", "");
-        name = StringUtil.lowerCaseFirst(name);
+        String name = getName();
         return name + "(" + StringUtil.join(this, ", ", new StringUtil.DefaultFormatter()) + ")";
+    }
+
+    /**
+     * Default implementation uses a lower-cased version the class name minus the trailing "Action"
+     */
+    public String getName() {
+        if (this.name == null) {
+            name = getClass().getSimpleName();
+            name = name.replaceFirst("Action$", "");
+            name = StringUtil.lowerCaseFirst(name);
+        }
+        return name;
     }
 
     /**
@@ -60,12 +72,9 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
     }
 
     /**
-     * Default implementation creates a {@link AbstractActionPreprocessor}.
+     * Default implementation returns null.
      */
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{new AbstractActionPreprocessor(getClass()) {
-            //just standard logic
-        }
-        };
+    public ParsedNodePreprocessor createPreprocessor() {
+       return null;
     }
 }

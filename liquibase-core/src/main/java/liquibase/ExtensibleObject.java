@@ -1,10 +1,6 @@
 package liquibase;
 
-import liquibase.changelog.ChangeSet;
-
-import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 
 /**
@@ -16,19 +12,16 @@ import java.util.SortedSet;
 public interface ExtensibleObject extends Cloneable {
 
     /**
-     * Return the names of all the set attributes. If an attribute is null the name may or may not be returned.
+     * Return the names of all the set attributes.
+     * If an attribute is null the name should not be returned.
+     * Should return both "standard" attributes and any custom attributes that have been set.
      */
-    SortedSet<String> getAttributeNames();
+    SortedSet<String> getAttributes();
 
     /**
-     * Returns the names of standard attributes. Any other attributes can be set, but this list is helpful for testing and tools.
+     * Returns the {@link ObjectMetaData} describing this instance.
      */
-    Set<String> getStandardAttributeNames();
-
-    /**
-     * Return the stored type of the given attribute. Include any applicable generics information.
-     */
-    Type getAttributeType(String attribute);
+    ObjectMetaData getObjectMetaData();
 
     /**
      * Returnsn true if the given attribute is set and not null.

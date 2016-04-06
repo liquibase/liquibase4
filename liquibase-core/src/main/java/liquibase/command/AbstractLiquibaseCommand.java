@@ -3,10 +3,21 @@ package liquibase.command;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 
+import java.util.Objects;
+
 /**
  * Base class for {@link LiquibaseCommand} implementations
  */
-public abstract class AbstractCommand<T extends CommandResult> extends AbstractExtensibleObject implements LiquibaseCommand<T> {
+public abstract class AbstractLiquibaseCommand<T extends CommandResult> extends AbstractExtensibleObject implements LiquibaseCommand<T> {
+
+    @Override
+    public int getPriority(String commandName, Scope scope) {
+        if (Objects.equals(commandName, getName())) {
+            return PRIORITY_DEFAULT;
+        } else {
+            return PRIORITY_NOT_APPLICABLE;
+        }
+    }
 
     /**
      * Calls validate method and then {@link #run(Scope)}

@@ -34,7 +34,7 @@ public class CodeInspectorTest extends Specification {
 
         TestUtil.getClasses(objectType) != null
         new TreeSet<>(listedTypes*.name) == new TreeSet((TestUtil.getClasses(objectType)*.name.findAll({
-            !it.contains("MockActionLogic") && !it.contains("MockExternalInteractionLogic")
+            !it.contains("MockActionLogic") && !it.contains("MockExternalInteractionLogic")  && !it.contains("MockAction")
         }))) //want ordered alphabetically in the file
 
         where:

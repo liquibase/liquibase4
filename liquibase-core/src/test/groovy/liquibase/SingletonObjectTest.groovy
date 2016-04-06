@@ -1,5 +1,6 @@
 package liquibase
 
+import liquibase.plugin.Plugin
 import liquibase.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -12,17 +13,13 @@ class SingletonObjectTest extends Specification {
     def "implementations of singleton object should have non-public constructors"() {
         def constructors = object.getDeclaredConstructors()
         expect:
-        if (object.getName().contains("Mock")) {
-            return;
-        }
-
         assert constructors.size() > 0: "No non-default constructors"
         for (def constructor : constructors) {
             assert !Modifier.isPublic(constructor.getModifiers()): "Constructor " + constructor.toString() + " is public"
         }
 
         where:
-        object << TestUtil.getClasses(SingletonObject)
+        object << TestUtil.getClasses(SingletonObject).findAll {!it.getName().contains("Mock") && !Plugin.isAssignableFrom(it)}
     }
 
 
