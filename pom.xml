@@ -546,17 +546,17 @@
             </build>
         </profile>
 
-        <profile>
-            <id>rpm</id>
-            <activation>
-                <os>
-                    <family>linux</family>
-                </os>
-            </activation>
-            <modules>
-                <module>liquibase-rpm</module>
-            </modules>
-        </profile>
+        <!--<profile>-->
+            <!--<id>rpm</id>-->
+            <!--<activation>-->
+                <!--<os>-->
+                    <!--<family>linux</family>-->
+                <!--</os>-->
+            <!--</activation>-->
+            <!--<modules>-->
+                <!--<module>liquibase-rpm</module>-->
+            <!--</modules>-->
+        <!--</profile>-->
 
         <profile>
             <id>doclint-java8-disable</id>
