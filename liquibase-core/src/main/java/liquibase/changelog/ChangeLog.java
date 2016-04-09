@@ -30,4 +30,14 @@ public class ChangeLog extends AbstractExtensibleObject implements ChangeLogEntr
         }
         return Collections.unmodifiableList(returnList);
     }
+
+    /**
+     * Returns the {@link #logicalPath}, or if not set then returns the {@link #physicalPath}
+     */
+    public String getPath() {
+        if (logicalPath != null) {
+            return logicalPath;
+        }
+        return physicalPath;
+    }
 }

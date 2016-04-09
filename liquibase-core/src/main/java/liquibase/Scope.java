@@ -30,6 +30,7 @@ public class Scope {
         classLoader,
         database,
         quotingStrategy,
+        changeLogHistoryService,
     }
 
     private Scope parent;

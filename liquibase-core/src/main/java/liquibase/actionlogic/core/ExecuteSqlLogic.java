@@ -11,6 +11,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -50,11 +51,13 @@ public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
         DatabaseConnection connection = database.getConnection();
 
         Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
+        String sql = action.sql.toString();
         try {
+            LoggerFactory.getLogger(getClass()).info("Executing SQL: "+sql);
             Statement stmt = jdbcConnection.createStatement();
-            stmt.execute(action.sql.toString());
+            stmt.execute(sql);
         } catch (SQLException e) {
-            throw new ActionPerformException("Error executing SQL: "+action.sql.toString(), e);
+            throw new ActionPerformException("Error executing SQL: "+ sql, e);
         }
         return new ExecuteResult(action);
 

@@ -8,6 +8,7 @@ import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.StringUtil;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,7 @@ public class ActionExecutor implements SingletonObject {
      * Tracks all executed actions in {@link #getExecutedPlans()}
      */
     public ActionResult execute(Action action, Scope scope) throws ActionPerformException {
+        LoggerFactory.getLogger(getClass()).info("Executing action {}", action);
         Plan plan = createPlan(action, scope);
         if (plan.getValidationErrors().hasErrors()) {
             throw new ActionPerformException("Validation Error(s): "+ StringUtil.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
@@ -102,6 +104,11 @@ public class ActionExecutor implements SingletonObject {
         ValidationErrors errors = new ValidationErrors(action);
         Plan plan = new Plan(buildStep(0, action, errors, scope));
         plan.validationErrors = errors;
+
+        LoggerFactory.getLogger(getClass()).debug("Created plan for {}: {}", action, plan);
+        if (plan.validationErrors.hasErrors()) {
+            LoggerFactory.getLogger(getClass()).debug("Validation errors for {}: {}", action, plan.validationErrors);
+        }
         return plan;
     }
 
@@ -291,7 +298,13 @@ public class ActionExecutor implements SingletonObject {
             }
 
             protected ActionResult executeImpl(Scope scope) throws ActionPerformException {
-                return this.getLogic().execute(action, scope);
+                ActionResult result = this.getLogic().execute(action, scope);
+                if (result instanceof DelegateResult) {
+                    for (Action action : ((DelegateResult) result).getActions()) {
+                        scope.getSingleton(ActionExecutor.class).execute(action, scope);
+                    }
+                }
+                return result;
             }
         }
 

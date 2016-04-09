@@ -203,7 +203,7 @@ public class Main {
 
                 Throwable cause = e.getCause();
                 while (cause != null) {
-                    if (loggedReasons.add(cause.getMessage())) {
+                    if (cause.getMessage() != null && loggedReasons.add(cause.getMessage())) {
                         System.out.println(StringUtil.indent(cause.getMessage()));
                     }
                     cause = cause.getCause();
@@ -253,7 +253,7 @@ public class Main {
         for (String classpathEntry : classpath) {
             File classPathFile = new File(classpathEntry);
             if (!classPathFile.exists()) {
-                throw new LiquibaseException(classPathFile.getAbsolutePath() + " does not exist");
+                throw new LiquibaseException("Classpath entry "+classPathFile.getAbsolutePath() + " does not exist");
             }
 
             URL newUrl = new File(classpathEntry).toURI().toURL();

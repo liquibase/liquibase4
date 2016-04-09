@@ -44,13 +44,15 @@ public class Snapshot extends AbstractExtensibleObject {
      * Adds the given object to this snapshot.
      */
     public Snapshot add(Item object) {
-        List typeObjects = this.objects.get(object.getClass());
-        if (typeObjects == null) {
-            typeObjects = new ArrayList<>();
-            this.objects.put(object.getClass(), typeObjects);
-        }
+        if (object != null) {
+            List typeObjects = this.objects.get(object.getClass());
+            if (typeObjects == null) {
+                typeObjects = new ArrayList<>();
+                this.objects.put(object.getClass(), typeObjects);
+            }
 
-        typeObjects.add(object);
+            typeObjects.add(object);
+        }
 
         return this;
     }

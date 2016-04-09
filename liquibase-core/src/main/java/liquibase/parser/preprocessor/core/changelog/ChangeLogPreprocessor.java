@@ -31,10 +31,8 @@ public class ChangeLogPreprocessor extends AbstractParsedNodePreprocessor {
         }
 
         ParsedNode changeLogEntries = node.getChild("changeLogEntries", true);
-        for (ParsedNode child : node.getChildren()) {
-            if (child.name.equals("changeSet")) {
-                child.moveTo(changeLogEntries);
-            }
+        for (ParsedNode changeSetNode : node.getChildren("changeSet", false)) {
+            changeSetNode.moveTo(changeLogEntries);
         }
     }
 }

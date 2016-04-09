@@ -8,8 +8,8 @@
         </encoder>
     </appender>
 
-    <logger name="liquibase" level="INFO"/>
-    <logger name="testmd" level="WARN"/>
+    <logger name="liquibase" level="WARN"/>
+    <logger name="testmd" level="INFO"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />

@@ -6,10 +6,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.MockJdbcConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.item.DatabaseObject;
-import liquibase.item.DatabaseObjectReference;
-import liquibase.item.Item;
-import liquibase.item.ItemReference;
+import liquibase.item.*;
 import liquibase.item.core.Schema;
 import liquibase.util.StringUtil;
 
@@ -127,8 +124,8 @@ public class MockDatabase extends GenericDatabase {
     }
 
     @Override
-    public String getCurrentDateTimeFunction(Scope scope) {
-        return "DATETIME()";
+    public FunctionCall getCurrentDateTimeFunction(Scope scope) {
+        return new FunctionCall("DATETIME()");
     }
 
     @Override

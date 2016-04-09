@@ -26,7 +26,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<ObjectType ext
     }
 
     /**
-     * Takes the {@link Snapshot} object off the OfflineConnection and then uses {@link #isRelatedTo(Item, DatabaseObjectReference, SnapshotItemsAction, Scope)} to filter down
+     * Takes the {@link Snapshot} object off the OfflineConnection and then uses {@link #isRelatedTo(Item, DatabaseObjectReference, SnapshotItemsAction, Scope)} to allow down
      * the list of objects to only the correct ones.
      * Normally you don't need to override this method, only getDatabaseObjectsFilter.
      * Throws ActionPerformException if there is no snapshot on the connection.
@@ -53,7 +53,7 @@ public abstract class AbstractSnapshotDatabaseObjectsLogicOffline<ObjectType ext
     }
 
     /**
-     * This m ethod is used by {@link AbstractSnapshotItemsLogic#execute(ItemReference, SnapshotItemsAction, Scope)} to filter down all objects of the {@link #getTypeToSnapshot()}
+     * This m ethod is used by {@link AbstractSnapshotItemsLogic#execute(ItemReference, SnapshotItemsAction, Scope)} to allow down all objects of the {@link #getTypeToSnapshot()}
      * to only the ones that are related to relatedTo.
      */
     protected abstract boolean isRelatedTo(ObjectType objectToCheck, DatabaseObjectReference relatedTo, SnapshotItemsAction action, Scope scope);

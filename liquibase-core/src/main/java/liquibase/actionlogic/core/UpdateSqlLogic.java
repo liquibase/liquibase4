@@ -13,6 +13,7 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -53,12 +54,15 @@ public class UpdateSqlLogic extends AbstractSqlLogic<UpdateSqlAction> {
         DatabaseConnection connection = database.getConnection();
 
         Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
+        String sql = action.sql.toString();
+        LoggerFactory.getLogger(getClass()).info("Updating with SQL: "+sql);
+
         try (Statement stmt = jdbcConnection.createStatement()) {
-            int rows = stmt.executeUpdate(action.sql.toString());
+            int rows = stmt.executeUpdate(sql);
 
             return new UpdateResult(action, rows);
         } catch (SQLException e) {
-            throw new ActionPerformException("Error executing SQL: "+action.sql.toString(), e);
+            throw new ActionPerformException("Error executing SQL: "+ sql, e);
         }
 
     }

@@ -27,7 +27,7 @@ class ParserFactoryTest extends Specification {
 """)
 
         then:
-        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{logicalPath=com/example/logical.xml}"
+        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{logicalPath=com/example/logical.xml, physicalPath=com/example/path.xml}"
     }
 
     def "can build changelog from empty 3.x-style xml"() {
@@ -40,7 +40,7 @@ class ParserFactoryTest extends Specification {
 """)
 
         then:
-        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{}"
+        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{physicalPath=com/example/path.xml}"
     }
 
 
@@ -60,6 +60,6 @@ class ParserFactoryTest extends Specification {
 """.trim())
 
         then:
-        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{changeLogEntries=[ChangeSet{actions=[addColumns(columns=[Column{name=test_col, relation=test_table, type=int}])], author=bob, id=1, runInTransaction=true}]}"
+        scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{changeLogEntries=[ChangeSet{actions=[addColumns(columns=[Column{name=test_col, relation=test_table, type=int}])], author=bob, id=1, runInTransaction=true}], physicalPath=com/example/path.xml}"
     }
 }

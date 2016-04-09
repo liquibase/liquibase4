@@ -9,6 +9,7 @@ import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.exception.ActionPerformException;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,6 +26,8 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
     public ActionResult execute(QuerySqlAction action, Scope scope) throws ActionPerformException {
         String sql = action.sql.toString();
         try {
+            LoggerFactory.getLogger(getClass()).info("Querying with SQL: "+sql);
+
             AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
             DatabaseConnection connection = database.getConnection();
 

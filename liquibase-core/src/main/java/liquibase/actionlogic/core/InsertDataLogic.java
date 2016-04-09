@@ -89,7 +89,7 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
 
         if (cell.type == null) {
             if (cell.value == null) {
-                return dataTypeLogicFactory.getDataTypeLogic(new DataType((DataType.StandardType) null), scope);
+                return dataTypeLogicFactory.getDataTypeLogic(null, scope);
             } else {
                 return dataTypeLogicFactory.getDataTypeLogic(DataType.forType(cell.value.getClass()), scope);
             }

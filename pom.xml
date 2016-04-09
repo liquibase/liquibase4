@@ -53,7 +53,7 @@
         <maven.build.timestamp.format>E MMM dd hh:mm:ss zzz yyyy</maven.build.timestamp.format>
         <build.timestamp>${maven.build.timestamp}</build.timestamp>
         <project.version>4.0.0-SNAPSHOT</project.version>
-        <slf4j.version>1.7.12</slf4j.version>
+        <slf4j.version>1.7.21</slf4j.version>
     </properties>
 
     <modules>

@@ -5,6 +5,7 @@ import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
+import liquibase.item.FunctionCall;
 import liquibase.item.Item;
 import liquibase.item.core.Column;
 import liquibase.item.core.ForeignKey;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 public class MysqlDatabase extends AbstractJdbcDatabase {
 
     public MysqlDatabase() {
-        this.currentDateTimeFunction = "NOW()";
+        this.currentDateTimeFunction = new FunctionCall("NOW()");
         this.identifierStartQuote = "`";
         this.identifierEndQuote = "`";
     }

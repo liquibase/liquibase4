@@ -33,7 +33,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
     public IdentifierCaseHandling quotedIdentifierCaseHandling;
     public IdentifierCaseHandling unquotedIdentifierCaseHandling;
 
-    public String currentDateTimeFunction = "CURRENT_TIMESTAMP(2)";
+    public FunctionCall currentDateTimeFunction = new FunctionCall("CURRENT_TIMESTAMP(2)");
 
     //Automatically populated with values in block at end of this file
     public Set<String> reservedWords = new HashSet<>();
@@ -435,7 +435,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
     }
 
     @Override
-    public String getCurrentDateTimeFunction(Scope scope) {
+    public FunctionCall getCurrentDateTimeFunction(Scope scope) {
         return currentDateTimeFunction;
     }
 

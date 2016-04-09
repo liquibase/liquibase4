@@ -4,6 +4,8 @@ import liquibase.Scope;
 import liquibase.exception.DependencyException;
 import liquibase.exception.ParseException;
 import liquibase.parser.mapping.ParsedNodeMappingFactory;
+import liquibase.parser.postprocessor.MappingPostprocessor;
+import liquibase.parser.postprocessor.MappingPostprocessorFactory;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.ParsedNodePreprocessorFactory;
 import liquibase.plugin.AbstractPluginFactory;
@@ -36,7 +38,7 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
 
 
     /**
-     * Converts the file at sourcePath to the passed objectType using the configured {@link Parser}(s), {@link ParsedNodePreprocessor}(s) and {@link liquibase.parser.mapping.ParsedNodeMapping}.
+     * Converts the file at sourcePath to the passed objectType using the configured {@link Parser}(s), {@link ParsedNodePreprocessor}(s), {@link liquibase.parser.mapping.ParsedNodeMapping} and {@link liquibase.parser.postprocessor.MappingPostprocessor}(s).
      * <b>This is the primary method to use when parsing files into objects</b>
      */
     public <ObjectType> ObjectType parse(String sourcePath, Class<ObjectType> objectType, Scope scope) throws ParseException {
@@ -51,11 +53,18 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
             for (ParsedNodePreprocessor preprocessor : scope.getSingleton(ParsedNodePreprocessorFactory.class).getPreprocessors()) {
                 preprocessor.process(rootNode, scope);
             }
+
+            ObjectType returnObject = scope.getSingleton(ParsedNodeMappingFactory.class).toObject(rootNode, objectType, null, null, scope);
+
+            for (MappingPostprocessor postprocessor : scope.getSingleton(MappingPostprocessorFactory.class).getPostprocessors()) {
+                postprocessor.process(returnObject, scope);
+            }
+
+            return returnObject;
         } catch (DependencyException e) {
             throw new ParseException(e);
         }
 
-        return scope.getSingleton(ParsedNodeMappingFactory.class).toObject(rootNode, objectType, null, null, scope);
     }
 
 }

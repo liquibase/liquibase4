@@ -171,10 +171,10 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
                 }
             }
         }
-//        ChangeLogHistoryServiceFactory.getInstance().register(createChangeLogHistoryService(database));
+//        ChangeLogHistoryServiceFactory.getInstance().register(getChangeLogHistoryService(database));
     }
 
-//    protected ChangeLogHistoryService createChangeLogHistoryService(Database database) {
+//    protected ChangeLogHistoryService getChangeLogHistoryService(Database database) {
 //        return new OfflineChangeLogHistoryService(database, new File(changeLogFile),
 //            outputLiquibaseSql != OutputLiquibaseSql.NONE, // Output DML
 //            outputLiquibaseSql == OutputLiquibaseSql.ALL   // Output DDL

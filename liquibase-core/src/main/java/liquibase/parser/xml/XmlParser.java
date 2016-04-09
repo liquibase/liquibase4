@@ -87,7 +87,10 @@ public class XmlParser extends AbstractParser {
 
                 xmlReader.parse(new InputSource(inputStreams.get(0)));
 
-                return handler.getRootNode();
+                ParsedNode rootNode = handler.getRootNode();
+
+                rootNode.addChild("physicalPath").setValue(path);
+                return rootNode;
             }
         } catch (Exception e) {
             throw new ParseException(e);

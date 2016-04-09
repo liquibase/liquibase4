@@ -3,10 +3,13 @@ package liquibase.diff.output.changelog;
 import liquibase.Scope;
 import liquibase.SingletonObject;
 import liquibase.action.Action;
+import liquibase.item.core.Column;
+import liquibase.item.core.Table;
 import liquibase.plugin.AbstractPluginFactory;
 import liquibase.snapshot.Snapshot;
 import liquibase.item.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +29,23 @@ public class ActionGeneratorFactory extends AbstractPluginFactory<ActionGenerato
     @Override
     protected int getPriority(ActionGenerator obj, Scope scope, Object... args) {
         return obj.getPriority((Class<? extends Item>) args[1], (Snapshot) args[2], (Snapshot) args[2], scope);
+    }
+
+    /**
+     * Fixes the targetSnapshot to look like the referenceSnapshot
+     */
+    public List<? extends Action> fix(Snapshot targetSnapshot, Snapshot referenceSnapshot, Scope scope) {
+        List<Action> returnList = new ArrayList<>();
+        for (Class<? extends Item> type : new Class[]{Table.class}) {
+            for (Item item : referenceSnapshot.get(type)) {
+                Item targetItem = targetSnapshot.get(item.getClass(), item.toReference());
+                if (targetItem == null) {
+                    returnList.addAll(fixMissing(item, referenceSnapshot, targetSnapshot, scope));
+                }
+            }
+        }
+
+        return returnList;
     }
 
     /**

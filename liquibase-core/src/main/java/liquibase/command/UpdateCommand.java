@@ -5,7 +5,10 @@ import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.changelog.ChangeLog;
+import liquibase.changelog.ChangeLogHistoryService;
+import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.changelog.ChangeLogIterator;
+import liquibase.changelog.filter.ShouldRunChangeSetFilter;
 import liquibase.changelog.visitor.ExecuteChangeSetVisitor;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -69,7 +72,11 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
 
         ChangeLog changeLog = scope.getSingleton(ParserFactory.class).parse(changeLogFile, ChangeLog.class, scope);
 
-        ChangeLogIterator changeLogIterator = new ChangeLogIterator(changeLog);
+        ChangeLogHistoryService historyService = scope.getSingleton(ChangeLogHistoryServiceFactory.class).getChangeLogHistoryService(scope);
+        scope = scope.child(Scope.Attr.changeLogHistoryService, historyService);
+        historyService.init(scope);
+
+        ChangeLogIterator changeLogIterator = new ChangeLogIterator(changeLog, new ShouldRunChangeSetFilter(historyService.getRanChangeSets(scope)));
         changeLogIterator.run(new ExecuteChangeSetVisitor(), scope);
 
         return new CommandResult("Updated "+database);

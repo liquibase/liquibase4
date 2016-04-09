@@ -30,11 +30,4 @@ public class GenericDatabase extends AbstractJdbcDatabase {
     public String getShortName() {
         return "generic";
     }
-
-
-    @Override
-    public String getCurrentDateTimeFunction(Scope scope) {
-        return currentDateTimeFunction;
-    }
-
 }

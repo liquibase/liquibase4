@@ -2,11 +2,8 @@ package liquibase.database;
 
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
-import liquibase.item.DatabaseObject;
-import liquibase.item.DatabaseObjectReference;
+import liquibase.item.*;
 import liquibase.plugin.Plugin;
-import liquibase.item.Item;
-import liquibase.item.ItemReference;
 
 import java.util.Date;
 
@@ -62,7 +59,7 @@ public interface Database extends Plugin, ExtensibleObject {
     /**
      * Returns database-specific function for generating the current date/time.
      */
-    String getCurrentDateTimeFunction(Scope scope);
+    FunctionCall getCurrentDateTimeFunction(Scope scope);
 
     /**
      * Returns string used as line comment prefix
