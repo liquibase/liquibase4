@@ -16,7 +16,7 @@ public class ChangeSet extends AbstractExtensibleObject implements ChangeLogEntr
     public String author;
     public String logicalPath;
 
-    public String comments;
+    public String comment;
     public String created;
 
     private ChangeLog changeLog;

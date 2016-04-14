@@ -75,7 +75,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         for (ParsedNode child : parsedNode.getChildren()) {
             ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.name);
             if (attribute == null) {
-                throw new ParseException("Unexpected attribute: " + returnObject.getClass() + "." + child.name);
+                throw new ParseException("Unexpected attribute '" + child.name + "' for " + returnObject.getClass().getName(), child);
             }
             Type attributeType = attribute.type;
             Class attributeClass;
@@ -93,7 +93,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
             } else if (attributeType instanceof Class) {
                 attributeClass = (Class) attributeType;
             } else {
-                throw new ParseException("Unexpected attributeType: " + attributeType.getClass().getName() + " " + attributeType.toString());
+                throw new ParseException("Unexpected attributeType: " + attributeType.getClass().getName() + " " + attributeType.toString(), child);
             }
 
             if (Collection.class.isAssignableFrom(attributeClass)) {
@@ -148,11 +148,11 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         try {
             int modifiers = objectType.getModifiers();
             if (Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers)) {
-                throw new ParseException("Cannot create interface/abstract class " + objectType.getName() + ". There needs to be a custom ParsedNodeMapping for " + describeParams(parsedNode, objectType, containerType, containerAttribute));
+                throw new ParseException("Cannot create interface/abstract class " + objectType.getName() + ". There needs to be a custom ParsedNodeMapping for " + describeParams(parsedNode, objectType, containerType, containerAttribute), parsedNode);
             }
             return objectType.newInstance();
         } catch (InstantiationException | IllegalArgumentException | IllegalAccessException e) {
-            throw new ParseException(e);
+            throw new ParseException(e, parsedNode);
         }
     }
 

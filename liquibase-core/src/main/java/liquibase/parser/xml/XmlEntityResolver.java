@@ -36,7 +36,7 @@ public abstract class XmlEntityResolver extends AbstractPlugin {
             }
             return new InputSource(inputStreams.get(0));
         } catch (Exception e) {
-            throw new ParseException(e);
+            throw new ParseException(e, null);
         }
     }
 

@@ -9,6 +9,7 @@ import liquibase.item.core.UniqueConstraint;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,14 @@ public class AddColumnsAction extends AbstractAction {
 
     public ParsedNodePreprocessor createPreprocessor() {
         return new AbstractActionPreprocessor(AddColumnsAction.class) {
+
+            @Override
+            public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+                return new Class[] {
+                        StandardActionPreprocessor.class
+                };
+            }
+
             @Override
             public String[] getAliases() {
                 return new String[]{"addColumn"};
@@ -50,15 +59,15 @@ public class AddColumnsAction extends AbstractAction {
              */
             @Override
             protected void processActionNode(ParsedNode actionNode) throws ParseException {
-                String tableName = actionNode.getChildValue("tableName", String.class, true);
+                ParsedNode tableName = actionNode.getChild("tableName", false);
 
                 ParsedNode columns = actionNode.getChild("columns", true);
                 actionNode.moveChildren("column", columns);
 
-                for (ParsedNode column : actionNode.getChildren("column", true)) {
-                    ParsedNode relation = column.addChild("relation");
-                    relation.addChild("name").setValue(tableName);
+                for (ParsedNode column : columns.getChildren("column", false)) {
+                    tableName.copyTo(column);
                 }
+                tableName.remove();
 
                 super.processActionNode(actionNode);
             }

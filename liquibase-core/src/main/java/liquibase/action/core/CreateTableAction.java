@@ -7,6 +7,7 @@ import liquibase.item.datatype.DataType;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +55,22 @@ public class CreateTableAction extends AbstractAction {
     @Override
     public ParsedNodePreprocessor createPreprocessor() {
         return new AbstractActionPreprocessor(CreateTableAction.class) {
+
+            @Override
+            public Class<? extends ParsedNodePreprocessor>[] mustBeAfter() {
+                return new Class[] {
+                        StandardActionPreprocessor.class
+                };
+            }
+
             @Override
             protected void processActionNode(ParsedNode actionNode) throws ParseException {
                 super.processActionNode(actionNode);
                 ParsedNode tableNode = actionNode.getChild("table", true);
 
-                ParsedNode tableName = actionNode.getChild("tableName", false);
-                tableName.moveTo(tableNode);
-                tableName.name = "name";
+                actionNode.moveChildren("relation", tableNode);
+                actionNode.moveChildren("tablespace", tableNode);
+                actionNode.moveChildren("remarks", tableNode);
 
                 RelationReference relation = new RelationReference(Table.class, tableNode.getChildValue("name", String.class, false));
 

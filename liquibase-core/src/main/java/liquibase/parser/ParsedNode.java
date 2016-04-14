@@ -5,6 +5,8 @@ import liquibase.exception.ParseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,27 +34,38 @@ public class ParsedNode extends AbstractExtensibleObject {
     public String name;
     public Object value;
 
+    private String originalName;
+    private ParsedNode originalParent;
+
+    /**
+     * The name of the file this parsed node came from.
+     */
+    public String fileName;
+
+    /**
+     * The line number of the file this parsed node came from.
+     */
+    public Integer lineNumber;
+
+    /**
+     * The column number if the file this parsed node came from.
+     */
+    public Integer columnNumber;
+
+    private Logger log = LoggerFactory.getLogger(getClass());
+
     /**
      * Creates a new root ParsedNode.
      */
     public static ParsedNode createRootNode(String name) {
-        return new ParsedNode(name);
-    }
-
-    private ParsedNode(String name) {
-        this.name = name;
-    }
-
-    private ParsedNode(ParsedNode parent) {
-        if (parent == null) {
-            throw new UnexpectedLiquibaseException("Cannot create parsed node with no parent");
-        }
-        this.parent = parent;
+        return new ParsedNode(name, null);
     }
 
     private ParsedNode(String name, ParsedNode parent) {
-        this(parent);
         this.name = name;
+        this.originalName = name;
+        this.parent = parent;
+        this.originalParent = parent;
     }
 
     /**
@@ -82,6 +95,19 @@ public class ParsedNode extends AbstractExtensibleObject {
         return parent;
     }
 
+    /**
+     * The name originally set for this parsed node. Even if the name is changed, this value stays constant.
+     */
+    public String getOriginalName() {
+        return originalName;
+    }
+
+    /**
+     * The original parent of this parsed node. Even if the node is moved, this value stays constant.
+     */
+    public ParsedNode getOriginalParent() {
+        return originalParent;
+    }
 
     /**
      * Creates a new child node with the given name and adds it to this object's children.
@@ -107,7 +133,7 @@ public class ParsedNode extends AbstractExtensibleObject {
                 if (returnNode == null) {
                     returnNode = child;
                 } else {
-                    throw new ParseException("Multiple children match " + name);
+                    throw new ParseException("Multiple children match " + name, this);
                 }
             }
         }
@@ -175,6 +201,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         while (childIterator.hasNext()) {
             ParsedNode child = childIterator.next();
             if (filter.matches(child)) {
+                log.debug("Removing '"+child.name+"' from '"+this.name+"'");
                 childIterator.remove();
                 child.parent = null;
             }
@@ -195,8 +222,10 @@ public class ParsedNode extends AbstractExtensibleObject {
      */
     public void remove() throws ParseException {
         if (this.parent == null) {
-            throw new ParseException("Cannot remove root node");
+            throw new ParseException("Cannot remove root node", this);
         }
+
+        log.debug("Removing '"+this.name+"' from '"+parent.name+"'");
 
         Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
         while (parentChildIterator.hasNext()) {
@@ -226,6 +255,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         while (childIterator.hasNext()) {
             ParsedNode child = childIterator.next();
             if (filter.matches(child)) {
+                log.debug("Moving '"+child.name+"' from '"+child.parent.name+"' to '"+newParent.name+"'");
 
                 childIterator.remove();
                 newParent.children.add(child);
@@ -246,6 +276,39 @@ public class ParsedNode extends AbstractExtensibleObject {
      * Move this node to the passed new parent.
      */
     public void moveTo(ParsedNode newParent) {
+        log.debug("Moving '"+this.name+"' from '"+this.parent.name+"' to '"+newParent.name+"'");
+
+        Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
+        while (parentChildIterator.hasNext()) {
+            ParsedNode child = parentChildIterator.next();
+            if (child == this) {
+                parentChildIterator.remove();
+                break;
+            }
+        }
+        this.parent = newParent;
+        newParent.children.add(this);
+    }
+
+    /**
+     * Copy this node to the passed new parent.
+     */
+    public void copyTo(ParsedNode newParent) {
+        log.debug("Copying '"+this.name+"' from '"+this.parent.name+"' to '"+newParent.name+"'");
+
+        ParsedNode copy = newParent.addChild(this.name);
+        copy.originalName = this.originalName;
+        copy.originalParent = this.originalParent;
+
+        copy.fileName = this.fileName;
+        copy.lineNumber = this.lineNumber;
+        copy.columnNumber = this.columnNumber;
+
+        copy.value = this.value;
+        for (ParsedNode child : this.children) {
+            child.copyTo(copy);
+        }
+
         Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
         while (parentChildIterator.hasNext()) {
             ParsedNode child = parentChildIterator.next();
@@ -258,6 +321,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         newParent.children.add(this);
 
     }
+
 
     /**
      * Interface for finding parsed nodes.

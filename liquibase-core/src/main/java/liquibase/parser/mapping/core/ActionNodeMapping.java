@@ -35,7 +35,7 @@ public class ActionNodeMapping extends AbstractParsedNodeMapping<Action> {
     protected Action createObject(ParsedNode parsedNode, Class<Action> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         Action action = scope.getSingleton(ActionFactory.class).getAction(parsedNode.name, scope);
         if (action == null) {
-            throw new ParseException("Unknown action: " + parsedNode.name);
+            throw new ParseException("Unknown action: " + parsedNode.name, parsedNode);
         }
         return action;
     }

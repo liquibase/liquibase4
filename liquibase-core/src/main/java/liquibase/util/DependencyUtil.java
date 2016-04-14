@@ -2,6 +2,10 @@ package liquibase.util;
 
 import liquibase.DependencyObject;
 import liquibase.exception.DependencyException;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,155 +16,187 @@ public class DependencyUtil {
      */
     public static <Type extends DependencyObject> List<Type> sort(Collection<Type> objects) throws DependencyException {
 
-        DependencyGraph graph = new DependencyGraph();
-        for (DependencyObject object : objects) {
-            graph.add(object);
+        final Logger log = LoggerFactory.getLogger(DependencyUtil.class);
+
+        final Map<Class, Type> instanceByClass = new HashedMap();
+        for (Type obj : objects) {
+            instanceByClass.put(obj.getClass(), obj);
         }
-        return graph.sort();
+
+        final List<Type> returnList = new ArrayList<>();
+        DependencyGraph graph = new DependencyGraph(new NodeValueListener<Class>() {
+            @Override
+            public void evaluating(Class nodeValue) {
+                if (nodeValue != null) {
+                    Type originalObject = instanceByClass.get(nodeValue);
+                    if (originalObject == null) {
+                        log.debug(nodeValue.getName()+" was declared as a dependency, but no instance of that class was passed");
+                    }
+                    returnList.add(originalObject);
+                }
+            }
+        });
+
+        for (DependencyObject object : objects) {
+            Class[] mustBeBefore = object.mustBeBefore();
+            Class[] mustBeAfter = object.mustBeAfter();
+
+            Class objectClass = object.getClass();
+            if ((mustBeBefore == null || mustBeBefore.length == 0) && (mustBeAfter == null || mustBeAfter.length == 0)) {
+                graph.add(objectClass, null);
+            } else {
+                if (mustBeAfter != null) {
+                    for (Class beAfter : mustBeAfter) {
+                        graph.add(beAfter, objectClass);
+                    }
+                }
+                if (mustBeBefore != null) {
+                    for (Class beBefore : mustBeBefore) {
+                        graph.add(objectClass, beBefore);
+                    }
+                }
+            }
+        }
+
+        graph.computeDependencies();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Final dependency order: "+ StringUtils.join(returnList, ", "));
+        }
+        return returnList;
     }
 
-    private static class DependencyGraph<Type extends DependencyObject> {
-        private Map<Class<Type>, Node> allNodes = new HashMap<>();
 
-        private void add(Type object) {
-            allNodes.put((Class<Type>) object.getClass(), new Node(object));
+    private static class DependencyGraph<T> {
+
+        private HashMap<T, GraphNode<T>> nodes = new HashMap<>();
+        private NodeValueListener<T> listener;
+        private List<GraphNode<T>> evaluatedNodes = new ArrayList<>();
+
+
+        public DependencyGraph(NodeValueListener<T> listener) {
+            this.listener = listener;
         }
 
-        public List<Type> sort() throws DependencyException {
-            for (Class<Type> type : allNodes.keySet()) {
-                for (Class<Type> afterType : (Class<Type>[]) ObjectUtil.defaultIfNull(getNode(type).object.mustBeBefore(), new Class[0])) {
-                    getNode(type).addEdge(getNode(afterType));
-                }
-
-                for (Class<Type> beforeType : (Class<Type>[]) ObjectUtil.defaultIfNull(getNode(type).object.mustBeAfter(), new Class[0])) {
-                    getNode(beforeType).addEdge(getNode(type));
-                }
+        public void add(T evalFirstValue, T evalAfterValue) {
+            GraphNode<T> firstNode = null;
+            GraphNode<T> afterNode = null;
+            if (nodes.containsKey(evalFirstValue)) {
+                firstNode = nodes.get(evalFirstValue);
+            } else {
+                firstNode = createNode(evalFirstValue);
+                nodes.put(evalFirstValue, firstNode);
             }
-
-            ArrayList<Node> returnNodes = new ArrayList<>();
-
-            SortedSet<Node> nodesWithNoIncomingEdges = new TreeSet<>(new Comparator<Node>() {
-                @Override
-                public int compare(Node o1, Node o2) {
-                    return o1.object.getClass().getName().compareTo(o2.object.getClass().getName());
-                }
-            });
-            for (Node n : allNodes.values()) {
-                if (n.inEdges.size() == 0) {
-                    nodesWithNoIncomingEdges.add(n);
-                }
+            if (nodes.containsKey(evalAfterValue)) {
+                afterNode = nodes.get(evalAfterValue);
+            } else {
+                afterNode = createNode(evalAfterValue);
+                nodes.put(evalAfterValue, afterNode);
             }
-
-            while (!nodesWithNoIncomingEdges.isEmpty()) {
-                Node node = nodesWithNoIncomingEdges.iterator().next();
-                nodesWithNoIncomingEdges.remove(node);
-
-                returnNodes.add(node);
-
-                for (Iterator<Edge> it = node.outEdges.iterator(); it.hasNext(); ) {
-                    //remove edge e from the graph
-                    Edge edge = it.next();
-                    Node nodePointedTo = edge.to;
-                    it.remove();//Remove edge from node
-                    nodePointedTo.inEdges.remove(edge);//Remove edge from nodePointedTo
-
-                    //if nodePointedTo has no other incoming edges then insert nodePointedTo into nodesWithNoIncomingEdges
-                    if (nodePointedTo.inEdges.isEmpty()) {
-                        nodesWithNoIncomingEdges.add(nodePointedTo);
-                    }
-                }
-            }
-            //Check to see if all edges are removed
-            for (Node n : allNodes.values()) {
-                if (!n.inEdges.isEmpty()) {
-                    String message = "Could not resolve dependencies due to dependency cycle. Dependencies: \n";
-                    for (Node node : allNodes.values()) {
-                        SortedSet<String> fromTypes = new TreeSet<>();
-                        SortedSet<String> toTypes = new TreeSet<>();
-                        for (Edge edge : node.inEdges) {
-                            fromTypes.add(edge.from.object.getClass().getName());
-                        }
-                        for (Edge edge : node.outEdges) {
-                            toTypes.add(edge.to.object.getClass().getName());
-                        }
-                        String from = StringUtil.join(fromTypes, ",");
-                        String to = StringUtil.join(toTypes, ",");
-                        message += "    [" + from + "] -> " + node.object.getClass().getName() + " -> [" + to + "]\n";
-                    }
-
-                    throw new DependencyException(message);
-                }
-            }
-            List<Type> returnList = new ArrayList<>();
-            for (Node node : returnNodes) {
-                returnList.add(node.object);
-            }
-            return returnList;
+            firstNode.addGoingOutNode(afterNode);
+            afterNode.addComingInNode(firstNode);
         }
 
-
-        private Node getNode(Class<Type> type) throws DependencyException {
-            Node node = allNodes.get(type);
-            if (node == null) {
-                try {
-                    node = new Node(type.newInstance());
-                } catch (Exception e) {
-                    throw new DependencyException(e);
-                }
-            }
+        private GraphNode<T> createNode(T value) {
+            GraphNode<T> node = new GraphNode<>();
+            node.value = value;
             return node;
         }
 
-
-        private class Node {
-            public final Type object;
-            public final HashSet<Edge> inEdges;
-            public final HashSet<Edge> outEdges;
-
-            public Node(Type object) {
-                this.object = object;
-                inEdges = new HashSet<>();
-                outEdges = new HashSet<>();
+        public void computeDependencies() {
+            List<GraphNode<T>> orphanNodes = getOrphanNodes();
+            List<GraphNode<T>> nextNodesToDisplay = new ArrayList<>();
+            for (GraphNode<T> node : orphanNodes) {
+                listener.evaluating(node.value);
+                evaluatedNodes.add(node);
+                nextNodesToDisplay.addAll(node.getGoingOutNodes());
             }
-
-            public Node addEdge(Node node) {
-                Edge e = new Edge(this, node);
-                outEdges.add(e);
-                node.inEdges.add(e);
-                return this;
-            }
-
-            @Override
-            public String toString() {
-                return object.toString();
-            }
+            computeDependencies(nextNodesToDisplay);
         }
 
-        private class Edge {
-            public final Node from;
-            public final Node to;
-
-            public Edge(Node from, Node to) {
-                this.from = from;
-                this.to = to;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == null) {
-                    return false;
+        private void computeDependencies(List<GraphNode<T>> nodes) {
+            List<GraphNode<T>> nextNodesToDisplay = null;
+            for (GraphNode<T> node : nodes) {
+                if (!isAlreadyEvaluated(node)) {
+                    List<GraphNode<T>> comingInNodes = node.getComingInNodes();
+                    if (areAlreadyEvaluated(comingInNodes)) {
+                        listener.evaluating(node.value);
+                        evaluatedNodes.add(node);
+                        List<GraphNode<T>> goingOutNodes = node.getGoingOutNodes();
+                        if (goingOutNodes != null) {
+                            if (nextNodesToDisplay == null)
+                                nextNodesToDisplay = new ArrayList<>();
+                            // add these too, so they get a chance to be displayed
+                            // as well
+                            nextNodesToDisplay.addAll(goingOutNodes);
+                        }
+                    } else {
+                        if (nextNodesToDisplay == null)
+                            nextNodesToDisplay = new ArrayList<>();
+                        // the checked node should be carried
+                        nextNodesToDisplay.add(node);
+                    }
                 }
-                if (!Edge.class.isAssignableFrom(obj.getClass())) {
-                    return false;
-                }
-                Edge e = (Edge) obj;
-                return e.from == from && e.to == to;
             }
+            if (nextNodesToDisplay != null) {
+                computeDependencies(nextNodesToDisplay);
+            }
+            // here the recursive call ends
+        }
 
-            @Override
-            public int hashCode() {
-                return (this.from.toString() + "." + this.to.toString()).hashCode();
+        private boolean isAlreadyEvaluated(GraphNode<T> node) {
+            return evaluatedNodes.contains(node);
+        }
+
+        private boolean areAlreadyEvaluated(List<GraphNode<T>> nodes) {
+            return evaluatedNodes.containsAll(nodes);
+        }
+
+        private List<GraphNode<T>> getOrphanNodes() {
+            List<GraphNode<T>> orphanNodes = null;
+            Set<T> keys = nodes.keySet();
+            for (T key : keys) {
+                GraphNode<T> node = nodes.get(key);
+                if (node.getComingInNodes() == null) {
+                    if (orphanNodes == null)
+                        orphanNodes = new ArrayList<>();
+                    orphanNodes.add(node);
+                }
             }
+            return orphanNodes;
         }
     }
+
+    static private class GraphNode<T> {
+        public T value;
+        private List<GraphNode<T>> comingInNodes;
+        private List<GraphNode<T>> goingOutNodes;
+
+        public void addComingInNode(GraphNode<T> node) {
+            if (comingInNodes == null)
+                comingInNodes = new ArrayList<>();
+            comingInNodes.add(node);
+        }
+
+        public void addGoingOutNode(GraphNode<T> node) {
+            if (goingOutNodes == null)
+                goingOutNodes = new ArrayList<>();
+            goingOutNodes.add(node);
+        }
+
+        public List<GraphNode<T>> getComingInNodes() {
+            return comingInNodes;
+        }
+
+        public List<GraphNode<T>> getGoingOutNodes() {
+            return goingOutNodes;
+        }
+    }
+
+
+    public interface NodeValueListener<T> {
+        void evaluating(T nodeValue);
+    }
+
+
 }

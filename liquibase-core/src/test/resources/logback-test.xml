@@ -4,12 +4,14 @@
         <!-- encoders are assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg [%mdc]%n</pattern>
         </encoder>
     </appender>
 
+    <logger name="liquibase.parser" level="DEBUG"/>
+
     <logger name="liquibase" level="WARN"/>
-    <logger name="testmd" level="INFO"/>
+    <logger name="testmd" level="WARN"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />

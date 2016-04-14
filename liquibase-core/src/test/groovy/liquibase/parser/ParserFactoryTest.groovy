@@ -3,9 +3,13 @@ package liquibase.parser
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.changelog.ChangeLog
+import liquibase.parser.xml.TestXmlGenerator
 import liquibase.parser.xml.XmlParserTest
 import liquibase.resource.MockResourceAccessor
+import liquibase.util.StreamUtil
+import spock.lang.Ignore
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class ParserFactoryTest extends Specification {
 
@@ -62,4 +66,47 @@ class ParserFactoryTest extends Specification {
         then:
         scope.getSingleton(ParserFactory).parse("com/example/path.xml", ChangeLog, scope).describe() == "ChangeLog{changeLogEntries=[ChangeSet{actions=[addColumns(columns=[Column{name=test_col, relation=test_table, type=int}])], author=bob, id=1, runInTransaction=true}], physicalPath=com/example/path.xml}"
     }
+
+
+    @Ignore
+    @Unroll("#featureName: #xml")
+    def "generated 3.5-style changeSet xml is parsed correctly"() {
+        when:
+        def scope = JUnitScope.getInstance()
+        def path = "com/example/test.xml"
+        def parserFactory = scope.getSingleton(ParserFactory)
+
+        def changeLogXml = """
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="1" author="tester">
+        $xml
+    </changeSet>
+
+</databaseChangeLog>
+""".trim()
+
+        scope = scope.child(Scope.Attr.resourceAccessor, new MockResourceAccessor()
+                .addData(path, changeLogXml)
+                .addData("liquibase/parser/core/xml/dbchangelog-3.5.xsd", StreamUtil.readStreamAsString(getClass().getResourceAsStream("/liquibase/parser/core/xml/dbchangelog-3.5.xsd"), scope))
+        )
+        try {
+            def object = parserFactory.parse(path, ChangeLog, scope)
+            println object
+        } catch (e) {
+            println xml
+            throw e
+        }
+
+        then:
+        true
+
+        where:
+        xml << new TestXmlGenerator().generateXml("liquibase/parser/core/xml/dbchangelog-3.5.xsd", "//group[@name=\"changeSetChildren\"]/choice/element")
+
+    }
+
 }
