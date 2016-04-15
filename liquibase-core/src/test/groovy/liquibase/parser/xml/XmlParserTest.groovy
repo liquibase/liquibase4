@@ -17,7 +17,7 @@ class XmlParserTest extends Specification {
 
         then:
         def e = thrown(ParseException)
-        e.message == "liquibase.exception.ParseException: Could not find any files that match com/example/invalid.xml"
+        e.message == "Could not find any files that match com/example/invalid.xml"
     }
 
     def "can parse a simple file"() {

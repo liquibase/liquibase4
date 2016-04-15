@@ -99,7 +99,7 @@ public class Main {
         PatternLayoutEncoder loggerPattern = new PatternLayoutEncoder();
 
         loggerPattern.setContext(loggerContext);
-        loggerPattern.setPattern("%date %level %logger{10} [%file:%line] %msg%n");
+        loggerPattern.setPattern("%date %level %logger{10} [%file:%lineNumber] %msg [%mdc]%n");
         loggerPattern.start();
 
         ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();

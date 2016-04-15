@@ -31,7 +31,7 @@ public class ChangeLogEntryNodeMapping extends AbstractParsedNodeMapping<ChangeL
         if (parsedNode.name.equals("changeSet")) {
             return new ChangeSet();
         } else {
-            throw new ParseException("Unknown node name: "+parsedNode.name);
+            throw new ParseException("Unknown node name: "+parsedNode.name, parsedNode);
         }
     }
 }

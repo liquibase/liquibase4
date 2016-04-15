@@ -5,6 +5,8 @@ import liquibase.exception.ParseException;
 import liquibase.parser.AbstractParser;
 import liquibase.parser.ParsedNode;
 import liquibase.resource.InputStreamList;
+import liquibase.util.ObjectUtil;
+import liquibase.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.*;
 
 /**
  * Standard parser for XML files. Expects files to have a .xml extension.
@@ -25,6 +26,7 @@ import java.util.Deque;
 public class XmlParser extends AbstractParser {
 
     private SAXParserFactory saxParserFactory;
+    public static final String XML_ATTRIBUTE_PROPERTY = "xmlAttribute";
 
     public XmlParser() {
         saxParserFactory = SAXParserFactory.newInstance();
@@ -57,12 +59,12 @@ public class XmlParser extends AbstractParser {
 
             try (InputStreamList inputStreams = scope.getResourceAccessor().openStreams(path)) {
                 if (inputStreams == null || inputStreams.size() == 0) {
-                    throw new ParseException("Could not find any files that match " + path);
+                    throw new ParseException("Could not find any files that match " + path, null);
                 } else if (inputStreams.size() > 1) {
-                    throw new ParseException("Found " + inputStreams.size() + " files that match " + path);
+                    throw new ParseException("Found " + inputStreams.size() + " files that match " + path, null);
                 }
 
-                XmlParserSaxHandler handler = new XmlParserSaxHandler();
+                XmlParserSaxHandler handler = new XmlParserSaxHandler(path);
                 xmlReader.setContentHandler(handler);
 
                 xmlReader.setErrorHandler(new ErrorHandler() {
@@ -92,9 +94,37 @@ public class XmlParser extends AbstractParser {
                 rootNode.addChild("physicalPath").setValue(path);
                 return rootNode;
             }
+        } catch (ParseException e) {
+            throw e;
         } catch (Exception e) {
-            throw new ParseException(e);
+            throw new ParseException(e, null);
         }
+    }
+
+    @Override
+    public String describeOriginal(ParsedNode parsedNode) {
+        String returnString;
+        ParsedNode parent = parsedNode.getOriginalParent();
+        if (parsedNode.get(XML_ATTRIBUTE_PROPERTY, false)) {
+            returnString = "<" + parent.getOriginalName() + " " + parsedNode.getOriginalName() + "=\"" + parsedNode.value + "\">";
+            parent = parent.getOriginalParent();
+        } else {
+            returnString = "<" + parsedNode.getOriginalName() + ">";
+        }
+
+        if (parent != null) {
+            SortedSet<String> parentAttributes = new TreeSet<>();
+            for (ParsedNode maybeAttr : parent.getChildren()) {
+                if (maybeAttr.get(XML_ATTRIBUTE_PROPERTY, false)) {
+                    parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.value + "\"");
+                }
+            }
+            returnString = "<" + parent.getOriginalName()
+                    + (parentAttributes.size() == 0 ? "" : " " + StringUtil.join(parentAttributes, " "))
+                    + ">\n" + StringUtil.indent(returnString);
+        }
+
+        return returnString;
     }
 
     /**
@@ -120,7 +150,7 @@ public class XmlParser extends AbstractParser {
 
             XmlEntityResolver resolver = scope.getSingleton(XmlEntityResolverFactory.class).getResolver(name, publicId, baseURI, systemId, scope);
             if (resolver == null) {
-                log.debug("No resolver configured for "+systemId+". Will load from network");
+                log.debug("No resolver configured for " + systemId + ". Will load from network");
                 return null;
             }
 
@@ -151,15 +181,23 @@ public class XmlParser extends AbstractParser {
 
     protected static class XmlParserSaxHandler extends DefaultHandler {
 
+        private final String fileName;
         private Deque<ParsedNode> nodeQueue = new ArrayDeque<>();
         private StringBuilder text = null;
         private ParsedNode rootNode;
+        private Locator locator;
 
-        public XmlParserSaxHandler() {
+        public XmlParserSaxHandler(String path) {
+            this.fileName = path;
         }
 
         public ParsedNode getRootNode() {
             return rootNode;
+        }
+
+        @Override
+        public void setDocumentLocator(Locator locator) {
+            this.locator = locator;
         }
 
         @Override
@@ -180,9 +218,22 @@ public class XmlParser extends AbstractParser {
             } else {
                 node = parentNode.addChild(localName);
             }
+            node.fileName = fileName;
+            if (locator != null) {
+                node.lineNumber = locator.getLineNumber();
+                node.columnNumber = locator.getColumnNumber();
+            }
+
             if (attributes != null) {
                 for (int i = 0; i < attributes.getLength(); i++) {
-                    node.addChild(attributes.getLocalName(i)).setValue(attributes.getValue(i));
+                    ParsedNode child = node.addChild(attributes.getLocalName(i)).setValue(attributes.getValue(i));
+                    node.fileName = fileName;
+                    if (locator != null) {
+                        child.lineNumber = locator.getLineNumber();
+                        child.columnNumber = locator.getColumnNumber();
+                    }
+                    child.set("xmlAttribute", true);
+
                 }
             }
 

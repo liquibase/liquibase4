@@ -16,5 +16,6 @@ class ParsedNodePreprocessorFactoryTest extends Specification {
         processors.size() > 0
         assert processors.contains(new ChangeLogPreprocessor())
         assert processors.indexOf(new ChangeLogPreprocessor()) < processors.indexOf(new ChangeSetPreprocessor())
+        assert !processors.contains(null)
     }
 }
