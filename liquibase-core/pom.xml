@@ -51,6 +51,19 @@
         </resources>
 
         <plugins>
+            <!-- We don't want this module to install or deploy -->
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>

@@ -17,7 +17,7 @@
 
     <build>
         <plugins>
-            <!-- This is the one module we actually want to install/deploy -->
+            <!-- This is the one child module we actually want to install/deploy -->
             <plugin>
                 <artifactId>maven-install-plugin</artifactId>
                 <configuration>
