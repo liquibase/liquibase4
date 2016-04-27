@@ -1,7 +1,13 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
 import liquibase.item.core.Index;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,4 +30,43 @@ public class CreateIndexesAction extends AbstractAction {
         }
     }
 
+    @Override
+    public ParsedNodePreprocessor[] createPreprocessors() {
+        return new ParsedNodePreprocessor[] {
+                new AbstractActionPreprocessor(CreateIndexesAction.class) {
+
+                    @Override
+                    protected String[] getAliases() {
+                        return new String[] {"createIndex"};
+                    }
+
+                    @Override
+                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                        ParsedNode table = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                        if (table != null) {
+                            ParsedNode index = actionNode.addChild("index");
+
+                            table.moveTo(index);
+
+                            actionNode.renameChildren("indexName", "name");
+                            actionNode.moveChildren("name", index);
+
+                            actionNode.moveChildren("tablespace", index);
+                            actionNode.moveChildren("clustered", index);
+                            actionNode.moveChildren("unique", index);
+
+                            actionNode.removeChildren("associatedWith");
+
+                            ParsedNode columns = index.getChild("columns", true);
+                            for (ParsedNode column : actionNode.getChildren("column", false)) {
+                                column.rename("indexedColumn");
+                                column.moveTo(columns);
+                            }
+
+                        }
+                        actionNode.moveChildren("index", actionNode.getChild("indexes", true));
+                    }
+                }
+        };
+    }
 }

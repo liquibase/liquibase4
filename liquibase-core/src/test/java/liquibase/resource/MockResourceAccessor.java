@@ -4,6 +4,7 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.exception.LiquibaseException;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 public class MockResourceAccessor extends AbstractExtensibleObject implements ResourceAccessor {
@@ -39,6 +40,11 @@ public class MockResourceAccessor extends AbstractExtensibleObject implements Re
             }
             return returnList;
         }
+    }
+
+    @Override
+    public InputStream openStream(String path) throws LiquibaseException {
+        return openStreams(path).get(0);
     }
 
     @Override

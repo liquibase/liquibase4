@@ -44,7 +44,7 @@ public class FileSystemResourceAccessorTest extends Specification {
 
         then:
         contents.size() == 1
-        StreamUtil.readStreamAsString(contents.iterator().next(), JUnitScope.instance) == "liquibase.database.core.GenericDatabase"
+        StreamUtil.readStreamAsString(contents.iterator().next(), null, JUnitScope.instance) == "liquibase.database.core.GenericDatabase"
 
         cleanup:
         contents.close();
@@ -234,7 +234,7 @@ root-file2.txt
 
         then:
         contents.size() == 1
-        StreamUtil.readStreamAsString(contents.iterator().next(), JUnitScope.instance) == "This file is in com/example as example-file1.txt"
+        StreamUtil.readStreamAsString(contents.iterator().next(), null, JUnitScope.instance) == "This file is in com/example as example-file1.txt"
 
         cleanup:
         contents.close()
@@ -246,7 +246,7 @@ root-file2.txt
 
         then:
         content.size() == 1
-        StreamUtil.readStreamAsString(content.iterator().next(), JUnitScope.instance) == "This file is compressed as gz in the jar"
+        StreamUtil.readStreamAsString(content.iterator().next(), null, JUnitScope.instance) == "This file is compressed as gz in the jar"
 
         cleanup:
         content.close()
@@ -271,7 +271,7 @@ root-file2.txt
 
         then:
         contents.size() == 1
-        StreamUtil.readStreamAsString(contents.iterator().next(), JUnitScope.instance) == "This file is in com/example as example-file1.txt in the zip"
+        StreamUtil.readStreamAsString(contents.iterator().next(), null, JUnitScope.instance) == "This file is in com/example as example-file1.txt in the zip"
     }
 
 }

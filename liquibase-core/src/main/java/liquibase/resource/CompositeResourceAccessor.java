@@ -12,7 +12,7 @@ import java.util.TreeSet;
 /**
  * A {@link liquibase.resource.ResourceAccessor} that contains multiple sub-accessors and combines the results of all of them.
  */
-public class CompositeResourceAccessor extends AbstractExtensibleObject implements ResourceAccessor {
+public class CompositeResourceAccessor extends AbstractResourceAccessor {
 
     private List<ResourceAccessor> resourceAccessors;
 

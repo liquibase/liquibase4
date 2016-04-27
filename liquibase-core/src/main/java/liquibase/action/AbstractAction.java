@@ -74,7 +74,7 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
     /**
      * Default implementation returns null.
      */
-    public ParsedNodePreprocessor createPreprocessor() {
+    public ParsedNodePreprocessor[] createPreprocessors() {
        return null;
     }
 }

@@ -144,4 +144,33 @@ class ParsedNodeTest extends Specification {
         assert child1.parent.is(child2)
         assert root.toString() == "ParsedNode{root, children=[ParsedNode{child2=child 2 value, children=[ParsedNode{child2A=child 2A value}, ParsedNode{child2B=child 2B value}, ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}]}]}"
     }
+
+    def "print"() {
+        expect:
+        child1.print() == """
+root / child1: child 1 value
+    child1A: child 1A value
+    child1B: child 1B value
+""".trim()
+
+        child2.print() == """
+root / child2: child 2 value
+    child2A: child 2A value
+    child2B: child 2B value
+""".trim()
+
+        child1A.print() == """
+root / child1 / child1A: child 1A value
+""".trim()
+
+        root.print() == """
+root
+    child1: child 1 value
+        child1A: child 1A value
+        child1B: child 1B value
+    child2: child 2 value
+        child2A: child 2A value
+        child2B: child 2B value
+""".trim()
+    }
 }

@@ -55,15 +55,21 @@ class TestXmlGenerator {
 
             def elements = (NodeList) xpath.compile(selector).evaluate(xsdDocument, XPathConstants.NODESET)
             for (int i = 0; i < elements.getLength(); i++) {
-                xml.add(createElement((Element) elements.item(i), xsdDocument))
+                List<String> elementStack = new ArrayList<>()
+                if (((Element) elements.item(i)).getAttribute("ref").equals("rollback")) {
+                    continue;
+                }
+                xml.add(createElement((Element) elements.item(i), elementStack, xsdDocument))
             }
         }
 
         return xml
     }
 
-    private String createElement(Element elementPointer, Document xsd) {
+    private String createElement(Element elementPointer, List<String> elementStack, Document xsd) {
         String nodeName = StringUtil.trimToNull(elementPointer.getAttribute("ref"))
+
+        Element complexType = null;
 
         Element elementDefinition
         if (nodeName == null) {
@@ -71,15 +77,25 @@ class TestXmlGenerator {
             if (nodeName == null) {
                 throw new RuntimeException("Could not find element ref or name");
             }
-            elementDefinition = elementPointer
+            def nestedTypes = elementPointer.getElementsByTagName("xsd:complexType");
+            if (nestedTypes != null && nestedTypes.length > 0) {
+                complexType = nestedTypes.item(0);
+            }
+            elementDefinition = elementPointer;
         } else {
             elementDefinition = (Element) xpath.compile("/schema/element[@name='$nodeName']").evaluate(xsd, XPathConstants.NODE)
         }
 
 
-        def attributes = [:]
+        def attributes = new HashMap<String, String>()
         def childElements = []
         boolean hasText = false;
+
+        if (!isAllowedChild(elementStack, nodeName, null)) {
+            return "";
+        }
+
+        elementStack.add(nodeName);
 
         String type = StringUtils.trimToNull(elementDefinition.getAttribute("type"));
         if (nodeName.equals("empty")) {
@@ -88,7 +104,9 @@ class TestXmlGenerator {
             hasText = true
         } else {
 
-            Element complexType = (Element) xpath.compile("/schema/element[@name='$nodeName']/complexType").evaluate(xsd, XPathConstants.NODE)
+            if (complexType == null) {
+                complexType = (Element) xpath.compile("/schema/element[@name='$nodeName']/complexType").evaluate(xsd, XPathConstants.NODE)
+            }
 
             if (complexType == null) {
                 hasText = true;
@@ -110,7 +128,7 @@ class TestXmlGenerator {
                     } else if (tagName.equals("xsd:choice")) {
                         NodeList elements = ((Element) childNode).getElementsByTagName("xsd:element");
                         for (int j = 0; j < elements.length; j++) {
-                            childElements.add(createElement((Element) elements.item(j), xsd))
+                            childElements.add(createElement((Element) elements.item(j), elementStack, xsd))
                         }
                     } else if (tagName.equals("xsd:attributeGroup")) {
                         addAttributesFromGroup(childNode.getAttribute("ref"), attributes, xsd)
@@ -123,8 +141,14 @@ class TestXmlGenerator {
                     } else if (tagName.equals("xsd:sequence")) {
                         NodeList sequenceElements = ((Element) childNode).getElementsByTagName("xsd:element");
                         for (int k = 0; k < sequenceElements.length; k++) {
-                            childElements.add(createElement(sequenceElements.item(k), xsd))
+                            childElements.add(createElement(sequenceElements.item(k), elementStack, xsd))
                         }
+                    } else if (tagName.equals("xsd:complexContent")) {
+                        //just assumes addColumn since that's all there is that uses it
+                        addAttributesFromGroup("column", attributes, xsd)
+                        attributes.put("beforeColumn", "xsd:string")
+                        attributes.put("afterColumn", "xsd:string")
+                        attributes.put("position", "xsd:string")
                     } else if (tagName.equals("xsd:anyAttribute")) {
                         //don't do anything
                     } else {
@@ -138,18 +162,36 @@ class TestXmlGenerator {
         StringBuilder xml = new StringBuilder()
         xml.append("<$nodeName")
 
+        attributes = attributes.findAll {
+            key, value ->
+                return isAllowedChild(elementStack, key, value)
+        }
+
         if (attributes.size() > 0) {
             xml.append(" ")
             List<String> list = new ArrayList<>();
             for (Map.Entry entry : (Set<Map.Entry>) attributes.entrySet()) {
+                def definedType = overrideDataType.get(entry.getKey());
+                if (definedType == null) {
+                    definedType = entry.getValue()
+                }
+
                 String value;
-                switch (entry.getValue()) {
+
+                switch (definedType) {
                     case "xsd:string":
-                        value = "a string for " + entry.getKey();
+                        if (entry.getKey().toLowerCase().contains("class")) {
+                            value = String.class.getName();
+                        } else {
+                            value = "a string for " + entry.getKey();
+                        }
                         break;
                     case "xsd:boolean":
                     case "booleanExp":
                         value = "true";
+                        break;
+                    case "integerExp":
+                        value = "42";
                         break;
                     case "xsd:long":
                     case "xsd:nonNegativeInteger":
@@ -175,8 +217,220 @@ class TestXmlGenerator {
         }
         xml.append("</$nodeName>")
 
+        elementStack.pop()
+
         return xml.toString();
 
+    }
+
+    Map<String, String> overrideDataType = [
+            "startValue" : "xsd:nonNegativeInteger",
+            "minValue"   : "xsd:nonNegativeInteger",
+            "maxValue"   : "xsd:nonNegativeInteger",
+            "incrementBy": "xsd:nonNegativeInteger",
+    ];
+
+    Map<String, List<String>> nodesToSkip = [
+            "createTable"            : [
+                    "value",
+                    "valueNumeric",
+                    "valueDate",
+                    "valueBoolean",
+                    "valueComputed",
+                    "valueSequenceCurrent",
+                    "valueSequenceNext",
+                    "valueBlobFile",
+                    "valueClobFile",
+
+                    "defaultValueNumeric",
+                    "defaultValueDate",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+
+                    "references",
+
+                    "encoding",
+            ],
+            "addColumn"              : [
+                    "value",
+                    "valueNumeric",
+                    "valueDate",
+                    "valueBoolean",
+                    "valueComputed",
+                    "valueSequenceCurrent",
+                    "valueSequenceNext",
+                    "valueBlobFile",
+                    "valueClobFile",
+
+                    "defaultValueNumeric",
+                    "defaultValueDate",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+
+                    "references",
+                    "position",
+                    "encoding",
+                    "beforeColumn",
+                    "afterColumn",
+            ],
+            "insert"                 : [
+                    "valueNumeric",
+                    "valueDate",
+                    "valueBoolean",
+                    "valueComputed",
+                    "valueSequenceCurrent",
+                    "valueSequenceNext",
+                    "valueBlobFile",
+                    "valueClobFile",
+
+                    "defaultValue",
+                    "defaultValueNumeric",
+                    "defaultValueDate",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+
+                    "constraints",
+                    "encoding",
+
+                    "autoIncrement",
+                    "startWith",
+                    "incrementBy",
+                    "remarks",
+            ],
+            "createProcedure"        : [
+                    "encoding",
+                    "path",
+                    "relativeToChangelogFile",
+            ],
+            "sqlFile"                : [
+                    "relativeToChangelogFile"
+            ],
+            "dropColumn"             : [
+                    "column"
+            ],
+            "dropSequence"           : [
+                    "cycle",
+                    "startValue",
+                    "ordered",
+                    "minValue",
+                    "cacheSize",
+                    "maxValue",
+                    "incrementBy"
+            ],
+            "createIndex"            : [
+                    "autoIncrement",
+                    "defaultValue",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueDate",
+                    "defaultValueNumeric",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+                    "encoding",
+                    "incrementBy",
+                    "remarks",
+                    "startWith",
+                    "type",
+                    "value",
+                    "valueBlobFile",
+                    "valueBoolean",
+                    "valueClobFile",
+                    "valueComputed",
+                    "valueDate",
+                    "valueNumeric",
+                    "valueSequenceCurrent",
+                    "valueSequenceNext",
+                    "constraints"
+            ],
+            "addForeignKeyConstraint": [
+                    "referencesUniqueColumn"
+            ],
+            "addPrimaryKey"          : [
+                    "forIndexSchemaName",
+                    "forIndexCatalogName",
+                    "forIndexName",
+                    "clustered"
+            ],
+            "addDefaultValue"        : [
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueDate",
+                    "defaultValueNumeric",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+            ],
+            "addUniqueConstraint"    : [
+                    "forIndexCatalogName",
+                    "forIndexSchemaName",
+                    "forIndexName",
+                    "tablespace",
+            ],
+            "update"                 : [
+                    "computed",
+                    "defaultValue",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueDate",
+                    "defaultValueNumeric",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+                    "encoding",
+                    "incrementBy",
+                    "remarks",
+                    "startWith",
+                    "type",
+                    "valueBlobFile",
+                    "valueBoolean",
+                    "valueClobFile",
+                    "valueComputed",
+                    "valueDate",
+                    "valueNumeric",
+                    "valueSequenceCurrent",
+                    "valueSequenceNext",
+                    "whereParams",
+                    "autoIncrement",
+                    "constraints",
+            ],
+            "delete"                 : [
+                    "whereParams"
+            ],
+            "loadData"               : [
+                    "relativeToChangelogFile",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueDate",
+                    "defaultValueNumeric",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+            ],
+            "loadUpdateData"         : [
+                    "relativeToChangelogFile",
+                    "defaultValueBoolean",
+                    "defaultValueComputed",
+                    "defaultValueDate",
+                    "defaultValueNumeric",
+                    "defaultValueSequenceCurrent",
+                    "defaultValueSequenceNext",
+            ],
+
+            "changeSet": [
+                    "rollback"
+            ]
+    ]
+
+    boolean isAllowedChild(List<String> elementStack, String key, String value) {
+        for (Map.Entry<String, List<String>> entry : nodesToSkip.entrySet()) {
+            if (elementStack.contains(entry.getKey()) && entry.getValue().contains(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private addAttributesFromGroup(String groupName, Map attributes, Document xsd) {

@@ -7,6 +7,8 @@ import liquibase.resource.InputStreamList;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
+import java.io.InputStream;
+
 /**
  * Base class for plugins that are able to find XML Entities locally. Primarily used for finding XSD schemas in the classpath.
  * Lookup objects with {@link XmlEntityResolverFactory}
@@ -24,17 +26,7 @@ public abstract class XmlEntityResolver extends AbstractPlugin {
         String path = getRootPath(name, publicId, baseURI, systemId, scope)+"/"+xsdFile;
 
         try {
-            InputStreamList inputStreams = scope.getResourceAccessor().openStreams(path);
-            if (inputStreams == null || inputStreams.size() == 0) {
-                LoggerFactory.getLogger(getClass()).debug("Could not find "+path+" in resourceAccessor");
-                return null;
-            }
-            if (inputStreams.size() > 1) {
-                LoggerFactory.getLogger(getClass()).debug("Found "+inputStreams.size()+" files matching "+path+" in resourceAccessor");
-                inputStreams.close();
-                return null;
-            }
-            return new InputSource(inputStreams.get(0));
+            return new InputSource(scope.getResourceAccessor().openStream(path));
         } catch (Exception e) {
             throw new ParseException(e, null);
         }

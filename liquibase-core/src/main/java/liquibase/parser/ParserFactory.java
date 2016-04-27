@@ -80,31 +80,40 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
             ParsedNode problemNode = e.getProblemNode();
 
             String parseErrorMessage = "Error parsing ";
+
+            if (problemNode != null && problemNode.getOriginalName() != null) {
+                parseErrorMessage += "\"" + problemNode.getOriginalName() + "\" in ";
+            }
+
             if (problemNode == null || problemNode.fileName == null) {
                 parseErrorMessage += sourcePath;
             } else {
-                parseErrorMessage = problemNode.fileName;
+                parseErrorMessage += problemNode.fileName;
             }
 
             if (problemNode != null && problemNode.lineNumber != null) {
-                parseErrorMessage += " " + problemNode.lineNumber;
+                parseErrorMessage += " line " + problemNode.lineNumber;
                 if (problemNode.columnNumber != null) {
-                    parseErrorMessage = parseErrorMessage + ":" + problemNode.columnNumber;
+                    parseErrorMessage = parseErrorMessage + ", column " + problemNode.columnNumber;
                 }
             }
-
-            message = parseErrorMessage + " - " + message;
 
             String near = null;
             if (problemNode != null) {
                 near = parser.describeOriginal(problemNode);
             }
 
-            if (near != null) {
-                message += StringUtil.indent("\nNear:\n"+near+"\n");
+            if (near == null) {
+                message = parseErrorMessage + message;
+            } else {
+                message = parseErrorMessage + "\n" + StringUtil.indent(near + "\n\n" + message);
             }
 
-            LoggerFactory.getLogger(getClass()).warn(message);
+
+            if (problemNode != null) {
+                LoggerFactory.getLogger(getClass()).debug("Error parsing:\n" + StringUtil.indent(problemNode.print()));
+            }
+
             throw new ParseException(message, e, problemNode);
         }
 

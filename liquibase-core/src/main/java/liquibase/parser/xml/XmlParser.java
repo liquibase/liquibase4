@@ -17,6 +17,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -57,12 +58,7 @@ public class XmlParser extends AbstractParser {
             xmlReader.setEntityResolver(resolver);
 
 
-            try (InputStreamList inputStreams = scope.getResourceAccessor().openStreams(path)) {
-                if (inputStreams == null || inputStreams.size() == 0) {
-                    throw new ParseException("Could not find any files that match " + path, null);
-                } else if (inputStreams.size() > 1) {
-                    throw new ParseException("Found " + inputStreams.size() + " files that match " + path, null);
-                }
+            try (InputStream inputStream = scope.getResourceAccessor().openStream(path)) {
 
                 XmlParserSaxHandler handler = new XmlParserSaxHandler(path);
                 xmlReader.setContentHandler(handler);
@@ -87,15 +83,13 @@ public class XmlParser extends AbstractParser {
                     }
                 });
 
-                xmlReader.parse(new InputSource(inputStreams.get(0)));
+                xmlReader.parse(new InputSource(inputStream));
 
                 ParsedNode rootNode = handler.getRootNode();
 
                 rootNode.addChild("physicalPath").setValue(path);
                 return rootNode;
             }
-        } catch (ParseException e) {
-            throw e;
         } catch (Exception e) {
             throw new ParseException(e, null);
         }
@@ -103,25 +97,30 @@ public class XmlParser extends AbstractParser {
 
     @Override
     public String describeOriginal(ParsedNode parsedNode) {
-        String returnString;
-        ParsedNode parent = parsedNode.getOriginalParent();
+        String returnString = "";
+        ParsedNode nodeToPrint = parsedNode;
         if (parsedNode.get(XML_ATTRIBUTE_PROPERTY, false)) {
-            returnString = "<" + parent.getOriginalName() + " " + parsedNode.getOriginalName() + "=\"" + parsedNode.value + "\">";
-            parent = parent.getOriginalParent();
-        } else {
-            returnString = "<" + parsedNode.getOriginalName() + ">";
+            nodeToPrint = parsedNode.getOriginalParent();
         }
 
-        if (parent != null) {
+        while (nodeToPrint != null) {
             SortedSet<String> parentAttributes = new TreeSet<>();
-            for (ParsedNode maybeAttr : parent.getChildren()) {
+            for (ParsedNode maybeAttr : nodeToPrint.getChildren()) {
                 if (maybeAttr.get(XML_ATTRIBUTE_PROPERTY, false)) {
                     parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.value + "\"");
                 }
             }
-            returnString = "<" + parent.getOriginalName()
+
+            String nodeString = "<" + nodeToPrint.getOriginalName()
                     + (parentAttributes.size() == 0 ? "" : " " + StringUtil.join(parentAttributes, " "))
-                    + ">\n" + StringUtil.indent(returnString);
+                    + ">";
+            if (returnString.isEmpty()) {
+                returnString += "near " + nodeString;
+            } else {
+                returnString += "\n" + StringUtil.indent("in " + nodeString);
+            }
+
+            nodeToPrint = nodeToPrint.getOriginalParent();
         }
 
         return returnString;

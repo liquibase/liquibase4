@@ -8,6 +8,9 @@ import liquibase.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -187,7 +190,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         for (ParsedNode child : this.children) {
             if (filter.matches(child)) {
                 list.add(child);
-            } else if (recursive) {
+            } else if (recursive && !child.children.isEmpty()) {
                 child.getChildren(filter, recursive, list);
             }
         }
@@ -201,7 +204,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         while (childIterator.hasNext()) {
             ParsedNode child = childIterator.next();
             if (filter.matches(child)) {
-                log.debug("Removing '"+child.name+"' from '"+this.name+"'");
+                log.debug("Removing '" + child.name + "' from '" + this.name + "'");
                 childIterator.remove();
                 child.parent = null;
             }
@@ -225,7 +228,7 @@ public class ParsedNode extends AbstractExtensibleObject {
             throw new ParseException("Cannot remove root node", this);
         }
 
-        log.debug("Removing '"+this.name+"' from '"+parent.name+"'");
+        log.debug("Removing '" + this.name + "' from '" + parent.name + "'");
 
         Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
         while (parentChildIterator.hasNext()) {
@@ -255,7 +258,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         while (childIterator.hasNext()) {
             ParsedNode child = childIterator.next();
             if (filter.matches(child)) {
-                log.debug("Moving '"+child.name+"' from '"+child.parent.name+"' to '"+newParent.name+"'");
+                log.debug("Moving '" + child.name + "' from '" + child.parent.name + "' to '" + newParent.name + "'");
 
                 childIterator.remove();
                 newParent.children.add(child);
@@ -276,7 +279,7 @@ public class ParsedNode extends AbstractExtensibleObject {
      * Move this node to the passed new parent.
      */
     public void moveTo(ParsedNode newParent) {
-        log.debug("Moving '"+this.name+"' from '"+this.parent.name+"' to '"+newParent.name+"'");
+        log.debug("Moving '" + this.name + "' from '" + this.parent.name + "' to '" + newParent.name + "'");
 
         Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
         while (parentChildIterator.hasNext()) {
@@ -290,11 +293,21 @@ public class ParsedNode extends AbstractExtensibleObject {
         newParent.children.add(this);
     }
 
+    public void moveValue(ParsedNode newNode) {
+        log.debug("Moving node value from '" + this.name + "' to '" + newNode.name + "'");
+        newNode.value = this.value;
+        this.value = null;
+    }
+
+
+
     /**
      * Copy this node to the passed new parent.
+     *
+     * @return the new copy
      */
-    public void copyTo(ParsedNode newParent) {
-        log.debug("Copying '"+this.name+"' from '"+this.parent.name+"' to '"+newParent.name+"'");
+    public ParsedNode copyTo(ParsedNode newParent) {
+        log.debug("Copying '" + this.name + "' from '" + this.parent.name + "' to '" + newParent.name + "'");
 
         ParsedNode copy = newParent.addChild(this.name);
         copy.originalName = this.originalName;
@@ -305,7 +318,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         copy.columnNumber = this.columnNumber;
 
         copy.value = this.value;
-        for (ParsedNode child : this.children) {
+        for (ParsedNode child : new ArrayList<>(this.children)) {
             child.copyTo(copy);
         }
 
@@ -320,8 +333,89 @@ public class ParsedNode extends AbstractExtensibleObject {
         this.parent = newParent;
         newParent.children.add(this);
 
+        return copy;
     }
 
+    /**
+     * Copies the direct children that match the given filter to the newParent.
+     */
+    public void copyChildren(ParsedNodeFilter filter, ParsedNode newParent) {
+        for (ParsedNode child : new ArrayList<>(children)) {
+            if (filter.matches(child)) {
+                child.copyTo(newParent);
+            }
+        }
+
+    }
+
+    /**
+     * Convenience method for {@link #copyChildren(ParsedNodeFilter, ParsedNode)} by child name
+     */
+    public void copyChildren(String childName, ParsedNode newParent) {
+        copyChildren(new ParsedNodeNameFilter(childName), newParent);
+    }
+
+
+    public ParsedNode rename(String newName) {
+        log.debug("Renamed '" + this.name + "' to '" + newName+ "'");
+        this.name = newName;
+        return this;
+    }
+
+    public void renameChildren(ParsedNodeFilter filter, String newName) {
+        for (ParsedNode child : children) {
+            if (filter.matches(child)) {
+                log.debug("Renamed '" + child.name + "' to '" + newName+ "'");
+                child.name = newName;
+            }
+        }
+
+    }
+
+    public void renameChildren(String oldName, String newName) {
+        renameChildren(new ParsedNodeNameFilter(oldName), newName);
+    }
+
+    public String print() {
+        return print(true);
+    }
+
+    private String print(boolean includePath) {
+        StringWriter writer = new StringWriter();
+        if (includePath) {
+            String parentString = "";
+            ParsedNode parent = this.getParent();
+            while (parent != null) {
+                parentString = parent.name + " / " + parentString;
+                parent = parent.getParent();
+            }
+            writer.write(parentString);
+        }
+
+        this.print(writer);
+
+        return writer.toString();
+    }
+
+    private void print(Writer writer) {
+        String output = name;
+        if (this.value != null) {
+            output += ": " + this.value;
+        }
+        for (ParsedNode child : children) {
+            output += "\n" + StringUtil.indent(child.print(false));
+        }
+
+        try {
+            writer.write(output);
+        } catch (IOException e) {
+            throw new UnexpectedLiquibaseException(e);
+        }
+    }
+
+    public <T> T getValue(T defaultValue, Class<T> type) {
+        return ObjectUtil.defaultIfNull(ObjectUtil.convert(this.value, type), defaultValue);
+    }
 
     /**
      * Interface for finding parsed nodes.

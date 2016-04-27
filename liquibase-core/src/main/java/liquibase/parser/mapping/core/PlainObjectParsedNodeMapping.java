@@ -30,6 +30,10 @@ public class PlainObjectParsedNodeMapping implements ParsedNodeMapping {
 
     @Override
     public Object toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        return ObjectUtil.convert(parsedNode.value, objectType);
+        try {
+            return ObjectUtil.convert(parsedNode.value, objectType);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException("Error parsing '"+parsedNode.name+"': cannot convert value '"+parsedNode.value+"' to a "+objectType.getName(), e, parsedNode);
+        }
     }
 }

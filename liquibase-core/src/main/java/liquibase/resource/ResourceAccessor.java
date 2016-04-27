@@ -3,6 +3,7 @@ package liquibase.resource;
 import liquibase.ExtensibleObject;
 import liquibase.exception.LiquibaseException;
 
+import java.io.InputStream;
 import java.util.SortedSet;
 
 /**
@@ -24,6 +25,8 @@ public interface ResourceAccessor extends ExtensibleObject {
      * @throws LiquibaseException if there is an error reading an existing path.
      */
     InputStreamList openStreams(String path) throws LiquibaseException;
+
+    InputStream openStream(String path) throws LiquibaseException;
 
     /**
      * Returns the path to all resources contained in the given path.

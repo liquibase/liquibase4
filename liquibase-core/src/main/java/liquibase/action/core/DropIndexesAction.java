@@ -1,7 +1,13 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
 import liquibase.item.core.IndexReference;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,5 +27,27 @@ public class DropIndexesAction extends AbstractAction {
         if (indexes != null) {
             this.indexes.addAll(Arrays.asList(indexes));
         }
+    }
+
+    @Override
+    public ParsedNodePreprocessor[] createPreprocessors() {
+        return new ParsedNodePreprocessor[] {
+                new AbstractActionPreprocessor(DropIndexesAction.class) {
+
+                    @Override
+                    protected String[] getAliases() {
+                        return new String[] {"dropIndex"};
+                    }
+
+                    @Override
+                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                        convertToIndexReferenceNode("catalogName", "schemaName", "tableName", "indexName", actionNode);
+                        ParsedNode indexes = actionNode.getChild("indexes", true);
+                        actionNode.moveChildren("index", indexes);
+
+                        actionNode.removeChildren("associatedWith");
+                    }
+                }
+        };
     }
 }

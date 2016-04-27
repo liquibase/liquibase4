@@ -19,6 +19,7 @@ liquibase.action.core.CreateSequencesAction
 liquibase.action.core.CreateStoredProceduresAction
 liquibase.action.core.CreateTableAction
 liquibase.action.core.CreateViewsAction
+liquibase.action.core.CustomClassAction
 liquibase.action.core.DeleteDataAction
 liquibase.action.core.DisableForeignKeyChecksAction
 liquibase.action.core.DropAllForeignKeysAction
@@ -33,6 +34,7 @@ liquibase.action.core.DropUniqueConstraintsAction
 liquibase.action.core.DropViewsAction
 liquibase.action.core.EnableForeignKeyChecksAction
 liquibase.action.core.ExecuteShellCommandAction
+liquibase.action.core.ExecuteSqlFileAction
 liquibase.action.core.InsertDataAction
 liquibase.action.core.InsertDataFromQueryAction
 liquibase.action.core.LoadDataAction

@@ -5,7 +5,7 @@ import liquibase.util.StringClauses;
 public class View extends Relation {
 
     public StringClauses definition;
-    public boolean completeDefinition = false;
+    public Boolean completeDefinition;
 
     public View() {
     }

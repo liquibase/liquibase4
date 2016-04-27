@@ -521,6 +521,10 @@ public class StringClauses {
         return true;
     }
 
+    public StringClauses[] split(String delimiter) {
+        return new StringClauses[0];
+    }
+
     public static interface LiteralClause {
         String toString();
     }

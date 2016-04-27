@@ -2,7 +2,6 @@ package liquibase.util;
 
 import liquibase.DependencyObject;
 import liquibase.exception.DependencyException;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ public class DependencyUtil {
 
         final Logger log = LoggerFactory.getLogger(DependencyUtil.class);
 
-        final Map<Class, Type> instanceByClass = new HashedMap();
+        final Map<Class, Type> instanceByClass = new HashMap<>();
         for (Type obj : objects) {
             instanceByClass.put(obj.getClass(), obj);
         }

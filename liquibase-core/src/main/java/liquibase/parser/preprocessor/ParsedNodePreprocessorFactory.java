@@ -42,9 +42,9 @@ public class ParsedNodePreprocessorFactory extends AbstractPluginFactory<ParsedN
         List<ParsedNodePreprocessor> returnList = new ArrayList<>(super.findAllInstances());
 
         for (Action action: ServiceLoader.load(Action.class, getFactoryScope().getClassLoader(true))) {
-            ParsedNodePreprocessor preprocessor = action.createPreprocessor();
-            if (preprocessor != null) {
-                returnList.add(preprocessor);
+            ParsedNodePreprocessor[] preprocessors = action.createPreprocessors();
+            if (preprocessors != null) {
+                returnList.addAll(Arrays.asList(preprocessors));
             }
         }
 

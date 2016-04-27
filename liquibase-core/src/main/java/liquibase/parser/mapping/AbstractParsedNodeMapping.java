@@ -1,9 +1,11 @@
 package liquibase.parser.mapping;
 
+import com.sun.javafx.collections.transformation.SortedList;
 import liquibase.ExtensibleObject;
 import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
+import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.parser.ParsedNode;
 import liquibase.util.ObjectUtil;
 
@@ -98,6 +100,18 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
 
             if (Collection.class.isAssignableFrom(attributeClass)) {
                 Collection collection = returnObject.get(child.name, Collection.class);
+                if (collection == null) {
+                    if (List.class.isAssignableFrom(attributeClass)) {
+                        collection = new ArrayList();
+                    } else if (SortedList.class.isAssignableFrom(attributeClass)) {
+                        collection = new TreeSet();
+                    } else if (Set.class.isAssignableFrom(attributeClass)) {
+                        collection = new HashSet();
+                    } else {
+                        throw new UnexpectedLiquibaseException("Unknown collection type: "+attributeClass.getName());
+                    }
+                    returnObject.set(child.name, collection);
+                }
                 collection.clear();
 
                 if (child.getChildren().size() > 0) {
@@ -131,6 +145,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
      * Default implementation uses a first-letter-lower-cased version of the passed object's simpleName.
      * Returns "null" if object is null.
      */
+
     protected String getNodeName(ObjectType object, Class containerType, String containerAttribute, Scope scope) {
         if (object == null) {
             return "null";

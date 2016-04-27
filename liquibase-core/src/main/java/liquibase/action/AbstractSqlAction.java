@@ -11,6 +11,7 @@ public abstract class AbstractSqlAction extends AbstractAction {
 
     public StringClauses sql;
     public String endDelimiter;
+    public String dbms;
 
     public AbstractSqlAction() {
     }

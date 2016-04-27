@@ -1,8 +1,10 @@
 package liquibase.util;
 
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public abstract class CollectionUtil {
@@ -128,6 +130,21 @@ public abstract class CollectionUtil {
         }
     }
 
+    /**
+     * Return a new map, filtered by the collectionFilter
+     */
+    public static <K,V> Map<K,V> select(Map<K,V> collection, CollectionFilter<Map.Entry<K,V>> collectionFilter) {
+        Map<K,V> newMap = new HashMap<>();
+
+        for (Map.Entry<K,V> entry : collection.entrySet()) {
+            if (collectionFilter.include(entry)) {
+                newMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return newMap;
+    }
+
 
     /**
      * Return a new list, filtered by the collectionFilter
@@ -214,6 +231,39 @@ public abstract class CollectionUtil {
             list.add(item);
         }
         return list;
+    }
+
+    public static <T> T[] union(Class<T> objectType, T[] array, T... moreObjects) {
+        if (array == null && moreObjects == null) {
+            return null;
+        }
+
+        List<T> returnList = new ArrayList<>();
+        if (array != null) {
+            returnList.addAll(Arrays.asList(array));
+        }
+
+        if (moreObjects != null) {
+            for (T obj : moreObjects) {
+                returnList.add(obj);
+            }
+        }
+
+        return (T[]) returnList.toArray((T[]) Array.newInstance(objectType, returnList.size()));
+    }
+
+    public static <T> T[] union(Class<T> objectType, T[]... arrays) {
+        if (arrays == null) {
+            return null;
+        }
+
+        List<T> returnList = new ArrayList<>();
+        for (T[] array : arrays) {
+            if (array != null) {
+                returnList.addAll(Arrays.asList(array));
+            }
+        }
+        return (T[]) returnList.toArray((T[]) Array.newInstance(objectType, returnList.size()));
     }
 
     public interface CollectionFilter<T> {

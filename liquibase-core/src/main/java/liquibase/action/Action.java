@@ -54,5 +54,5 @@ public interface Action extends ExtensibleObject, Plugin {
      *
      * @see liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor for preprocessing that is always done for actions.
      */
-    ParsedNodePreprocessor createPreprocessor();
+    ParsedNodePreprocessor[] createPreprocessors();
 }

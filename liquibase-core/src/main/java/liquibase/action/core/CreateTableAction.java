@@ -1,5 +1,6 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
 import liquibase.exception.ParseException;
 import liquibase.item.core.*;
@@ -7,10 +8,9 @@ import liquibase.item.datatype.DataType;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
-import liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor;
+import liquibase.util.CollectionUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Creates a table along with the specified columns, primary key, foreignKeys, and uniqueConstraints.
@@ -23,6 +23,7 @@ public class CreateTableAction extends AbstractAction {
     public PrimaryKey primaryKey;
     public List<ForeignKey> foreignKeys;
     public List<UniqueConstraint> uniqueConstraints;
+    public List<CheckConstraint> checkConstraints;
 
 
     public CreateTableAction() {
@@ -53,33 +54,48 @@ public class CreateTableAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor createPreprocessor() {
-        return new AbstractActionPreprocessor(CreateTableAction.class) {
+    public ParsedNodePreprocessor[] createPreprocessors() {
+        return new ParsedNodePreprocessor[]{
+                new AbstractActionPreprocessor(CreateTableAction.class) {
 
-            @Override
-            public Class<? extends ParsedNodePreprocessor>[] mustBeAfter() {
-                return new Class[] {
-                        StandardActionPreprocessor.class
-                };
-            }
+                    @Override
+                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                        ParsedNode tableNode = actionNode.getChild("table", true);
 
-            @Override
-            protected void processActionNode(ParsedNode actionNode) throws ParseException {
-                super.processActionNode(actionNode);
-                ParsedNode tableNode = actionNode.getChild("table", true);
+                        actionNode.moveChildren("tableName", tableNode);
+                        actionNode.moveChildren("schemaName", tableNode);
+                        actionNode.moveChildren("catalogName", tableNode);
+                        actionNode.moveChildren("tablespace", tableNode);
+                        actionNode.moveChildren("remarks", tableNode);
 
-                actionNode.moveChildren("relation", tableNode);
-                actionNode.moveChildren("tablespace", tableNode);
-                actionNode.moveChildren("remarks", tableNode);
+                        tableNode.getChild("tableName", false).name = "name";
+                        convertToSchemaReferenceNode("catalogName", "schemaName", tableNode);
 
-                RelationReference relation = new RelationReference(Table.class, tableNode.getChildValue("name", String.class, false));
+                        ParsedNode columnsNode = actionNode.getChild("columns", true);
+                        actionNode.moveChildren("column", columnsNode);
 
-                ParsedNode columnsNode = actionNode.getChild("columns", true);
-                actionNode.moveChildren("column", columnsNode);
-                for (ParsedNode column : columnsNode.getChildren("column", false)) {
-                    column.addChild("relation").setValue(relation);
+                        AddColumnsAction.AddColumnsPreprocessor addColumnsPreprocessor = new AddColumnsAction.AddColumnsPreprocessor();
+
+                        ParsedNode tmpRelationRef = actionNode.addChild("tmpRelationRef");
+                        tableNode.copyChildren("name", tmpRelationRef);
+                        tableNode.copyChildren("schema", tmpRelationRef);
+                        tmpRelationRef.renameChildren("schema", "container");
+
+                        for (ParsedNode column : columnsNode.getChildren("column", false)) {
+                            addColumnsPreprocessor.fixColumn(column, tmpRelationRef, actionNode);
+                        }
+
+                        tmpRelationRef.remove();
+
+                        for (ParsedNode computed : actionNode.getChildren("computed", true)) {
+                            computed.name = "virtual";
+                        }
+                    }
+
+
                 }
-            }
         };
     }
+
+
 }
