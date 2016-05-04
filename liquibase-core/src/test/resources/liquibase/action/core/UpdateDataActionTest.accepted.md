@@ -246,4 +246,4 @@
 | 6ab8a35     | Generic  | UpdatedColumn{name=lowercolumn, value=42}                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: UPDATE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" SET "lowercolumn"=42
 | dbf1e9c     | Generic  | UpdatedColumn{name=lowercolumn, value=42}                    | LBSCHEMA2.lowertable                    | **plan**: UPDATE "LBSCHEMA2"."lowertable" SET "lowercolumn"=42
 
-# Test Version: "8748f6" #
+# Test Version: "43b259" #

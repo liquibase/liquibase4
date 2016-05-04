@@ -117,8 +117,8 @@ public class AddColumnsAction extends AbstractAction {
                         uniqueConstraint.renameChildren("uniqueConstraintName", "name");
 
                         ParsedNode columns = uniqueConstraint.addChild("columns");
-                        columns.value = new ArrayList<>();
-                        ((List) columns.value).add(columnName);
+                        columns.setValue(new ArrayList<>());
+                        ((List) columns.getValue()).add(columnName);
 
                         constraints.copyChildren("deferrable", uniqueConstraint);
                         constraints.copyChildren("initiallyDeferred", uniqueConstraint);
@@ -133,7 +133,7 @@ public class AddColumnsAction extends AbstractAction {
                 constraints.moveChildren("foreignKey", foreignKeys);
                 for (ParsedNode columnCheck : foreignKeys.getChildren("columnCheck", true)) {
                     ParsedNode baseColumn = columnCheck.getChild("baseColumn", true);
-                    if (baseColumn.value == null) {
+                    if (baseColumn.getValue() == null) {
                         baseColumn.setValue(columnNode.getChildValue("name", String.class, false));
                     }
                 }
@@ -157,11 +157,8 @@ public class AddColumnsAction extends AbstractAction {
 
                     originalCheckConstraintsNode.rename("body").moveTo(newCheckConstraint);
                     if (relation != null) {
-                        relation.copyTo(newCheckConstraint);
+                        relation.rename("relation").copyTo(newCheckConstraint);
                     }
-                    constraints.copyChildren("deferrable", newCheckConstraint);
-                    constraints.copyChildren("initiallyDeferred", newCheckConstraint);
-
                 }
 
 
@@ -169,24 +166,24 @@ public class AddColumnsAction extends AbstractAction {
                 constraints.removeChildren("deferrable");
                 constraints.removeChildren("initiallyDeferred");
                 for (ParsedNode child : new ArrayList<>(constraints.getChildren())) {
-                    switch (child.name) {
+                    switch (child.getName()) {
                         case "nullable":
-                            constraints.moveChildren(child.name, columnNode);
+                            constraints.moveChildren(child.getName(), columnNode);
                             break;
                         case "primaryKeyName":
                             if (primaryKey == null) {
-                                throw new ParseException("Cannot specify " + child.name + " without a primary key", child);
+                                throw new ParseException("Cannot specify " + child.getName() + " without a primary key", child);
                             }
                             child.rename("name").moveTo(primaryKey);
                             break;
                         case "primaryKeyTablespace":
                             if (primaryKey == null) {
-                                throw new ParseException("Cannot specify " + child.name + " without a primary key", child);
+                                throw new ParseException("Cannot specify " + child.getName() + " without a primary key", child);
                             }
                             child.rename("tablespace").moveTo(primaryKey);
                             break;
                         default:
-                            throw new ParseException("Unknown constraints attribute '" + child.name + "'", child);
+                            throw new ParseException("Unknown constraints attribute '" + child.getName() + "'", child);
                     }
                 }
                 constraints.remove();
@@ -196,9 +193,9 @@ public class AddColumnsAction extends AbstractAction {
         public void fixAutoIncrement(ParsedNode column) throws ParseException {
             ParsedNode autoIncrementNode = column.getChild("autoIncrement", false);
             if (autoIncrementNode != null) {
-                if (ObjectUtil.defaultIfNull(ObjectUtil.convert(autoIncrementNode.value, Boolean.class), false)) {
-                    autoIncrementNode.name = "autoIncrementInformation";
-                    autoIncrementNode.value = null;
+                if (autoIncrementNode.getValue(false, Boolean.class)) {
+                    autoIncrementNode.rename("autoIncrementInformation");
+                    autoIncrementNode.setValue(null);
                 } else {
                     autoIncrementNode.remove();
                 }

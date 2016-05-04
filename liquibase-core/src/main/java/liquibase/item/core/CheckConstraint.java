@@ -2,6 +2,9 @@ package liquibase.item.core;
 
 import liquibase.item.AbstractRelationBasedObject;
 
+/**
+ * Describes a check constraint on a table.
+ */
 public class CheckConstraint extends AbstractRelationBasedObject<CheckConstraintReference> {
 
     public Boolean disabled;

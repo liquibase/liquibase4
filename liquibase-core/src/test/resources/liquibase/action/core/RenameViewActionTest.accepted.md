@@ -227,4 +227,4 @@
 | 4991a89     | Generic  | LBSCHEMA2.lowerview                    | LBSCHEMA2.anotherlowerview             | **plan**: RENAME VIEW "LBSCHEMA2"."anotherlowerview" TO "LBSCHEMA2"."lowerview"
 | 2b481e6     | Generic  | LBSCHEMA2.lowerview                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"view | **plan**: RENAME VIEW "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""view" TO "LBSCHEMA2"."lowerview"
 
-# Test Version: "2cb2b8" #
+# Test Version: "9ce0a5" #

@@ -7,6 +7,11 @@ import spock.lang.Specification;
 
 import java.util.Map;
 
+/**
+ * Base class for testing {@link liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor} implementations.
+ * The actual classes are usually nested in the {@link Action} class, but since the tests tend to be long it's best to separate them out into
+ * their own test classes.
+ */
 public abstract class AbstractActionPreprocessorTest extends Specification {
 
     def createAndProcessChangelog(String actionName = null, Action action, Map children) {

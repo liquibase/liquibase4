@@ -41,7 +41,7 @@ public class CreateStoredProceduresAction extends AbstractAction {
 
                 ParsedNode procedures = actionNode.getChild("procedures", true);
 
-                if (actionNode.value != null) {
+                if (actionNode.getValue() != null) {
                     ParsedNode body = actionNode.addChild("body");
                     actionNode.moveValue(body);
                 }
@@ -64,11 +64,13 @@ public class CreateStoredProceduresAction extends AbstractAction {
                     }
                 }
 
-                for (ParsedNode storedProc : actionNode.getChildren("storedProcedure", false)) {
+                actionNode.moveChildren("storedProcedure", procedures);
+
+                for (ParsedNode storedProc : procedures.getChildren("storedProcedure", false)) {
                     for (ParsedNode container : storedProc.getChildren("container", false)) {
                         ParsedNode type = container.getChild("type", true);
-                        if (type.value == null) {
-                            type.value = Schema.class.getName();
+                        if (type.getValue() == null) {
+                            type.setValue(Schema.class.getName());
                         }
                     }
                 }

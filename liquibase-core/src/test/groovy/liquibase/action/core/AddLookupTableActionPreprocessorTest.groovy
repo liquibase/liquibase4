@@ -34,20 +34,20 @@ changeLog
         addLookupTable
             existingColumn
                 name: new_col
+                container
+                    name: new_tab
                     container
-                        name: new_tab
-                            schema
-                                name: new_schema
-                                container
-                                    name: new_cat
+                        name: new_schema
+                        container
+                            name: new_cat
             newColumn
                 name: new_col
+                container
+                    name: new_table
                     container
-                        name: new_table
-                            schema
-                                name: new_schema
-                                container
-                                    name: new_cat
+                        name: new_schema
+                        container
+                            name: new_cat
 """
                 ],
         ]

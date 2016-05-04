@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A changeSet is the level at which actions are tracked.
+ * A changeSet is the level at which actions are tracked. ChangeSets are uniquely identified by a combination of their {@link #id} + {@link #author} + {@link #getPath()}
  * Should be ran as a transaction if at all possible.
  */
 public class ChangeSet extends AbstractExtensibleObject implements ChangeLogEntry {

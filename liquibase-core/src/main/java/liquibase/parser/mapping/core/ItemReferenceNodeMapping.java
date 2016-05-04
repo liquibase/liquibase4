@@ -53,9 +53,9 @@ public class ItemReferenceNodeMapping extends AbstractParsedNodeMapping<ItemRefe
             }
         }
 
-        if (parsedNode.name.equals("schema")) {
+        if (parsedNode.getName().equals("schema")) {
             return new SchemaReference();
-        } else if (parsedNode.name.equals("catalog")) {
+        } else if (parsedNode.getName().equals("catalog")) {
             return new CatalogReference();
         }
         return super.createObject(parsedNode, objectType, containerType, containerAttribute, scope);

@@ -112,7 +112,7 @@ changeLog
                             referencedColumn: id
                     deferrable: true
                     initiallyDeferred: true
-                    deleteRule: CASCADE
+                    deleteRule: cascade
 
 """
 
@@ -155,17 +155,17 @@ changeLog
                     name: fk_name
                     referencedTable
                         name: other_table
-                            schema
-                                name: other_schem
-                                container
-                                    name: other_cat
+                        container
+                            name: other_schem
+                            container
+                                name: other_cat
                     columnChecks
                         columnCheck
                             baseColumn: col_name
                             referencedColumn: other_col
                     deferrable: true
                     initiallyDeferred: true
-                    deleteRule: CASCADE
+                    deleteRule: cascade
 """
 
                 ],

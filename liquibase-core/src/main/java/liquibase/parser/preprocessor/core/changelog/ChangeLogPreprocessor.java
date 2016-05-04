@@ -13,8 +13,8 @@ public class ChangeLogPreprocessor extends AbstractParsedNodePreprocessor {
     private ParsedNode.ParsedNodeFilter legacyQuotingStrategyNodeFilter = new ParsedNode.ParsedNodeFilter() {
         @Override
         public boolean matches(ParsedNode node) {
-            return (node.name.equals("quotingStrategy") || node.name.equals("objectQuotingStrategy"))
-                    && node.value != null && node.value.toString().equalsIgnoreCase("legacy");
+            return (node.getName().equals("quotingStrategy") || node.getName().equals("objectQuotingStrategy"))
+                    && node.getValue("", String.class).equalsIgnoreCase("legacy");
         }
     };
 

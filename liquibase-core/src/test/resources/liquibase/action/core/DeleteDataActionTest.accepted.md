@@ -51,4 +51,4 @@
 | 58567ee     | Generic  | LBSCHEMA2.lowertable                    |       | **plan**: DELETE FROM "LBSCHEMA2"."lowertable"
 | edcea15     | Generic  | LBSCHEMA2.lowertable                    | 1=1   | **plan**: DELETE FROM "LBSCHEMA2"."lowertable" WHERE 1=1
 
-# Test Version: "4abb52" #
+# Test Version: "bb6047" #

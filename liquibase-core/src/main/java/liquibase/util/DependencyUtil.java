@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class DependencyUtil {
+/**
+ * Utility class for managing dependencies between objects.
+ */
+public abstract class DependencyUtil {
 
     /**
      * Sorts the passed {@link DependencyObject}(s) by their dependencies.
@@ -166,7 +169,7 @@ public class DependencyUtil {
         }
     }
 
-    static private class GraphNode<T> {
+    private static class GraphNode<T> {
         public T value;
         private List<GraphNode<T>> comingInNodes;
         private List<GraphNode<T>> goingOutNodes;
@@ -193,7 +196,7 @@ public class DependencyUtil {
     }
 
 
-    public interface NodeValueListener<T> {
+    private interface NodeValueListener<T> {
         void evaluating(T nodeValue);
     }
 

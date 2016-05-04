@@ -20,7 +20,7 @@ public class ChangeLogEntryNodeMapping extends AbstractParsedNodeMapping<ChangeL
 
     @Override
     public int getPriority(ParsedNode parsedNode, Class objectType, Type containerType, String containerAttribute, Scope scope) {
-        if (ChangeLogEntry.class.isAssignableFrom(objectType) && parsedNode != null && parsedNode.name.equals("changeSet")) {
+        if (ChangeLogEntry.class.isAssignableFrom(objectType) && parsedNode != null && parsedNode.getName().equals("changeSet")) {
             return PRIORITY_SPECIALIZED;
         }
         return PRIORITY_NOT_APPLICABLE;
@@ -28,10 +28,10 @@ public class ChangeLogEntryNodeMapping extends AbstractParsedNodeMapping<ChangeL
 
     @Override
     protected ChangeLogEntry createObject(ParsedNode parsedNode, Class<ChangeLogEntry> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        if (parsedNode.name.equals("changeSet")) {
+        if (parsedNode.getName().equals("changeSet")) {
             return new ChangeSet();
         } else {
-            throw new ParseException("Unknown node name: "+parsedNode.name, parsedNode);
+            throw new ParseException("Unknown node name: "+parsedNode.getName(), parsedNode);
         }
     }
 }

@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Array;
 import java.util.*;
 
+/**
+ *  Utility methods for working with collections.
+ */
 public abstract class CollectionUtil {
 
     public static <T> Set<Set<T>> powerSet(Collection<T> originalSet) {
@@ -102,7 +105,7 @@ public abstract class CollectionUtil {
     }
 
     /**
-     * Convenience method returns passed currentValue if it is not null and creates a new ArrayList if it is null.
+     * Returns passed currentValue if it is not null and creates a new ArrayList if it is null.
      * <br><br>
      * Example: values = createIfNull(values)
      */
@@ -114,6 +117,9 @@ public abstract class CollectionUtil {
         }
     }
 
+    /**
+     * Returns a new empty array if the passed array is null.
+     */
     public static <T> T[] createIfNull(T[] arguments) {
         if (arguments == null) {
             return (T[]) new Object[0];
@@ -122,6 +128,9 @@ public abstract class CollectionUtil {
         }
     }
 
+    /**
+     * Returns a new empty set if the passed array is null.
+     */
     public static <T> Set<T> createIfNull(Set<T> currentValue) {
         if (currentValue == null) {
             return new HashSet<>();
@@ -233,6 +242,11 @@ public abstract class CollectionUtil {
         return list;
     }
 
+    /**
+     * Combines the passed array with the additional moreObjects values and returns a new array.
+     *
+     * @param objectType the type of array to create.
+     */
     public static <T> T[] union(Class<T> objectType, T[] array, T... moreObjects) {
         if (array == null && moreObjects == null) {
             return null;
@@ -252,20 +266,9 @@ public abstract class CollectionUtil {
         return (T[]) returnList.toArray((T[]) Array.newInstance(objectType, returnList.size()));
     }
 
-    public static <T> T[] union(Class<T> objectType, T[]... arrays) {
-        if (arrays == null) {
-            return null;
-        }
-
-        List<T> returnList = new ArrayList<>();
-        for (T[] array : arrays) {
-            if (array != null) {
-                returnList.addAll(Arrays.asList(array));
-            }
-        }
-        return (T[]) returnList.toArray((T[]) Array.newInstance(objectType, returnList.size()));
-    }
-
+    /**
+     * Used by various methods to filter collections
+     */
     public interface CollectionFilter<T> {
 
         boolean include(T obj);

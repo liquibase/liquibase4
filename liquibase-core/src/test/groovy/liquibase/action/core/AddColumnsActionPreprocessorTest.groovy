@@ -34,10 +34,10 @@ changeLog
                     name: col_name
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
                                     """
                 ],
 
@@ -61,10 +61,10 @@ changeLog
                     name: col_name
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
                                     """
                 ],
 
@@ -201,18 +201,18 @@ changeLog
                     name: col_name
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
             foreignKeys
                 foreignKey
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
                     name: fk_name
                     referencedTable
                         name: other_table
@@ -254,25 +254,25 @@ changeLog
                     name: col_name
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
             foreignKeys
                 foreignKey
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
                     name: fk_name
                     referencedTable
                         name: other_table
-                            schema
-                                name: other_schema
-                                container
-                                    name: other_cat
+                        container
+                            name: other_schema
+                            container
+                                name: other_cat
                     columnChecks
                         columnCheck
                             baseColumn: col_name
@@ -307,22 +307,20 @@ changeLog
                     name: col_name
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
             foreignKeys
             checkConstraints
                 checkConstraint
                     body: check_something()
                     relation
                         name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
-                    deferrable: true
-                    initiallyDeferred: true
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
                         """
 
                 ],
@@ -433,8 +431,6 @@ changeLog
                     body: test_this()
                     relation
                         name: tab_name
-                    deferrable: true
-                    initiallyDeferred: true
                        """
 
                 ],

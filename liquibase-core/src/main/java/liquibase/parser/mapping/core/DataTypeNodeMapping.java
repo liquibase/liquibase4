@@ -23,6 +23,6 @@ public class DataTypeNodeMapping extends AbstractParsedNodeMapping<DataType> {
 
     @Override
     public DataType toObject(ParsedNode parsedNode, Class<DataType> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        return DataType.parse((String) parsedNode.value);
+        return DataType.parse((String) parsedNode.getValue());
     }
 }

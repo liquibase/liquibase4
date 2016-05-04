@@ -36,16 +36,16 @@ changeLog
                 foreignKey
                     relation
                         name: base_tab
-                            schema
-                                name: base_schema
-                                container
-                                    name: base_cat
+                        container
+                            name: base_schema
+                            container
+                                name: base_cat
                     referencedTable
                         name: ref_table
-                            schema
-                                name: ref_schema
-                                container
-                                    name: ref_cat
+                        container
+                            name: ref_schema
+                            container
+                                name: ref_cat
                     columnChecks
                         columnCheck
                             baseColumn: base_col

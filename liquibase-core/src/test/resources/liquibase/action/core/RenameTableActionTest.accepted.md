@@ -227,4 +227,4 @@
 | c1814b1     | Generic  | LBSCHEMA2.lowertable                    | LBSCHEMA2.anotherlowertable             | **plan**: RENAME TABLE "LBSCHEMA2"."anotherlowertable" TO "LBSCHEMA2"."lowertable"
 | f4f8853     | Generic  | LBSCHEMA2.lowertable                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: RENAME TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" TO "LBSCHEMA2"."lowertable"
 
-# Test Version: "43b062" #
+# Test Version: "07a06d" #

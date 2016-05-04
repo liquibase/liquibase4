@@ -30,10 +30,10 @@ changeLog
         alterSequence
             sequence
                 name: seq_name
+                container
+                    name: schema_name
                     container
-                        name: schema_name
-                        container
-                            name: cat_name
+                        name: cat_name
 """
                     ],
 
@@ -55,10 +55,10 @@ changeLog
             restartWith: 13
             sequence
                 name: seq_name
+                container
+                    name: schema_name
                     container
-                        name: schema_name
-                        container
-                            name: cat_name
+                        name: cat_name
 """
                     ],
 

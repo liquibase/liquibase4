@@ -295,6 +295,7 @@ class TestXmlGenerator {
                     "defaultValueSequenceCurrent",
                     "defaultValueSequenceNext",
 
+                    "computed",
                     "constraints",
                     "encoding",
 
@@ -349,7 +350,8 @@ class TestXmlGenerator {
                     "constraints"
             ],
             "addForeignKeyConstraint": [
-                    "referencesUniqueColumn"
+                    "referencesUniqueColumn",
+                    "deleteCascade"
             ],
             "addPrimaryKey"          : [
                     "forIndexSchemaName",

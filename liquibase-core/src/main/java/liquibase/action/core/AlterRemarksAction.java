@@ -43,14 +43,15 @@ public class AlterRemarksAction extends AbstractAction {
             @Override
             protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
                 ParsedNode columnNode = actionNode.getChild("columnName", false);
+                ParsedNode objectNode;
                 if (columnNode != null) {
-                    convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode)
-                            .addChild("type").value = Column.class.getName();
+                    objectNode = convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode);
+                    objectNode.addChild("type").setValue(Column.class.getName());
                 } else {
-                    convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode)
-                            .addChild("type").value = Table.class.getName();
-
+                    objectNode = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                    objectNode.addChild("type").setValue(Table.class.getName());
                 }
+                objectNode.rename("object");
             }
         };
     }

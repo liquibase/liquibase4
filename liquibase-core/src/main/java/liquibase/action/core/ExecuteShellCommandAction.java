@@ -29,7 +29,7 @@ public class ExecuteShellCommandAction extends AbstractAction {
             @Override
             protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
                 ParsedNode os = actionNode.getChild("os", false);
-                if (os != null && os.value != null) {
+                if (os != null && os.getValue() != null) {
                     actionNode.addChild("osFilters").setValue(StringUtil.splitAndTrim(os.getValue(null, String.class), ","));
                     os.remove();
                 }

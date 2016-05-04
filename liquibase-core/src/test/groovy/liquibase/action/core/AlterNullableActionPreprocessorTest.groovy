@@ -30,12 +30,12 @@ changeLog
         alterNullable
             column
                 name: col_name
+                container
+                    name: tab_name
                     container
-                        name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        name: schema_name
+                        container
+                            name: cat_name
 """
                 ],
 
@@ -55,8 +55,8 @@ changeLog
             valueForExistingNulls: 81
             column
                 name: col_name
-                    container
-                        name: tab_name"""
+                container
+                    name: tab_name"""
                 ],
 
                 //----
@@ -74,8 +74,8 @@ changeLog
             nullable: false
             column
                 name: col_name
-                    container
-                        name: tab_name
+                container
+                    name: tab_name
 """
                 ],
 
@@ -94,8 +94,8 @@ changeLog
             nullable: true
             column
                 name: col_name
-                    container
-                        name: tab_name
+                container
+                    name: tab_name
 """
                 ],
 
@@ -115,8 +115,8 @@ changeLog
             nullable: false
             column
                 name: col_name
-                    container
-                        name: tab_name
+                container
+                    name: tab_name
 """
                 ],
 

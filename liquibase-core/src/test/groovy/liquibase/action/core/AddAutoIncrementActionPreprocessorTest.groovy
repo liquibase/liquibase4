@@ -28,12 +28,12 @@ changeLog
         addAutoIncrement
             column
                 name: col_name
+                container
+                    name: tab_name
                     container
-                        name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        name: schema_name
+                        container
+                            name: cat_name
             autoIncrementInformation
 """
                 ],
@@ -49,8 +49,8 @@ changeLog
         addAutoIncrement
             column
                 name: col_name
-                    container
-                        name: tab_name
+                container
+                    name: tab_name
             autoIncrementInformation
 """
                 ],
@@ -64,7 +64,6 @@ changeLog
     changeSet
         addAutoIncrement
             dataType: dataType
-            column
             autoIncrementInformation
 """
                 ],
@@ -77,7 +76,6 @@ changeLog
 changeLog
     changeSet
         addAutoIncrement
-            column
             autoIncrementInformation
                 incrementBy: 34
                 startWith: 313

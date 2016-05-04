@@ -70,7 +70,7 @@ public class LoadDataAction extends AbstractAction {
                 }
 
                 ParsedNode primaryKey = actionNode.getChild("primaryKey", false);
-                if (primaryKey != null && primaryKey.value != null) {
+                if (primaryKey != null && primaryKey.getValue() != null) {
                     primaryKey.rename("columnsForUpdateCheck");
                     primaryKey.setValue(new ArrayList<>(Collections.singletonList(primaryKey.getValue(null, String.class))));
                 }

@@ -18,7 +18,7 @@ import java.util.*;
  * By using a ParsedNode rather, we can make most of the parsing logic independent of the original file format.
  * <br><br>
  * This object is similar in theory to an XML DOM but is lighter-weight and not XML-specific.
- * Each node has a name as well as a value and/or children ParsedNodes.
+ * Each node has a name as well as a value and/or children ParsedNodes. There can be multiple children with the same node name.
  * <br><br>
  * In order to maintain parent/children references, these objects are created and managed through methods and cannot be constructed directly.
  *
@@ -27,17 +27,14 @@ import java.util.*;
  */
 public class ParsedNode extends AbstractExtensibleObject {
 
-    //parent and children are private so that they are managed through business logic to maintain references
+    //these values are private so that they are managed through business logic to maintain references
     private ParsedNode parent;
     private List<ParsedNode> children = new ArrayList<>();
-
-    /**
-     * The name of the node.
-     */
-    public String name;
-    public Object value;
+    private String name;
+    private Object value;
 
     private String originalName;
+    private Object originalValue;
     private ParsedNode originalParent;
 
     /**
@@ -72,23 +69,74 @@ public class ParsedNode extends AbstractExtensibleObject {
     }
 
     /**
-     * Uses an custom format vs. {@link AbstractExtensibleObject} to be more readable
+     * Returns the node's name. Not exposed as a public property so we can track changes to the node name.
      */
-    public String describe() {
-        return (getClass().getSimpleName()
-                + "{" + name + (value == null ? "" : ("=" + value))
-                + (children == null || children.size() == 0 ? "" : ", children=" + new StringUtil.DefaultFormatter().toString(children)))
-                + "}";
+    public String getName() {
+        return name;
     }
 
     /**
-     * Sets the "value" of this parsed node.
+     * Alias for {@link #rename(String)}
+     */
+    public ParsedNode setName(String newName) {
+        return rename(newName);
+    }
+
+    /**
+     * Changes the node's name.
+     */
+    public ParsedNode rename(String newName) {
+        log.debug("Renamed '" + this.name + "' to '" + newName + "'");
+        this.name = newName;
+        return this;
+    }
+
+    /**
+     * Returns the raw "value" associated with this node. Nodes can have values in addition to any children they may have.
+     * Not exposed as a public property so we can track original values and log changes.
      *
-     * @return this parsed node.
+     * @see #getValue(Object, Class)
+     * @see #setValue(Object)
+     */
+    public Object getValue() {
+        return value;
+    }
+
+    /**
+     * Returns the current value for this node, converted to the given type.
+     * If the value is null, return the passed defaultValue.
+     *
+     * @throws IllegalArgumentException if the existing value cannot be converted to the expected type.
+     */
+    public <T> T getValue(T defaultValue, Class<T> type) throws IllegalArgumentException {
+        return ObjectUtil.defaultIfNull(ObjectUtil.convert(this.value, type), defaultValue);
+    }
+
+    /**
+     * Sets the node's value.
+     * Because value is not set in the constructor to know what the originalValue really is, we will set the originalValue property the first time this is called with a non-null value.
+     *
+     * @see #moveValue(ParsedNode)
      */
     public ParsedNode setValue(Object value) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting '" + this.name + "' value '" + value + "'");
+        }
+
         this.value = value;
+        if (originalValue == null) {
+            this.originalValue = value;
+        }
         return this;
+    }
+
+    /**
+     * Moves the value on this node to the given newNode.
+     */
+    public void moveValue(ParsedNode newNode) {
+        log.debug("Moving node value from '" + this.name + "' to '" + newNode.name + "'");
+        newNode.value = this.value;
+        this.value = null;
     }
 
     /**
@@ -113,6 +161,66 @@ public class ParsedNode extends AbstractExtensibleObject {
     }
 
     /**
+     * Returns the original value from this node.
+     */
+    public Object getOriginalValue() {
+        return originalValue;
+    }
+
+    /**
+     * Uses an custom format with the name and value at the front and then the children instead of the standard {@link AbstractExtensibleObject} logic to be more readable
+     */
+    public String describe() {
+        return (getClass().getSimpleName()
+                + "{" + name + (value == null ? "" : ("=" + value))
+                + (children == null || children.size() == 0 ? "" : ", children=" + new StringUtil.DefaultFormatter().toString(children)))
+                + "}";
+    }
+
+    /**
+     * Outputs a multi-line, easy to read version of this parsed node.
+     * Includes path up through it's parents if it is not the root node.
+     */
+    public String prettyPrint() {
+        return prettyPrint(true);
+    }
+
+    private String prettyPrint(boolean includePath) {
+        StringWriter writer = new StringWriter();
+        if (includePath) {
+            String parentString = "";
+            ParsedNode parent = this.getParent();
+            while (parent != null) {
+                parentString = parent.name + " / " + parentString;
+                parent = parent.getParent();
+            }
+            writer.write(parentString);
+        }
+
+        this.prettyPrint(writer);
+
+        return writer.toString();
+    }
+
+    private void prettyPrint(Writer writer) {
+        String output = name;
+        if (this.value != null) {
+            output += ": " + this.value;
+        }
+        for (ParsedNode child : children) {
+            output += "\n" + StringUtil.indent(child.prettyPrint(false));
+        }
+
+        try {
+            writer.write(output);
+        } catch (IOException e) {
+            throw new UnexpectedLiquibaseException(e);
+        }
+    }
+
+
+
+    /**
      * Creates a new child node with the given name and adds it to this object's children.
      *
      * @return the new child node.
@@ -122,6 +230,26 @@ public class ParsedNode extends AbstractExtensibleObject {
         children.add(child);
         return child;
     }
+
+    /**
+     * Convenience method to bulk-add children, especially useful in tests.
+     * Each key in the passed map is converted to a node.
+     * If the map entry's value is also a Map, that map is used to create sub-nodes with this method as well.
+     * If the map entry's value is not a map, it is set as the new node's value.
+     */
+    public void addChildren(Map<String, Object> children) {
+        if (children != null) {
+            for (Map.Entry<String, Object> child : children.entrySet()) {
+                ParsedNode childNode = this.addChild(child.getKey());
+                if (child.getValue() instanceof Map) {
+                    childNode.addChildren((Map<String, Object>) child.getValue());
+                } else {
+                    childNode.setValue(child.getValue());
+                }
+            }
+        }
+    }
+
 
     /**
      * Finds a child with the given name.
@@ -160,11 +288,11 @@ public class ParsedNode extends AbstractExtensibleObject {
         if (child == null) {
             return null;
         }
-        Object returnValue = child.value;
+        T returnValue = child.getValue(null, returnType);
         if (removeChild) {
             child.remove();
         }
-        return ObjectUtil.convert(returnValue, returnType);
+        return returnValue;
     }
 
 
@@ -293,18 +421,10 @@ public class ParsedNode extends AbstractExtensibleObject {
         newParent.children.add(this);
     }
 
-    public void moveValue(ParsedNode newNode) {
-        log.debug("Moving node value from '" + this.name + "' to '" + newNode.name + "'");
-        newNode.value = this.value;
-        this.value = null;
-    }
-
-
-
     /**
      * Copy this node to the passed new parent.
      *
-     * @return the new copy
+     * @return the new copy of the node
      */
     public ParsedNode copyTo(ParsedNode newParent) {
         log.debug("Copying '" + this.name + "' from '" + this.parent.name + "' to '" + newParent.name + "'");
@@ -345,79 +465,26 @@ public class ParsedNode extends AbstractExtensibleObject {
     }
 
 
-    public ParsedNode rename(String newName) {
-        log.debug("Renamed '" + this.name + "' to '" + newName+ "'");
-        this.name = newName;
-        return this;
-    }
-
+    /**
+     * Rename all children that match the given filter.
+     */
     public void renameChildren(ParsedNodeFilter filter, String newName) {
         for (ParsedNode child : children) {
             if (filter.matches(child)) {
-                log.debug("Renamed '" + child.name + "' to '" + newName+ "'");
+                log.debug("Renamed '" + child.name + "' to '" + newName + "'");
                 child.name = newName;
             }
         }
 
     }
 
+    /**
+     * Convenience version of {@link #renameChildren(ParsedNodeFilter, String)} when you are renaming by node name.
+     */
     public void renameChildren(String oldName, String newName) {
         renameChildren(new ParsedNodeNameFilter(oldName), newName);
     }
 
-    public String prettyPrint() {
-        return prettyPrint(true);
-    }
-
-    private String prettyPrint(boolean includePath) {
-        StringWriter writer = new StringWriter();
-        if (includePath) {
-            String parentString = "";
-            ParsedNode parent = this.getParent();
-            while (parent != null) {
-                parentString = parent.name + " / " + parentString;
-                parent = parent.getParent();
-            }
-            writer.write(parentString);
-        }
-
-        this.prettyPrint(writer);
-
-        return writer.toString();
-    }
-
-    private void prettyPrint(Writer writer) {
-        String output = name;
-        if (this.value != null) {
-            output += ": " + this.value;
-        }
-        for (ParsedNode child : children) {
-            output += "\n" + StringUtil.indent(child.prettyPrint(false));
-        }
-
-        try {
-            writer.write(output);
-        } catch (IOException e) {
-            throw new UnexpectedLiquibaseException(e);
-        }
-    }
-
-    public <T> T getValue(T defaultValue, Class<T> type) {
-        return ObjectUtil.defaultIfNull(ObjectUtil.convert(this.value, type), defaultValue);
-    }
-
-    public void addChildren(Map<String, Object> children) {
-        if (children != null) {
-            for (Map.Entry<String, Object> child : children.entrySet()) {
-                ParsedNode childNode = this.addChild(child.getKey());
-                if (child.getValue() instanceof Map) {
-                    childNode.addChildren((Map<String, Object>) child.getValue());
-                } else {
-                    childNode.setValue(child.getValue());
-                }
-            }
-        }
-    }
 
     /**
      * Interface for finding parsed nodes.

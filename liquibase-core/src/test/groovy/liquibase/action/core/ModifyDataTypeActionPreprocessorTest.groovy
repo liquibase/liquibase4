@@ -30,12 +30,12 @@ changeLog
         modifyDataType
             column
                 name: column_name
+                container
+                    name: table_name
                     container
-                        name: table_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        name: schema_name
+                        container
+                            name: cat_name
 """
                 ],
 

@@ -113,7 +113,7 @@ public class XmlParser extends AbstractParser {
             SortedSet<String> parentAttributes = new TreeSet<>();
             for (ParsedNode maybeAttr : nodeToPrint.getChildren()) {
                 if (maybeAttr.get(XML_ATTRIBUTE_PROPERTY, false)) {
-                    parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.value + "\"");
+                    parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.getValue() + "\"");
                 }
             }
 

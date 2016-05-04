@@ -101,4 +101,4 @@
 | b875ac8     | Generic  | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" ADD CONSTRAINT PRIMARY KEY ("COL_NAME")
 | 5921e4d     | Generic  | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ADD CONSTRAINT PRIMARY KEY ("COL_NAME")
 
-# Test Version: "bb139a" #
+# Test Version: "c9fb43" #

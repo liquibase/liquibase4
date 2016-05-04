@@ -10,7 +10,7 @@ import org.xml.sax.InputSource;
 import java.io.InputStream;
 
 /**
- * Base class for plugins that are able to find XML Entities locally. Primarily used for finding XSD schemas in the classpath.
+ * Base class for plugins that are able to find XML Entities locally rather than over the network. Primarily used for finding XSD schemas in the classpath.
  * Lookup objects with {@link XmlEntityResolverFactory}
  */
 public abstract class XmlEntityResolver extends AbstractPlugin {

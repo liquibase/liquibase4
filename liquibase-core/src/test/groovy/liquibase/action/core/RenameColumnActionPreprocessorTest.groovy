@@ -29,10 +29,10 @@ changeLog
         renameColumn
             relation
                 name: table_name
-                    schema
-                        name: schema_name
-                        container
-                            name: cat_name
+                container
+                    name: schema_name
+                    container
+                        name: cat_name
 """
                 ],
 

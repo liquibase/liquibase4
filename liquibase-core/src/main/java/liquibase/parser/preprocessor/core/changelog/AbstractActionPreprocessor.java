@@ -32,6 +32,9 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
         }
     }
 
+    /**
+     * Runs before {@link ChangeSetPreprocessor} if it defines aliases.
+     */
     @Override
     public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
         if (getAliases() != null) {
@@ -50,7 +53,8 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
 
     /**
      * Default implementation renames nodes that match values from {@link #getAliases()}
-     * and calls {@link #processActionNode(ParsedNode, Scope)} for each node that ends up matching {@link #standardNodeName}
+     * and calls {@link #processActionNode(ParsedNode, Scope)} for each node that ends up matching {@link #standardNodeName}.
+     * If a node is renamed due to an alias, {@link #processRenamedNode(String, ParsedNode)} is called first.
      */
     @Override
     public void process(ParsedNode node, Scope scope) throws ParseException {
@@ -59,8 +63,8 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
             if (aliases != null) {
                 for (String alias : aliases) {
                     for (ParsedNode wrongName : changeSet.getChildren(alias, true)) {
-                        String originalName = wrongName.name;
-                        wrongName.name = standardNodeName;
+                        String originalName = wrongName.getName();
+                        wrongName.rename(standardNodeName);
                         processRenamedNode(originalName, wrongName);
                     }
                 }
@@ -72,6 +76,9 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
         }
     }
 
+    /**
+     * Called by {@link #process(ParsedNode, Scope)} when a node is renamed. Allows custom processing depending on what the original node name was.
+     */
     protected void processRenamedNode(String originalName, ParsedNode node) throws ParseException {
 
     }
@@ -81,64 +88,114 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
      */
     protected abstract void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException;
 
-    protected ParsedNode convertToIndexReferenceNode(String catalogNodeName, String schemaNodeName, String tableNodeName, String indexName, ParsedNode existingNode) throws ParseException {
-        ParsedNode indexNode = existingNode.addChild("index");
-
-        ParsedNode indexNameNode = existingNode.getChild(indexName, false);
-        if (indexNameNode == null) {
+    /**
+     * Converts the nodes with the given names into a node that will map to a {@link liquibase.item.core.IndexReference}.
+     *
+     * @return the created node, unless NONE of the listed nodes exist.
+     */
+    protected ParsedNode convertToIndexReferenceNode(String catalogNodeName, String schemaNodeName, String tableNodeName, String indexNodeName, ParsedNode existingNode) throws ParseException {
+        ParsedNode catalogNode = existingNode.getChild(catalogNodeName, false);
+        ParsedNode schemaNode = existingNode.getChild(schemaNodeName, false);
+        ParsedNode tableNode = existingNode.getChild(tableNodeName, false);
+        ParsedNode indexNameNode = existingNode.getChild(indexNodeName, false);
+        if (catalogNode == null && schemaNode == null && tableNode == null && indexNameNode == null) {
             return null;
         }
 
-        indexNameNode.moveTo(indexNode);
-        indexNameNode.name = "name";
+        ParsedNode indexNode = existingNode.addChild("index");
 
-        existingNode.moveChildren(tableNodeName, indexNameNode);
-        existingNode.moveChildren(schemaNodeName, indexNameNode);
-        existingNode.moveChildren(catalogNodeName, indexNameNode);
-        ParsedNode tableNode = convertToRelationReferenceNode(catalogNodeName, schemaNodeName, tableNodeName, indexNode);
+        if (indexNameNode != null) {
+            indexNameNode.moveTo(indexNode);
+            indexNameNode.rename("name");
+        }
+
+        if (catalogNode != null) {
+            catalogNode.moveTo(indexNode);
+        }
+        if (schemaNode != null) {
+            schemaNode.moveTo(indexNode);
+        }
         if (tableNode != null) {
-            tableNode.rename("container");
+            tableNode.moveTo(indexNode);
+        }
+
+        ParsedNode finalTableNode = convertToRelationReferenceNode(catalogNodeName, schemaNodeName, tableNodeName, indexNode);
+        if (finalTableNode != null) {
+            finalTableNode.rename("container");
         }
 
         return indexNode;
     }
 
+    /**
+     * Converts the nodes with the given names into a node that will map to a {@link liquibase.item.core.SequenceReference}.
+     *
+     * @return the created node, unless NONE of the listed nodes exist.
+     */
     protected ParsedNode convertToSequenceReferenceNode(String catalogNodeName, String schemaNodeName, String sequenceName, ParsedNode existingNode) throws ParseException {
-        ParsedNode sequenceNode = existingNode.addChild("sequence");
-
+        ParsedNode catalogNode = existingNode.getChild(catalogNodeName, false);
+        ParsedNode schemaNode = existingNode.getChild(schemaNodeName, false);
         ParsedNode sequenceNameNode = existingNode.getChild(sequenceName, false);
-        if (sequenceNameNode == null) {
+
+        if (catalogNode == null && schemaNode == null && sequenceNameNode == null) {
             return null;
         }
 
-        sequenceNameNode.moveTo(sequenceNode);
-        sequenceNameNode.name = "name";
+        ParsedNode sequenceNode = existingNode.addChild("sequence");
 
-        existingNode.moveChildren(schemaNodeName, sequenceNameNode);
-        existingNode.moveChildren(catalogNodeName, sequenceNameNode);
-        ParsedNode schemaNode = convertToSchemaReferenceNode(catalogNodeName, schemaNodeName, sequenceNameNode);
+        if (sequenceNameNode != null) {
+            sequenceNameNode.moveTo(sequenceNode);
+            sequenceNameNode.rename("name");
+        }
+
+        if (catalogNode != null) {
+            catalogNode.moveTo(sequenceNode);
+        }
         if (schemaNode != null) {
-            schemaNode.rename("container");
+            schemaNode.moveTo(sequenceNode);
+        }
+
+        ParsedNode finalSchemaNode = convertToSchemaReferenceNode(catalogNodeName, schemaNodeName, sequenceNode);
+        if (finalSchemaNode != null) {
+            finalSchemaNode.rename("container");
         }
 
         return sequenceNode;
     }
 
+    /**
+     * Converts the nodes with the given names into a node that will map to a {@link liquibase.item.core.ColumnReference}.
+     *
+     * @return the created node, unless NONE of the listed nodes exist.
+     */
     protected ParsedNode convertToColumnReferenceNode(String catalogNodeName, String schemaNodeName, String tableNodeName, String columnName, ParsedNode existingNode) throws ParseException {
+        ParsedNode catalogNode = existingNode.getChild(catalogNodeName, false);
+        ParsedNode schemaNode = existingNode.getChild(schemaNodeName, false);
+        ParsedNode tableNode = existingNode.getChild(tableNodeName, false);
         ParsedNode columnNameNode = existingNode.getChild(columnName, false);
-        if (columnNameNode == null) {
+
+        if (catalogNode == null && schemaNode == null && tableNode == null && columnNameNode == null) {
             return null;
         }
 
         ParsedNode columnNode = existingNode.addChild("column");
 
-        columnNameNode.moveTo(columnNode);
-        columnNameNode.name = "name";
+        if (columnNameNode != null) {
+            columnNameNode.moveTo(columnNode);
+            columnNameNode.rename("name");
+        }
 
-        existingNode.moveChildren(tableNodeName, columnNameNode);
-        existingNode.moveChildren(schemaNodeName, columnNameNode);
-        existingNode.moveChildren(catalogNodeName, columnNameNode);
-        ParsedNode relationNode = convertToRelationReferenceNode(catalogNodeName, schemaNodeName, tableNodeName, columnNameNode);
+        if (catalogNode != null) {
+            catalogNode.moveTo(columnNode);
+        }
+        if (schemaNode != null) {
+            schemaNode.moveTo(columnNode);
+        }
+        if (tableNode != null) {
+            tableNode.moveTo(columnNode);
+        }
+
+        ParsedNode relationNode = convertToRelationReferenceNode(catalogNodeName, schemaNodeName, tableNodeName, columnNode);
         if (relationNode != null) {
             relationNode.rename("container");
         }
@@ -146,24 +203,46 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
         return columnNode;
     }
 
+    /**
+     * Converts the nodes with the given names into a node that will map to a {@link liquibase.item.core.RelationReference}.
+     *
+     * @return the created node, unless NONE of the listed nodes exist.
+     */
     protected ParsedNode convertToRelationReferenceNode(String catalogNodeName, String schemaNodeName, String tableNodeName, ParsedNode existingNode) throws ParseException {
+        ParsedNode catalogNode = existingNode.getChild(catalogNodeName, false);
+        ParsedNode schemaNode = existingNode.getChild(schemaNodeName, false);
         ParsedNode tableNameNode = existingNode.getChild(tableNodeName, false);
-        if (tableNameNode == null) {
+
+        if (catalogNode == null && schemaNode == null && tableNameNode == null) {
             return null;
         }
 
         ParsedNode relationNode = existingNode.addChild("relation");
 
-        tableNameNode.moveTo(relationNode);
-        tableNameNode.name = "name";
+        if (tableNameNode != null) {
+            tableNameNode.moveTo(relationNode);
+            tableNameNode.rename("name");
+        }
 
-        existingNode.moveChildren(schemaNodeName, tableNameNode);
-        existingNode.moveChildren(catalogNodeName, tableNameNode);
-        convertToSchemaReferenceNode(catalogNodeName, schemaNodeName, tableNameNode);
+        if (catalogNode != null) {
+            catalogNode.moveTo(relationNode);
+        }
+        if (schemaNode != null) {
+            schemaNode.moveTo(relationNode);
+        }
+        ParsedNode finalSchemaNode = convertToSchemaReferenceNode(catalogNodeName, schemaNodeName, relationNode);
+        if (finalSchemaNode != null) {
+            finalSchemaNode.rename("container");
+        }
 
         return relationNode;
     }
 
+    /**
+     * Converts the nodes with the given names into a node that will map to a {@link liquibase.item.core.SchemaReference}.
+     *
+     * @return the created node, unless NONE of the listed nodes exist.
+     */
     protected ParsedNode convertToSchemaReferenceNode(String catalogNodeName, String schemaNodeName, ParsedNode existingNode) throws ParseException {
         ParsedNode schemaNameNode = existingNode.getChild(schemaNodeName, false);
         ParsedNode catalogNameNode = existingNode.getChild(catalogNodeName, false);
@@ -172,21 +251,26 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
             return null;
         }
 
-        ParsedNode schemaNode = existingNode.getChild("schema", true);
+        ParsedNode schemaNode = existingNode.addChild("schema");
         if (schemaNameNode != null) {
             schemaNameNode.moveTo(schemaNode);
-            schemaNameNode.name = "name";
+            schemaNameNode.rename("name");
         }
 
         if (catalogNameNode != null) {
             ParsedNode catalogNode = schemaNode.addChild("container");
             catalogNameNode.moveTo(catalogNode);
-            catalogNameNode.name = "name";
+            catalogNameNode.rename("name");
         }
 
         return schemaNode;
     }
 
+    /**
+     * Finds and converts "value" nodes.
+     * The node is checked for a child node with a name of the passed baseName along with baseName+"Number", +Date, +Boolean, +Computed, +SequenceCurrent and +SequenceNext.
+     * If multiple nodes are round, a {@link ParseException} is thrown. Otherwise, the node is renamed to just the baseName if and the value is parsed based on the type.
+     */
     protected void convertValueOptions(String baseName, ParsedNode node) throws ParseException {
         Map<String, ParsedNode> valueOptions = new HashMap<>();
         valueOptions.put(baseName, node.getChild(baseName, false));
@@ -216,26 +300,26 @@ public abstract class AbstractActionPreprocessor extends AbstractParsedNodePrepr
             if (defaultValueType.equals(baseName)) {
                 ;//nothing do to
             } else {
-                if (valueOptionNode.name.equals(baseName + "Numeric")) {
+                if (valueOptionNode.getName().equals(baseName + "Numeric")) {
                     valueOptionNode.setValue(valueOptionNode.getValue(null, BigDecimal.class));
-                } else if (valueOptionNode.name.equals(baseName + "Date")) {
+                } else if (valueOptionNode.getName().equals(baseName + "Date")) {
                     valueOptionNode.setValue(valueOptionNode.getValue(null, Date.class));
-                } else if (valueOptionNode.name.equals(baseName + "Boolean")) {
+                } else if (valueOptionNode.getName().equals(baseName + "Boolean")) {
                     valueOptionNode.setValue(valueOptionNode.getValue(null, Boolean.class));
-                } else if (valueOptionNode.name.equals(baseName + "Computed")) {
-                    if (!(valueOptionNode.value instanceof FunctionCall)) {
+                } else if (valueOptionNode.getName().equals(baseName + "Computed")) {
+                    if (!(valueOptionNode.getValue() instanceof FunctionCall)) {
                         valueOptionNode.setValue(new FunctionCall(valueOptionNode.getValue(null, String.class)));
                     }
-                } else if (valueOptionNode.name.equals(baseName + "SequenceCurrent")) {
-                    if (!(valueOptionNode.value instanceof SequenceCurrentValueFunction)) {
+                } else if (valueOptionNode.getName().equals(baseName + "SequenceCurrent")) {
+                    if (!(valueOptionNode.getValue() instanceof SequenceCurrentValueFunction)) {
                         valueOptionNode.setValue(new SequenceCurrentValueFunction(valueOptionNode.getValue(null, String.class)));
                     }
-                } else if (valueOptionNode.name.equals(baseName + "SequenceNext")) {
-                    if (!(valueOptionNode.value instanceof SequenceNextValueFunction)) {
+                } else if (valueOptionNode.getName().equals(baseName + "SequenceNext")) {
+                    if (!(valueOptionNode.getValue() instanceof SequenceNextValueFunction)) {
                         valueOptionNode.setValue(new SequenceNextValueFunction(valueOptionNode.getValue(null, String.class)));
                     }
                 } else {
-                    throw new ParseException("Unknown defaultValue attribute: " + valueOptionNode.name, valueOptionNode);
+                    throw new ParseException("Unknown defaultValue attribute: " + valueOptionNode.getName(), valueOptionNode);
                 }
                 valueOptionNode.rename(baseName);
 

@@ -36,7 +36,7 @@ public class ChangeSetPreprocessor extends AbstractParsedNodePreprocessor {
             ParsedNode actions = changeSet.getChild("actions", true);
 
             for (ParsedNode possibleAction : changeSet.getChildren()) {
-                if (allActions.contains(possibleAction.name)) {
+                if (allActions.contains(possibleAction.getName())) {
                     possibleAction.moveTo(actions);
                 }
             }

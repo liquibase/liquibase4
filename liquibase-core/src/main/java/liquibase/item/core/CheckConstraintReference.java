@@ -2,6 +2,9 @@ package liquibase.item.core;
 
 import liquibase.item.AbstractRelationBasedObject;
 
+/**
+ * A reference to a {@link CheckConstraint}
+ */
 public class CheckConstraintReference extends AbstractRelationBasedObject.RelationBasedObjectReference {
 
     public CheckConstraintReference() {

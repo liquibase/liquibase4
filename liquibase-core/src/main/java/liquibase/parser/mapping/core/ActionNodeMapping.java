@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 
 /**
  * {@link ParsedNodeMapping} for {@link Action} objects.
+ * It will create the correct action implementation based on the node name using {@link ActionFactory}.
  */
 public class ActionNodeMapping extends AbstractParsedNodeMapping<Action> {
 
@@ -33,9 +34,9 @@ public class ActionNodeMapping extends AbstractParsedNodeMapping<Action> {
 
     @Override
     protected Action createObject(ParsedNode parsedNode, Class<Action> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        Action action = scope.getSingleton(ActionFactory.class).getAction(parsedNode.name, scope);
+        Action action = scope.getSingleton(ActionFactory.class).getAction(parsedNode.getName(), scope);
         if (action == null) {
-            throw new ParseException("Unknown action: " + parsedNode.name, parsedNode);
+            throw new ParseException("Unknown action: " + parsedNode.getName(), parsedNode);
         }
         return action;
     }

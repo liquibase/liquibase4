@@ -39,7 +39,7 @@ public class CreateViewsAction extends AbstractAction {
 
             @Override
             protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                if (actionNode.value != null) {
+                if (actionNode.getValue()!= null) {
                     actionNode.moveValue(actionNode.addChild("definition"));
                 }
 

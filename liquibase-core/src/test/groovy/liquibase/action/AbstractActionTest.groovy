@@ -4,14 +4,13 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.core.CommitAction
 import liquibase.actionlogic.ActionExecutor
-import liquibase.command.DropAllCommand
+import liquibase.command.core.DropAllCommand
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
-import liquibase.parser.ParsedNode
 import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin

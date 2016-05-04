@@ -1,9 +1,11 @@
-package liquibase.command;
+package liquibase.command.core;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.core.*;
 import liquibase.actionlogic.ActionExecutor;
+import liquibase.command.AbstractLiquibaseCommand;
+import liquibase.command.CommandResult;
 import liquibase.item.ItemReference;
 import liquibase.item.core.*;
 

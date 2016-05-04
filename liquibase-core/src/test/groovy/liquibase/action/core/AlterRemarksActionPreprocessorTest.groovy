@@ -28,12 +28,12 @@ class AlterRemarksActionPreprocessorTest extends AbstractActionPreprocessorTest 
 changeLog
     changeSet
         alterRemarks
-            relation
+            object
                 name: tab_name
-                    schema
-                        name: schema_name
-                        container
-                            name: cat_name
+                container
+                    name: schema_name
+                    container
+                        name: cat_name
                 type: liquibase.item.core.Table
 """
                 ],
@@ -52,14 +52,14 @@ changeLog
 changeLog
     changeSet
         alterRemarks
-            column
+            object
                 name: column_name
+                container
+                    name: tab_name
                     container
-                        name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        name: schema_name
+                        container
+                            name: cat_name
                 type: liquibase.item.core.Column
 """
                 ],

@@ -51,7 +51,7 @@ public class AddPrimaryKeysAction extends AbstractAction {
 
                     ParsedNode columns = pk.getChild("columns", true);
                     ParsedNode columnNames = actionNode.getChild("columnNames", false);
-                    if (columnNames != null && columnNames.value != null) {
+                    if (columnNames != null && columnNames.getValue() != null) {
                         for (String name : StringUtil.splitAndTrim(columnNames.getValue("", String.class), ",")) {
                             ParsedNode pkColumn = columns.addChild("primaryKeyColumn");
                             pkColumn.addChild("name").setValue(name);

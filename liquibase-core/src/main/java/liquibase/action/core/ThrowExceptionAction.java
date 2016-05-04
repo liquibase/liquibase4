@@ -40,13 +40,14 @@ public class ThrowExceptionAction extends AbstractAction {
 
             @Override
             protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                if (actionNode.value != null) {
+                if (actionNode.getValue() != null) {
                     actionNode.moveValue(actionNode.addChild("message"));
                 }
 
                 ParsedNode message = actionNode.getChild("message", false);
                 if (message != null) {
                     message.setValue(new ThrowExceptionActionException(message.getValue(null, String.class)));
+                    message.rename("exception");
                 }
             }
         };

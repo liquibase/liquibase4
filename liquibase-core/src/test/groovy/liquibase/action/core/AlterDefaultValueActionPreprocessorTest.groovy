@@ -35,12 +35,12 @@ changeLog
             defaultValue: new value
             column
                 name: col_name
+                container
+                    name: tab_name
                     container
-                        name: tab_name
-                            schema
-                                name: schema_name
-                                container
-                                    name: cat_name
+                        name: schema_name
+                        container
+                            name: cat_name
 """,
                         {
                             node ->
@@ -63,8 +63,8 @@ changeLog
             defaultValue: 81
             column
                 name: col_name
-                    container
-                        name: tab_name
+                container
+                    name: tab_name
 """,
                         {
                             node ->

@@ -74,4 +74,4 @@
 | 0824cce     | Generic  | select * from LBSCHEMA2.test_table | crazy!@#\$%^&*()_+{}[]'"view | LBSCHEMA2 | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='crazy!@#\$%^&*()_+{}[]''"view' AND TABLE_SCHEMA='LBSCHEMA2'
 | 9cdc456     | Generic  | select * from LBSCHEMA2.test_table | lowerview                    | LBSCHEMA2 | **plan**: SELECT "TABLE_NAME", "VIEW_DEFINITION", "TABLE_SCHEMA" FROM "INFORMATION_SCHEMA"."VIEWS" WHERE TABLE_NAME='lowerview' AND TABLE_SCHEMA='LBSCHEMA2'
 
-# Test Version: "95417b" #
+# Test Version: "8e10a2" #

@@ -43,7 +43,7 @@ public class DropUniqueConstraintsAction extends AbstractAction {
                     }
 
                     ParsedNode uniqueColumns = actionNode.getChild("uniqueColumns", false);
-                    if (uniqueColumns != null && uniqueColumns.value != null) {
+                    if (uniqueColumns != null && uniqueColumns.getValue() != null) {
                         uniqueColumns.setValue(StringUtil.splitAndTrim(uniqueColumns.getValue(null, String.class), ","));
                         uniqueColumns.rename("columns");
                         uniqueColumns.moveTo(constraint);

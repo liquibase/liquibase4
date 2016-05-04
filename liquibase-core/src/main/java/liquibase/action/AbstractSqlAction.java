@@ -3,6 +3,9 @@ package liquibase.action;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringClauses;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Standard base class for sql-based actions.
  * Normally subclass from the more specific {@link UpdateSqlAction}, {@link QuerySqlAction} and {@link ExecuteSqlAction}.
@@ -11,7 +14,9 @@ public abstract class AbstractSqlAction extends AbstractAction {
 
     public StringClauses sql;
     public String endDelimiter;
-    public String dbms;
+    public Boolean splitStatements;
+    public Boolean stripComments;
+    public List<String> dbmsFilters = new ArrayList<>();
 
     public AbstractSqlAction() {
     }

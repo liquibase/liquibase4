@@ -28,6 +28,7 @@ class ClassLoaderResourceAccessorTest extends Specification {
         then:
         loader.list("liquibase/exception", null, true).join("\n") == """
 liquibase/exception/ActionPerformException.class
+liquibase/exception/CommandExecutionException.class
 liquibase/exception/DatabaseException.class
 liquibase/exception/DependencyException.class
 liquibase/exception/LiquibaseException.class
@@ -45,6 +46,7 @@ liquibase/exception/UnexpectedLiquibaseException.class
         then:
         loader.list("liquibase/exception", null, true).join("\n") == """
 liquibase/exception/ActionPerformException.class
+liquibase/exception/CommandExecutionException.class
 liquibase/exception/DatabaseException.class
 liquibase/exception/DependencyException.class
 liquibase/exception/LiquibaseException.class

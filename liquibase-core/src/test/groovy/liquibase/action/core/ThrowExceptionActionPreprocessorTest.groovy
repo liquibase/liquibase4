@@ -26,7 +26,7 @@ class ThrowExceptionActionPreprocessorTest extends AbstractActionPreprocessorTes
 changeLog
     changeSet
         throwException
-            message: liquibase.action.core.ThrowExceptionAction\$ThrowExceptionActionException: the message
+            exception: liquibase.action.core.ThrowExceptionAction\$ThrowExceptionActionException: the message
 """
                 ],
         ]

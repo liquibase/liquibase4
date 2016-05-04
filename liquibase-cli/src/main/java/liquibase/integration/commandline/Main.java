@@ -28,6 +28,15 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
+/**
+ * This class is the primary command line interface for Liquibase.
+ * It's primary purpose is to parse the input parameters, then find and execute the {@link LiquibaseCommand} specified.
+ * <br><br>
+ * The command line interface follows a pattern of [GLOBAL OPTIONS] [command] [COMMAND OPTIONS] where the global options are configured by {@link #getGlobalOptions(Scope)}
+ * and the COMMAND OPTIONS are configured by {@link #getCommandOptions(LiquibaseCommand, Scope)} which checks the {@link LiquibaseCommand} being used.
+ * <br><br>
+ * This class should have all methods protected and support subclassing when the command line logic needs to be customized and/or embedded.
+ */
 public class Main {
 
     public static void main(String[] args) {
@@ -65,12 +74,12 @@ public class Main {
     }
 
     protected boolean isCommand(String arg) {
-        if (!arg.startsWith("-")) {
-            return true;
-        }
-        return false;
+        return !arg.startsWith("-");
     }
 
+    /**
+     * Creates options that apply regardless of the command used.
+     */
     protected Options getGlobalOptions(Scope rootScope) {
         Options options = new Options();
         options.addOption(Option.builder().longOpt("help").desc("Output this message").hasArg(false).build());
@@ -94,6 +103,9 @@ public class Main {
         return options;
     }
 
+    /**
+     * Configures the logback logging system based and sets it to the default logging level (off until overridden with --logLevel).
+     */
     protected ch.qos.logback.classic.Logger configureLogging() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         PatternLayoutEncoder loggerPattern = new PatternLayoutEncoder();
@@ -114,6 +126,9 @@ public class Main {
         return rootLogger;
     }
 
+    /**
+     * Called by {@link #main(String[])} to set up and execute the command.
+     */
     protected void execute() {
         ch.qos.logback.classic.Logger rootLogger = configureLogging();
 
@@ -240,6 +255,9 @@ public class Main {
         return scope;
     }
 
+    /**
+     * Create the classloader to execute the command under.
+     */
     protected ClassLoader createClassLoader(String classpathString, boolean includeSystemClasspath) throws Exception {
         final List<URL> urls = new ArrayList<>();
         String[] classpath;

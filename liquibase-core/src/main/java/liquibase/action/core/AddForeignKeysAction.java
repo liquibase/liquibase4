@@ -146,7 +146,7 @@ public class AddForeignKeysAction extends AbstractAction {
                 foreignKey.renameChildren("referencedColumnNames", "referencedColumnName");
                 for (ParsedNode refColumnName : foreignKey.getChildren("referencedColumnName", false)) {
                     ParsedNode check = columnChecks.addChild("columnCheck");
-                    check.addChild("baseColumn").value = baseNode.getChildValue("baseColumnNames", String.class, true);
+                    check.addChild("baseColumn").setValue(baseNode.getChildValue("baseColumnNames", String.class, true));
                     refColumnName.rename("referencedColumn").moveTo(check);
                 }
 
@@ -168,7 +168,7 @@ public class AddForeignKeysAction extends AbstractAction {
                         throw new ParseException("Cannot specify deleteCascade and deleteRule", baseNode);
                     }
                     if (deleteCascade.getValue(false, Boolean.class)) {
-                        foreignKey.addChild("deleteRule").setValue("CASCADE");
+                        foreignKey.addChild("deleteRule").setValue("cascade");
                     }
                     deleteCascade.remove();
                 }

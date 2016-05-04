@@ -86,7 +86,7 @@ public class CreateTableAction extends AbstractAction {
                 tmpRelationRef.remove();
 
                 for (ParsedNode computed : actionNode.getChildren("computed", true)) {
-                    computed.name = "virtual";
+                    computed.rename("virtual");
                 }
             }
         };

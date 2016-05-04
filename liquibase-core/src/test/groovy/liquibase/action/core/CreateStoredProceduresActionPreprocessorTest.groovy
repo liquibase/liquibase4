@@ -64,6 +64,8 @@ changeLog
                         name: schema_name
                         container
                             name: cat_name
+                        type: liquibase.item.core.Schema
+
 """
                 ],
         ]
