@@ -17,24 +17,24 @@ public class AddLookupTableAction extends AbstractAction {
     public String primaryKeyName;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(AddLookupTableAction.class) {
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode existingColumn = convertToColumnReferenceNode("existingTableCatalogName", "existingTableSchemaName", "existingTableName", "existingColumnName", actionNode);
-                        if (existingColumn != null) {
-                            existingColumn.rename("existingColumn");
-                        }
-
-                        ParsedNode newColumn = convertToColumnReferenceNode("newTableCatalogName", "newTableSchemaName", "newTableName", "newColumnName", actionNode);
-                        if (newColumn != null) {
-                            newColumn.rename("newColumn");
-                        }
-
-                        actionNode.renameChildren("constraintName", "foreignKeyName");
-                    }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AddLookupTableAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode existingColumn = convertToColumnReferenceNode("existingTableCatalogName", "existingTableSchemaName", "existingTableName", "existingColumnName", actionNode);
+                if (existingColumn != null) {
+                    existingColumn.rename("existingColumn");
                 }
+
+                ParsedNode newColumn = convertToColumnReferenceNode("newTableCatalogName", "newTableSchemaName", "newTableName", "newColumnName", actionNode);
+                if (newColumn != null) {
+                    newColumn.rename("newColumn");
+                }
+
+                actionNode.renameChildren("constraintName", "foreignKeyName");
+            }
         };
-    };
+    }
+
+    ;
 }

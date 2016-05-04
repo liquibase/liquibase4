@@ -11,6 +11,7 @@ import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
+import liquibase.parser.ParsedNode
 import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin

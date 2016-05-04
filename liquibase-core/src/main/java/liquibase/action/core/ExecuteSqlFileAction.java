@@ -25,20 +25,18 @@ public class ExecuteSqlFileAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(ExecuteSqlFileAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(ExecuteSqlFileAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] { "sqlFile" };
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"sqlFile"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
 
-                    }
-                }
+            }
         };
     }
 }

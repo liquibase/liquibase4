@@ -32,35 +32,33 @@ public class AddUniqueConstraintsAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(AddUniqueConstraintsAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AddUniqueConstraintsAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"addUniqueConstraint"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"addUniqueConstraint"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode table = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                        if (table != null) {
-                            ParsedNode uniqueConstraint = actionNode.addChild("uniqueConstraint");
-                            table.moveTo(uniqueConstraint);
-                            actionNode.moveChildren("disabled", uniqueConstraint);
-                            actionNode.moveChildren("deferrable", uniqueConstraint);
-                            actionNode.moveChildren("initiallyDeferred", uniqueConstraint);
-                            actionNode.moveChildren("constraintName", uniqueConstraint);
-                            uniqueConstraint.renameChildren("constraintName", "name");
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode table = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                if (table != null) {
+                    ParsedNode uniqueConstraint = actionNode.addChild("uniqueConstraint");
+                    table.moveTo(uniqueConstraint);
+                    actionNode.moveChildren("disabled", uniqueConstraint);
+                    actionNode.moveChildren("deferrable", uniqueConstraint);
+                    actionNode.moveChildren("initiallyDeferred", uniqueConstraint);
+                    actionNode.moveChildren("constraintName", uniqueConstraint);
+                    uniqueConstraint.renameChildren("constraintName", "name");
 
-                            String columnNames = actionNode.getChildValue("columnNames", String.class, true);
-                            if (columnNames != null) {
-                                uniqueConstraint.addChild("columns").setValue(new ArrayList<>(StringUtil.splitAndTrim(columnNames, ",")));
-                            }
-                        }
-                        actionNode.moveChildren("uniqueConstraint", actionNode.getChild("uniqueConstraints", true));
+                    String columnNames = actionNode.getChildValue("columnNames", String.class, true);
+                    if (columnNames != null) {
+                        uniqueConstraint.addChild("columns").setValue(new ArrayList<>(StringUtil.splitAndTrim(columnNames, ",")));
                     }
                 }
+                actionNode.moveChildren("uniqueConstraint", actionNode.getChild("uniqueConstraints", true));
+            }
         };
     }
 }

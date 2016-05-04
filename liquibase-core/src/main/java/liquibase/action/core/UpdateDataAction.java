@@ -43,24 +43,24 @@ public class UpdateDataAction extends AbstractAction implements UpdateAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(UpdateDataAction.class) {
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"update"};
-                    }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(UpdateDataAction.class) {
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"update"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
 
-                        for (ParsedNode child : actionNode.getChildren("column", false)) {
-                            convertValueOptions("value", child);
-                        }
-                        actionNode.moveChildren("column", actionNode.getChild("columns", true));
-                    }
+                ParsedNode columns = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columns);
+
+                for (ParsedNode child : columns.getChildren("column", false)) {
+                    convertValueOptions("value", child);
                 }
+            }
         };
     }
 

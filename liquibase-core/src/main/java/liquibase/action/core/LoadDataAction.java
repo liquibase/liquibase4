@@ -13,7 +13,6 @@ import liquibase.parser.preprocessor.core.changelog.RelativeToChangelogFilePrepr
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,45 +38,43 @@ public class LoadDataAction extends AbstractAction {
     public Boolean onlyUpdate;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(LoadDataAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(LoadDataAction.class) {
 
-                    @Override
-                    public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
-                        return CollectionUtil.union(Class.class, super.mustBeBefore(), RelativeToChangelogFilePreprocessor.class);
-                    }
+            @Override
+            public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+                return CollectionUtil.union(Class.class, super.mustBeBefore(), RelativeToChangelogFilePreprocessor.class);
+            }
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"loadUpdateData"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"loadUpdateData"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode table = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                        if (table != null) {
-                            table.rename("table");
-                        }
-                        actionNode.renameChildren("file", "path");
-                        actionNode.renameChildren("quotchar", "quoteChar");
-                        actionNode.renameChildren("commentLineStartsWith", "commentLineStart");
-
-                        ParsedNode columns = actionNode.getChild("columns", true);
-                        actionNode.moveChildren("column", columns);
-
-                        for (ParsedNode column : columns.getChildren()) {
-                            column.renameChildren("position", "index");
-                            column.renameChildren("name", "header");
-                        }
-
-                        ParsedNode primaryKey = actionNode.getChild("primaryKey", false);
-                        if (primaryKey != null && primaryKey.value != null) {
-                            primaryKey.rename("columnsForUpdateCheck");
-                            primaryKey.setValue(new ArrayList<>(Collections.singletonList(primaryKey.getValue(null, String.class))));
-                        }
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode table = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                if (table != null) {
+                    table.rename("table");
                 }
+                actionNode.renameChildren("file", "path");
+                actionNode.renameChildren("quotchar", "quoteChar");
+                actionNode.renameChildren("commentLineStartsWith", "commentLineStart");
+
+                ParsedNode columns = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columns);
+
+                for (ParsedNode column : columns.getChildren()) {
+                    column.renameChildren("position", "index");
+                    column.renameChildren("name", "header");
+                }
+
+                ParsedNode primaryKey = actionNode.getChild("primaryKey", false);
+                if (primaryKey != null && primaryKey.value != null) {
+                    primaryKey.rename("columnsForUpdateCheck");
+                    primaryKey.setValue(new ArrayList<>(Collections.singletonList(primaryKey.getValue(null, String.class))));
+                }
+            }
         };
     }
 

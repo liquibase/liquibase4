@@ -8,7 +8,6 @@ import liquibase.item.datatype.DataType;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
-import liquibase.util.CollectionUtil;
 
 import java.util.*;
 
@@ -54,48 +53,42 @@ public class CreateTableAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(CreateTableAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(CreateTableAction.class) {
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode tableNode = actionNode.getChild("table", true);
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode tableNode = actionNode.getChild("table", true);
 
-                        actionNode.moveChildren("tableName", tableNode);
-                        actionNode.moveChildren("schemaName", tableNode);
-                        actionNode.moveChildren("catalogName", tableNode);
-                        actionNode.moveChildren("tablespace", tableNode);
-                        actionNode.moveChildren("remarks", tableNode);
+                actionNode.moveChildren("tableName", tableNode);
+                actionNode.moveChildren("schemaName", tableNode);
+                actionNode.moveChildren("catalogName", tableNode);
+                actionNode.moveChildren("tablespace", tableNode);
+                actionNode.moveChildren("remarks", tableNode);
 
-                        tableNode.getChild("tableName", false).name = "name";
-                        convertToSchemaReferenceNode("catalogName", "schemaName", tableNode);
+                tableNode.renameChildren("tableName", "name");
+                convertToSchemaReferenceNode("catalogName", "schemaName", tableNode);
 
-                        ParsedNode columnsNode = actionNode.getChild("columns", true);
-                        actionNode.moveChildren("column", columnsNode);
+                ParsedNode columnsNode = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columnsNode);
 
-                        AddColumnsAction.AddColumnsPreprocessor addColumnsPreprocessor = new AddColumnsAction.AddColumnsPreprocessor();
+                AddColumnsAction.AddColumnsPreprocessor addColumnsPreprocessor = new AddColumnsAction.AddColumnsPreprocessor();
 
-                        ParsedNode tmpRelationRef = actionNode.addChild("tmpRelationRef");
-                        tableNode.copyChildren("name", tmpRelationRef);
-                        tableNode.copyChildren("schema", tmpRelationRef);
-                        tmpRelationRef.renameChildren("schema", "container");
+                ParsedNode tmpRelationRef = actionNode.addChild("tmpRelationRef");
+                tableNode.copyChildren("name", tmpRelationRef);
+                tableNode.copyChildren("schema", tmpRelationRef);
+                tmpRelationRef.renameChildren("schema", "container");
 
-                        for (ParsedNode column : columnsNode.getChildren("column", false)) {
-                            addColumnsPreprocessor.fixColumn(column, tmpRelationRef, actionNode);
-                        }
-
-                        tmpRelationRef.remove();
-
-                        for (ParsedNode computed : actionNode.getChildren("computed", true)) {
-                            computed.name = "virtual";
-                        }
-                    }
-
-
+                for (ParsedNode column : columnsNode.getChildren("column", false)) {
+                    addColumnsPreprocessor.fixColumn(column, tmpRelationRef, actionNode);
                 }
+
+                tmpRelationRef.remove();
+
+                for (ParsedNode computed : actionNode.getChildren("computed", true)) {
+                    computed.name = "virtual";
+                }
+            }
         };
     }
-
-
 }

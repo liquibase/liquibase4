@@ -16,22 +16,20 @@ public class CustomClassAction extends AbstractAction {
     public List<CustomClassParameter> parameters;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(CustomClassAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(CustomClassAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"customChange"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"customChange"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        actionNode.renameChildren("class", "customClass");
-                        ParsedNode parameters = actionNode.getChild("parameters", true);
-                        actionNode.moveChildren("param", parameters);
-                    }
-                }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                actionNode.renameChildren("class", "customClass");
+                ParsedNode parameters = actionNode.getChild("parameters", true);
+                actionNode.moveChildren("param", parameters);
+            }
         };
     }
 
@@ -39,7 +37,6 @@ public class CustomClassAction extends AbstractAction {
         public String name;
         public Object value;
     }
-
 
 
 }

@@ -13,8 +13,10 @@ class DependencyUtilTest extends Specification {
         def objects = [
                 new ChangeSetPreprocessor(),
                 new ChangeLogPreprocessor(),
-                new CreateTableAction().createPreprocessors()
+
         ]
+        objects.addAll(Arrays.asList(new CreateTableAction().createPreprocessor()))
+
         def sorted = DependencyUtil.sort(objects)
 
         then:

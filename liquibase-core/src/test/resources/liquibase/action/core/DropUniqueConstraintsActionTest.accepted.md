@@ -227,4 +227,4 @@
 | 3416013     | Generic  | loweruniqueconstraint                    | LBSCHEMA2.crazy!@#\$%^&*()_+{}[]'"table | **plan**: ALTER TABLE "LBSCHEMA2"."crazy!@#\$%^&*()_+{}[]'""table" DROP CONSTRAINT "loweruniqueconstraint"
 | 78a16ad     | Generic  | loweruniqueconstraint                    | LBSCHEMA2.lowertable                    | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" DROP CONSTRAINT "loweruniqueconstraint"
 
-# Test Version: "3abd4a" #
+# Test Version: "9776ad" #

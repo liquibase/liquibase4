@@ -31,26 +31,24 @@ public class DropTablesAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(DropTablesAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(DropTablesAction.class) {
 
-                    @Override
-                    public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
-                        return CollectionUtil.union(Class.class, super.mustBeBefore(), ChangeSetPreprocessor.class);
-                    }
+            @Override
+            public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+                return CollectionUtil.union(Class.class, super.mustBeBefore(), ChangeSetPreprocessor.class);
+            }
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"dropTable"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"dropTable"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                        actionNode.moveChildren("relation", actionNode.getChild("tables", true));
-                    }
-                }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                actionNode.moveChildren("relation", actionNode.getChild("tables", true));
+            }
         };
     }
 }

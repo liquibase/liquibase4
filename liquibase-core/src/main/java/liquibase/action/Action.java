@@ -51,8 +51,6 @@ public interface Action extends ExtensibleObject, Plugin {
      * Creates a custom {@link ParsedNodePreprocessor} instance to setup in the {@link liquibase.parser.preprocessor.ParsedNodePreprocessorFactory}.
      * Because many action need to do custom preprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
      * Can return null if no preprocessors are needed.
-     *
-     * @see liquibase.parser.preprocessor.core.changelog.StandardActionPreprocessor for preprocessing that is always done for actions.
      */
-    ParsedNodePreprocessor[] createPreprocessors();
+    ParsedNodePreprocessor createPreprocessor();
 }

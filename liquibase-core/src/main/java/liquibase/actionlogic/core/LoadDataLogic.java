@@ -160,6 +160,10 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
         try {
             InputStream inputStream = scope.getResourceAccessor().openStream(action.path);
 
+            if (inputStream == null) {
+                throw new ActionPerformException("Could not find data at path "+action.path);
+            }
+
             String encoding = action.encoding;
             if (encoding == null) {
                 return new InputStreamReader(inputStream);
@@ -167,7 +171,10 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
                 return new InputStreamReader(inputStream, encoding);
             }
         } catch (Exception e) {
-            throw new ActionPerformException(e);
+            if (e instanceof ActionPerformException) {
+                throw (ActionPerformException) e;
+            }
+            throw new ActionPerformException(e.getMessage(), e);
         }
     }
 

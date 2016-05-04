@@ -26,6 +26,13 @@ public interface ResourceAccessor extends ExtensibleObject {
      */
     InputStreamList openStreams(String path) throws LiquibaseException;
 
+    /**
+     * Returns a single stream matching the given path. See {@link #openStreams(String)} for details about path options.
+
+     * @return null if the resource does not exist
+     * @throws LiquibaseException if multiple paths matched the stream
+     * @throws LiquibaseException if there is an error reading an existing path
+     */
     InputStream openStream(String path) throws LiquibaseException;
 
     /**

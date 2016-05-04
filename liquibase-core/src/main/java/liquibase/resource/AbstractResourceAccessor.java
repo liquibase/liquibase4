@@ -16,7 +16,7 @@ public abstract class AbstractResourceAccessor extends AbstractExtensibleObject 
         InputStreamList streamList = this.openStreams(path);
 
         if (streamList == null || streamList.size() == 0) {
-            throw new LiquibaseException("Cannot find " + path);
+            return null;
         } else if (streamList.size() > 1) {
             try {
                 streamList.close();

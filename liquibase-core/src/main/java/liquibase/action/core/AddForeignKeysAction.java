@@ -31,10 +31,8 @@ public class AddForeignKeysAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AddForeignKeysPreprocessor()
-        };
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AddForeignKeysPreprocessor();
     }
 
     public static class AddForeignKeysPreprocessor extends AbstractActionPreprocessor {
@@ -61,6 +59,7 @@ public class AddForeignKeysAction extends AbstractAction {
             for (ParsedNode deleteRule : foreignKeys.getChildren("deleteRule", true)) {
                 String value = deleteRule.getValue(null, String.class);
                 if (value != null) {
+                    value = value.replaceAll(" ", "");
                     for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
                         if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
                             deleteRule.setValue(possibleValue.name());
@@ -71,6 +70,7 @@ public class AddForeignKeysAction extends AbstractAction {
 
             for (ParsedNode updateRule : foreignKeys.getChildren("updateRule", true)) {
                 String value = updateRule.getValue(null, String.class);
+                value = value.replaceAll(" ", "");
                 if (value != null) {
                     for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
                         if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
@@ -79,6 +79,9 @@ public class AddForeignKeysAction extends AbstractAction {
                     }
                 }
             }
+
+            actionNode.removeChildren("deferrable");
+            actionNode.removeChildren("initiallyDeferred");
         }
 
         public void fixForeignKey(ParsedNode baseNode, ParsedNode baseTableReferenceNode) throws ParseException {
@@ -92,7 +95,7 @@ public class AddForeignKeysAction extends AbstractAction {
 
                 if (referencesNode != null) {
                     String references = referencesNode.getValue(null, String.class);
-                    Matcher referencesMatcher = Pattern.compile("(.*)\\(.*\\)").matcher(references);
+                    Matcher referencesMatcher = Pattern.compile("(.*)\\((.*)\\)").matcher(references);
                     if (!referencesMatcher.matches()) {
                         throw new ParseException("Cannot parse foreign key pattern", referencesNode);
                     }
@@ -125,7 +128,9 @@ public class AddForeignKeysAction extends AbstractAction {
                 }
 
                 ParsedNode foreignKey = baseNode.addChild("foreignKey");
-                baseTableReferenceNode.copyTo(foreignKey).rename("relation");
+                if (baseTableReferenceNode != null) {
+                    baseTableReferenceNode.copyTo(foreignKey).rename("relation");
+                }
                 baseNode.renameChildren("foreignKeyName", "constraintName");
                 baseNode.moveChildren("constraintName", foreignKey);
                 baseNode.moveChildren("referencedColumnNames", foreignKey);
@@ -140,17 +145,9 @@ public class AddForeignKeysAction extends AbstractAction {
                 ParsedNode columnChecks = foreignKey.getChild("columnChecks", true);
                 foreignKey.renameChildren("referencedColumnNames", "referencedColumnName");
                 for (ParsedNode refColumnName : foreignKey.getChildren("referencedColumnName", false)) {
-                    ParsedNode check = columnChecks.addChild("foreignKeyColumnCheck");
+                    ParsedNode check = columnChecks.addChild("columnCheck");
                     check.addChild("baseColumn").value = baseNode.getChildValue("baseColumnNames", String.class, true);
                     refColumnName.rename("referencedColumn").moveTo(check);
-                }
-
-                ParsedNode deleteCascade = baseNode.getChild("deleteCascade", false);
-                if (deleteCascade != null) {
-                    if (deleteCascade.getValue(false, Boolean.class)) {
-                        foreignKey.addChild("deleteRule").setValue("cascade");
-                    }
-                    deleteCascade.remove();
                 }
 
                 baseNode.copyChildren("deferrable", foreignKey);
@@ -158,9 +155,24 @@ public class AddForeignKeysAction extends AbstractAction {
 
                 baseNode.moveChildren("onDelete", foreignKey);
                 baseNode.moveChildren("onUpdate", foreignKey);
+                baseNode.moveChildren("deleteCascade", foreignKey);
+                baseNode.moveChildren("deleteRule", foreignKey); ///possibly using new name
+                baseNode.moveChildren("updateRule", foreignKey);///possibly using new name
 
                 foreignKey.renameChildren("onDelete", "deleteRule");
                 foreignKey.renameChildren("onUpdate", "updateRule");
+
+                ParsedNode deleteCascade = foreignKey.getChild("deleteCascade", false);
+                if (deleteCascade != null) {
+                    if (foreignKey.getChild("deleteRule", false) != null) {
+                        throw new ParseException("Cannot specify deleteCascade and deleteRule", baseNode);
+                    }
+                    if (deleteCascade.getValue(false, Boolean.class)) {
+                        foreignKey.addChild("deleteRule").setValue("CASCADE");
+                    }
+                    deleteCascade.remove();
+                }
+
             }
         }
     }

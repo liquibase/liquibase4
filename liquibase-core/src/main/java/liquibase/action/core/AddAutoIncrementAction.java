@@ -29,20 +29,18 @@ public class AddAutoIncrementAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(AddAutoIncrementAction.class) {
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode);
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AddAutoIncrementAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode);
 
-                        actionNode.renameChildren("columnDataType", "dataType");
+                actionNode.renameChildren("columnDataType", "dataType");
 
-                        ParsedNode autoIncrementInformation = actionNode.getChild("autoIncrementInformation", true);
-                        actionNode.moveChildren("incrementBy", autoIncrementInformation);
-                        actionNode.moveChildren("startWith", autoIncrementInformation);
-                    }
-                }
+                ParsedNode autoIncrementInformation = actionNode.getChild("autoIncrementInformation", true);
+                actionNode.moveChildren("incrementBy", autoIncrementInformation);
+                actionNode.moveChildren("startWith", autoIncrementInformation);
+            }
         };
     }
 }

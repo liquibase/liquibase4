@@ -29,24 +29,22 @@ public class DropViewsAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(DropViewsAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(DropViewsAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"dropView"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"dropView"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode relation = convertToRelationReferenceNode("catalogName", "schemaName", "viewName", actionNode);
-                        if (relation != null) {
-                            ParsedNode views = actionNode.getChild("views", true);
-                            relation.rename("view").moveTo(views);
-                        }
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode relation = convertToRelationReferenceNode("catalogName", "schemaName", "viewName", actionNode);
+                if (relation != null) {
+                    ParsedNode views = actionNode.getChild("views", true);
+                    relation.rename("view").moveTo(views);
                 }
+            }
         };
     }
 }

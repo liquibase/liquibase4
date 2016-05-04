@@ -109,7 +109,7 @@ LoadDataAction.table is required
 
         then:
         ActionPerformException ex = thrown()
-        ex.message == "liquibase.exception.ActionPerformException: Cannot find com/example/invalid.csv"
+        ex.message == "Could not find data at path com/example/invalid.csv"
     }
 
     def "throws an error if the file is missing a cell"() {

@@ -60,6 +60,10 @@ public class XmlParser extends AbstractParser {
 
             try (InputStream inputStream = scope.getResourceAccessor().openStream(path)) {
 
+                if (inputStream == null) {
+                    throw new ParseException("Could not find file to parse: "+path, null);
+                }
+
                 XmlParserSaxHandler handler = new XmlParserSaxHandler(path);
                 xmlReader.setContentHandler(handler);
 
@@ -90,6 +94,8 @@ public class XmlParser extends AbstractParser {
                 rootNode.addChild("physicalPath").setValue(path);
                 return rootNode;
             }
+        } catch (ParseException e) {
+            throw e;
         } catch (Exception e) {
             throw new ParseException(e, null);
         }

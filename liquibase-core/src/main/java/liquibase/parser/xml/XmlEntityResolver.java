@@ -20,13 +20,21 @@ public abstract class XmlEntityResolver extends AbstractPlugin {
     /**
      * Return an InputSource for the given entity description.
      * Default implementation uses {@link #getRootPath(String, String, String, String, Scope)} plus the filename in the passed systemId and looks that up in the scope's resourceAccessor.
+     *
+     * @return null if cannot be resolved
      */
     public InputSource resolveEntity(String name, String publicId, String baseURI, String systemId, Scope scope) throws ParseException {
         String xsdFile = systemId.replaceFirst(".*/(.*?)", "$1");
         String path = getRootPath(name, publicId, baseURI, systemId, scope)+"/"+xsdFile;
 
         try {
-            return new InputSource(scope.getResourceAccessor().openStream(path));
+            InputStream stream = scope.getResourceAccessor().openStream(path);
+
+            if (stream == null) {
+                return null;
+            }
+
+            return new InputSource(stream);
         } catch (Exception e) {
             throw new ParseException(e, null);
         }

@@ -123,8 +123,12 @@ class AddForeignKeysActionTest extends AbstractActionTest {
         return TestUtil.createAllPermutations(AddForeignKeysAction, [
                 foreignKeys: CollectionUtil.toSingletonLists(TestUtil.createAllPermutations(ForeignKey, [
                         name             : ["test_fk"],
-                        relation            : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, baseTableName, it) })),
-                        referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({ return new RelationReference(Table, refTableName, it) })),
+                        relation         : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({
+                            return new RelationReference(Table, baseTableName, it)
+                        })),
+                        referencedTable  : CollectionUtil.addNull(connectionSupplier.allSchemas.collect({
+                            return new RelationReference(Table, refTableName, it)
+                        })),
                         columnChecks     : [[new ForeignKey.ForeignKeyColumnCheck(baseColumnName, refColumnName)]],
                         deferrable       : [true, false],
                         initiallyDeferred: [true, false],

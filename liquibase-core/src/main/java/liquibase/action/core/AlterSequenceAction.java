@@ -7,7 +7,6 @@ import liquibase.item.core.SequenceReference;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
-import liquibase.util.CollectionUtil;
 
 import java.math.BigInteger;
 
@@ -39,16 +38,14 @@ public class AlterSequenceAction extends AbstractAction {
     public Boolean cycle;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(AlterSequenceAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AlterSequenceAction.class) {
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        actionNode.renameChildren("startValue", "restartWith");
-                        convertToSequenceReferenceNode("catalogName", "schemaName", "sequenceName", actionNode);
-                    }
-                }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                actionNode.renameChildren("startValue", "restartWith");
+                convertToSequenceReferenceNode("catalogName", "schemaName", "sequenceName", actionNode);
+            }
         };
     }
 }

@@ -111,7 +111,7 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
 
 
             if (problemNode != null) {
-                LoggerFactory.getLogger(getClass()).debug("Error parsing:\n" + StringUtil.indent(problemNode.print()));
+                LoggerFactory.getLogger(getClass()).debug("Error parsing:\n" + StringUtil.indent(problemNode.prettyPrint()));
             }
 
             throw new ParseException(message, e, problemNode);

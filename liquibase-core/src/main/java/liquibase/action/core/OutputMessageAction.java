@@ -60,20 +60,18 @@ public class OutputMessageAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(OutputMessageAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(OutputMessageAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"output"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"output"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
 
-                    }
-                }
+            }
         };
     }
 }

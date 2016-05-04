@@ -27,45 +27,43 @@ public class ExecuteSqlAction extends AbstractSqlAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(ExecuteSqlAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(ExecuteSqlAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"sql"};
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"sql"};
+            }
+
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                actionNode.removeChildren("comment");
+
+                String sql = actionNode.getValue(null, String.class);
+
+                if (sql != null) {
+                    boolean splitStatements = ObjectUtil.defaultIfNull(actionNode.getChildValue("splitStatements", Boolean.class, true), true);
+                    boolean stripComments = ObjectUtil.defaultIfNull(actionNode.getChildValue("stripComments", Boolean.class, true), false);
+                    ParsedNode endDelimiterNode = actionNode.getChild("endDelimiter", false);
+
+                    String endDelimiter = null;
+                    if (endDelimiterNode == null || endDelimiterNode.value == null) {
+                        endDelimiter = ";";
                     }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        actionNode.removeChildren("comment");
-
-                        String sql = actionNode.getValue(null, String.class);
-
-                        if (sql != null) {
-                            boolean splitStatements = ObjectUtil.defaultIfNull(actionNode.getChildValue("splitStatements", Boolean.class, true), true);
-                            boolean stripComments = ObjectUtil.defaultIfNull(actionNode.getChildValue("stripComments", Boolean.class, true), false);
-                            ParsedNode endDelimiterNode = actionNode.getChild("endDelimiter", false);
-
-                            String endDelimiter = null;
-                            if (endDelimiterNode == null || endDelimiterNode.value == null) {
-                                endDelimiter = ";";
-                            }
-
-                            if (splitStatements) {
-                                StringClauses parsedSql = SqlParser.parse(sql, stripComments, true);
-                                for (StringClauses clauses : parsedSql.split(endDelimiter)) {
-                                    ParsedNode executeSqlNode = actionNode.addChild("executeSql");
-                                    executeSqlNode.addChild("sql").setValue(clauses);
-                                    if (endDelimiterNode != null) {
-                                        endDelimiterNode.copyTo(executeSqlNode);
-                                    }
-                                }
+                    if (splitStatements) {
+                        StringClauses parsedSql = SqlParser.parse(sql, stripComments, true);
+                        for (StringClauses clauses : parsedSql.split(endDelimiter)) {
+                            ParsedNode executeSqlNode = actionNode.addChild("executeSql");
+                            executeSqlNode.addChild("sql").setValue(clauses);
+                            if (endDelimiterNode != null) {
+                                endDelimiterNode.copyTo(executeSqlNode);
                             }
                         }
-
                     }
                 }
+
+            }
         };
     }
 }

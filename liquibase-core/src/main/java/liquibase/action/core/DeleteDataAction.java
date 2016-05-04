@@ -20,20 +20,18 @@ public class DeleteDataAction extends AbstractAction {
     public StringClauses where = new StringClauses(" AND ");
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(DeleteDataAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(DeleteDataAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"delete"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"delete"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                    }
-                }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+            }
         };
     }
 }

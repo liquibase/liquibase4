@@ -34,10 +34,8 @@ public class AddColumnsAction extends AbstractAction {
 
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AddColumnsPreprocessor()
-        };
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AddColumnsPreprocessor();
     }
 
     public static class AddColumnsPreprocessor extends AbstractActionPreprocessor {
@@ -60,20 +58,22 @@ public class AddColumnsAction extends AbstractAction {
          */
         @Override
         protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-            ParsedNode relation = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-
             ParsedNode columns = actionNode.getChild("columns", true);
             actionNode.moveChildren("column", columns);
 
-            if (relation != null) {
+            for (ParsedNode column : new ArrayList<>(columns.getChildren("column", false))) {
+                actionNode.copyChildren("tableName", column);
+                actionNode.copyChildren("schemaName", column);
+                actionNode.copyChildren("catalogName", column);
 
-                for (ParsedNode column : new ArrayList<>(columns.getChildren("column", false))) {
-                    relation.copyTo(column);
-                    fixColumn(column, relation, actionNode);
-                }
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", column);
 
-                relation.remove();
+                fixColumn(column, column.getChild("relation", false), actionNode);
             }
+
+            actionNode.removeChildren("catalogName");
+            actionNode.removeChildren("schemaName");
+            actionNode.removeChildren("tableName");
         }
 
         public void fixColumn(ParsedNode column, ParsedNode relation, ParsedNode mainNode) throws ParseException {
@@ -129,7 +129,14 @@ public class AddColumnsAction extends AbstractAction {
 
                 //foreign key handling
                 new AddForeignKeysAction.AddForeignKeysPreprocessor().fixForeignKey(constraints, relation);
-                constraints.moveChildren("foreignKey", actionNode.getChild("foreignKeys", true));
+                ParsedNode foreignKeys = actionNode.getChild("foreignKeys", true);
+                constraints.moveChildren("foreignKey", foreignKeys);
+                for (ParsedNode columnCheck : foreignKeys.getChildren("columnCheck", true)) {
+                    ParsedNode baseColumn = columnCheck.getChild("baseColumn", true);
+                    if (baseColumn.value == null) {
+                        baseColumn.setValue(columnNode.getChildValue("name", String.class, false));
+                    }
+                }
 
 //                    ParsedNode deleteCascade = constraints.getChild("deleteCascade", false);
 //                    if (deleteCascade != null) {
@@ -149,10 +156,18 @@ public class AddColumnsAction extends AbstractAction {
                     ParsedNode newCheckConstraint = checkConstraints.addChild("checkConstraint");
 
                     originalCheckConstraintsNode.rename("body").moveTo(newCheckConstraint);
+                    if (relation != null) {
+                        relation.copyTo(newCheckConstraint);
+                    }
+                    constraints.copyChildren("deferrable", newCheckConstraint);
+                    constraints.copyChildren("initiallyDeferred", newCheckConstraint);
+
                 }
 
 
                 //final cleanup
+                constraints.removeChildren("deferrable");
+                constraints.removeChildren("initiallyDeferred");
                 for (ParsedNode child : new ArrayList<>(constraints.getChildren())) {
                     switch (child.name) {
                         case "nullable":
@@ -183,6 +198,7 @@ public class AddColumnsAction extends AbstractAction {
             if (autoIncrementNode != null) {
                 if (ObjectUtil.defaultIfNull(ObjectUtil.convert(autoIncrementNode.value, Boolean.class), false)) {
                     autoIncrementNode.name = "autoIncrementInformation";
+                    autoIncrementNode.value = null;
                 } else {
                     autoIncrementNode.remove();
                 }

@@ -30,14 +30,12 @@ public class MergeColumnsAction extends AbstractAction {
     public DataType finalColumnType;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(MergeColumnsAction.class) {
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                    }
-                }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(MergeColumnsAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+            }
         };
     }
 }

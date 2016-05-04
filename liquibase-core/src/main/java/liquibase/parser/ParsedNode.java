@@ -322,17 +322,6 @@ public class ParsedNode extends AbstractExtensibleObject {
             child.copyTo(copy);
         }
 
-        Iterator<ParsedNode> parentChildIterator = parent.children.iterator();
-        while (parentChildIterator.hasNext()) {
-            ParsedNode child = parentChildIterator.next();
-            if (child == this) {
-                parentChildIterator.remove();
-                break;
-            }
-        }
-        this.parent = newParent;
-        newParent.children.add(this);
-
         return copy;
     }
 
@@ -376,11 +365,11 @@ public class ParsedNode extends AbstractExtensibleObject {
         renameChildren(new ParsedNodeNameFilter(oldName), newName);
     }
 
-    public String print() {
-        return print(true);
+    public String prettyPrint() {
+        return prettyPrint(true);
     }
 
-    private String print(boolean includePath) {
+    private String prettyPrint(boolean includePath) {
         StringWriter writer = new StringWriter();
         if (includePath) {
             String parentString = "";
@@ -392,18 +381,18 @@ public class ParsedNode extends AbstractExtensibleObject {
             writer.write(parentString);
         }
 
-        this.print(writer);
+        this.prettyPrint(writer);
 
         return writer.toString();
     }
 
-    private void print(Writer writer) {
+    private void prettyPrint(Writer writer) {
         String output = name;
         if (this.value != null) {
             output += ": " + this.value;
         }
         for (ParsedNode child : children) {
-            output += "\n" + StringUtil.indent(child.print(false));
+            output += "\n" + StringUtil.indent(child.prettyPrint(false));
         }
 
         try {
@@ -415,6 +404,19 @@ public class ParsedNode extends AbstractExtensibleObject {
 
     public <T> T getValue(T defaultValue, Class<T> type) {
         return ObjectUtil.defaultIfNull(ObjectUtil.convert(this.value, type), defaultValue);
+    }
+
+    public void addChildren(Map<String, Object> children) {
+        if (children != null) {
+            for (Map.Entry<String, Object> child : children.entrySet()) {
+                ParsedNode childNode = this.addChild(child.getKey());
+                if (child.getValue() instanceof Map) {
+                    childNode.addChildren((Map<String, Object>) child.getValue());
+                } else {
+                    childNode.setValue(child.getValue());
+                }
+            }
+        }
     }
 
     /**

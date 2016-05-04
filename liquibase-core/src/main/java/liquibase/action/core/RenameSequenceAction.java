@@ -16,27 +16,30 @@ public class RenameSequenceAction extends AbstractAction {
     public SequenceReference newName;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(RenameSequenceAction.class) {
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode oldName = convertToSequenceReferenceNode("catalogName", "schemaName", "oldSequenceName", actionNode);
-                        if (oldName != null) {
-                            oldName.rename("oldName");
-                            ParsedNode newName = actionNode.getChild("newSequenceName", false);
-                            if (newName != null) {
-                                newName.rename("newName");
-                                ParsedNode nameNode = newName.addChild("name");
-                                newName.moveValue(nameNode);
-                                ParsedNode container = oldName.getChild("container", false);
-                                if (container != null) {
-                                    container.copyTo(newName);
-                                }
-                            }
-                        }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(RenameSequenceAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                actionNode.renameChildren("oldSequenceName", "oldName");
+                actionNode.renameChildren("newSequenceName", "newName");
+
+                ParsedNode schema = convertToSchemaReferenceNode("catalogName", "schemaName", actionNode);
+
+                if (schema != null) {
+                    schema.rename("container");
+                    ParsedNode oldName = actionNode.getChild("oldName", false);
+                    ParsedNode newName = actionNode.getChild("newName", false);
+
+                    if (oldName != null) {
+                        schema.copyTo(oldName);
                     }
+                    if (newName != null) {
+                        schema.copyTo(newName);
+                    }
+
+                    schema.remove();
                 }
+            }
         };
     }
 }

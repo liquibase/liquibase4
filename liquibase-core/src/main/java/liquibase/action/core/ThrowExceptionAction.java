@@ -30,23 +30,25 @@ public class ThrowExceptionAction extends AbstractAction {
 
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(ThrowExceptionAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(ThrowExceptionAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"stop"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"stop"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode message = actionNode.getChild("message", false);
-                        if (message != null) {
-                            message.setValue(new ThrowExceptionActionException(message.getValue(null, String.class)));
-                        }
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                if (actionNode.value != null) {
+                    actionNode.moveValue(actionNode.addChild("message"));
                 }
+
+                ParsedNode message = actionNode.getChild("message", false);
+                if (message != null) {
+                    message.setValue(new ThrowExceptionActionException(message.getValue(null, String.class)));
+                }
+            }
         };
     }
 

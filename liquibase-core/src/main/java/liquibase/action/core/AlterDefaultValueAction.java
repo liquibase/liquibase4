@@ -27,11 +27,11 @@ public class AlterDefaultValueAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AlterDefaultValuePreprocessor()
-        };
-    };
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AlterDefaultValuePreprocessor();
+    }
+
+    ;
 
     public static class AlterDefaultValuePreprocessor extends AbstractActionPreprocessor {
 
@@ -41,24 +41,26 @@ public class AlterDefaultValueAction extends AbstractAction {
 
         @Override
         protected String[] getAliases() {
-            return new String[] {"addDefaultValue", "dropDefaultValue"};
+            return new String[]{"addDefaultValue", "dropDefaultValue"};
         }
 
         @Override
         protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
             convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode);
+            convertValueOptions("defaultValue", actionNode);
         }
 
         @Override
         protected void processRenamedNode(String originalName, ParsedNode node) throws ParseException {
             if (originalName.equals("addDefaultValue")) {
-                convertValueOptions("defaultValue", node);
                 if (node.getChild("defaultValue", false) == null) {
                     throw new ParseException("No default value specified", node);
                 }
+            } else if (originalName.equals("dropDefaultValue")) {
+                if (node.getChild("defaultValue", false) != null) {
+                    throw new ParseException("Cannot specify a default value for dropDefaultValue", node);
+                }
             }
         }
-
-
     }
 }

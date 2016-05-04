@@ -33,34 +33,25 @@ public class AlterRemarksAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(AlterRemarksAction.class) {
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"setTableRemarks", "setColumnRemarks"};
-                    }
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AlterRemarksAction.class) {
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"setTableRemarks", "setColumnRemarks"};
+            }
 
-                    @Override
-                    protected void processRenamedNode(String originalName, ParsedNode node) throws ParseException {
-                        ParsedNode object = null;
-                        if (originalName.equals("setTableRemarks")) {
-                            object = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", node);
-                            object.addChild("type").value = Table.class.getName();
-                        } else if (originalName.equals("setColumnRemarks")) {
-                            object = convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", node);
-                            object.addChild("type").value = Column.class.getName();
-                        }
-                        if (object != null) {
-                            object.rename("object");
-                        }
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode columnNode = actionNode.getChild("columnName", false);
+                if (columnNode != null) {
+                    convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode)
+                            .addChild("type").value = Column.class.getName();
+                } else {
+                    convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode)
+                            .addChild("type").value = Table.class.getName();
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-
-                    }
                 }
+            }
         };
     }
 }

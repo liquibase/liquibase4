@@ -1,10 +1,12 @@
 package liquibase.action.core
 
+import groovyjarjarantlr.preprocessor.Preprocessor
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
+import liquibase.parser.ParsedNode
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.Column
@@ -53,10 +55,12 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
                 startWith_asTable  : action.autoIncrementInformation == null ? null : action.autoIncrementInformation.startWith,
                 incrementBy_asTable: action.autoIncrementInformation == null ? null : action.autoIncrementInformation.incrementBy
         ], action, conn, scope, { plan, result ->
-            if (action.autoIncrementInformation != null && action.autoIncrementInformation.incrementBy != null) { //need to check because checkStatus does not get incrementBy metadata
+            if (action.autoIncrementInformation != null && action.autoIncrementInformation.incrementBy != null) {
+                //need to check because checkStatus does not get incrementBy metadata
                 assert plan.toString().contains(action.autoIncrementInformation.incrementBy.toString()): "IncrementBy value not used"
             }
-            if (action.autoIncrementInformation != null && action.autoIncrementInformation.startWith != null) { //need to check because checkStatus does not get startWith metadata
+            if (action.autoIncrementInformation != null && action.autoIncrementInformation.startWith != null) {
+                //need to check because checkStatus does not get startWith metadata
                 assert plan.toString().contains(action.autoIncrementInformation.startWith.toString()): "StartWith value not used"
             }
 

@@ -5,6 +5,9 @@ import liquibase.Scope
 import liquibase.changelog.ChangeLog
 import liquibase.parser.xml.TestXmlGenerator
 import liquibase.parser.xml.XmlParserTest
+import liquibase.resource.ClassLoaderResourceAccessor
+import liquibase.resource.CompositeResourceAccessor
+import liquibase.resource.JUnitResourceAccessor
 import liquibase.resource.MockResourceAccessor
 import liquibase.util.StreamUtil
 import spock.lang.Ignore
@@ -20,7 +23,7 @@ class ParserFactoryTest extends Specification {
     def setup() {
         resourceAccessor = new MockResourceAccessor()
                 .addMockXsd("changeLog")
-        scope = JUnitScope.instance.child(Scope.Attr.resourceAccessor, resourceAccessor)
+        scope = JUnitScope.instance.child(Scope.Attr.resourceAccessor, new CompositeResourceAccessor(resourceAccessor, new ClassLoaderResourceAccessor(getClass().getClassLoader())));
     }
 
 

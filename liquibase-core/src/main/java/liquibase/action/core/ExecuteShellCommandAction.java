@@ -18,25 +18,23 @@ public class ExecuteShellCommandAction extends AbstractAction {
     public List<String> osFilters = new ArrayList<>();
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[]{
-                new AbstractActionPreprocessor(ExecuteShellCommandAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(ExecuteShellCommandAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[]{"executeCommand"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"executeCommand"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode os = actionNode.getChild("os", false);
-                        if (os != null && os.value != null) {
-                            actionNode.addChild("osFilters").setValue(StringUtil.splitAndTrim(os.getValue(null, String.class), ","));
-                            os.remove();
-                        }
-                        actionNode.moveChildren("arg", actionNode.getChild("args", true));
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode os = actionNode.getChild("os", false);
+                if (os != null && os.value != null) {
+                    actionNode.addChild("osFilters").setValue(StringUtil.splitAndTrim(os.getValue(null, String.class), ","));
+                    os.remove();
                 }
+                actionNode.moveChildren("arg", actionNode.getChild("args", true));
+            }
         };
     }
 }

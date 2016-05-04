@@ -44,7 +44,13 @@ public class MockResourceAccessor extends AbstractExtensibleObject implements Re
 
     @Override
     public InputStream openStream(String path) throws LiquibaseException {
-        return openStreams(path).get(0);
+        InputStreamList streams = openStreams(path);
+        if (streams == null || streams.size() == 0) {
+            return null;
+        } else if (streams.size() > 1) {
+            throw new LiquibaseException("Multiples streams matched "+path);
+        }
+        return streams.get(0);
     }
 
     @Override

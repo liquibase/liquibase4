@@ -16,24 +16,22 @@ public class DropAllForeignKeysAction extends AbstractAction {
     public RelationReference table;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(DropAllForeignKeysAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(DropAllForeignKeysAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] { "dropAllForeignKeyConstraints"};
-                    }
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"dropAllForeignKeyConstraints"};
+            }
 
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode table = convertToRelationReferenceNode("baseTableCatalogName", "baseTableSchemaName", "baseTableName", actionNode);
-                        if (table != null) {
-                            table.rename("table");
-                        }
-
-                    }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode table = convertToRelationReferenceNode("baseTableCatalogName", "baseTableSchemaName", "baseTableName", actionNode);
+                if (table != null) {
+                    table.rename("table");
                 }
+
+            }
         };
     }
 }

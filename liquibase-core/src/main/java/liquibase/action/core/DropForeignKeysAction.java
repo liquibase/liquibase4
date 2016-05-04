@@ -10,7 +10,6 @@ import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,32 +29,30 @@ public class DropForeignKeysAction extends AbstractAction {
     }
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
-                new AbstractActionPreprocessor(DropForeignKeysAction.class) {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(DropForeignKeysAction.class) {
 
-                    @Override
-                    protected String[] getAliases() {
-                        return new String[] {"dropForeignKeyConstraint"};
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"dropForeignKeyConstraint"};
+            }
+
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode tableNode = convertToRelationReferenceNode("baseTableCatalogName", "baseTableSchemaName", "baseTableName", actionNode);
+                ParsedNode constraintName = actionNode.getChild("constraintName", false);
+                if (tableNode != null || constraintName != null) {
+                    ParsedNode foreignKey = actionNode.addChild("foreignKey");
+                    if (constraintName != null) {
+                        constraintName.rename("name").moveTo(foreignKey);
                     }
-
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        ParsedNode tableNode = convertToRelationReferenceNode("baseTableCatalogName", "baseTableSchemaName", "baseTableName", actionNode);
-                        ParsedNode constraintName = actionNode.getChild("constraintName", false);
-                        if (tableNode != null || constraintName != null) {
-                            ParsedNode foreignKey = actionNode.addChild("foreignKey");
-                            if (constraintName != null) {
-                                constraintName.rename("name").moveTo(foreignKey);
-                            }
-                            if (tableNode != null) {
-                                tableNode.rename("container").moveTo(foreignKey);
-                            }
-                        }
-
-                        actionNode.moveChildren("foreignKey", actionNode.getChild("foreignKeys", true));
+                    if (tableNode != null) {
+                        tableNode.rename("container").moveTo(foreignKey);
                     }
                 }
+
+                actionNode.moveChildren("foreignKey", actionNode.getChild("foreignKeys", true));
+            }
         };
     }
 }

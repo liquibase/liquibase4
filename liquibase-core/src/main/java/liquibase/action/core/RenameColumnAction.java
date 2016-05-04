@@ -22,19 +22,16 @@ public class RenameColumnAction extends AbstractAction {
     public String remarks;
 
     @Override
-    public ParsedNodePreprocessor[] createPreprocessors() {
-        return new ParsedNodePreprocessor[] {
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(RenameColumnAction.class) {
 
-                new AbstractActionPreprocessor(RenameColumnAction.class) {
-
-                    @Override
-                    protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-                        convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                        actionNode.renameChildren("oldColumnName", "oldName");
-                        actionNode.renameChildren("newColumnName", "newName");
-                        actionNode.renameChildren("columnDataType", "columnDefinition");
-                    }
-                }
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                actionNode.renameChildren("oldColumnName", "oldName");
+                actionNode.renameChildren("newColumnName", "newName");
+                actionNode.renameChildren("columnDataType", "columnDefinition");
+            }
         };
     }
 }
