@@ -81,6 +81,7 @@
         <!--<module>liquibase-postgresql</module>-->
         <!--<module>liquibase-sqlite</module>-->
         <!--<module>liquibase-sybase</module>-->
+        <module>liquibase-tests</module>
 
         <module>liquibase-all</module>
     </modules>
