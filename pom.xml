@@ -83,7 +83,7 @@
         <!--<module>liquibase-sybase</module>-->
         <module>liquibase-tests</module>
 
-        <module>liquibase-all</module>
+        <module>liquibase-core</module>
     </modules>
 
     <dependencies>
