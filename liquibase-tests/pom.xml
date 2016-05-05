@@ -60,7 +60,7 @@
     <dependencies>
         <dependency>
             <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <artifactId>liquibase-common</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
         </dependency>

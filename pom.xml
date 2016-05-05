@@ -60,7 +60,7 @@
     </properties>
 
     <modules>
-        <module>liquibase-core</module>
+        <module>liquibase-common</module>
         <module>liquibase-cli</module>
         <!--<module>liquibase-maven-plugin</module>-->
         <!--<module>liquibase-osgi</module>-->
