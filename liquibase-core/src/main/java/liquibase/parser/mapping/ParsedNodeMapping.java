@@ -3,7 +3,7 @@ package liquibase.parser.mapping;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.ParsedNode;
-import liquibase.parser.mapping.core.DefaultParsedNodeMapping;
+import liquibase.parser.mapping.core.DefaultExtensibleObjectParsedNodeMapping;
 import liquibase.plugin.Plugin;
 
 import java.lang.reflect.Type;
@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
  *
  * @see ParsedNodeMappingFactory
  * @see AbstractParsedNodeMapping
- * @see DefaultParsedNodeMapping
+ * @see DefaultExtensibleObjectParsedNodeMapping
  */
 public interface ParsedNodeMapping<ObjectType> extends Plugin {
 

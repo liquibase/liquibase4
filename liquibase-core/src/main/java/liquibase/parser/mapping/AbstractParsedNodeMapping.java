@@ -1,9 +1,11 @@
 package liquibase.parser.mapping;
 
+import com.sun.javafx.collections.transformation.SortedList;
 import liquibase.ExtensibleObject;
 import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
+import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.parser.ParsedNode;
 import liquibase.util.ObjectUtil;
 
@@ -73,9 +75,9 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         ObjectType returnObject = createObject(parsedNode, objectType, containerType, containerAttribute, scope);
 
         for (ParsedNode child : parsedNode.getChildren()) {
-            ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.name);
+            ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.getName());
             if (attribute == null) {
-                throw new ParseException("Unexpected attribute '" + child.name + "' for " + returnObject.getClass().getName(), child);
+                throw new ParseException("Unexpected attribute '" + child.getName() + "' for " + returnObject.getClass().getName(), child);
             }
             Type attributeType = attribute.type;
             Class attributeClass;
@@ -97,29 +99,41 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
             }
 
             if (Collection.class.isAssignableFrom(attributeClass)) {
-                Collection collection = returnObject.get(child.name, Collection.class);
+                Collection collection = returnObject.get(child.getName(), Collection.class);
+                if (collection == null) {
+                    if (List.class.isAssignableFrom(attributeClass)) {
+                        collection = new ArrayList();
+                    } else if (SortedList.class.isAssignableFrom(attributeClass)) {
+                        collection = new TreeSet();
+                    } else if (Set.class.isAssignableFrom(attributeClass)) {
+                        collection = new HashSet();
+                    } else {
+                        throw new UnexpectedLiquibaseException("Unknown collection type: "+attributeClass.getName());
+                    }
+                    returnObject.set(child.getName(), collection);
+                }
                 collection.clear();
 
                 if (child.getChildren().size() > 0) {
                     for (ParsedNode valueEntry : child.getChildren()) {
-                        collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) valueEntry, collectionElementClass, returnObject.getClass(), child.name, scope));
+                        collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject(valueEntry, collectionElementClass, returnObject.getClass(), child.getName(), scope));
                     }
-                } else if (child.value instanceof ParsedNode) {
-                    collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.value, collectionElementClass, returnObject.getClass(), child.name, scope));
+                } else if (child.getValue() instanceof ParsedNode) {
+                    collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.getValue(), collectionElementClass, returnObject.getClass(), child.getName(), scope));
                 } else {
-                    if (child.value != null) {
-                        collection.add(ObjectUtil.convert(child.value, collectionElementClass));
+                    if (child.getValue() != null) {
+                        collection.add(child.getValue(null, collectionElementClass));
                     }
                 }
             } else {
                 if (child.getChildren().size() == 0) {
-                    if (child.value instanceof ParsedNode) {
-                        returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.value, attributeClass, returnObject.getClass(), child.name, scope));
+                    if (child.getValue() instanceof ParsedNode) {
+                        returnObject.set(child.getName(), scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.getValue(), attributeClass, returnObject.getClass(), child.getName(), scope));
                     } else {
-                        returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.name, scope));
+                        returnObject.set(child.getName(), scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.getName(), scope));
                     }
                 } else {
-                    returnObject.set(child.name, scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.name, scope));
+                    returnObject.set(child.getName(), scope.getSingleton(ParsedNodeMappingFactory.class).toObject(child, attributeClass, returnObject.getClass(), child.getName(), scope));
                 }
             }
         }
@@ -131,6 +145,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
      * Default implementation uses a first-letter-lower-cased version of the passed object's simpleName.
      * Returns "null" if object is null.
      */
+
     protected String getNodeName(ObjectType object, Class containerType, String containerAttribute, Scope scope) {
         if (object == null) {
             return "null";
@@ -161,7 +176,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         if (parsedNode == null) {
             returnString += "parsedNode: null";
         } else {
-            returnString += "node.name: " + parsedNode.name;
+            returnString += "node.name: " + parsedNode.getName();
         }
 
         returnString += ", objectType: " + (objectTypeClass == null ? "null" : objectTypeClass.getName());

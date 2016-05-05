@@ -55,4 +55,4 @@
 | 622ca61     | Generic  | CRAZY!@#\$%^&*()_+{}[]'"Col1 | CRAZY!@#\$%^&*()_+{}[]'"Col2 | FINAL_COL                        | ->         | LBSCHEMA.TEST_TABLE  | **plan**: ALTER TABLE "LBSCHEMA"."TEST_TABLE" ADD "FINAL_COL" VARCHAR(40)<br>UPDATE "LBSCHEMA"."TEST_TABLE" SET "FINAL_COL"="CRAZY!@#\$%^&*()_+{}[]'""Col1" &#124;&#124; '->' &#124;&#124; "CRAZY!@#\$%^&*()_+{}[]'""Col2"<br>ALTER TABLE "LBSCHEMA"."TEST_TABLE" DROP COLUMN "CRAZY!@#\$%^&*()_+{}[]'""Col1"<br>ALTER TABLE "LBSCHEMA"."TEST_TABLE" DROP COLUMN "CRAZY!@#\$%^&*()_+{}[]'""Col2"
 | f5e5781     | Generic  | CRAZY!@#\$%^&*()_+{}[]'"Col1 | CRAZY!@#\$%^&*()_+{}[]'"Col2 | FINAL_COL                        | ->         | LBSCHEMA2.TEST_TABLE | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ADD "FINAL_COL" VARCHAR(40)<br>UPDATE "LBSCHEMA2"."TEST_TABLE" SET "FINAL_COL"="CRAZY!@#\$%^&*()_+{}[]'""Col1" &#124;&#124; '->' &#124;&#124; "CRAZY!@#\$%^&*()_+{}[]'""Col2"<br>ALTER TABLE "LBSCHEMA2"."TEST_TABLE" DROP COLUMN "CRAZY!@#\$%^&*()_+{}[]'""Col1"<br>ALTER TABLE "LBSCHEMA2"."TEST_TABLE" DROP COLUMN "CRAZY!@#\$%^&*()_+{}[]'""Col2"
 
-# Test Version: "193944" #
+# Test Version: "a75197" #

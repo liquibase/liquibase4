@@ -3,7 +3,7 @@ package liquibase.parser.mapping;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.ParsedNode;
-import liquibase.parser.mapping.core.DefaultParsedNodeMapping;
+import liquibase.parser.mapping.core.DefaultExtensibleObjectParsedNodeMapping;
 import liquibase.plugin.AbstractPluginFactory;
 
 /**
@@ -41,7 +41,7 @@ public class ParsedNodeMappingFactory extends AbstractPluginFactory<ParsedNodeMa
         }
         ParsedNodeMapping mapping = getMapping(node, objectType, containerType, containerAttribute, scope);
         if (mapping == null) {
-            throw new ParseException("Cannot find ParsedNodeMapping for "+new DefaultParsedNodeMapping().describeParams(node, objectType, containerType, containerAttribute), node);
+            throw new ParseException("Cannot find ParsedNodeMapping for "+new DefaultExtensibleObjectParsedNodeMapping().describeParams(node, objectType, containerType, containerAttribute), node);
         }
         return (ObjectType) mapping.toObject(node, objectType, containerType, containerAttribute, scope);
     }
@@ -56,7 +56,7 @@ public class ParsedNodeMappingFactory extends AbstractPluginFactory<ParsedNodeMa
 
         ParsedNodeMapping mapping = getMapping(null, object.getClass(), containerType, containerAttribute, scope);
         if (mapping == null) {
-            throw new ParseException("Cannot find ParsedNodeMapping for "+new DefaultParsedNodeMapping().describeParams(null, object.getClass(), containerType, containerAttribute), null);
+            throw new ParseException("Cannot find ParsedNodeMapping for "+new DefaultExtensibleObjectParsedNodeMapping().describeParams(null, object.getClass(), containerType, containerAttribute), null);
         }
 
         return mapping.toParsedNode(object, containerType, containerAttribute, parentNode, scope);

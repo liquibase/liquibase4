@@ -2,6 +2,7 @@ package liquibase.command;
 
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
+import liquibase.exception.CommandExecutionException;
 
 import java.util.Objects;
 

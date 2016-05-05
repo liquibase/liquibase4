@@ -1,8 +1,13 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
 import liquibase.item.core.RelationReference;
 import liquibase.item.datatype.DataType;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 
 /**
  * Combines two existing columns into a new column.
@@ -24,4 +29,13 @@ public class MergeColumnsAction extends AbstractAction {
     public String finalColumnName;
     public DataType finalColumnType;
 
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(MergeColumnsAction.class) {
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+            }
+        };
+    }
 }

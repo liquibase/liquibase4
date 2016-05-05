@@ -63,4 +63,9 @@ public interface ExtensibleObject extends Cloneable {
      * Output a full description of this object. Should include all attributes and values.
      */
     String describe();
+
+    /**
+     * Expose {@link Cloneable#clone()} as public
+     */
+    Object clone();
 }

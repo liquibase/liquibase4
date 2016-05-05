@@ -23,7 +23,7 @@ public class ObjectUtil {
 
         try {
             if (Enum.class.isAssignableFrom(targetClass)) {
-                Enum.valueOf((Class<Enum>) targetClass, object.toString());
+                return (T) Enum.valueOf((Class<Enum>) targetClass, object.toString());
             } else if (Number.class.isAssignableFrom(targetClass)) {
                 if (object instanceof Number) {
                     Number number = (Number) object;
@@ -119,6 +119,14 @@ public class ObjectUtil {
                     return (T) new ArrayList(Arrays.asList((Object[]) object));
                 } else {
                     return (T) object;
+                }
+            } else if (targetClass.isAssignableFrom(StringClauses.class)) {
+                return (T) new StringClauses().append(object.toString());
+            } else if (targetClass.isAssignableFrom(Class.class)) {
+                try {
+                    return (T) Class.forName(object.toString());
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalArgumentException(e);
                 }
             }
             return (T) object;

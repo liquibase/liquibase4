@@ -10,12 +10,12 @@ import liquibase.parser.mapping.ParsedNodeMapping;
 import java.lang.reflect.Type;
 
 /**
- * Standard {@link ParsedNodeMapping} to use if nothing else has higher priority.
+ * Standard {@link ParsedNodeMapping} to use for an {@link ExtensibleObject} if nothing else has higher priority.
  * Adds no basic logic beyond what is in {@link AbstractParsedNodeMapping}
  */
-public class DefaultParsedNodeMapping extends AbstractParsedNodeMapping {
+public class DefaultExtensibleObjectParsedNodeMapping extends AbstractParsedNodeMapping {
 
-    public DefaultParsedNodeMapping() {
+    public DefaultExtensibleObjectParsedNodeMapping() {
     }
 
     @Override
@@ -26,8 +26,4 @@ public class DefaultParsedNodeMapping extends AbstractParsedNodeMapping {
         return PRIORITY_NOT_APPLICABLE;
     }
 
-    @Override
-    public ExtensibleObject toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        return super.toObject(parsedNode, objectType, containerType, containerAttribute, scope);
-    }
 }

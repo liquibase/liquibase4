@@ -1,12 +1,20 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
+import liquibase.item.FunctionCall;
 import liquibase.item.core.RowData;
+import liquibase.item.function.SequenceCurrentValueFunction;
+import liquibase.item.function.SequenceNextValueFunction;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 import liquibase.util.CollectionUtil;
+import liquibase.util.ObjectUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 /**
@@ -15,7 +23,7 @@ import java.util.List;
  */
 public class InsertDataAction extends AbstractAction {
 
-
+    public String dbms;
     public List<RowData> data = new ArrayList<>();
 
     /**
@@ -34,5 +42,40 @@ public class InsertDataAction extends AbstractAction {
 
     public InsertDataAction(RowData... data) {
         this.data = Arrays.asList(CollectionUtil.createIfNull(data));
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(InsertDataAction.class) {
+
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"insert"};
+            }
+
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode data = actionNode.getChild("data", true);
+
+                ParsedNode relation = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                if (relation != null) {
+                    ParsedNode rowData = null;
+                    ParsedNode dataNode = null;
+                    for (ParsedNode column : actionNode.getChildren("column", false)) {
+                        if (rowData == null) {
+                            rowData = data.addChild("rowData");
+                            relation.moveTo(rowData);
+                            dataNode = rowData.addChild("data");
+                        }
+
+                        column.rename("cell").moveTo(dataNode);
+                        column.renameChildren("name", "columnName");
+
+                        convertValueOptions("value", column);
+                    }
+                }
+
+            }
+        };
     }
 }

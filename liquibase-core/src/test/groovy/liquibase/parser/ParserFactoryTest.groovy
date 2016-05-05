@@ -5,11 +5,15 @@ import liquibase.Scope
 import liquibase.changelog.ChangeLog
 import liquibase.parser.xml.TestXmlGenerator
 import liquibase.parser.xml.XmlParserTest
+import liquibase.resource.ClassLoaderResourceAccessor
+import liquibase.resource.CompositeResourceAccessor
+import liquibase.resource.JUnitResourceAccessor
 import liquibase.resource.MockResourceAccessor
 import liquibase.util.StreamUtil
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
+import testmd.TestMD
 
 class ParserFactoryTest extends Specification {
 
@@ -19,7 +23,7 @@ class ParserFactoryTest extends Specification {
     def setup() {
         resourceAccessor = new MockResourceAccessor()
                 .addMockXsd("changeLog")
-        scope = JUnitScope.instance.child(Scope.Attr.resourceAccessor, resourceAccessor)
+        scope = JUnitScope.instance.child(Scope.Attr.resourceAccessor, new CompositeResourceAccessor(resourceAccessor, new ClassLoaderResourceAccessor(getClass().getClassLoader())));
     }
 
 
@@ -68,7 +72,6 @@ class ParserFactoryTest extends Specification {
     }
 
 
-    @Ignore
     @Unroll("#featureName: #xml")
     def "generated 3.5-style changeSet xml is parsed correctly"() {
         when:
@@ -91,18 +94,20 @@ class ParserFactoryTest extends Specification {
 
         scope = scope.child(Scope.Attr.resourceAccessor, new MockResourceAccessor()
                 .addData(path, changeLogXml)
-                .addData("liquibase/parser/core/xml/dbchangelog-3.5.xsd", StreamUtil.readStreamAsString(getClass().getResourceAsStream("/liquibase/parser/core/xml/dbchangelog-3.5.xsd"), scope))
+                .addData("liquibase/parser/core/xml/dbchangelog-3.5.xsd", StreamUtil.readStreamAsString(getClass().getResourceAsStream("/liquibase/parser/core/xml/dbchangelog-3.5.xsd"), null, scope))
         )
-        try {
-            def object = parserFactory.parse(path, ChangeLog, scope)
-            println object
-        } catch (e) {
-            println xml
-            throw e
-        }
+
+        def object = parserFactory.parse(path, ChangeLog, scope)
+
+        def actionName = xml.replaceFirst(/ .*/, "")
+                .replaceFirst(/>.*/, "")
+                .replaceFirst("<", "");
 
         then:
-        true
+        TestMD.test(getClass().getName(), "generated 3.5 changeSet xml is parsed correctly (does not actually test anything, but tracks the output so we can watch for unexpected changes)", getClass())
+                .withPermutation([action_asTable: actionName])
+                .addOperation("output", object.describe())
+                .run({ true })
 
         where:
         xml << new TestXmlGenerator().generateXml("liquibase/parser/core/xml/dbchangelog-3.5.xsd", "//group[@name=\"changeSetChildren\"]/choice/element")

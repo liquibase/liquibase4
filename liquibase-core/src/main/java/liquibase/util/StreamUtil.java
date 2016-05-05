@@ -31,8 +31,11 @@ public class StreamUtil {
         }
     }
 
-    public static String readStreamAsString(InputStream stream, Scope scope) throws IOException {
-        return new String(readStream(stream), "UTF-8");
+    public static String readStreamAsString(InputStream stream, String encoding, Scope scope) throws IOException {
+        if (encoding == null) {
+            encoding = "UTF-8";
+        }
+        return new String(readStream(stream), encoding);
     }
 
 }

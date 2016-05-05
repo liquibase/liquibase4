@@ -1,6 +1,9 @@
 package liquibase.util;
 
-public class LogUtil {
+/**
+ * Utilities for working with the log.
+ */
+public abstract class LogUtil {
 
     /**
      * SLF4j MDC for the current {@link liquibase.changelog.ChangeSet}

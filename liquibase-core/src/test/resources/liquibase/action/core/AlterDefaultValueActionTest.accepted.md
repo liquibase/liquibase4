@@ -471,4 +471,4 @@
 | ffd2a04     | Generic  | LBSCHEMA2.TEST_TABLE.TEST_COLUMN | VARCHAR(50) |              |                   | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ALTER COLUMN "TEST_COLUMN" DROP DEFAULT
 | 1918e19     | Generic  | LBSCHEMA2.TEST_TABLE.TEST_COLUMN | VARCHAR(50) | test value   | java.lang.String  | **plan**: ALTER TABLE "LBSCHEMA2"."TEST_TABLE" ALTER COLUMN "TEST_COLUMN" SET DEFAULT 'test value'
 
-# Test Version: "3a3d8c" #
+# Test Version: "d2d5cf" #

@@ -144,4 +144,66 @@ class ParsedNodeTest extends Specification {
         assert child1.parent.is(child2)
         assert root.toString() == "ParsedNode{root, children=[ParsedNode{child2=child 2 value, children=[ParsedNode{child2A=child 2A value}, ParsedNode{child2B=child 2B value}, ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}]}]}"
     }
+
+    def "print"() {
+        expect:
+        child1.prettyPrint() == """
+root / child1: child 1 value
+    child1A: child 1A value
+    child1B: child 1B value
+""".trim()
+
+        child2.prettyPrint() == """
+root / child2: child 2 value
+    child2A: child 2A value
+    child2B: child 2B value
+""".trim()
+
+        child1A.prettyPrint() == """
+root / child1 / child1A: child 1A value
+""".trim()
+
+        root.prettyPrint() == """
+root
+    child1: child 1 value
+        child1A: child 1A value
+        child1B: child 1B value
+    child2: child 2 value
+        child2A: child 2A value
+        child2B: child 2B value
+""".trim()
+    }
+
+    def "copy"() {
+        when:
+        def root = ParsedNode.createRootNode("root")
+        def child1 = root.addChild("child1")
+        child1.fileName = "path/to/file.txt"
+        child1.lineNumber = 3
+        child1.columnNumber = 65
+        child1.rename("newChild1")
+
+        def child2 = root.addChild("child2")
+        child2.fileName = "path/to/file2.txt"
+        child2.lineNumber = 312
+        child2.columnNumber = 6315
+
+        def child1Copy = child1.copyTo(child2)
+
+        then:
+        root.prettyPrint() == """
+root
+    newChild1
+    child2
+        newChild1
+""".trim()
+
+        assert !child1Copy.is(child1)
+        child1Copy.fileName == "path/to/file.txt"
+        child1Copy.lineNumber == 3
+        child1Copy.columnNumber == 65
+        child1Copy.originalName == "child1"
+        child1Copy.name == "newChild1"
+
+    }
 }

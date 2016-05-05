@@ -1,10 +1,15 @@
 package liquibase.util;
 
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
+/**
+ *  Utility methods for working with collections.
+ */
 public abstract class CollectionUtil {
 
     public static <T> Set<Set<T>> powerSet(Collection<T> originalSet) {
@@ -100,7 +105,7 @@ public abstract class CollectionUtil {
     }
 
     /**
-     * Convenience method returns passed currentValue if it is not null and creates a new ArrayList if it is null.
+     * Returns passed currentValue if it is not null and creates a new ArrayList if it is null.
      * <br><br>
      * Example: values = createIfNull(values)
      */
@@ -112,6 +117,9 @@ public abstract class CollectionUtil {
         }
     }
 
+    /**
+     * Returns a new empty array if the passed array is null.
+     */
     public static <T> T[] createIfNull(T[] arguments) {
         if (arguments == null) {
             return (T[]) new Object[0];
@@ -120,12 +128,30 @@ public abstract class CollectionUtil {
         }
     }
 
+    /**
+     * Returns a new empty set if the passed array is null.
+     */
     public static <T> Set<T> createIfNull(Set<T> currentValue) {
         if (currentValue == null) {
             return new HashSet<>();
         } else {
             return currentValue;
         }
+    }
+
+    /**
+     * Return a new map, filtered by the collectionFilter
+     */
+    public static <K,V> Map<K,V> select(Map<K,V> collection, CollectionFilter<Map.Entry<K,V>> collectionFilter) {
+        Map<K,V> newMap = new HashMap<>();
+
+        for (Map.Entry<K,V> entry : collection.entrySet()) {
+            if (collectionFilter.include(entry)) {
+                newMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return newMap;
     }
 
 
@@ -216,6 +242,33 @@ public abstract class CollectionUtil {
         return list;
     }
 
+    /**
+     * Combines the passed array with the additional moreObjects values and returns a new array.
+     *
+     * @param objectType the type of array to create.
+     */
+    public static <T> T[] union(Class<T> objectType, T[] array, T... moreObjects) {
+        if (array == null && moreObjects == null) {
+            return null;
+        }
+
+        List<T> returnList = new ArrayList<>();
+        if (array != null) {
+            returnList.addAll(Arrays.asList(array));
+        }
+
+        if (moreObjects != null) {
+            for (T obj : moreObjects) {
+                returnList.add(obj);
+            }
+        }
+
+        return (T[]) returnList.toArray((T[]) Array.newInstance(objectType, returnList.size()));
+    }
+
+    /**
+     * Used by various methods to filter collections
+     */
     public interface CollectionFilter<T> {
 
         boolean include(T obj);

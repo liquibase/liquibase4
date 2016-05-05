@@ -1,9 +1,14 @@
 package liquibase.action.core;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
 import liquibase.action.UpdateAction;
+import liquibase.exception.ParseException;
 import liquibase.item.core.RelationReference;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringClauses;
 
@@ -35,6 +40,28 @@ public class UpdateDataAction extends AbstractAction implements UpdateAction {
             this.where = where;
         }
         this.columns.addAll(Arrays.asList(CollectionUtil.createIfNull(columns)));
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(UpdateDataAction.class) {
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"update"};
+            }
+
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+
+                ParsedNode columns = actionNode.getChild("columns", true);
+                actionNode.moveChildren("column", columns);
+
+                for (ParsedNode child : columns.getChildren("column", false)) {
+                    convertValueOptions("value", child);
+                }
+            }
+        };
     }
 
     public static class UpdatedColumn extends AbstractExtensibleObject {

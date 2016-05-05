@@ -1,4 +1,4 @@
-package liquibase.command;
+package liquibase.command.core;
 
 import liquibase.ExtensibleObjectAttribute;
 import liquibase.ObjectMetaData;
@@ -10,6 +10,8 @@ import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.changelog.ChangeLogIterator;
 import liquibase.changelog.filter.ShouldRunChangeSetFilter;
 import liquibase.changelog.visitor.ExecuteChangeSetVisitor;
+import liquibase.command.AbstractLiquibaseCommand;
+import liquibase.command.CommandResult;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.parser.ParserFactory;

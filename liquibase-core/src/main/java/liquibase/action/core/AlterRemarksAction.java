@@ -1,8 +1,14 @@
 package liquibase.action.core;
 
+import liquibase.Scope;
 import liquibase.action.AbstractAction;
+import liquibase.exception.ParseException;
 import liquibase.item.DatabaseObjectReference;
-import liquibase.item.core.ColumnReference;
+import liquibase.item.core.Column;
+import liquibase.item.core.Table;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 
 /**
  * Sets remarks/comments on a database object.
@@ -24,5 +30,29 @@ public class AlterRemarksAction extends AbstractAction {
     public AlterRemarksAction(DatabaseObjectReference object, String remarks) {
         this.object = object;
         this.remarks = remarks;
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractActionPreprocessor(AlterRemarksAction.class) {
+            @Override
+            protected String[] getAliases() {
+                return new String[]{"setTableRemarks", "setColumnRemarks"};
+            }
+
+            @Override
+            protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode columnNode = actionNode.getChild("columnName", false);
+                ParsedNode objectNode;
+                if (columnNode != null) {
+                    objectNode = convertToColumnReferenceNode("catalogName", "schemaName", "tableName", "columnName", actionNode);
+                    objectNode.addChild("type").setValue(Column.class.getName());
+                } else {
+                    objectNode = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
+                    objectNode.addChild("type").setValue(Table.class.getName());
+                }
+                objectNode.rename("object");
+            }
+        };
     }
 }

@@ -4,7 +4,7 @@ import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.core.CommitAction
 import liquibase.actionlogic.ActionExecutor
-import liquibase.command.DropAllCommand
+import liquibase.command.core.DropAllCommand
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
 import liquibase.database.Database

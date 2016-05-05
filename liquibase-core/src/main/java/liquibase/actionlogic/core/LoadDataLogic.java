@@ -20,6 +20,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
@@ -105,7 +106,7 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
                 .withHeader()
                 .withIgnoreEmptyLines()
                 .withIgnoreSurroundingSpaces()
-                .withCommentMarker(action.commentLineStart == null ? DEFAULT_COMMENT_PATTERN : action.commentLineStart)
+                .withCommentMarker(action.commentLineStart == null ? DEFAULT_COMMENT_PATTERN : action.commentLineStart.charAt(0))
                 .withEscape('\\')
                 .withNullString("NULL");
 
@@ -157,22 +158,23 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
 
     protected Reader getData(LoadDataAction action, Scope scope) throws ActionPerformException {
         try {
-            InputStreamList inputStreams = scope.getResourceAccessor().openStreams(action.path);
-            if (inputStreams == null || inputStreams.size() == 0) {
-                throw new ActionPerformException("Cannot find " + action.path);
-            } else if (inputStreams.size() > 1) {
-                inputStreams.close();
-                throw new ActionPerformException("Found " + inputStreams.size() + " files that match " + action.path);
+            InputStream inputStream = scope.getResourceAccessor().openStream(action.path);
+
+            if (inputStream == null) {
+                throw new ActionPerformException("Could not find data at path "+action.path);
+            }
+
+            String encoding = action.encoding;
+            if (encoding == null) {
+                return new InputStreamReader(inputStream);
             } else {
-                String encoding = action.encoding;
-                if (encoding == null) {
-                    return new InputStreamReader(inputStreams.get(0));
-                } else {
-                    return new InputStreamReader(inputStreams.get(0), encoding);
-                }
+                return new InputStreamReader(inputStream, encoding);
             }
         } catch (Exception e) {
-            throw new ActionPerformException(e);
+            if (e instanceof ActionPerformException) {
+                throw (ActionPerformException) e;
+            }
+            throw new ActionPerformException(e.getMessage(), e);
         }
     }
 

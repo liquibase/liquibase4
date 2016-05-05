@@ -10,7 +10,7 @@ import liquibase.util.ObjectUtil;
 import java.lang.reflect.Type;
 
 /**
- * Converts parsed nodes to/from non-{@link ExtensibleObject} objects by using {@link ParsedNode#value}
+ * Converts parsed nodes to/from non-{@link ExtensibleObject} objects by running {@link ParsedNode#value} through {@link ObjectUtil#convert(Object, Class)}.
  */
 public class PlainObjectParsedNodeMapping implements ParsedNodeMapping {
 
@@ -30,6 +30,10 @@ public class PlainObjectParsedNodeMapping implements ParsedNodeMapping {
 
     @Override
     public Object toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        return ObjectUtil.convert(parsedNode.value, objectType);
+        try {
+            return parsedNode.getValue(null, objectType);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException("Error parsing '"+parsedNode.getName()+"': cannot convert value '"+parsedNode.getValue()+"' to a "+objectType.getName(), e, parsedNode);
+        }
     }
 }

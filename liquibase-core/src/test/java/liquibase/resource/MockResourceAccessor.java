@@ -4,6 +4,7 @@ import liquibase.AbstractExtensibleObject;
 import liquibase.exception.LiquibaseException;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 public class MockResourceAccessor extends AbstractExtensibleObject implements ResourceAccessor {
@@ -39,6 +40,17 @@ public class MockResourceAccessor extends AbstractExtensibleObject implements Re
             }
             return returnList;
         }
+    }
+
+    @Override
+    public InputStream openStream(String path) throws LiquibaseException {
+        InputStreamList streams = openStreams(path);
+        if (streams == null || streams.size() == 0) {
+            return null;
+        } else if (streams.size() > 1) {
+            throw new LiquibaseException("Multiples streams matched "+path);
+        }
+        return streams.get(0);
     }
 
     @Override

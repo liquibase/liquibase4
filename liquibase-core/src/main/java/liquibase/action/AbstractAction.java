@@ -3,7 +3,6 @@ package liquibase.action;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
-import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
 import liquibase.util.StringUtil;
 
 /**
