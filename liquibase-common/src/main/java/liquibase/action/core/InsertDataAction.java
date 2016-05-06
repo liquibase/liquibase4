@@ -61,12 +61,17 @@ public class InsertDataAction extends AbstractAction {
                     column.moveTo(generatedRowData);
                 }
 
+                ParsedNode rows = actionNode.getChild("rows", true);
+                actionNode.moveChildren("row", rows);
+
                 ParsedNode relation = convertToRelationReferenceNode("catalogName", "schemaName", "tableName", actionNode);
-                for (ParsedNode row : actionNode.getChildren("row", false)) {
+                for (ParsedNode row : rows.getChildren("row", false)) {
                     convertToRelationReferenceNode("catalogName", "schemaName", "tableName", row); //can set relation per row
                     if (!row.hasChild("relation") && relation != null) {
                         relation.copyTo(row);
                     }
+
+                    row.moveChildren("column", row.getChild("columns", true));
                 }
 
                 if (relation != null) {

@@ -38,8 +38,8 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     @Override
     public ValidationErrors validate(final InsertDataAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkRequiredFields("data",
-                        "data.relation", "data.relation.name")
+                .checkRequiredFields("rows",
+                        "rows.relation", "rows.relation.name")
                 .check(new ValidationErrors.ErrorCheck() {
                     @Override
                     public String check() {
@@ -67,9 +67,9 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
             for (RowData row : action.rows) {
                 SelectDataAction selectAction = new SelectDataAction(row.relation);
                 for (RowData.ColumnData columnData : row.columns) {
-                    selectAction.columns.add(new SelectDataAction.SelectedColumn(columnData.columnName));
+                    selectAction.columns.add(new SelectDataAction.SelectedColumn(columnData.name));
                     selectAction.addWhere(
-                            scope.getDatabase().quoteObjectName(columnData.columnName, Column.class, scope)
+                            scope.getDatabase().quoteObjectName(columnData.name, Column.class, scope)
                                     + (columnData.value == null ? " IS " : "=")
                                     + getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope)
                     );
@@ -116,7 +116,7 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
         StringClauses columnsClause = new StringClauses("(", ", ", ")");
         StringClauses valueListClause = new StringClauses("(", ", ", ")");
         for (RowData.ColumnData columnData : row.columns) {
-            columnsClause.append(scope.getDatabase().quoteObjectName(columnData.columnName, Column.class, scope));
+            columnsClause.append(scope.getDatabase().quoteObjectName(columnData.name, Column.class, scope));
             valueListClause.append(getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope));
         }
 
@@ -137,14 +137,14 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
 
         for (RowData.ColumnData columnData : row.columns) {
             String valueAsSql = getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope);
-            String quotedColumnName = database.quoteObjectName(columnData.columnName, Column.class, scope);
+            String quotedColumnName = database.quoteObjectName(columnData.name, Column.class, scope);
 
             mergeSelectClauses.append(valueAsSql +" as "+ quotedColumnName);
 
             columnsClause.append(quotedColumnName);
             valueListClause.append(valueAsSql);
 
-            if (!action.columnsForUpdateCheck.contains(columnData.columnName)) {
+            if (!action.columnsForUpdateCheck.contains(columnData.name)) {
                 updateColumnsClause.append(quotedColumnName +"="+ valueAsSql);
             }
         }

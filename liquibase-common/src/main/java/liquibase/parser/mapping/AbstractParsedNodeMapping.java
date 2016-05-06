@@ -76,16 +76,6 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
 
         for (ParsedNode child : parsedNode.getChildren()) {
             ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.getName());
-            boolean correctedPlural = false;
-            if (attribute == null) { //try plural version with "s"
-                attribute = returnObject.getObjectMetaData().getAttribute(child.getName()+"s");
-                correctedPlural = true;
-            }
-            if (attribute == null) { //try plural version with "es"
-                attribute = returnObject.getObjectMetaData().getAttribute(child.getName()+"es");
-                correctedPlural = true;
-            }
-
             if (attribute == null) {
                 throw new ParseException("Unexpected attribute '" + child.getName() + "' for " + returnObject.getClass().getName(), child);
             }
@@ -106,10 +96,6 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                 attributeClass = (Class) attributeType;
             } else {
                 throw new ParseException("Unexpected attributeType: " + attributeType.getClass().getName() + " " + attributeType.toString(), child);
-            }
-
-            if (correctedPlural && !Collection.class.isAssignableFrom(attributeClass)) {
-                throw new ParseException("Unexpected attribute '" + child.getName() + "' for " + returnObject.getClass().getName(), child);
             }
 
             if (Collection.class.isAssignableFrom(attributeClass)) {

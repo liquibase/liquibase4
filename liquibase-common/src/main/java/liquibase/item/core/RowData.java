@@ -40,7 +40,7 @@ public class RowData extends AbstractRelationBasedObject {
     public final List<String> getColumns() {
         List<String> returnList = new ArrayList<>();
         for (ColumnData columnData : columns) {
-            returnList.add(columnData.columnName);
+            returnList.add(columnData.name);
         }
         return Collections.unmodifiableList(returnList);
     }
@@ -72,7 +72,7 @@ public class RowData extends AbstractRelationBasedObject {
      */
     public final Object getValue(String column) {
         for (ColumnData columnData : columns) {
-            if (columnData.columnName.equals(column)) {
+            if (columnData.name.equals(column)) {
                 return columnData.value;
             }
         }
@@ -85,20 +85,20 @@ public class RowData extends AbstractRelationBasedObject {
     }
 
     public static class ColumnData extends AbstractExtensibleObject {
-        public String columnName;
+        public String name;
         public Object value;
         public DataType type;
 
         public ColumnData() {
         }
 
-        public ColumnData(String columnName, Object value) {
-            this.columnName = columnName;
+        public ColumnData(String name, Object value) {
+            this.name = name;
             this.value = value;
         }
 
-        public ColumnData(String columnName, Object value, DataType type) {
-            this.columnName = columnName;
+        public ColumnData(String name, Object value, DataType type) {
+            this.name = name;
             this.value = value;
             this.type = type;
         }

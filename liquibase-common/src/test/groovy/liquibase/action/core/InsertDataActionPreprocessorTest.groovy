@@ -31,16 +31,18 @@ class InsertDataActionPreprocessorTest extends AbstractActionPreprocessorTest {
 changeLog
     changeSet
         insertData
-            row
-                column
-                    name: col_name
-                    value: a value here
-                relation
-                    name: table_name
-                    container
-                        name: schema_name
+            rows
+                row
+                    relation
+                        name: table_name
                         container
-                            name: cat_name
+                            name: schema_name
+                            container
+                                name: cat_name
+                    columns
+                        column
+                            name: col_name
+                            value: a value here
 """
                 ],
 
@@ -59,12 +61,14 @@ changeLog
 changeLog
     changeSet
         insertData
-            row
-                column
-                    name: col_name
-                    valueNumeric: 13
-                relation
-                    name: table_name
+            rows
+                row
+                    relation
+                        name: table_name
+                    columns
+                        column
+                            name: col_name
+                            valueNumeric: 13
 """
                 ],
 
@@ -84,12 +88,14 @@ changeLog
 changeLog
     changeSet
         insertData
-            row
-                column
-                    name: col_name
-                    value: 13
-                relation
-                    name: table_name
+            rows
+                row
+                    relation
+                        name: table_name
+                    columns
+                        column
+                            name: col_name
+                            value: 13
 """
                 ],
 
@@ -109,12 +115,14 @@ changeLog
 changeLog
     changeSet
         insertData
-            row
-                column
-                    name: col_name
-                    value: 13
-                relation
-                    name: table_name
+            rows
+                row
+                    relation
+                        name: table_name
+                    columns
+                        column
+                            name: col_name
+                            value: 13
 """
                 ],
         ]
