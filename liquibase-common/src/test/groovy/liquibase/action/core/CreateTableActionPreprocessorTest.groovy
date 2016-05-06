@@ -41,6 +41,13 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
+                        container
+                            name: schema_name
+                            container
+                                name: cat_name
+
 """
                 ],
 
@@ -68,6 +75,9 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
+
 """
 
                 ],
@@ -99,6 +109,8 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
             foreignKeys
                 foreignKey
                     relation
@@ -113,7 +125,6 @@ changeLog
                     deferrable: true
                     initiallyDeferred: true
                     deleteRule: cascade
-
 """
 
                 ],
@@ -148,6 +159,8 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
             foreignKeys
                 foreignKey
                     relation
@@ -193,6 +206,8 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
             primaryKey
                 columns
                     primaryKeyColumn
@@ -227,12 +242,13 @@ changeLog
                 column
                     name: col_name
                     type: int
+                    relation
+                        name: table_name
             uniqueConstraints
                 uniqueConstraint
                     name: uk_name
                     columns: [col_name]
             foreignKeys
-
 """
 
                 ],

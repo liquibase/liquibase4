@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class RowData extends AbstractRelationBasedObject {
 
-    public List<Cell> data = new ArrayList<>();
+    public List<ColumnData> columns = new ArrayList<>();
 
     public RowData() {
     }
@@ -21,15 +21,15 @@ public class RowData extends AbstractRelationBasedObject {
         this.relation = relation;
     }
 
-    public RowData(RelationReference relation, Map<String, ?> data) {
+    public RowData(RelationReference relation, Map<String, ?> columns) {
         this.relation = relation;
-        for (Map.Entry<String, ?> cell : data.entrySet()) {
-            this.data.add(new Cell(cell.getKey(), cell.getValue()));
+        for (Map.Entry<String, ?> cell : columns.entrySet()) {
+            this.columns.add(new ColumnData(cell.getKey(), cell.getValue()));
         }
     }
 
     public RowData add(String columnName, Object value, DataType targetType) {
-        data.add(new Cell(columnName, value, targetType));
+        columns.add(new ColumnData(columnName, value, targetType));
         return this;
     }
 
@@ -39,8 +39,8 @@ public class RowData extends AbstractRelationBasedObject {
      */
     public final List<String> getColumns() {
         List<String> returnList = new ArrayList<>();
-        for (Cell cell : data) {
-            returnList.add(cell.columnName);
+        for (ColumnData columnData : columns) {
+            returnList.add(columnData.columnName);
         }
         return Collections.unmodifiableList(returnList);
     }
@@ -50,8 +50,8 @@ public class RowData extends AbstractRelationBasedObject {
      */
     public final List<?> getValues() {
         List returnList = new ArrayList<>();
-        for (Cell cell : data) {
-            returnList.add(cell.value);
+        for (ColumnData columnData : columns) {
+            returnList.add(columnData.value);
         }
         return Collections.unmodifiableList(returnList);
     }
@@ -61,8 +61,8 @@ public class RowData extends AbstractRelationBasedObject {
      */
     public final List<DataType> getTypes() {
         List<DataType> returnList = new ArrayList<>();
-        for (Cell cell : data) {
-            returnList.add(cell.type);
+        for (ColumnData columnData : columns) {
+            returnList.add(columnData.type);
         }
         return Collections.unmodifiableList(returnList);
     }
@@ -71,9 +71,9 @@ public class RowData extends AbstractRelationBasedObject {
      * Convenience method to return the value of a given column name
      */
     public final Object getValue(String column) {
-        for (Cell cell : data) {
-            if (cell.columnName.equals(column)) {
-                return cell.value;
+        for (ColumnData columnData : columns) {
+            if (columnData.columnName.equals(column)) {
+                return columnData.value;
             }
         }
         return null;
@@ -84,20 +84,20 @@ public class RowData extends AbstractRelationBasedObject {
         return new ItemReference(RowData.class, "#data", relation);
     }
 
-    public static class Cell extends AbstractExtensibleObject {
+    public static class ColumnData extends AbstractExtensibleObject {
         public String columnName;
         public Object value;
         public DataType type;
 
-        public Cell() {
+        public ColumnData() {
         }
 
-        public Cell(String columnName, Object value) {
+        public ColumnData(String columnName, Object value) {
             this.columnName = columnName;
             this.value = value;
         }
 
-        public Cell(String columnName, Object value, DataType type) {
+        public ColumnData(String columnName, Object value, DataType type) {
             this.columnName = columnName;
             this.value = value;
             this.type = type;

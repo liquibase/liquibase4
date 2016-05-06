@@ -13,7 +13,6 @@ import liquibase.exception.ActionPerformException;
 import liquibase.item.core.Column;
 import liquibase.item.core.RowData;
 import liquibase.item.datatype.DataType;
-import liquibase.resource.InputStreamList;
 import liquibase.util.CollectionUtil;
 import liquibase.util.ObjectUtil;
 import org.apache.commons.csv.CSVFormat;
@@ -86,7 +85,7 @@ public class LoadDataLogic extends AbstractActionLogic<LoadDataAction> {
                     }
                     rowData.add(column.columnName, getValue(record.get(header), column, action, scope), column.dataType);
                 }
-                insertAction.data.add(rowData);
+                insertAction.rows.add(rowData);
             }
             return new DelegateResult(action, null, insertAction);
 

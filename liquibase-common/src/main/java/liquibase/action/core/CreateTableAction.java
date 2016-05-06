@@ -81,6 +81,9 @@ public class CreateTableAction extends AbstractAction {
 
                 for (ParsedNode column : columnsNode.getChildren("column", false)) {
                     addColumnsPreprocessor.fixColumn(column, tmpRelationRef, actionNode);
+                    if (column.getChild("relation", false) == null) {
+                        tmpRelationRef.copyTo(column).rename("relation");
+                    }
                 }
 
                 tmpRelationRef.remove();

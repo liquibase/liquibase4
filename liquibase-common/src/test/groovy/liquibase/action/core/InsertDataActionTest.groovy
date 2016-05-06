@@ -14,11 +14,9 @@ import liquibase.item.core.RowData
 import liquibase.item.core.Table
 import liquibase.item.datatype.DataType
 import liquibase.snapshot.Snapshot
-import liquibase.snapshot.SnapshotFactory
 import liquibase.util.CollectionUtil
 import liquibase.util.TestUtil
 import spock.lang.Unroll
-import testmd.util.StringUtils
 
 class InsertDataActionTest extends AbstractActionTest {
 
@@ -40,7 +38,7 @@ class InsertDataActionTest extends AbstractActionTest {
                             data: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(RowData, [
                                     relation: getItemReferences(Table, it.allSchemas, scope),
                                     data    : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
-                                        return new RowData.Cell(it, 42)
+                                        return new RowData.ColumnData(it, 42)
                                     }))
                             ])),
                     ])
@@ -52,7 +50,7 @@ class InsertDataActionTest extends AbstractActionTest {
     def "merge statement works"() {
         def snapshot = new Snapshot(scope)
 
-        def tableRef = ((InsertDataAction) action).data[0].relation
+        def tableRef = ((InsertDataAction) action).rows[0].relation
         snapshot.add(new Table(tableRef.name, tableRef.schema))
 
         final def idCol = standardCaseItemName("id", Column, scope)
@@ -168,12 +166,12 @@ class InsertDataActionTest extends AbstractActionTest {
         def snapshot = new Snapshot(scope)
         def seenTables = new HashSet<RelationReference>()
         def seenColumns = new HashMap<RelationReference, Set<String>>()
-        for (RowData row : ((InsertDataAction) action).data) {
+        for (RowData row : ((InsertDataAction) action).rows) {
             if (seenTables.add(row.relation)) {
                 snapshot.add(new Table(row.relation.name, row.relation.schema))
                 seenColumns.put(row.relation, new HashSet<String>())
             }
-            for (def cell : row.data) {
+            for (def cell : row.columns) {
                 if (seenColumns.get(row.relation).add(cell.columnName)) {
                     def dataType = cell.type ?: new DataType(DataType.StandardType.INTEGER);
                     def mergeCheck = ((InsertDataAction) action).columnsForUpdateCheck.contains(cell.columnName)

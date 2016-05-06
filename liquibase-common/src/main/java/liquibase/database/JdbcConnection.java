@@ -266,7 +266,7 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
 
     @Override
     public String toString() {
-        return getConnectionUserName() + "@" + getURL();
+        return getConnectionUserName() + " on " + getURL();
     }
 
     @Override

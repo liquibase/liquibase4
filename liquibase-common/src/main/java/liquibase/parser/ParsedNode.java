@@ -252,6 +252,18 @@ public class ParsedNode extends AbstractExtensibleObject {
 
 
     /**
+     * Return true if there is at least one child with the given name.
+     */
+    public boolean hasChild(String name) {
+        for (ParsedNode child : children) {
+            if (Objects.equals(child.name, name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Finds a child with the given name.
      *
      * @param createIfNeeded If true, creates a new child node on this node if one doesn't already exist. If false, returns null if no match is found.

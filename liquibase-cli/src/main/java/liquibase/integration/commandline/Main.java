@@ -27,6 +27,8 @@ import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is the primary command line interface for Liquibase.
@@ -210,23 +212,38 @@ public class Main {
                 System.out.println("Error parsing Liquibase parameters: "+e.getMessage());
                 printHelp(globalOptions, commandOptions, rootScope);
             } else {
-                log.error("Error running liquibase", e);
-                System.out.println("Error running liquibase: " + e.getMessage());
+                log.error("Error running liquibase "+commandName, e);
+                String message = cleanExceptionClassFromMessage(e.getMessage());
 
-                Set<String> loggedReasons = new HashSet<>();
-                loggedReasons.add(e.getMessage());
 
                 Throwable cause = e.getCause();
                 while (cause != null) {
-                    if (cause.getMessage() != null && loggedReasons.add(cause.getMessage())) {
-                        System.out.println(StringUtil.indent(cause.getMessage()));
+                    String causeMessage = cleanExceptionClassFromMessage(cause.getMessage());
+                    if (causeMessage != null && !message.contains(causeMessage)) {
+                        message += "\n"+StringUtil.indent(message);
                     }
                     cause = cause.getCause();
                 }
 
+                System.out.println("");
+                System.out.println("Error running liquibase "+commandName+": " + message);
             }
         }
 
+    }
+
+    protected String cleanExceptionClassFromMessage(String message) {
+        if (message == null) {
+            return null;
+        } else {
+            Pattern prefixPattern = Pattern.compile("^([\\w\\.]+?:\\s*)");
+            Matcher matcher = prefixPattern.matcher(message);
+            if (matcher.find() && matcher.group(1).toLowerCase().contains("exception")) {
+                return message.substring(matcher.group(1).length());
+            } else {
+                return message;
+            }
+        }
     }
 
     protected void setUnlessAlreadySet(Map.Entry entry, List<String> passedArgs) {

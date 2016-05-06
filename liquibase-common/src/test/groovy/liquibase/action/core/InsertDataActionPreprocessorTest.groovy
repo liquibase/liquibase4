@@ -31,18 +31,16 @@ class InsertDataActionPreprocessorTest extends AbstractActionPreprocessorTest {
 changeLog
     changeSet
         insertData
-            data
-                rowData
-                    relation
-                        name: table_name
+            row
+                column
+                    name: col_name
+                    value: a value here
+                relation
+                    name: table_name
+                    container
+                        name: schema_name
                         container
-                            name: schema_name
-                            container
-                                name: cat_name
-                    data
-                        cell
-                            columnName: col_name
-                            value: a value here
+                            name: cat_name
 """
                 ],
 
@@ -61,17 +59,64 @@ changeLog
 changeLog
     changeSet
         insertData
-            data
-                rowData
-                    relation
-                        name: table_name
-                    data
-                        cell
-                            columnName: col_name
-                            value: 13
+            row
+                column
+                    name: col_name
+                    valueNumeric: 13
+                relation
+                    name: table_name
 """
                 ],
 
+                //-----
+                [
+                        "root tables is copied to nested row",
+                        [
+                                tableName: "table_name",
+                                row: [
+                                        column   : [
+                                                name : "col_name",
+                                                value: "13"
+                                        ]
+                                ]
+                        ],
+                        """
+changeLog
+    changeSet
+        insertData
+            row
+                column
+                    name: col_name
+                    value: 13
+                relation
+                    name: table_name
+"""
+                ],
+
+                //-----
+                [
+                        "can set table on row",
+                        [
+                                row: [
+                                        tableName: "table_name",
+                                        column   : [
+                                                name : "col_name",
+                                                value: "13"
+                                        ]
+                                ]
+                        ],
+                        """
+changeLog
+    changeSet
+        insertData
+            row
+                column
+                    name: col_name
+                    value: 13
+                relation
+                    name: table_name
+"""
+                ],
         ]
     }
 }

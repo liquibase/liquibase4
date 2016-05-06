@@ -25,7 +25,7 @@ public class ShouldRunChangeSetFilter extends AbstractRanChangeSetFilter {
         if (ranChangeSet == null) {
             return new Result(true, "Change set has not ran yet");
         } else {
-            return new Result(true, "Change set already ran");
+            return new Result(false, "Change set already ran");
         }
     }
 }

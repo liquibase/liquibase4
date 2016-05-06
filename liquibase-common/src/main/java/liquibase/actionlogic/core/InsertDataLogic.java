@@ -45,7 +45,7 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
                     public String check() {
                         if (action.columnsForUpdateCheck.size() > 0) {
                             for (String columnForCheck : action.columnsForUpdateCheck) {
-                                for (RowData row : action.data) {
+                                for (RowData row : action.rows) {
                                     for (String dataColumn : row.getColumns()) {
                                         if (!dataColumn.equals(columnForCheck)) {
                                             return null;
@@ -64,14 +64,14 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     public ActionStatus checkStatus(InsertDataAction action, Scope scope) {
         ActionStatus result = new ActionStatus();
         try {
-            for (RowData row : action.data) {
+            for (RowData row : action.rows) {
                 SelectDataAction selectAction = new SelectDataAction(row.relation);
-                for (RowData.Cell cell : row.data) {
-                    selectAction.columns.add(new SelectDataAction.SelectedColumn(cell.columnName));
+                for (RowData.ColumnData columnData : row.columns) {
+                    selectAction.columns.add(new SelectDataAction.SelectedColumn(columnData.columnName));
                     selectAction.addWhere(
-                            scope.getDatabase().quoteObjectName(cell.columnName, Column.class, scope)
-                                    + (cell.value == null ? " IS " : "=")
-                                    + getCellType(cell, scope).toSql(cell.value, cell.type, scope)
+                            scope.getDatabase().quoteObjectName(columnData.columnName, Column.class, scope)
+                                    + (columnData.value == null ? " IS " : "=")
+                                    + getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope)
                     );
                 }
                 QueryResult query = scope.getSingleton(ActionExecutor.class).query(selectAction, scope);
@@ -83,25 +83,25 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
         return result;
     }
 
-    protected DataTypeLogic getCellType(RowData.Cell cell, Scope scope) {
+    protected DataTypeLogic getCellType(RowData.ColumnData columnData, Scope scope) {
         DataTypeLogicFactory dataTypeLogicFactory = scope.getSingleton(DataTypeLogicFactory.class);
 
 
-        if (cell.type == null) {
-            if (cell.value == null) {
+        if (columnData.type == null) {
+            if (columnData.value == null) {
                 return dataTypeLogicFactory.getDataTypeLogic(null, scope);
             } else {
-                return dataTypeLogicFactory.getDataTypeLogic(DataType.forType(cell.value.getClass()), scope);
+                return dataTypeLogicFactory.getDataTypeLogic(DataType.forType(columnData.value.getClass()), scope);
             }
         } else {
-            return dataTypeLogicFactory.getDataTypeLogic(cell.type, scope);
+            return dataTypeLogicFactory.getDataTypeLogic(columnData.type, scope);
         }
     }
 
     @Override
     public ActionResult execute(InsertDataAction action, Scope scope) throws ActionPerformException {
         List<ExecuteSqlAction> returnList = new ArrayList<>();
-        for (RowData row : action.data) {
+        for (RowData row : action.rows) {
             if (action.columnsForUpdateCheck.size() > 0) {
                 returnList.add(new ExecuteSqlAction(generateMergeSql(row, action, scope)));
             } else {
@@ -115,9 +115,9 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
     protected StringClauses generateInsertSql(RowData row, InsertDataAction action, Scope scope) {
         StringClauses columnsClause = new StringClauses("(", ", ", ")");
         StringClauses valueListClause = new StringClauses("(", ", ", ")");
-        for (RowData.Cell cell : row.data) {
-            columnsClause.append(scope.getDatabase().quoteObjectName(cell.columnName, Column.class, scope));
-            valueListClause.append(getCellType(cell, scope).toSql(cell.value, cell.type, scope));
+        for (RowData.ColumnData columnData : row.columns) {
+            columnsClause.append(scope.getDatabase().quoteObjectName(columnData.columnName, Column.class, scope));
+            valueListClause.append(getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope));
         }
 
         return new StringClauses()
@@ -135,16 +135,16 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
         StringClauses valueListClause = new StringClauses("(", ", ", ")");
         Database database = scope.getDatabase();
 
-        for (RowData.Cell cell : row.data) {
-            String valueAsSql = getCellType(cell, scope).toSql(cell.value, cell.type, scope);
-            String quotedColumnName = database.quoteObjectName(cell.columnName, Column.class, scope);
+        for (RowData.ColumnData columnData : row.columns) {
+            String valueAsSql = getCellType(columnData, scope).toSql(columnData.value, columnData.type, scope);
+            String quotedColumnName = database.quoteObjectName(columnData.columnName, Column.class, scope);
 
             mergeSelectClauses.append(valueAsSql +" as "+ quotedColumnName);
 
             columnsClause.append(quotedColumnName);
             valueListClause.append(valueAsSql);
 
-            if (!action.columnsForUpdateCheck.contains(cell.columnName)) {
+            if (!action.columnsForUpdateCheck.contains(columnData.columnName)) {
                 updateColumnsClause.append(quotedColumnName +"="+ valueAsSql);
             }
         }

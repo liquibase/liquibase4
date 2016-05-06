@@ -271,7 +271,7 @@ public abstract class AbstractJdbcDatabase extends AbstractPlugin implements Dat
             return getClass().getName();
         }
 
-        return getClass().getName() + " " + getConnection().toString();
+        return getShortName()+" as " + getConnection().toString();
     }
 
 
