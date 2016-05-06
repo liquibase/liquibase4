@@ -46,7 +46,7 @@ public class InsertDataLogic extends AbstractActionLogic<InsertDataAction> {
                         if (action.columnsForUpdateCheck.size() > 0) {
                             for (String columnForCheck : action.columnsForUpdateCheck) {
                                 for (RowData row : action.rows) {
-                                    for (String dataColumn : row.getColumns()) {
+                                    for (String dataColumn : row.getColumnNames()) {
                                         if (!dataColumn.equals(columnForCheck)) {
                                             return null;
                                         }

@@ -37,7 +37,7 @@ public class RowData extends AbstractRelationBasedObject {
     /**
      * Convenience method to return the column names
      */
-    public final List<String> getColumns() {
+    public final List<String> getColumnNames() {
         List<String> returnList = new ArrayList<>();
         for (ColumnData columnData : columns) {
             returnList.add(columnData.name);

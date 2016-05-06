@@ -24,8 +24,8 @@ class InsertDataActionTest extends AbstractActionTest {
     def "can insert with just numbers but complex names"() {
         expect:
         testAction([
-                relation_asTable: action.data*.relation,
-                columns_asTable : action.data*.getColumns(),
+                relation_asTable: action.rows*.relation,
+                columns_asTable : action.rows*.getColumnNames(),
         ], action, conn, scope)
 
         where:
@@ -35,9 +35,9 @@ class InsertDataActionTest extends AbstractActionTest {
                     [it],
                     [scope],
                     TestUtil.createAllPermutationsWithoutNulls(InsertDataAction, [
-                            data: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(RowData, [
+                            rows: CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(RowData, [
                                     relation: getItemReferences(Table, it.allSchemas, scope),
-                                    data    : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
+                                    columns : CollectionUtil.toSingletonLists(getItemNames(Column, scope).collect({
                                         return new RowData.ColumnData(it, 42)
                                     }))
                             ])),
@@ -69,8 +69,8 @@ class InsertDataActionTest extends AbstractActionTest {
                 .add(nameCol, "user 2 - orig", new DataType(DataType.StandardType.VARCHAR)))
 
         testAction([
-                relation_asTable             : action.data*.relation,
-                columns_asTable              : action.data*.getColumns(),
+                relation_asTable             : action.rows*.relation,
+                columns_asTable              : action.rows*.getColumnNames(),
                 columnsForUpdateCheck_asTable: action.columnsForUpdateCheck
         ], snapshot, action, conn, scope, {
             plan, results ->
@@ -112,10 +112,10 @@ class InsertDataActionTest extends AbstractActionTest {
     def "can add columns with various options"() {
         expect:
         testAction([
-                relation_asTable             : action.data*.relation,
-                columns_asTable              : action.data*.getColumns(),
-                values_asTable               : action.data*.getValues(),
-                types_asTable                : action.data*.getTypes(),
+                relation_asTable             : action.rows*.relation,
+                columns_asTable              : action.rows*.getColumnNames(),
+                values_asTable               : action.rows*.getValues(),
+                types_asTable                : action.rows*.getTypes(),
                 columnsForUpdateCheck_asTable: action.columnsForUpdateCheck,
         ], action, conn, scope)
 
@@ -138,7 +138,7 @@ class InsertDataActionTest extends AbstractActionTest {
 
 
         return TestUtil.createAllPermutations(InsertDataAction, [
-                data                 : [
+                rows                 : [
                         [],
                         [new RowData(tableRef).add(column1Name, 42, new DataType(DataType.StandardType.INTEGER))], //insert an integer
                         [new RowData(tableRef).add(column1Name, 123142, new DataType(DataType.StandardType.BIGINT))], //insert a bigint
@@ -171,14 +171,14 @@ class InsertDataActionTest extends AbstractActionTest {
                 snapshot.add(new Table(row.relation.name, row.relation.schema))
                 seenColumns.put(row.relation, new HashSet<String>())
             }
-            for (def cell : row.columns) {
-                if (seenColumns.get(row.relation).add(cell.columnName)) {
-                    def dataType = cell.type ?: new DataType(DataType.StandardType.INTEGER);
-                    def mergeCheck = ((InsertDataAction) action).columnsForUpdateCheck.contains(cell.columnName)
-                    snapshot.add(new Column(cell.columnName, row.relation, dataType, !mergeCheck))
+            for (def column : row.columns) {
+                if (seenColumns.get(row.relation).add(column.name)) {
+                    def dataType = column.type ?: new DataType(DataType.StandardType.INTEGER);
+                    def mergeCheck = ((InsertDataAction) action).columnsForUpdateCheck.contains(column.name)
+                    snapshot.add(new Column(column.name, row.relation, dataType, !mergeCheck))
 
                     if (mergeCheck) {
-                        snapshot.add(new PrimaryKey(null, row.relation, cell.columnName))
+                        snapshot.add(new PrimaryKey(null, row.relation, column.name))
                     }
                 }
             }
