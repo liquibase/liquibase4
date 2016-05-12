@@ -6,17 +6,17 @@
 
 | Permutation | Verified | columns                                                                    | relation             | where | OPERATIONS
 | :---------- | :------- | :------------------------------------------------------------------------- | :------------------- | :---- | :------
-| e1be4ff     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1
+| 89b06f1     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1
 | cd2d1f6     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | LBSCHEMA2.TEST_TABLE | 1=1   | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1 WHERE 1=1
-| 6e7cc11     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1
+| 64362f4     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1
 | d8843c6     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | PUBLIC.TEST_TABLE    | 1=1   | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1 WHERE 1=1
-| 8ad1afb     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2
+| ca172d5     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2
 | 0333e43     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | LBSCHEMA2.TEST_TABLE | 1=1   | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2 WHERE 1=1
-| dbedad9     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2
+| cee713e     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2
 | ac90fa6     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | PUBLIC.TEST_TABLE    | 1=1   | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=1, "COLUMN2"=2 WHERE 1=1
-| 072b84f     | true     | UpdatedColumn{name=COLUMN1}                                                | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=NULL
+| 47bda05     | true     | UpdatedColumn{name=COLUMN1}                                                | LBSCHEMA2.TEST_TABLE |       | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=NULL
 | 1c93423     | true     | UpdatedColumn{name=COLUMN1}                                                | LBSCHEMA2.TEST_TABLE | 1=1   | **plan**: UPDATE "LBSCHEMA2"."TEST_TABLE" SET "COLUMN1"=NULL WHERE 1=1
-| 9ef6cfa     | true     | UpdatedColumn{name=COLUMN1}                                                | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=NULL
+| 855d5ff     | true     | UpdatedColumn{name=COLUMN1}                                                | PUBLIC.TEST_TABLE    |       | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=NULL
 | 634baa3     | true     | UpdatedColumn{name=COLUMN1}                                                | PUBLIC.TEST_TABLE    | 1=1   | **plan**: UPDATE "PUBLIC"."TEST_TABLE" SET "COLUMN1"=NULL WHERE 1=1
 
 # Test: "can update with complex names" #
@@ -246,4 +246,4 @@
 | b15c9c8     | true     | UpdatedColumn{name=lowercolumn, value=42}                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: UPDATE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" SET "lowercolumn"=42
 | 69a85b8     | true     | UpdatedColumn{name=lowercolumn, value=42}                    | PUBLIC.lowertable                       | **plan**: UPDATE "PUBLIC"."lowertable" SET "lowercolumn"=42
 
-# Test Version: "d08fee" #
+# Test Version: "43b259" #

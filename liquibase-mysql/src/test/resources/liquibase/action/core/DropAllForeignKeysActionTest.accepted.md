@@ -17,4 +17,4 @@
 | ac925cd     | true     | lbcat2.lowertable                    | **plan**: dropAllForeignKeys(table=lbcat2.lowertable)
 | cb2f558     | true     | lbcat2.only_in_lbcat2                | **plan**: dropAllForeignKeys(table=lbcat2.only_in_lbcat2)
 
-# Test Version: "d851f1" #
+# Test Version: "b7d32a" #

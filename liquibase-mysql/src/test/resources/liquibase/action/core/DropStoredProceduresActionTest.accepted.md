@@ -19,4 +19,4 @@
 | 182eb96     | true     | lbcat2.lowerstoredprocedure                    | **plan**: DROP PROCEDURE `lbcat2`.`lowerstoredprocedure`
 | 6ab125c     | true     | lowerstoredprocedure                           | **plan**: DROP PROCEDURE `lowerstoredprocedure`
 
-# Test Version: "1f30b4" #
+# Test Version: "c5ff50" #

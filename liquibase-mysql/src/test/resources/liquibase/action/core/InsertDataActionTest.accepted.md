@@ -63,4 +63,4 @@
 | 07ac780     | true     | ID, NAME, ID, NAME | ID                    | lbcat.test_table, lbcat.test_table   | **plan**: INSERT INTO `lbcat`.`test_table` (`ID`, `NAME`) VALUES (1, 'user 1 - new') ON DUPLICATE KEY UPDATE `NAME`='user 1 - new'<br>INSERT INTO `lbcat`.`test_table` (`ID`, `NAME`) VALUES (3, 'user 3 - new') ON DUPLICATE KEY UPDATE `NAME`='user 3 - new'
 | 02f993a     | true     | ID, NAME, ID, NAME | ID                    | lbcat2.test_table, lbcat2.test_table | **plan**: INSERT INTO `lbcat2`.`test_table` (`ID`, `NAME`) VALUES (1, 'user 1 - new') ON DUPLICATE KEY UPDATE `NAME`='user 1 - new'<br>INSERT INTO `lbcat2`.`test_table` (`ID`, `NAME`) VALUES (3, 'user 3 - new') ON DUPLICATE KEY UPDATE `NAME`='user 3 - new'
 
-# Test Version: "44f27b" #
+# Test Version: "8f1f01" #

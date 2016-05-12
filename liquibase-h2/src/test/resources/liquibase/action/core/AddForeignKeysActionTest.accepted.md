@@ -2323,4 +2323,4 @@
 | e1c3e52     | true     | ID TO ID_REF | null       | setNull    | null              | test_fk | PUBLIC.REF_TABLE    | PUBLIC.BASE_TABLE    | setDefault | **plan**: ALTER TABLE "PUBLIC"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "PUBLIC"."REF_TABLE" ("ID_REF") ON DELETE SET NULL ON UPDATE SET DEFAULT
 | 78b8555     | true     | ID TO ID_REF | null       | setNull    | null              | test_fk | PUBLIC.REF_TABLE    | PUBLIC.BASE_TABLE    | setNull    | **plan**: ALTER TABLE "PUBLIC"."BASE_TABLE" ADD CONSTRAINT "test_fk" FOREIGN KEY ("ID") REFERENCES "PUBLIC"."REF_TABLE" ("ID_REF") ON DELETE SET NULL ON UPDATE SET NULL
 
-# Test Version: "f54333" #
+# Test Version: "5984c1" #

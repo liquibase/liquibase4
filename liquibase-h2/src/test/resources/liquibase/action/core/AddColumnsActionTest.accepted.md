@@ -495,4 +495,4 @@
 | c08ca32     | true     | lowercolumn                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" ADD "lowercolumn" INTEGER
 | 0fba288     | true     | lowercolumn                    | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" ADD "lowercolumn" INTEGER
 
-# Test Version: "7f4a91" #
+# Test Version: "0cc9e5" #

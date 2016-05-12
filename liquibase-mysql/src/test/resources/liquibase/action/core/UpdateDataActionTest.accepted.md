@@ -6,17 +6,17 @@
 
 | Permutation | Verified | columns                                                                    | relation          | where | OPERATIONS
 | :---------- | :------- | :------------------------------------------------------------------------- | :---------------- | :---- | :------
-| e859f90     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1
+| 5f882ab     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1
 | 464cfa3     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat.test_table  | 1=1   | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1 WHERE 1=1
-| 5f7759e     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1
+| 31bf733     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1
 | 6885a14     | true     | UpdatedColumn{name=COLUMN1, value=1}                                       | lbcat2.test_table | 1=1   | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1 WHERE 1=1
-| 2e503fc     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2
+| 24ceac4     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2
 | c89601a     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat.test_table  | 1=1   | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2 WHERE 1=1
-| cf4e801     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2
+| e5f5871     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2
 | 9169fed     | true     | UpdatedColumn{name=COLUMN1, value=1}, UpdatedColumn{name=COLUMN2, value=2} | lbcat2.test_table | 1=1   | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=1, `COLUMN2`=2 WHERE 1=1
-| a6654ee     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=NULL
+| 20a51b1     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat.test_table  |       | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=NULL
 | f8bfe3a     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat.test_table  | 1=1   | **plan**: UPDATE `lbcat`.`test_table` SET `COLUMN1`=NULL WHERE 1=1
-| 20bb83a     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=NULL
+| c7ab570     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat2.test_table |       | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=NULL
 | 6c75b20     | true     | UpdatedColumn{name=COLUMN1}                                                | lbcat2.test_table | 1=1   | **plan**: UPDATE `lbcat2`.`test_table` SET `COLUMN1`=NULL WHERE 1=1
 
 # Test: "can update with complex names" #
@@ -56,4 +56,4 @@
 | e3d1e6d     | true     | UpdatedColumn{name=UPPERCOLUMN, value=42}                    | lbcat2.lowertable                    | **plan**: UPDATE `lbcat2`.`lowertable` SET `UPPERCOLUMN`=42
 | b56b1b7     | true     | UpdatedColumn{name=UPPERCOLUMN, value=42}                    | lbcat2.only_in_lbcat2                | **plan**: UPDATE `lbcat2`.`only_in_lbcat2` SET `UPPERCOLUMN`=42
 
-# Test Version: "d08fee" #
+# Test Version: "43b259" #

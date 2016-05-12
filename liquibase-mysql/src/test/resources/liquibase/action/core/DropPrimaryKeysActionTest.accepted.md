@@ -17,4 +17,4 @@
 | b9b3a95     | true     | null | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` DROP PRIMARY KEY
 | 0d7e95c     | true     | null | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` DROP PRIMARY KEY
 
-# Test Version: "4a3878" #
+# Test Version: "a927ca" #

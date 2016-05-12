@@ -138,6 +138,16 @@ public class StringClauses {
         return this;
     }
 
+    public StringClauses prepend(LiteralClause literal) {
+        if (literal != null) {
+            LinkedHashMap<String, Object> newMap = new LinkedHashMap<String, Object>();
+            newMap.put(uniqueKey(literal.getClass().getName().toLowerCase()), literal);
+            newMap.putAll(this.clauses);
+            this.clauses = newMap;
+        }
+        return this;
+    }
+
     public StringClauses append(List objects, Class<? extends Item> type, Scope scope) {
         Database database = scope.getDatabase();
         if (database == null) {
@@ -177,6 +187,9 @@ public class StringClauses {
      * Convenience method for {@link #prepend(String, String)} that uses the clause as the key.
      */
     public StringClauses prepend(String clause) {
+        if (StringUtil.trimToNull(clause) == null) {
+            return prepend(new Whitespace(clause));
+        }
         return prepend(uniqueKey(clause), clause);
     }
 
@@ -234,6 +247,21 @@ public class StringClauses {
      */
     public StringClauses replace(String key, String newValue) throws IllegalArgumentException {
         return replaceImpl(key, StringUtil.trimToEmpty(newValue));
+    }
+
+    /**
+     * Replaces the given key with a new string. If the existing key does not exist, throws IllegalArgumentException
+     */
+    public StringClauses replaceIfExists(String key, String newValue) throws IllegalArgumentException {
+        if (contains(key)) {
+            return replaceImpl(key, StringUtil.trimToEmpty(newValue));
+        } else {
+            return this;
+        }
+    }
+
+    public boolean contains(String key) {
+        return clauses.containsKey(key.toLowerCase());
     }
 
     /**
@@ -321,6 +349,10 @@ public class StringClauses {
         if (!clauses.containsKey(existingKey)) {
             throw new IllegalArgumentException("Existing key '" + existingKey + "' does not exist");
         }
+        if (newKey.equals("")) {
+            throw new IllegalArgumentException("New key cannot be null or empty");
+        }
+
         if (clauses.containsKey(newKey)) {
             throw new IllegalArgumentException("Cannot add clause with key '" + newKey + "' because it is already defined");
         }
@@ -519,10 +551,6 @@ public class StringClauses {
             }
         }
         return true;
-    }
-
-    public StringClauses[] split(String delimiter) {
-        return new StringClauses[0];
     }
 
     public static interface LiteralClause {

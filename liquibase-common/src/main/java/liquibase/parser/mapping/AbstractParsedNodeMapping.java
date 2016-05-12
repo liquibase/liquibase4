@@ -1,13 +1,11 @@
 package liquibase.parser.mapping;
 
-import com.sun.javafx.collections.transformation.SortedList;
 import liquibase.ExtensibleObject;
 import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.parser.ParsedNode;
-import liquibase.util.ObjectUtil;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -103,7 +101,7 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                 if (collection == null) {
                     if (List.class.isAssignableFrom(attributeClass)) {
                         collection = new ArrayList();
-                    } else if (SortedList.class.isAssignableFrom(attributeClass)) {
+                    } else if (SortedSet.class.isAssignableFrom(attributeClass)) {
                         collection = new TreeSet();
                     } else if (Set.class.isAssignableFrom(attributeClass)) {
                         collection = new HashSet();

@@ -1459,4 +1459,4 @@
 | ce6bbf0     | true     | PUBLIC.lowertable.lowercolumn                                                 | INTEGER        | false    | 3                     | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" SET NOT NULL
 | 510bb0f     | true     | PUBLIC.lowertable.lowercolumn                                                 | INTEGER        | true     |                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" SET NULL
 
-# Test Version: "f73d88" #
+# Test Version: "7eb501" #

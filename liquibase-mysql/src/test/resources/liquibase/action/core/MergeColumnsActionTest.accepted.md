@@ -55,4 +55,4 @@
 | 17606b2     | true     | CRAZY!@#\$%^&*()_+{}[]'"Col1 | CRAZY!@#\$%^&*()_+{}[]'"Col2 | FINAL_COL                        | ->         | lbcat.test_table  | **plan**: ALTER TABLE `lbcat`.`test_table` ADD `FINAL_COL` VARCHAR(40) NULL<br>UPDATE `lbcat`.`test_table` SET `FINAL_COL`=CONCAT(`CRAZY!@#\$%^&*()_+{}[]'"Col1`, '->', `CRAZY!@#\$%^&*()_+{}[]'"Col2`)<br>ALTER TABLE `lbcat`.`test_table` DROP COLUMN `CRAZY!@#\$%^&*()_+{}[]'"Col1`<br>ALTER TABLE `lbcat`.`test_table` DROP COLUMN `CRAZY!@#\$%^&*()_+{}[]'"Col2`
 | f2d0928     | true     | CRAZY!@#\$%^&*()_+{}[]'"Col1 | CRAZY!@#\$%^&*()_+{}[]'"Col2 | FINAL_COL                        | ->         | lbcat2.test_table | **plan**: ALTER TABLE `lbcat2`.`test_table` ADD `FINAL_COL` VARCHAR(40) NULL<br>UPDATE `lbcat2`.`test_table` SET `FINAL_COL`=CONCAT(`CRAZY!@#\$%^&*()_+{}[]'"Col1`, '->', `CRAZY!@#\$%^&*()_+{}[]'"Col2`)<br>ALTER TABLE `lbcat2`.`test_table` DROP COLUMN `CRAZY!@#\$%^&*()_+{}[]'"Col1`<br>ALTER TABLE `lbcat2`.`test_table` DROP COLUMN `CRAZY!@#\$%^&*()_+{}[]'"Col2`
 
-# Test Version: "193944" #
+# Test Version: "a75197" #

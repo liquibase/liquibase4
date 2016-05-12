@@ -227,4 +227,4 @@
 | 2af6beb     | true     | PUBLIC.lowerview                       | PUBLIC.anotherlowerview                | **plan**: ALTER TABLE "PUBLIC"."anotherlowerview" RENAME TO "PUBLIC"."lowerview"
 | ef18b20     | true     | PUBLIC.lowerview                       | PUBLIC.crazy!@#\$%^&*()_+{}[]'"view    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""view" RENAME TO "PUBLIC"."lowerview"
 
-# Test Version: "f5766c" #
+# Test Version: "9ce0a5" #

@@ -65,4 +65,4 @@
 | ac925cd     | true     | lbcat2.lowertable                    | **plan**: ALTER TABLE `lbcat2`.`lowertable` ADD CONSTRAINT PRIMARY KEY (`COL_NAME`)
 | cb2f558     | true     | lbcat2.only_in_lbcat2                | **plan**: ALTER TABLE `lbcat2`.`only_in_lbcat2` ADD CONSTRAINT PRIMARY KEY (`COL_NAME`)
 
-# Test Version: "cab9ed" #
+# Test Version: "c9fb43" #

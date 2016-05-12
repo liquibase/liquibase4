@@ -49,6 +49,7 @@ public class CreateViewsAction extends AbstractAction {
                     viewNode = actionNode.addChild("view");
                     actionNode.moveChildren("definition", viewNode);
                     actionNode.moveChildren("fullDefinition", viewNode);
+                    actionNode.moveChildren("completeDefinition", viewNode);
                     actionNode.moveChildren("viewName", viewNode);
                     actionNode.moveChildren("catalogName", viewNode);
                     actionNode.moveChildren("schemaName", viewNode);

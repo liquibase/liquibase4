@@ -23,7 +23,7 @@ class CreateViewsActionPreprocessorTest extends AbstractActionPreprocessorTest {
                                 schemaName    : "schema_name",
                                 viewName      : "view_name",
                                 definition    : "select * from table",
-                                fullDefinition: "true",
+                                completeDefinition: "true",
                         ],
                         """
 changeLog

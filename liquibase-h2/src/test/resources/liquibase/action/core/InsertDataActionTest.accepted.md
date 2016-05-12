@@ -253,4 +253,4 @@
 | 28be386     | true     | ID, NAME, ID, NAME | ID                    | LBSCHEMA2.TEST_TABLE, LBSCHEMA2.TEST_TABLE | **plan**: MERGE INTO "LBSCHEMA2"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (1, 'user 1 - new')<br>MERGE INTO "LBSCHEMA2"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (3, 'user 3 - new')
 | d51ae5e     | true     | ID, NAME, ID, NAME | ID                    | PUBLIC.TEST_TABLE, PUBLIC.TEST_TABLE       | **plan**: MERGE INTO "PUBLIC"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (1, 'user 1 - new')<br>MERGE INTO "PUBLIC"."TEST_TABLE" ("ID", "NAME") KEY ("ID") VALUES (3, 'user 3 - new')
 
-# Test Version: "44f27b" #
+# Test Version: "8f1f01" #

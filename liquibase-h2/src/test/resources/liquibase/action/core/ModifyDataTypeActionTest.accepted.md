@@ -227,4 +227,4 @@
 | 3623cda     | true     | PUBLIC.lowertable.crazy!@#\$%^&*()_+{}[]'"column                       | BIGINT      | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" BIGINT
 | bed5a2b     | true     | PUBLIC.lowertable.lowercolumn                                          | BIGINT      | **plan**: ALTER TABLE "PUBLIC"."lowertable" ALTER COLUMN "lowercolumn" BIGINT
 
-# Test Version: "5a53dc" #
+# Test Version: "c5a11f" #

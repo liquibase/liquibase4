@@ -6,7 +6,7 @@ class InsertDataLogicMysqlTest extends AbstractActionLogicTest {
     @Override
     protected String getExpectedValidationErrors() {
         return """
-InsertDataAction.data is required
+InsertDataAction.rows is required
 InsertDataAction: there must be at least one column in rowData not in columnsForUpdateCheck
 """.trim()
     }

@@ -60,7 +60,7 @@ class CreateViewsActionTest extends AbstractActionTest {
                 name_asTable      : action.views*.name,
                 schema_asTable    : action.views*.schema,
                 definition_asTable: action.views*.definition,
-                fullDefinition    : action.views*.completeDefinition,
+                completeDefinition_asTable    : action.views*.completeDefinition,
         ], action, conn, scope)
 
         where:

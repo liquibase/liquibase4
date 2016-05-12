@@ -29,7 +29,7 @@ public class SqlParser {
                         clauses.append(new StringClauses.Comment(token.image));
                     }
                 } else {
-                    clauses.append(token.image, token.image);
+                    clauses.append(token.image);
                 }
                 token = t.getNextToken();
             }

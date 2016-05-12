@@ -29,4 +29,4 @@
 | bd0efcc     | true     | add id int    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" add id int
 | ee4f323     | true     | add id int    | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" add id int
 
-# Test Version: "78f1f0" #
+# Test Version: "54333e" #

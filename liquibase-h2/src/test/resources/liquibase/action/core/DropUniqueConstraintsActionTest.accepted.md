@@ -227,4 +227,4 @@
 | 634c6f1     | true     | loweruniqueconstraint                    | PUBLIC.crazy!@#\$%^&*()_+{}[]'"table    | **plan**: ALTER TABLE "PUBLIC"."crazy!@#\$%^&*()_+{}[]'""table" DROP CONSTRAINT "loweruniqueconstraint"
 | 73c3c32     | true     | loweruniqueconstraint                    | PUBLIC.lowertable                       | **plan**: ALTER TABLE "PUBLIC"."lowertable" DROP CONSTRAINT "loweruniqueconstraint"
 
-# Test Version: "3abd4a" #
+# Test Version: "7c6f2f" #
