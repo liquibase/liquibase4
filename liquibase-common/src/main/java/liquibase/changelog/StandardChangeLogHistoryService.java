@@ -1,5 +1,7 @@
 package liquibase.changelog;
 
+import liquibase.ContextExpression;
+import liquibase.Labels;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.action.core.DeleteDataAction;
@@ -20,6 +22,7 @@ import liquibase.item.datatype.DataTypeLogic;
 import liquibase.item.datatype.DataTypeLogicFactory;
 import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
+import liquibase.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +104,17 @@ public class StandardChangeLogHistoryService extends AbstractChangeLogHistorySer
         ranChangeSet.author = row.get(correctCase("author"), String.class);
         ranChangeSet.path = row.get(correctCase("filename"), String.class);
         ranChangeSet.dateExecuted = row.get(correctCase("dateexecuted"), Date.class);
+        ranChangeSet.deploymentId = row.get(correctCase("deployment_id"), String.class);
+
+        String contexts = StringUtil.trimToNull(row.get(correctCase("contexts"), String.class));
+        if (contexts != null) {
+            ranChangeSet.contextExpression = new ContextExpression(contexts);
+        }
+
+        String labels = StringUtil.trimToNull(row.get(correctCase("labels"), String.class));
+        if (labels != null) {
+            ranChangeSet.labels = new Labels(labels);
+        }
 
         return ranChangeSet;
     }

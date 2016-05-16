@@ -1,6 +1,6 @@
 package liquibase.changelog;
 
-import liquibase.AbstractExtensibleObject;
+import liquibase.*;
 import liquibase.action.Action;
 
 import java.util.ArrayList;
@@ -12,22 +12,68 @@ import java.util.List;
  */
 public class ChangeSet extends AbstractExtensibleObject implements ChangeLogEntry {
 
+    /**
+     * "id" specified in changeLog file.  Combination of id+author+filePath must be unique
+     */
     public String id;
+
+    /**
+     * "author" defined in changeLog file.  Having each developer use a unique author tag allows duplicates of "id" attributes between developers.
+     */
     public String author;
+
+    /**
+     * File changeSet is defined in.  May be a logical/non-physical string.  It is included in the unique identifier to allow duplicate id+author combinations in different files
+     */
     public String logicalPath;
 
+    /**
+     * ChangeSet comments defined in changeLog file
+     */
     public String comment;
+
+    /**
+     * Describes when the changeSet was created. Used for reporting purposes.
+     */
     public String created;
 
     private ChangeLog changeLog;
 
+    /**
+     * If set to true, the changeSet will be executed on every update.
+     */
     public Boolean alwaysRun;
+
+    /**
+     * If set to true, the changeSet will be executed when the checksum changes.
+     */
     public Boolean runOnChange;
+
+
+    /**
+     * If false, do not stop liquibase update execution if an error is thrown executing the changeSet.
+     */
     public Boolean failOnError;
+
+    /**
+     * If true, the changeSet will run in a database transaction.  Defaults to true
+     */
     public Boolean runInTransaction;
+
+    /**
+     * Runtime contexts in which the changeSet will be executed.  If null or empty, will execute regardless of contexts set
+     */
+    public ContextExpression contexts;
+
+    /**
+     * "Labels" associated with this changeSet.  If null or empty, will execute regardless of contexts set
+     */
+    public Labels labels;
 
 
     public List<Action> actions = new ArrayList<>();
+
+    public DatabaseExpression dbms;
 
     public ChangeSet() {
     }
@@ -70,6 +116,11 @@ public class ChangeSet extends AbstractExtensibleObject implements ChangeLogEntr
     public String getIdentifier() {
         return id+"::"+author+"::"+getPath();
     }
+
+    public ContextExpression getCompleteContextExpression() {
+        return this.contexts;
+    }
+
 
     public enum ExecType {
         EXECUTED("EXECUTED", false, true),

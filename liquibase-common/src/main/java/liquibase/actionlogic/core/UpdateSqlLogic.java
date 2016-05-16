@@ -1,13 +1,11 @@
 package liquibase.actionlogic.core;
 
+import liquibase.ExecuteMode;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
 import liquibase.action.UpdateSqlAction;
-import liquibase.actionlogic.AbstractSqlLogic;
-import liquibase.actionlogic.ActionResult;
-import liquibase.actionlogic.ExecuteResult;
-import liquibase.actionlogic.UpdateResult;
+import liquibase.actionlogic.*;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -50,20 +48,27 @@ public class UpdateSqlLogic extends AbstractSqlLogic<UpdateSqlAction> {
 
     @Override
     public ActionResult execute(UpdateSqlAction action, Scope scope) throws ActionPerformException {
-        AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        DatabaseConnection connection = database.getConnection();
-
-        Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
         String sql = action.sql.toString();
-        LoggerFactory.getLogger(getClass()).info("Updating with SQL: "+sql);
 
-        try (Statement stmt = jdbcConnection.createStatement()) {
-            int rows = stmt.executeUpdate(sql);
+        ExecuteMode executeMode = scope.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
 
-            return new UpdateResult(action, rows);
-        } catch (SQLException e) {
-            throw new ActionPerformException("Error executing SQL: "+ sql, e);
+        if (executeMode == ExecuteMode.READ_WRITE) {
+            AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
+            DatabaseConnection connection = database.getConnection();
+
+            Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
+            LoggerFactory.getLogger(getClass()).info("Updating with SQL: "+sql);
+
+            try (Statement stmt = jdbcConnection.createStatement()) {
+                int rows = stmt.executeUpdate(sql);
+
+                return new UpdateResult(action, rows);
+            } catch (SQLException e) {
+                throw new ActionPerformException("Error executing SQL: "+ sql, e);
+            }
+        } else {
+            LoggerFactory.getLogger(getClass()).debug("Not executing update SQL due to running in " + executeMode + " mode: " + sql);
+            return new NoOpResult(action, "Update not executed due to running in " + executeMode + " mode");
         }
-
     }
 }

@@ -31,6 +31,8 @@ public class ChangeSetPreprocessor extends AbstractParsedNodePreprocessor {
         SortedSet<String> allActions = scope.getSingleton(ActionFactory.class).getAllActionNames();
 
         for (ParsedNode changeSet : changeSets) {
+            changeSet.renameChildren("context", "contexts");
+            changeSet.renameChildren("label", "labels");
             changeSet.removeChildren("empty");
 
             ParsedNode actions = changeSet.getChild("actions", true);

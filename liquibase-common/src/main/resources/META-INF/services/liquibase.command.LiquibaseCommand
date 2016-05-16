@@ -1,3 +1,4 @@
 liquibase.command.core.DropAllCommand
 liquibase.command.core.SnapshotCommand
 liquibase.command.core.UpdateCommand
+liquibase.command.core.UpdateSqlCommand

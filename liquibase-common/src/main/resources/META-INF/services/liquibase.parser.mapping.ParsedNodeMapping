@@ -1,6 +1,9 @@
 liquibase.parser.mapping.core.ActionNodeMapping
 liquibase.parser.mapping.core.ChangeLogEntryNodeMapping
+liquibase.parser.mapping.core.ContextExpressionNodeMapping
+liquibase.parser.mapping.core.DatabaseExpressionNodeMapping
 liquibase.parser.mapping.core.DataTypeNodeMapping
 liquibase.parser.mapping.core.DefaultExtensibleObjectParsedNodeMapping
 liquibase.parser.mapping.core.ItemReferenceNodeMapping
+liquibase.parser.mapping.core.LabelsNodeMapping
 liquibase.parser.mapping.core.PlainObjectParsedNodeMapping

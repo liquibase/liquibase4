@@ -19,13 +19,13 @@ public class ShouldRunChangeSetFilter extends AbstractRanChangeSetFilter {
     @Override
     protected Result allow(ChangeSet changeSet, RanChangeSet ranChangeSet, Scope scope) {
         if (ObjectUtil.defaultIfNull(changeSet.alwaysRun, false)) {
-            return new Result(true, "Change set always runs");
+            return new Result(true, "Change set always runs", this.getClass());
         }
 
         if (ranChangeSet == null) {
-            return new Result(true, "Change set has not ran yet");
+            return new Result(true, "Change set has not ran yet", this.getClass());
         } else {
-            return new Result(false, "Change set already ran");
+            return new Result(false, "Change set already ran", this.getClass());
         }
     }
 }

@@ -5,7 +5,7 @@
     <artifactId>liquibase-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>Liquibase: All Standard Modules</name>
+    <name>Liquibase Core (All Standard Modules)</name>
 
     <parent>
         <groupId>org.liquibase</groupId>

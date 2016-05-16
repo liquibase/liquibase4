@@ -13,6 +13,7 @@ liquibase.action.core.AlterNullableAction
 liquibase.action.core.AlterRemarksAction
 liquibase.action.core.AlterSequenceAction
 liquibase.action.core.AlterTableAction
+liquibase.action.core.CommentAction
 liquibase.action.core.CommitAction
 liquibase.action.core.CreateIndexesAction
 liquibase.action.core.CreateSequencesAction

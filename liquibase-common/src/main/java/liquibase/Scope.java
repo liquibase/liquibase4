@@ -5,13 +5,13 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.JdbcConnection;
 import liquibase.database.OfflineConnection;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.listener.LiquibaseListener;
 import liquibase.resource.ResourceAccessor;
 import liquibase.util.SmartMap;
 import liquibase.util.Validate;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This scope object is used to hold configuration and other parameters within a call without needing complex method signatures.
@@ -31,10 +31,13 @@ public class Scope {
         database,
         quotingStrategy,
         changeLogHistoryService,
+        executeMode,
     }
 
     private Scope parent;
     private SmartMap values = new SmartMap();
+
+    private LiquibaseListener listener;
 
     /**
      * Creates a new "root" scope.
@@ -69,6 +72,23 @@ public class Scope {
     }
 
     /**
+     * Creates a new child scope that includes the given {@link LiquibaseListener}.
+     * You cannot unassign a listener, they simply fall out of scope when the Scope does.
+     *
+     * @see #getListeners(Class)
+     */
+    public Scope child(LiquibaseListener listener) {
+        if (listener == null) {
+            return this;
+        }
+
+        Scope child = child((Map<String, Object>) null);
+        child.listener = listener;
+
+        return child;
+    }
+
+    /**
      * Creates a new scope that is a child of this scope.
      */
     public Scope child(String newValueKey, Object newValue) {
@@ -97,11 +117,11 @@ public class Scope {
     }
 
 
-    public  <T> T get(Enum key, Class<T> type) {
+    public <T> T get(Enum key, Class<T> type) {
         return get(key.name(), type);
     }
 
-    public  <T> T get(Enum key, T defaultValue) {
+    public <T> T get(Enum key, T defaultValue) {
         return get(key.name(), defaultValue);
     }
 
@@ -110,7 +130,7 @@ public class Scope {
      * The value is converted to the given type if necessary using {@link liquibase.util.ObjectUtil#convert(Object, Class)}.
      * Returns null if key is not defined in this or any parent scopes.
      */
-    public  <T> T get(String key, Class<T> type) {
+    public <T> T get(String key, Class<T> type) {
         T value = values.get(key, type);
         if (value == null && parent != null) {
             value = parent.get(key, type);
@@ -123,7 +143,7 @@ public class Scope {
      * If the value is not defined, the passed defaultValue is returned.
      * The value is converted to the given type if necessary using {@link liquibase.util.ObjectUtil#convert(Object, Class)}.
      */
-    public  <T> T get(String key, T defaultValue) {
+    public <T> T get(String key, T defaultValue) {
         Class type;
         if (defaultValue == null) {
             type = Object.class;
@@ -189,6 +209,23 @@ public class Scope {
         return get(Attr.resourceAccessor, ResourceAccessor.class);
     }
 
+    /**
+     * Returns {@link LiquibaseListener}s defined in this scope and/or all its parents that are of the given type.
+     */
+    public <T extends LiquibaseListener> Collection<T> getListeners(Class<T> type) {
+        List<T> returnList = new ArrayList<>();
+
+        Scope scopeToCheck = this;
+        while (scopeToCheck != null) {
+            if (scopeToCheck.listener != null && type.isAssignableFrom(scopeToCheck.listener.getClass())) {
+                returnList.add((T) scopeToCheck.listener);
+            }
+            scopeToCheck = scopeToCheck.getParent();
+        }
+
+        return returnList;
+    }
+
     @Override
     public String toString() {
         return describe();
@@ -209,7 +246,7 @@ public class Scope {
                 databaseName = "jdbc " + databaseName;
             }
         }
-        return "scope(database="+ databaseName +")";
+        return "scope(database=" + databaseName + ")";
     }
 
 }

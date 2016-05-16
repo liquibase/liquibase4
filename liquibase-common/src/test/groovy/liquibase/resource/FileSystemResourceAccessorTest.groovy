@@ -69,10 +69,17 @@ public class FileSystemResourceAccessorTest extends Specification {
     def "list finds files correctly (no recursion)"() throws IOException {
         expect:
         createResourceAccessor("liquibase").list(null, null, false).join("\n") == """
+AbstractExpression.class
 AbstractExtensibleObject.class
+ContextExpression.class
+Contexts.class
+DatabaseExpression.class
 DependencyObject.class
+ExecuteMode.class
 ExtensibleObject.class
 ExtensibleObjectAttribute.class
+LabelExpression.class
+Labels.class
 ObjectMetaData\$Attribute.class
 ObjectMetaData.class
 Scope\$Attr.class

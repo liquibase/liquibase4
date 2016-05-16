@@ -14,6 +14,9 @@
                             </xsd:sequence>
                             <xsd:attribute name="id" type="xsd:string" use="required"/>
                             <xsd:attribute name="author" type="xsd:string" use="required"/>
+                            <xsd:attribute name="contexts" type="xsd:string"/>
+                            <xsd:attribute name="labels" type="xsd:string"/>
+                            <xsd:attribute name="dbms" type="xsd:string"/>
                         </xsd:complexType>
                     </xsd:element>
                 </xsd:choice>

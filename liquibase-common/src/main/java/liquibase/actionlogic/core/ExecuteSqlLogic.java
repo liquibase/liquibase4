@@ -1,11 +1,13 @@
 package liquibase.actionlogic.core;
 
+import liquibase.ExecuteMode;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.action.ExecuteSqlAction;
 import liquibase.actionlogic.AbstractSqlLogic;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.ExecuteResult;
+import liquibase.actionlogic.NoOpResult;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -47,19 +49,27 @@ public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
 
     @Override
     public ActionResult execute(ExecuteSqlAction action, Scope scope) throws ActionPerformException {
-        AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
-        DatabaseConnection connection = database.getConnection();
+        ExecuteMode executeMode = scope.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
 
-        Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
         String sql = action.sql.toString();
-        try {
-            LoggerFactory.getLogger(getClass()).info("Executing SQL: "+sql);
-            Statement stmt = jdbcConnection.createStatement();
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            throw new ActionPerformException("Error executing SQL: "+ sql, e);
+        if (executeMode == ExecuteMode.READ_WRITE) {
+            AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
+            DatabaseConnection connection = database.getConnection();
+
+            Connection jdbcConnection = ((JdbcConnection) connection).getUnderlyingConnection();
+            try {
+                LoggerFactory.getLogger(getClass()).debug("Executing SQL: " + sql);
+                Statement stmt = jdbcConnection.createStatement();
+                stmt.execute(sql);
+            } catch (SQLException e) {
+                throw new ActionPerformException("Error executing SQL: " + sql, e);
+            }
+            return new ExecuteResult(action);
+        } else {
+            LoggerFactory.getLogger(getClass()).debug("Not executing SQL due to running in " + executeMode + " mode: " + sql);
+            return new NoOpResult(action, "Not executed due to running in " + executeMode + " mode");
         }
-        return new ExecuteResult(action);
+
 
     }
 }

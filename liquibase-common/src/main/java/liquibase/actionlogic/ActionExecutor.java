@@ -7,10 +7,12 @@ import liquibase.action.Action;
 import liquibase.action.ActionStatus;
 import liquibase.exception.ActionPerformException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.listener.ActionListener;
 import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -298,7 +300,25 @@ public class ActionExecutor implements SingletonObject {
             }
 
             protected ActionResult executeImpl(Scope scope) throws ActionPerformException {
-                ActionResult result = this.getLogic().execute(action, scope);
+                Collection<ActionListener> actionListeners = scope.getListeners(ActionListener.class);
+                for (ActionListener listener : actionListeners) {
+                    listener.willRun(action, logic, scope);
+                }
+
+                ActionResult result = null;
+                try {
+                    result = this.getLogic().execute(action, scope);
+
+                    for (ActionListener listener : actionListeners) {
+                        listener.ran(result, action, logic, scope);
+                    }
+                } catch (ActionPerformException e) {
+                    for (ActionListener listener : actionListeners) {
+                        listener.runFailed(e, action, logic, scope);
+                    }
+
+                    throw e;
+                }
                 if (result instanceof DelegateResult) {
                     for (Action action : ((DelegateResult) result).getActions()) {
                         scope.getSingleton(ActionExecutor.class).execute(action, scope);

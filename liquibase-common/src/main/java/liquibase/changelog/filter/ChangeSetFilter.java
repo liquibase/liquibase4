@@ -30,9 +30,15 @@ public interface ChangeSetFilter {
          */
         public final String message;
 
-        public Result(boolean allow, String message) {
+        /**
+         * The filter that created this result.
+         */
+        public final Class<? extends ChangeSetFilter> filter;
+
+        public Result(boolean allow, String message, Class<? extends ChangeSetFilter> filter) {
             this.allow = allow;
             this.message = message;
+            this.filter = filter;
         }
 
 

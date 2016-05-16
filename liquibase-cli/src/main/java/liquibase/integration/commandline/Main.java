@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -52,6 +53,8 @@ public class Main {
     protected final List<String> commandArgs = new ArrayList<>();
 
     protected String defaultsFile = "./liquibase.properties";
+
+    protected PrintStream messageOutputStream = System.err;
 
     public Main(String[] originalArgs) {
         processOriginalArgs(originalArgs);
@@ -202,14 +205,14 @@ public class Main {
 
             CommandResult result = command.execute(scope);
             if (result.succeeded) {
-                System.out.println(result.message);
+                messageOutputStream.println(result.message);
             } else {
                 throw new LiquibaseException(result.message);
             }
 
         } catch (Exception e) {
             if (e instanceof org.apache.commons.cli.ParseException) {
-                System.out.println("Error parsing Liquibase parameters: "+e.getMessage());
+                messageOutputStream.println("Error parsing Liquibase parameters: "+e.getMessage());
                 printHelp(globalOptions, commandOptions, rootScope);
             } else {
                 log.error("Error running liquibase "+commandName, e);
@@ -225,8 +228,8 @@ public class Main {
                     cause = cause.getCause();
                 }
 
-                System.out.println("");
-                System.out.println("Error running liquibase "+commandName+": " + message);
+                messageOutputStream.println("");
+                messageOutputStream.println("Error running liquibase "+commandName+": " + message);
             }
         }
 
@@ -323,17 +326,17 @@ public class Main {
         formatter.setLongOptSeparator("=");
         formatter.setSyntaxPrefix("");
 
-        System.out.println("liquibase [global options] COMMAND [command options]");
+        messageOutputStream.println("liquibase [global options] COMMAND [command options]");
         formatter.printHelp("Global Options:", globalOptions);
-        System.out.println();
-        System.out.println("Available commands: ");
-        System.out.println(StringUtil.indent(StringUtil.join(rootScope.getSingleton(CommandFactory.class).getAllCommandNames(), System.lineSeparator())));
+        messageOutputStream.println();
+        messageOutputStream.println("Available commands: ");
+        messageOutputStream.println(StringUtil.indent(StringUtil.join(rootScope.getSingleton(CommandFactory.class).getAllCommandNames(), System.lineSeparator())));
         if (commandName != null) {
-            System.out.println();
+            messageOutputStream.println();
             if (commandOptions != null && commandOptions.getOptions().size() > 0) {
                 formatter.printHelp("Command Options for \""+commandName+"\":", commandOptions);
             } else {
-                System.out.println("No command options options for \""+commandName+"\"");
+                messageOutputStream.println("No command options options for \""+commandName+"\"");
             }
         }
     }

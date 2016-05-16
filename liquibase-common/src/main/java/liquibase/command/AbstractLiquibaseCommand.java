@@ -13,7 +13,7 @@ public abstract class AbstractLiquibaseCommand<T extends CommandResult> extends 
 
     @Override
     public int getPriority(String commandName, Scope scope) {
-        if (Objects.equals(commandName, getName())) {
+        if (commandName != null && commandName.equalsIgnoreCase(getName())) {
             return PRIORITY_DEFAULT;
         } else {
             return PRIORITY_NOT_APPLICABLE;

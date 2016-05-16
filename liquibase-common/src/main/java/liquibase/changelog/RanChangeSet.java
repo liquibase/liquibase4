@@ -1,6 +1,8 @@
 package liquibase.changelog;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.ContextExpression;
+import liquibase.Labels;
 
 import java.util.Date;
 
@@ -19,6 +21,10 @@ public class RanChangeSet extends AbstractExtensibleObject {
     public String description;
     public String comments;
     public Integer orderExecuted;
+
+    public ContextExpression contextExpression;
+    public Labels labels;
+    public String deploymentId;
 
 
     public boolean matches(ChangeSet changeSet) {

@@ -1,19 +1,21 @@
 package liquibase.command.core;
 
-import liquibase.ExtensibleObjectAttribute;
-import liquibase.ObjectMetaData;
-import liquibase.Scope;
-import liquibase.ValidationErrors;
+import liquibase.*;
 import liquibase.changelog.ChangeLog;
 import liquibase.changelog.ChangeLogHistoryService;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.changelog.ChangeLogIterator;
+import liquibase.changelog.filter.ContextsChangeSetFilter;
+import liquibase.changelog.filter.DatabaseChangeSetFilter;
+import liquibase.changelog.filter.LabelsChangeSetFilter;
 import liquibase.changelog.filter.ShouldRunChangeSetFilter;
 import liquibase.changelog.visitor.ExecuteChangeSetVisitor;
 import liquibase.command.AbstractLiquibaseCommand;
 import liquibase.command.CommandResult;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
 import liquibase.parser.ParserFactory;
 import liquibase.util.ObjectUtil;
 
@@ -40,6 +42,12 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
     @ExtensibleObjectAttribute(description = "Liquibase Database class to use")
     public String databaseClass;
 
+    @ExtensibleObjectAttribute(description = "ChangeSet 'contexts' to execute")
+    public Contexts contexts;
+
+    @ExtensibleObjectAttribute(description = "ChangeSet 'labels' to execute")
+    public LabelExpression labels;
+
     @Override
     public String getName() {
         return "update";
@@ -59,6 +67,42 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
 
     @Override
     protected CommandResult run(Scope scope) throws Exception {
+        scope = setupScope(scope);
+        ChangeLog changeLog = parseChangelog(scope);
+
+        scope = setupHistoryService(scope);
+
+        ChangeLogIterator changeLogIterator = createChangeLogIterator(changeLog, scope);
+
+        changeLogIterator.run(new ExecuteChangeSetVisitor(), scope);
+
+        return new CommandResult("Updated "+this.url);
+    }
+
+    protected ChangeLogIterator createChangeLogIterator(ChangeLog changeLog, Scope scope) throws LiquibaseException {
+        ChangeLogHistoryService historyService = scope.get(Scope.Attr.changeLogHistoryService, ChangeLogHistoryService.class);
+        Database database = scope.getDatabase();
+
+        return new ChangeLogIterator(changeLog,
+                    new ShouldRunChangeSetFilter(historyService.getRanChangeSets(scope)),
+                    new ContextsChangeSetFilter(contexts),
+                    new LabelsChangeSetFilter(labels),
+                    new DatabaseChangeSetFilter(database));
+    }
+
+    protected Scope setupHistoryService(Scope scope) throws LiquibaseException {
+        ChangeLogHistoryService historyService = scope.getSingleton(ChangeLogHistoryServiceFactory.class).getChangeLogHistoryService(scope);
+        scope = scope.child(Scope.Attr.changeLogHistoryService, historyService);
+        historyService.init(scope);
+
+        return scope;
+    }
+
+    protected ChangeLog parseChangelog(Scope scope) throws liquibase.exception.ParseException {
+        return scope.getSingleton(ParserFactory.class).parse(changeLogFile, ChangeLog.class, scope);
+    }
+
+    protected Scope setupScope(Scope scope) throws LiquibaseException {
         scope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).connect(
                 url,
                 username,
@@ -68,19 +112,18 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
                 null, //todo
                 null, //todo
                 scope));
+        return scope;
+    }
 
+    @Override
+    public ExtensibleObject set(String attribute, Object value) {
+        if (attribute.equals("contexts") && value instanceof String) {
+            value = new Contexts((String) value);
+        }
+        if (attribute.equals("labels") && value instanceof String) {
+            value = new LabelExpression((String) value);
+        }
 
-        Database database = scope.getDatabase();
-
-        ChangeLog changeLog = scope.getSingleton(ParserFactory.class).parse(changeLogFile, ChangeLog.class, scope);
-
-        ChangeLogHistoryService historyService = scope.getSingleton(ChangeLogHistoryServiceFactory.class).getChangeLogHistoryService(scope);
-        scope = scope.child(Scope.Attr.changeLogHistoryService, historyService);
-        historyService.init(scope);
-
-        ChangeLogIterator changeLogIterator = new ChangeLogIterator(changeLog, new ShouldRunChangeSetFilter(historyService.getRanChangeSets(scope)));
-        changeLogIterator.run(new ExecuteChangeSetVisitor(), scope);
-
-        return new CommandResult("Updated "+database);
+        return super.set(attribute, value);
     }
 }

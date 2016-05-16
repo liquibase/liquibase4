@@ -8,6 +8,7 @@ liquibase.actionlogic.core.AddPrimaryKeysLogic
 liquibase.actionlogic.core.AddUniqueConstraintsLogic
 liquibase.actionlogic.core.AlterColumnLogic
 liquibase.actionlogic.core.AlterTableLogic
+liquibase.actionlogic.core.CommentLogic
 liquibase.actionlogic.core.CommitLogic
 liquibase.actionlogic.core.CreateIndexesLogic
 liquibase.actionlogic.core.CreateSequencesLogic

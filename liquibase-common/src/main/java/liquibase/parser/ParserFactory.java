@@ -55,26 +55,7 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
 
             ParsedNode rootNode = parser.parse(sourcePath, scope);
 
-            try {
-                for (ParsedNodePreprocessor preprocessor : scope.getSingleton(ParsedNodePreprocessorFactory.class).getPreprocessors()) {
-                    MDC.put(LogUtil.MDC_PREPROCESSOR, preprocessor.getClass().getName());
-                    try {
-                        preprocessor.process(rootNode, scope);
-                    } finally {
-                        MDC.remove(LogUtil.MDC_PREPROCESSOR);
-                    }
-                }
-
-                ObjectType returnObject = scope.getSingleton(ParsedNodeMappingFactory.class).toObject(rootNode, objectType, null, null, scope);
-
-                for (MappingPostprocessor postprocessor : scope.getSingleton(MappingPostprocessorFactory.class).getPostprocessors()) {
-                    postprocessor.process(returnObject, scope);
-                }
-
-                return returnObject;
-            } catch (DependencyException e) {
-                throw new ParseException(e, null);
-            }
+            return parse(rootNode, objectType, scope);
         } catch (ParseException e) {
             String message = e.getMessage();
             ParsedNode problemNode = e.getProblemNode();
@@ -117,6 +98,29 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
             throw new ParseException(message, e, problemNode);
         }
 
+    }
+
+    public <ObjectType> ObjectType parse(ParsedNode parsedNode, Class<ObjectType> objectType, Scope scope) throws ParseException {
+        try {
+            for (ParsedNodePreprocessor preprocessor : scope.getSingleton(ParsedNodePreprocessorFactory.class).getPreprocessors()) {
+                MDC.put(LogUtil.MDC_PREPROCESSOR, preprocessor.getClass().getName());
+                try {
+                    preprocessor.process(parsedNode, scope);
+                } finally {
+                    MDC.remove(LogUtil.MDC_PREPROCESSOR);
+                }
+            }
+
+            ObjectType returnObject = scope.getSingleton(ParsedNodeMappingFactory.class).toObject(parsedNode, objectType, null, null, scope);
+
+            for (MappingPostprocessor postprocessor : scope.getSingleton(MappingPostprocessorFactory.class).getPostprocessors()) {
+                postprocessor.process(returnObject, scope);
+            }
+
+            return returnObject;
+        } catch (DependencyException e) {
+            throw new ParseException(e, null);
+        }
     }
 
 }
