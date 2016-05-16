@@ -18,8 +18,11 @@ derby.log
 *.iml
 .DS_Store
 /tmp
-/liquibase-common/tmp
+/liquibase-common/tmp/
 /.metadata/
 
 /tmp.txt
 /tmp.xml
+
+/liquibase-core/dependency-reduced-pom.xml
+/liquibase-tests/dependency-reduced-pom.xml
