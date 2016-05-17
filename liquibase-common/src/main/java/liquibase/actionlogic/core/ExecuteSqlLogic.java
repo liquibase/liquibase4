@@ -49,7 +49,7 @@ public class ExecuteSqlLogic extends AbstractSqlLogic<ExecuteSqlAction> {
 
     @Override
     public ActionResult execute(ExecuteSqlAction action, Scope scope) throws ActionPerformException {
-        ExecuteMode executeMode = scope.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
+        ExecuteMode executeMode = scope.getExecuteMode();
 
         String sql = action.sql.toString();
         if (executeMode == ExecuteMode.READ_WRITE) {

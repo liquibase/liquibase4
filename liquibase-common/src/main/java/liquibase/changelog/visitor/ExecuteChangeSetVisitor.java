@@ -2,6 +2,7 @@ package liquibase.changelog.visitor;
 
 import liquibase.Scope;
 import liquibase.action.Action;
+import liquibase.action.core.CommitAction;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.changelog.ChangeLogHistoryService;
 import liquibase.changelog.ChangeSet;
@@ -37,6 +38,7 @@ public class ExecuteChangeSetVisitor implements ChangeSetVisitor {
 
             changeLogHistoryService.setExecType(changeSet, ChangeSet.ExecType.EXECUTED, scope);
 
+            actionExecutor.execute(new CommitAction(), scope);
             fireRan(changeSet, scope);
         } catch (LiquibaseException e) {
             fireRunFailed(e, changeSet, scope);

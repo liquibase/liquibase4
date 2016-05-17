@@ -92,7 +92,7 @@ public class UpdateSqlCommand extends UpdateCommand {
 
             if (action instanceof AbstractSqlAction) {
                 if (!(action instanceof QuerySqlAction)) {
-                    outputStream.println(lineComment + (((AbstractSqlAction) action).sql.toString()));
+                    outputStream.println(((AbstractSqlAction) action).sql.toString());
                 }
             } else if (action instanceof CommentAction) {
 
@@ -117,18 +117,18 @@ public class UpdateSqlCommand extends UpdateCommand {
 
     protected class LogChangeSetListener extends ChangeSetListener {
 
+        int changeSetCount = 0;
+
         @Override
         public void willRun(ChangeSet changeSet, Scope scope) {
             try {
+                if (changeSetCount == 0) {
+                    outputStream.println();
+                }
                 scope.getSingleton(ActionExecutor.class).execute(new CommentAction("Changeset "+changeSet.getIdentifier()), scope);
             } catch (ActionPerformException e) {
                 throw new UnexpectedLiquibaseException(e);
             }
-        }
-
-        @Override
-        public void actionsRan(ChangeSet changeSet, Scope scope) {
-            outputStream.println();
         }
 
         @Override

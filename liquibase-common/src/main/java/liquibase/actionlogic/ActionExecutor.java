@@ -37,10 +37,34 @@ public class ActionExecutor implements SingletonObject {
         LoggerFactory.getLogger(getClass()).info("Executing action {}", action);
         Plan plan = createPlan(action, scope);
         if (plan.getValidationErrors().hasErrors()) {
-            throw new ActionPerformException("Validation Error(s): "+ StringUtil.join(plan.getValidationErrors().getErrorMessages(), "; ")+" for "+action.describe());
+            throw new ActionPerformException("Validation Error(s): "+ StringUtil.join(plan.getValidationErrors().getErrorMessages(), "; "));
         }
         executedPlans.add(plan.describe(true));
         return plan.execute(scope);
+    }
+
+    /**
+     * Convenience version of {@link #execute(Action, Scope)} for performing an update
+     */
+    public UpdateResult update(Action action, Scope scope) throws ActionPerformException {
+        ActionResult result = execute(action, scope);
+        if (result instanceof CompoundResult) {
+            List<ActionResult> flatResults = ((CompoundResult) result).getFlatResults();
+            if (flatResults.size() == 0) {
+                throw new ActionPerformException("No results found, not even an empty result");
+            } else if (flatResults.size() == 1) {
+                ActionResult singleResult = flatResults.get(0);
+                if (singleResult instanceof NoOpResult) {
+                    return new UpdateResult(singleResult.getSourceAction(), singleResult.getMessage(), 0);
+                } else {
+                    return (UpdateResult) singleResult;
+                }
+            } else {
+                throw new ActionPerformException("Multiple results returned");
+            }
+        }
+
+        return (UpdateResult) result;
     }
 
     /**
@@ -84,7 +108,7 @@ public class ActionExecutor implements SingletonObject {
         ActionLogic logic = getActionLogic(action, scope);
 
         if (logic == null) {
-            return new ActionStatus().add(ActionStatus.Status.unknown, "No ActionLogic implementation for "+action.describe()+" for "+scope.describe());
+            return new ActionStatus().add(ActionStatus.Status.unknown, "No ActionLogic implementation for "+action.describe());
         }
 
         return logic.checkStatus(action, scope);
@@ -118,7 +142,7 @@ public class ActionExecutor implements SingletonObject {
         ActionLogic actionLogic = getActionLogic(action, scope);
 
         if (actionLogic == null) {
-            errors.addError(": no supported ActionLogic implementation found for " + action.getClass().getName() + " '" + action.describe());
+            errors.addError(": no supported ActionLogic implementation found for " + action.describe());
             return null;
         }
 

@@ -53,8 +53,8 @@ public class RowBasedQueryResult extends QueryResult {
         this.resultSet = Collections.unmodifiableList(convertedResultSet);
     }
 
-    public RowBasedQueryResult(Action souceAction, Object singleValue) {
-        this(souceAction, null, singleValue);
+    public RowBasedQueryResult(Action souceAction, Object value) {
+        this(souceAction, null, value);
     }
 
 

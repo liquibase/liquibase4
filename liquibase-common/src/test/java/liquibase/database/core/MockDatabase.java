@@ -22,6 +22,8 @@ public class MockDatabase extends GenericDatabase {
     private Map<Class<? extends Item>, Boolean> supports = new HashMap<>();
     private boolean supportsAutoIncrement = true;
 
+    public IdentifierCaseHandling identifierCaseHandling = IdentifierCaseHandling.UPPERCASE;
+
     public MockDatabase() {
         connection = new MockJdbcConnection();
     }
@@ -79,7 +81,7 @@ public class MockDatabase extends GenericDatabase {
 
     @Override
     public IdentifierCaseHandling getIdentifierCaseHandling(Class<? extends Item> type, boolean quoted, Scope scope) {
-        return IdentifierCaseHandling.CASE_SENSITIVE;
+        return identifierCaseHandling;
     }
 
     @Override

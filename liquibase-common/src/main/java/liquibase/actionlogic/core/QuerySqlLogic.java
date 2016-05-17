@@ -26,7 +26,7 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
     public ActionResult execute(QuerySqlAction action, Scope scope) throws ActionPerformException {
         String sql = action.sql.toString();
         try {
-            LoggerFactory.getLogger(getClass()).info("Querying with SQL: "+sql);
+            LoggerFactory.getLogger(getClass()).info("Querying with SQL: " + sql);
 
             AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
             DatabaseConnection connection = database.getConnection();
@@ -37,7 +37,7 @@ public class QuerySqlLogic extends AbstractSqlLogic<QuerySqlAction> {
                 return new RowBasedQueryResult(action, database.extract(rs, scope));
             }
         } catch (Exception e) {
-            throw new ActionPerformException("Error executing query '" + sql + "'" + e);
+            throw new ActionPerformException("Error executing query '" + sql + "'", e);
         }
     }
 }

@@ -38,7 +38,7 @@ class ActionExecutorTest extends Specification {
 
         then:
         def e = thrown(ActionPerformException)
-        e.message == "Validation Error(s): MockAction: no supported ActionLogic implementation found for liquibase.action.MockAction 'mock() for mock()"
+        e.message == "Validation Error(s): MockAction: no supported ActionLogic implementation found for mock()"
     }
 
     def "execute when validation fails with errors"() {
@@ -56,7 +56,7 @@ class ActionExecutorTest extends Specification {
 
         then:
         def e = thrown(ActionPerformException)
-        e.message == "Validation Error(s): MockAction: mock validation error; MockAction: another error for mock()"
+        e.message == "Validation Error(s): MockAction: mock validation error; MockAction: another error"
     }
 
     def "execute update logic"() {
@@ -109,7 +109,7 @@ class ActionExecutorTest extends Specification {
 
         then:
         def e = thrown(ActionPerformException)
-        e.message == "Validation Error(s): MockAction: liquibase.actionlogic.MockActionLogic tried to handle 'mock()' but returned no actions to run for mock()"
+        e.message == "Validation Error(s): MockAction: liquibase.actionlogic.MockActionLogic tried to handle 'mock()' but returned no actions to run"
     }
 
     def "execute 'rewrite' logic with a single rewrite action"() {

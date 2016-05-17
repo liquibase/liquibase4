@@ -47,6 +47,7 @@ liquibase.action.core.RenameColumnAction
 liquibase.action.core.RenameSequenceAction
 liquibase.action.core.RenameTableAction
 liquibase.action.core.RenameViewAction
+liquibase.action.core.RollbackAction
 liquibase.action.core.SelectDataAction
 liquibase.action.core.SnapshotItemsAction
 liquibase.action.core.ThrowExceptionAction

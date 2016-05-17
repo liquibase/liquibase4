@@ -14,8 +14,9 @@ import liquibase.command.AbstractLiquibaseCommand;
 import liquibase.command.CommandResult;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
-import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
+import liquibase.lockservice.LockServiceFactory;
+import liquibase.lockservice.LockService;
 import liquibase.parser.ParserFactory;
 import liquibase.util.ObjectUtil;
 
@@ -70,13 +71,21 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
         scope = setupScope(scope);
         ChangeLog changeLog = parseChangelog(scope);
 
-        scope = setupHistoryService(scope);
+        scope = setupLockService(scope);
+        LockService lockService = scope.get(Scope.Attr.lockService, LockService.class);
+        lockService.waitForLock(scope);
 
-        ChangeLogIterator changeLogIterator = createChangeLogIterator(changeLog, scope);
+        try {
+            scope = setupHistoryService(scope);
 
-        changeLogIterator.run(new ExecuteChangeSetVisitor(), scope);
+            ChangeLogIterator changeLogIterator = createChangeLogIterator(changeLog, scope);
 
-        return new CommandResult("Updated "+this.url);
+            changeLogIterator.run(new ExecuteChangeSetVisitor(), scope);
+
+            return new CommandResult("Updated "+this.url);
+        } finally {
+            lockService.releaseLock(scope);
+        }
     }
 
     protected ChangeLogIterator createChangeLogIterator(ChangeLog changeLog, Scope scope) throws LiquibaseException {
@@ -94,6 +103,15 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
         ChangeLogHistoryService historyService = scope.getSingleton(ChangeLogHistoryServiceFactory.class).getChangeLogHistoryService(scope);
         scope = scope.child(Scope.Attr.changeLogHistoryService, historyService);
         historyService.init(scope);
+
+        return scope;
+    }
+
+    protected Scope setupLockService(Scope scope) throws LiquibaseException {
+        LockService lockService = scope.getSingleton(LockServiceFactory.class).getLockService(scope);
+        lockService.init(scope);
+
+        scope = scope.child(Scope.Attr.lockService, lockService);
 
         return scope;
     }

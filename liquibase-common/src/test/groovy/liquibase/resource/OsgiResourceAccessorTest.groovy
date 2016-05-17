@@ -30,6 +30,7 @@ liquibase/exception/CommandExecutionException.class
 liquibase/exception/DatabaseException.class
 liquibase/exception/DependencyException.class
 liquibase/exception/LiquibaseException.class
+liquibase/exception/LockException.class
 liquibase/exception/ParseException.class
 liquibase/exception/UnexpectedLiquibaseException.class
 liquibase/exception/ValidationErrorsTest.class

@@ -31,6 +31,7 @@ public class Scope {
         database,
         quotingStrategy,
         changeLogHistoryService,
+        lockService,
         executeMode,
     }
 
@@ -207,6 +208,15 @@ public class Scope {
 
     public ResourceAccessor getResourceAccessor() {
         return get(Attr.resourceAccessor, ResourceAccessor.class);
+    }
+
+    /**
+     * Returns the execution mode for the scope.
+     *
+     * @return {@link ExecuteMode#READ_WRITE} if not set.
+     */
+    public ExecuteMode getExecuteMode() {
+        return this.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
     }
 
     /**

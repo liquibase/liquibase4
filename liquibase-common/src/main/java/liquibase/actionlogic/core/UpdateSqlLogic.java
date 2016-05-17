@@ -50,7 +50,7 @@ public class UpdateSqlLogic extends AbstractSqlLogic<UpdateSqlAction> {
     public ActionResult execute(UpdateSqlAction action, Scope scope) throws ActionPerformException {
         String sql = action.sql.toString();
 
-        ExecuteMode executeMode = scope.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
+        ExecuteMode executeMode = scope.getExecuteMode();
 
         if (executeMode == ExecuteMode.READ_WRITE) {
             AbstractJdbcDatabase database = (AbstractJdbcDatabase) scope.getDatabase();
