@@ -6,6 +6,8 @@ import liquibase.exception.ParseException;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.mapping.ParsedNodeMapping;
 import liquibase.util.ObjectUtil;
+import liquibase.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
 
@@ -31,9 +33,17 @@ public class PlainObjectParsedNodeMapping implements ParsedNodeMapping {
     @Override
     public Object toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         try {
+            if (parsedNode.getChildren().size() > 0) {
+                throw new ParseException("Unexpected attribute(s) " + StringUtil.join(parsedNode.getChildren(), ", ", new StringUtil.StringUtilsFormatter<ParsedNode>() {
+                    @Override
+                    public String toString(ParsedNode obj) {
+                        return "'"+obj.getName()+"'";
+                    }
+                }) + " for " + objectType.getName(), parsedNode);
+            }
             return parsedNode.getValue(null, objectType);
         } catch (IllegalArgumentException e) {
-            throw new ParseException("Error parsing '"+parsedNode.getName()+"': cannot convert value '"+parsedNode.getValue()+"' to a "+objectType.getName(), e, parsedNode);
+            throw new ParseException("Error parsing '" + parsedNode.getName() + "': cannot convert value '" + parsedNode.getValue() + "' to a " + objectType.getName(), e, parsedNode);
         }
     }
 }

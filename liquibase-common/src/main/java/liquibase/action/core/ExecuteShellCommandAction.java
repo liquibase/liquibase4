@@ -33,7 +33,16 @@ public class ExecuteShellCommandAction extends AbstractAction {
                     actionNode.addChild("osFilters").setValue(StringUtil.splitAndTrim(os.getValue(null, String.class), ","));
                     os.remove();
                 }
-                actionNode.moveChildren("arg", actionNode.getChild("args", true));
+                ParsedNode argsNode = actionNode.getChild("args", true);
+                actionNode.moveChildren("arg", argsNode);
+
+                for (ParsedNode arg : argsNode.getChildren()) {
+                    ParsedNode valueNode = arg.getChild("value", false);
+                    if (valueNode != null) {
+                        arg.setValue(valueNode.getValue(null, Object.class));
+                        valueNode.remove();
+                    }
+                }
             }
         };
     }

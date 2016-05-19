@@ -3,6 +3,8 @@ package liquibase.parser
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.changelog.ChangeLog
+import liquibase.exception.ParseException
+import liquibase.lockservice.ChangeLogLock
 import liquibase.parser.xml.TestXmlGenerator
 import liquibase.parser.xml.XmlParserTest
 import liquibase.resource.ClassLoaderResourceAccessor
@@ -111,6 +113,54 @@ class ParserFactoryTest extends Specification {
 
         where:
         xml << new TestXmlGenerator().generateXml("liquibase/parser/core/xml/dbchangelog-3.5.xsd", "//group[@name=\"changeSetChildren\"]/choice/element")
+
+    }
+
+    def "invalid attributes throw an exception"() {
+        when:
+        def scope = JUnitScope.getInstance()
+        def parserFactory = scope.getSingleton(ParserFactory)
+
+        def node = ParsedNode.createRootNode("changeLog")
+        node.addChildren([
+                changeSet: [
+                        id         : "1",
+                        author     : "test",
+                        invalidAttr: "should throw exception"
+                ]
+        ])
+        parserFactory.parse(node, ChangeLog, scope)
+
+        then:
+        def e = thrown(ParseException)
+        e.message == "Unexpected attribute 'invalidAttr' for liquibase.changelog.ChangeSet"
+
+    }
+
+    def "invalid attributes on objects that just take a value throw an exception"() {
+        when:
+        def scope = JUnitScope.getInstance()
+        def parserFactory = scope.getSingleton(ParserFactory)
+
+        def node = ParsedNode.createRootNode("changeLog")
+        node.addChildren([
+                changeSet: [
+                        id         : "1",
+                        author     : "test",
+                        executeCommand: [
+                                arg: [
+                                        value: "this",
+                                        invalidAttr: "should throw exception"
+                                ]
+
+                        ]
+                ]
+        ])
+        parserFactory.parse(node, ChangeLog, scope)
+
+        then:
+        def e = thrown(ParseException)
+        e.message == "Unexpected attribute(s) 'invalidAttr' for java.lang.String"
 
     }
 

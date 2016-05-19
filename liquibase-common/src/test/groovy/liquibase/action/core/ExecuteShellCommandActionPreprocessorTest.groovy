@@ -31,7 +31,7 @@ changeLog
 
                 //----
                 [
-                        "args are moved",
+                        "args with value as object value are moved",
                         [
                                 arg: "arg 1"
                         ],
@@ -44,7 +44,22 @@ changeLog
 """
                 ],
 
-
+                //----
+                [
+                        "args with value as value attribute are moved",
+                        [
+                                arg: [
+                                        value: "arg 1"
+                                ]
+                        ],
+                        """
+changeLog
+    changeSet
+        executeShellCommand
+            args
+                arg: arg 1
+"""
+                ],
 
         ]
     }
