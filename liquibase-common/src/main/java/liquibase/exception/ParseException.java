@@ -5,7 +5,7 @@ import liquibase.parser.ParsedNode;
 /**
  * Exception thrown from parsing changelogs or other files.
  */
-public class ParseException extends Exception {
+public class ParseException extends LiquibaseException {
 
     private final ParsedNode problemNode;
 

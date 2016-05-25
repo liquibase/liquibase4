@@ -10,38 +10,21 @@ import liquibase.changelog.filter.DatabaseChangeSetFilter;
 import liquibase.changelog.filter.LabelsChangeSetFilter;
 import liquibase.changelog.filter.ShouldRunChangeSetFilter;
 import liquibase.changelog.visitor.ExecuteChangeSetVisitor;
-import liquibase.command.AbstractLiquibaseCommand;
+import liquibase.command.AbstractDatabaseCommand;
 import liquibase.command.CommandResult;
 import liquibase.database.Database;
-import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
-import liquibase.lockservice.LockServiceFactory;
 import liquibase.lockservice.LockService;
+import liquibase.lockservice.LockServiceFactory;
 import liquibase.parser.ParserFactory;
-import liquibase.util.ObjectUtil;
 
 /**
  * Updates a database to match the given {@link #changeLogFile}.
  */
-public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
+public class UpdateCommand extends AbstractDatabaseCommand<CommandResult> {
 
     @ExtensibleObjectAttribute(description = "Path to changelog", required = true)
     public String changeLogFile;
-
-    @ExtensibleObjectAttribute(description = "Database url", required = true)
-    public String url;
-
-    @ExtensibleObjectAttribute(description = "Database username")
-    public String username;
-
-    @ExtensibleObjectAttribute(description = "Database password")
-    public String password;
-
-    @ExtensibleObjectAttribute(description = "Database driver")
-    public String driver;
-
-    @ExtensibleObjectAttribute(description = "Liquibase Database class to use")
-    public String databaseClass;
 
     @ExtensibleObjectAttribute(description = "ChangeSet 'contexts' to execute")
     public Contexts contexts;
@@ -55,20 +38,10 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
     }
 
     @Override
-    public ValidationErrors validate(Scope scope) {
-        ValidationErrors validationErrors = new ValidationErrors(this);
-
-        for (ObjectMetaData.Attribute attr : getObjectMetaData().attributes) {
-            if (ObjectUtil.defaultIfNull(attr.required, false)) {
-                validationErrors.checkRequiredFields(attr.name);
-            }
-        }
-        return validationErrors;
-    }
-
-    @Override
     protected CommandResult run(Scope scope) throws Exception {
         scope = setupScope(scope);
+        scope = setupDatabase(scope);
+
         ChangeLog changeLog = parseChangelog(scope);
 
         scope = setupLockService(scope);
@@ -121,15 +94,6 @@ public class UpdateCommand extends AbstractLiquibaseCommand<CommandResult> {
     }
 
     protected Scope setupScope(Scope scope) throws LiquibaseException {
-        scope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).connect(
-                url,
-                username,
-                password,
-                driver,
-                databaseClass,
-                null, //todo
-                null, //todo
-                scope));
         return scope;
     }
 

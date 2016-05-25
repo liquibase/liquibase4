@@ -36,6 +36,8 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         } else {
             node = parentNode.addChild(nodeName);
         }
+        node.sourceType = objectToConvert.getClass();
+
         for (String attr : objectToConvert.getAttributes()) {
             Object childValue = objectToConvert.get(attr, Object.class);
             if (childValue instanceof Collection) {
@@ -53,9 +55,10 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                 }
             } else {
                 if (childValue instanceof ExtensibleObject) {
-                    childValue = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childValue, objectToConvert.getClass(), attr, node, scope);
+                    scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childValue, objectToConvert.getClass(), attr, node, scope);
+                } else {
+                    node.addChild(attr).setValue(childValue);
                 }
-                node.addChild(attr).setValue(childValue);
             }
 
         }

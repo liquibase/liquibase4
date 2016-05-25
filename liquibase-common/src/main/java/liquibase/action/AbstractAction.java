@@ -3,6 +3,7 @@ package liquibase.action;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 import liquibase.util.StringUtil;
 
 /**
@@ -75,5 +76,13 @@ public abstract class AbstractAction extends AbstractExtensibleObject implements
      */
     public ParsedNodePreprocessor createPreprocessor() {
        return null;
+    }
+
+    /**
+     * Default implementation returns null.
+     */
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return null;
     }
 }

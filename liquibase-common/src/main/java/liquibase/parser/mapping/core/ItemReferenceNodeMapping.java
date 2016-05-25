@@ -17,46 +17,48 @@ public class ItemReferenceNodeMapping extends AbstractParsedNodeMapping<ItemRefe
 
     @Override
     public int getPriority(ParsedNode parsedNode, Class objectType, Type containerType, String containerAttribute, Scope scope) {
-        if ((ItemReference.class.equals(objectType) || DatabaseObjectReference.class.equals(objectType)) && containerType != null) { //only handle case when the objectType may not match the containerType
+        if (ItemReference.class.isAssignableFrom(objectType)) {
             return PRIORITY_SPECIALIZED;
-        } else {
-            return PRIORITY_NOT_APPLICABLE;
         }
+        return PRIORITY_NOT_APPLICABLE;
     }
 
     @Override
     protected ItemReference createObject(ParsedNode parsedNode, Class<ItemReference> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
-        String type = parsedNode.getChildValue("type", String.class, false);
-        if (type != null) {
-            if (Table.class.getName().equals(type) || View.class.getName().equals(type)) {
-                return new RelationReference();
-            } else if (Schema.class.getName().equals(type)) {
-                return new SchemaReference();
-            } else if (Catalog.class.getName().equals(type)) {
-                return new CatalogReference();
-            } else if (Column.class.getName().equals(type)) {
-                return new ColumnReference();
-            }
-        }
+        if ((ItemReference.class.equals(objectType) || DatabaseObjectReference.class.equals(objectType)) && containerType != null) { //only handle case when the objectType may not match the containerType
 
-        if (containerAttribute.equals("container")) {
-            if (containerType == null) {
-                return new ItemReference();
-            } else {
-                if (AbstractRelationBasedObject.RelationBasedObjectReference.class.isAssignableFrom(containerType)) {
+            String type = parsedNode.getChildValue("type", String.class, false);
+            if (type != null) {
+                if (Table.class.getName().equals(type) || View.class.getName().equals(type)) {
                     return new RelationReference();
-                } else if (AbstractSchemaBasedObject.SchemaBasedObjectReference.class.isAssignableFrom(containerType)) {
+                } else if (Schema.class.getName().equals(type)) {
                     return new SchemaReference();
-                } else if (AbstractCatalogBasedObject.CatalogBasedObjectReference.class.isAssignableFrom(containerType)) {
+                } else if (Catalog.class.getName().equals(type)) {
                     return new CatalogReference();
+                } else if (Column.class.getName().equals(type)) {
+                    return new ColumnReference();
                 }
             }
-        }
 
-        if (parsedNode.getName().equals("schema")) {
-            return new SchemaReference();
-        } else if (parsedNode.getName().equals("catalog")) {
-            return new CatalogReference();
+            if (containerAttribute.equals("container")) {
+                if (containerType == null) {
+                    return new ItemReference();
+                } else {
+                    if (AbstractRelationBasedObject.RelationBasedObjectReference.class.isAssignableFrom(containerType)) {
+                        return new RelationReference();
+                    } else if (AbstractSchemaBasedObject.SchemaBasedObjectReference.class.isAssignableFrom(containerType)) {
+                        return new SchemaReference();
+                    } else if (AbstractCatalogBasedObject.CatalogBasedObjectReference.class.isAssignableFrom(containerType)) {
+                        return new CatalogReference();
+                    }
+                }
+            }
+
+            if (parsedNode.getName().equals("schema")) {
+                return new SchemaReference();
+            } else if (parsedNode.getName().equals("catalog")) {
+                return new CatalogReference();
+            }
         }
         return super.createObject(parsedNode, objectType, containerType, containerAttribute, scope);
     }

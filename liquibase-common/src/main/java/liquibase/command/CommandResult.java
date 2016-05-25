@@ -1,6 +1,8 @@
 package liquibase.command;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
+import liquibase.exception.LiquibaseException;
 
 /**
  * Holds results of a {@link LiquibaseCommand} execution, including a message and whether the command succeeded or not.
@@ -29,5 +31,13 @@ public class CommandResult extends AbstractExtensibleObject {
     public CommandResult(String message, boolean succeeded) {
         this.message = message;
         this.succeeded = succeeded;
+    }
+
+    /**
+     * Return a string version of the result.
+     * Default implementation returns {@link #message} but subclasses can return string versions of stored objects like Snapshots etc.
+     */
+    public String print(Scope scope) throws LiquibaseException {
+        return this.message;
     }
 }

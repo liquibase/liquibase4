@@ -107,11 +107,9 @@ changeLog
                             name: schema_name
                             type: class liquibase.item.core.Schema
                             virtual: false
-                        container: ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}
                         name: table_name
                         type: class liquibase.item.core.Table
                         virtual: false
-                    relation: ParsedNode{relation, children=[ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}, ParsedNode{container=ParsedNode{container, children=[ParsedNode{name=schema_name}, ParsedNode{type=class liquibase.item.core.Schema}, ParsedNode{virtual=false}]}}, ParsedNode{name=table_name}, ParsedNode{type=class liquibase.item.core.Table}, ParsedNode{virtual=false}]}
             author: bob
             id: 1
             logicalPath: com/example/path

@@ -1,7 +1,6 @@
 package liquibase.command.core;
 
 import liquibase.ExecuteMode;
-import liquibase.ExtensibleObjectAttribute;
 import liquibase.Scope;
 import liquibase.action.AbstractSqlAction;
 import liquibase.action.Action;
@@ -20,18 +19,12 @@ import liquibase.listener.ChangeSetListener;
 import liquibase.util.LiquibaseUtil;
 import liquibase.util.StringUtil;
 
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
 public class UpdateSqlCommand extends UpdateCommand {
 
-    public PrintStream outputStream = System.out;
-
-    @ExtensibleObjectAttribute(description = "File to write SQL to")
-    public String outputFile;
+    StringBuilder sql = new StringBuilder();
 
     @Override
     public String getName() {
@@ -40,17 +33,11 @@ public class UpdateSqlCommand extends UpdateCommand {
 
     @Override
     protected CommandResult run(Scope scope) throws Exception {
-        if (outputFile != null) {
-            outputStream = new PrintStream(new FileOutputStream(outputFile));
+        CommandResult result = super.run(scope);
+        if (result.succeeded) {
+            return new UpdateSqlCommandResult(this.sql);
         }
-
-        try {
-            return super.run(scope);
-        } finally {
-            if (this.outputFile != null) {
-                outputStream.close();
-            }
-        }
+        return result;
     }
 
     @Override
@@ -70,7 +57,7 @@ public class UpdateSqlCommand extends UpdateCommand {
 
         scope.getSingleton(ActionExecutor.class).execute(commentAction, scope);
 
-        outputStream.println();
+        sql.append(scope.getLineSeparator());
 
         return scope;
     }
@@ -92,23 +79,23 @@ public class UpdateSqlCommand extends UpdateCommand {
 
             if (action instanceof AbstractSqlAction) {
                 if (!(action instanceof QuerySqlAction)) {
-                    outputStream.println(((AbstractSqlAction) action).sql.toString());
+                    sql.append(((AbstractSqlAction) action).sql.toString()).append(scope.getLineSeparator());
                 }
             } else if (action instanceof CommentAction) {
 
                 if (((CommentAction) action).header != null) {
-                    outputStream.println(lineComment + "*********************************************************************");
-                    outputStream.println(lineComment + ((CommentAction) action).header);
-                    outputStream.println(lineComment + "*********************************************************************");
+                    sql.append(lineComment).append("*********************************************************************").append(scope.getLineSeparator());;
+                    sql.append(lineComment + ((CommentAction) action).header).append(scope.getLineSeparator());
+                    sql.append(lineComment + "*********************************************************************").append(scope.getLineSeparator());;
                 }
 
                 String allComments = StringUtil.trimToEmpty(((CommentAction) action).comment);
                 for (String comment : StringUtil.splitAndTrim(allComments, "\n")) {
-                    outputStream.println(lineComment + comment);
+                    sql.append(lineComment + comment).append(scope.getLineSeparator());
                 }
 
                 if (((CommentAction) action).header != null && !allComments.equals("")) {
-                    outputStream.println(lineComment + "*********************************************************************");
+                    sql.append(lineComment + "*********************************************************************").append(scope.getLineSeparator());;
                 }
             }
 
@@ -123,7 +110,7 @@ public class UpdateSqlCommand extends UpdateCommand {
         public void willRun(ChangeSet changeSet, Scope scope) {
             try {
                 if (changeSetCount == 0) {
-                    outputStream.println();
+                    sql.append(scope.getLineSeparator());
                 }
                 scope.getSingleton(ActionExecutor.class).execute(new CommentAction("Changeset "+changeSet.getIdentifier()), scope);
             } catch (ActionPerformException e) {
@@ -133,7 +120,20 @@ public class UpdateSqlCommand extends UpdateCommand {
 
         @Override
         public void ran(ChangeSet changeSet, Scope scope) {
-            outputStream.println();
+            sql.append(scope.getLineSeparator());
+        }
+    }
+
+    public static class UpdateSqlCommandResult extends CommandResult {
+        public String sql;
+
+        public UpdateSqlCommandResult(StringBuilder sql) {
+            this.sql = sql.toString();
+        }
+
+        @Override
+        public String print(Scope scope) throws LiquibaseException {
+            return sql;
         }
     }
 }

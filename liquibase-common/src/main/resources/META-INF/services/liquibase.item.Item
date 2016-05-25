@@ -1,0 +1,13 @@
+liquibase.item.core.Catalog
+liquibase.item.core.CheckConstraint
+liquibase.item.core.Column
+liquibase.item.core.ForeignKey
+liquibase.item.core.Index
+liquibase.item.core.PrimaryKey
+liquibase.item.core.RowData
+liquibase.item.core.Schema
+liquibase.item.core.Sequence
+liquibase.item.core.StoredProcedure
+liquibase.item.core.Table
+liquibase.item.core.UniqueConstraint
+liquibase.item.core.View

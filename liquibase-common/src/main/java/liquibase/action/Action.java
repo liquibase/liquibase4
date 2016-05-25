@@ -5,6 +5,7 @@ import liquibase.Scope;
 import liquibase.action.core.AlterDefaultValueAction;
 import liquibase.parser.mapping.core.ActionNodeMapping;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 import liquibase.plugin.Plugin;
 
 /**
@@ -53,4 +54,11 @@ public interface Action extends ExtensibleObject, Plugin {
      * Can return null if no preprocessors are needed.
      */
     ParsedNodePreprocessor createPreprocessor();
+
+    /**
+     * Creates a custom {@link ParsedNodeUnprocessor} instance to setup in the {@link liquibase.parser.unprocessor.ParsedNodeUnprocessorFactory}.
+     * Because many action need to do custom unprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
+     * Can return null if no unprocessors are needed.
+     */
+    ParsedNodeUnprocessor createUnprocessor();
 }

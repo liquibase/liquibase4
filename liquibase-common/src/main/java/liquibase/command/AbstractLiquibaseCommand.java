@@ -1,8 +1,11 @@
 package liquibase.command;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.ObjectMetaData;
 import liquibase.Scope;
+import liquibase.ValidationErrors;
 import liquibase.exception.CommandExecutionException;
+import liquibase.util.ObjectUtil;
 
 import java.util.Objects;
 
@@ -19,6 +22,22 @@ public abstract class AbstractLiquibaseCommand<T extends CommandResult> extends 
             return PRIORITY_NOT_APPLICABLE;
         }
     }
+
+    /**
+     * Default implementation checks the {@link liquibase.ObjectMetaData.Attribute#required} metadata associated with each attribute from {@link #getObjectMetaData()}
+     */
+    @Override
+    public ValidationErrors validate(Scope scope) {
+        ValidationErrors validationErrors = new ValidationErrors(this);
+
+        for (ObjectMetaData.Attribute attr : getObjectMetaData().attributes) {
+            if (ObjectUtil.defaultIfNull(attr.required, false)) {
+                validationErrors.checkRequiredFields(attr.name);
+            }
+        }
+        return validationErrors;
+    }
+
 
     /**
      * Calls validate method and then {@link #run(Scope)}

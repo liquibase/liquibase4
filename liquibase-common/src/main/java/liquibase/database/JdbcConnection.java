@@ -15,7 +15,9 @@ import java.sql.*;
  * That being said, to simplify this class, not all java.sql.Connection methods are wrapped, only the major ones Liquibase and extension will probably use.
  */
 public class JdbcConnection extends AbstractExtensibleObject implements DatabaseConnection {
+
     private Connection connection;
+    protected boolean metaDataCallsSchemasCatalogs = false;
 
     public JdbcConnection(Connection connection) {
         if (connection == null) {
@@ -36,6 +38,7 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
         try {
             if (database instanceof AbstractJdbcDatabase) {
                 ((AbstractJdbcDatabase) database).reservedWords.addAll(StringUtil.splitAndTrim(getMetaData().getSQLKeywords().toUpperCase(), ","));
+                this.metaDataCallsSchemasCatalogs = ((AbstractJdbcDatabase) database).metaDataCallsSchemasCatalogs();
             }
         } catch (Exception e) {
             LoggerFactory.getLogger(getClass()).warn("Error fetching reserved words list from JDBC driver", e);
@@ -121,7 +124,11 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
     @Override
     public String getCatalog() throws DatabaseException {
         try {
-            return connection.getCatalog();
+            if (this.metaDataCallsSchemasCatalogs) {
+                return null;
+            } else {
+                return connection.getCatalog();
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -129,6 +136,9 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
 
     @Override
     public void setCatalog(String catalog) throws DatabaseException {
+        if (metaDataCallsSchemasCatalogs) {
+            throw new DatabaseException("Database doesn't support 'catalogs'");
+        }
         try {
             connection.setCatalog(catalog);
         } catch (SQLException e) {
@@ -140,7 +150,11 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
     @Override
     public String getSchema() throws DatabaseException {
         try {
-            return connection.getSchema();
+            if (this.metaDataCallsSchemasCatalogs) {
+                return connection.getCatalog();
+            } else {
+                return connection.getSchema();
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -149,7 +163,11 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
     @Override
     public void setSchema(String schema) throws DatabaseException {
         try {
-            connection.setSchema(schema);
+            if (this.metaDataCallsSchemasCatalogs) {
+                connection.setCatalog(schema);
+            } else {
+                connection.setSchema(schema);
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

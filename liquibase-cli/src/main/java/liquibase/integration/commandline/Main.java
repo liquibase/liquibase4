@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -54,7 +55,19 @@ public class Main {
 
     protected String defaultsFile = "./liquibase.properties";
 
-    protected PrintStream messageOutputStream = System.err;
+    protected PrintStream messageOutputStream = System.out;
+    private boolean customOutputStream = false;
+
+    public enum GlobalOptions {
+        logLevel,
+        help,
+        defaultsFile,
+        classpath,
+        includeSystemClasspath,
+        outputFile,
+        ;
+    }
+
 
     public Main(String[] originalArgs) {
         processOriginalArgs(originalArgs);
@@ -66,7 +79,7 @@ public class Main {
      */
     protected void processOriginalArgs(String[] originalArgs) {
         for (String arg : originalArgs) {
-            if (arg.startsWith("--defaultsFile=")) {
+            if (arg.startsWith("--"+GlobalOptions.defaultsFile+"=")) {
                 this.defaultsFile = arg.split("=", 2)[1];
             } else if (commandName == null && isCommand(arg)) {
                 commandName = arg;
@@ -87,11 +100,12 @@ public class Main {
      */
     protected Options getGlobalOptions(Scope rootScope) {
         Options options = new Options();
-        options.addOption(Option.builder().longOpt("help").desc("Output this message").hasArg(false).build());
-        options.addOption(Option.builder().longOpt("logLevel").desc("Execution log level. Possible values: OFF, ERROR, WARN, INFO, DEBUG").hasArg().build());
-        options.addOption(Option.builder().longOpt("defaultsFile").desc("File with default option values. Defaults to ./liquibase.properties").hasArg().build());
-        options.addOption(Option.builder().longOpt("classpath").desc("Classpath containing JDBC drivers and/or changelog files").hasArg().build());
-        options.addOption(Option.builder().longOpt("includeSystemClasspath").desc("Include system classpath in Liquibase classpath").hasArg().build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.help.name()).desc("Output this message").hasArg(false).build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.logLevel.name()).desc("Execution log level. Possible values: OFF, ERROR, WARN, INFO, DEBUG").hasArg().argName("level").build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.defaultsFile.name()).desc("File with default option values. Defaults to ./liquibase.properties").hasArg().argName("path").build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.classpath.name()).desc("Classpath containing JDBC drivers and/or changelog files").hasArg().build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.includeSystemClasspath.name()).desc("Include system classpath in Liquibase classpath").hasArg().build());
+        options.addOption(Option.builder().longOpt(GlobalOptions.outputFile.name()).desc("Send output to this file instead of stdout").hasArg().argName("path").build());
         return options;
     }
 
@@ -135,101 +149,112 @@ public class Main {
      * Called by {@link #main(String[])} to set up and execute the command.
      */
     protected void execute() {
-        ch.qos.logback.classic.Logger rootLogger = configureLogging();
-
-        Scope rootScope = new Scope(new ClassLoaderResourceAccessor(Main.class.getClassLoader()), new HashMap<String, Object>());
-
-        Options globalOptions = getGlobalOptions(rootScope);
-        Options commandOptions = null;
-
-
-        Logger log = LoggerFactory.getLogger(getClass());
         try {
-            if (commandName == null) {
-                if (globalArgs.size() == 1 && globalArgs.get(0).equals("--help")) {
-                    printHelp(globalOptions, null, rootScope);
-                    return;
-                } else {
-                    throw new org.apache.commons.cli.ParseException("No command set");
+            ch.qos.logback.classic.Logger rootLogger = configureLogging();
+
+            Scope rootScope = new Scope(new ClassLoaderResourceAccessor(Main.class.getClassLoader()), new HashMap<String, Object>());
+
+            Options globalOptions = getGlobalOptions(rootScope);
+            Options commandOptions = null;
+
+
+            Logger log = LoggerFactory.getLogger(getClass());
+            try {
+                if (commandName == null) {
+                    if (globalArgs.size() == 1 && globalArgs.get(0).equals("--"+GlobalOptions.help)) {
+                        printHelp(globalOptions, null, rootScope);
+                        return;
+                    } else {
+                        throw new ParseException("No command set");
+                    }
                 }
-            }
 
-            LiquibaseCommand command = rootScope.getSingleton(CommandFactory.class).getCommand(this.commandName, rootScope);
+                LiquibaseCommand command = rootScope.getSingleton(CommandFactory.class).getCommand(this.commandName, rootScope);
 
-            if (command == null) {
-                throw new org.apache.commons.cli.ParseException("Unknown command: " + commandName);
-            }
+                if (command == null) {
+                    throw new ParseException("Unknown command: " + commandName);
+                }
 
-            commandOptions = getCommandOptions(command, rootScope);
+                commandOptions = getCommandOptions(command, rootScope);
 
-            File defaultsFile = new File(this.defaultsFile);
-            if (defaultsFile.exists()) {
-                log.debug("Found defaultsFile " + this.defaultsFile + " at " + defaultsFile.getCanonicalPath());
-                try (FileInputStream stream = new FileInputStream(defaultsFile)) {
-                    Properties props = new Properties();
-                    props.load(stream);
+                File defaultsFile = new File(this.defaultsFile);
+                if (defaultsFile.exists()) {
+                    log.debug("Found defaultsFile " + this.defaultsFile + " at " + defaultsFile.getCanonicalPath());
+                    try (FileInputStream stream = new FileInputStream(defaultsFile)) {
+                        Properties props = new Properties();
+                        props.load(stream);
 
-                    for (Map.Entry entry : props.entrySet()) {
-                        log.debug("Found default property "+entry.getKey()+"="+entry.getValue());
-                        if (globalOptions.hasLongOption((String) entry.getKey())) {
-                            setUnlessAlreadySet(entry, globalArgs);
-                        } else if (commandOptions.hasLongOption((String) entry.getKey())) {
-                            setUnlessAlreadySet(entry, commandArgs);
-                        } else {
-                            log.info("DefaultsFile Property " + entry.getKey() + " in " + this.defaultsFile + " is not an argument for " + commandName);
+                        for (Map.Entry entry : props.entrySet()) {
+                            log.debug("Found default property "+entry.getKey()+"="+entry.getValue());
+                            if (globalOptions.hasLongOption((String) entry.getKey())) {
+                                setUnlessAlreadySet(entry, globalArgs);
+                            } else if (commandOptions.hasLongOption((String) entry.getKey())) {
+                                setUnlessAlreadySet(entry, commandArgs);
+                            } else {
+                                log.info("DefaultsFile Property " + entry.getKey() + " in " + this.defaultsFile + " is not an argument for " + commandName);
+                            }
                         }
                     }
+                } else {
+                    log.debug("Could not find defaultsFile " + this.defaultsFile + " at " + defaultsFile.getCanonicalPath());
                 }
-            } else {
-                log.debug("Could not find defaultsFile " + this.defaultsFile + " at " + defaultsFile.getCanonicalPath());
-            }
 
-            CommandLineParser parser = new DefaultParser();
-            CommandLine globalCommandLine = parser.parse(globalOptions, globalArgs.toArray(new String[globalArgs.size()]));
-            CommandLine commandCommandLine = parser.parse(commandOptions, commandArgs.toArray(new String[commandArgs.size()]));
+                CommandLineParser parser = new DefaultParser();
+                CommandLine globalCommandLine = parser.parse(globalOptions, globalArgs.toArray(new String[globalArgs.size()]));
+                CommandLine commandCommandLine = parser.parse(commandOptions, commandArgs.toArray(new String[commandArgs.size()]));
 
-            if (globalCommandLine.hasOption("logLevel")) {
-                rootLogger.setLevel(Level.valueOf(globalCommandLine.getOptionValue("logLevel")));
-            }
+                if (globalCommandLine.hasOption(GlobalOptions.logLevel.name())) {
+                    rootLogger.setLevel(Level.valueOf(globalCommandLine.getOptionValue(GlobalOptions.logLevel.name())));
+                }
+                if (globalCommandLine.hasOption(GlobalOptions.outputFile.name())) {
+                    this.messageOutputStream = new PrintStream(new FileOutputStream(globalCommandLine.getOptionValue(GlobalOptions.outputFile.name())));
+                    this.customOutputStream = true;
+                }
 
-            Scope scope = setupScope(globalCommandLine, commandCommandLine, rootScope);
+                Scope scope = setupScope(globalCommandLine, commandCommandLine, rootScope);
 
-            for (Option option : commandCommandLine.getOptions()) {
-                command.set(option.getLongOpt(), option.getValue());
-            }
+                for (Option option : commandCommandLine.getOptions()) {
+                    command.set(option.getLongOpt(), option.getValue());
+                }
 
-            ValidationErrors errors = command.validate(scope);
-            if (errors.hasErrors()) {
-                throw new LiquibaseException(errors.toString());
-            }
+                ValidationErrors errors = command.validate(scope);
+                if (errors.hasErrors()) {
+                    throw new LiquibaseException(errors.toString());
+                }
 
-            CommandResult result = command.execute(scope);
-            if (result.succeeded) {
-                messageOutputStream.println(result.message);
-            } else {
-                throw new LiquibaseException(result.message);
-            }
+                CommandResult result = command.execute(scope);
+                if (result.succeeded) {
+                    messageOutputStream.println(result.print(scope));
+                } else {
+                    throw new LiquibaseException(result.print(scope));
+                }
 
-        } catch (Exception e) {
-            if (e instanceof org.apache.commons.cli.ParseException) {
-                messageOutputStream.println("Error parsing Liquibase parameters: "+e.getMessage());
-                printHelp(globalOptions, commandOptions, rootScope);
-            } else {
-                log.error("Error running liquibase "+commandName, e);
-                String message = cleanExceptionClassFromMessage(e.getMessage());
+            } catch (Exception e) {
+                if (e instanceof ParseException) {
+                    messageOutputStream.println("Error parsing Liquibase parameters: "+e.getMessage());
+                    printHelp(globalOptions, commandOptions, rootScope);
+                } else {
+                    log.error("Error running liquibase "+commandName, e);
+                    String message = cleanExceptionClassFromMessage(e.getMessage());
 
 
-                Throwable cause = e.getCause();
-                while (cause != null) {
-                    String causeMessage = cleanExceptionClassFromMessage(cause.getMessage());
-                    if (causeMessage != null && !message.contains(causeMessage)) {
-                        message += "\n"+StringUtil.indent(message);
+                    Throwable cause = e.getCause();
+                    while (cause != null) {
+                        String causeMessage = cleanExceptionClassFromMessage(cause.getMessage());
+                        if (causeMessage != null && !message.contains(causeMessage)) {
+                            message += "\n"+StringUtil.indent(message);
+                        }
+                        cause = cause.getCause();
                     }
-                    cause = cause.getCause();
-                }
 
-                messageOutputStream.println("");
-                messageOutputStream.println("Error running liquibase "+commandName+": " + message);
+                    messageOutputStream.println("");
+                    messageOutputStream.println("Error running liquibase "+commandName+": " + message);
+                }
+            }
+        } finally {
+            if (customOutputStream) {
+                messageOutputStream.flush();
+                messageOutputStream.close();
             }
         }
 
@@ -266,8 +291,8 @@ public class Main {
     protected Scope setupScope(CommandLine globalCommandLine, CommandLine commandCommandLine, Scope rootScope) throws Exception {
         Scope scope = rootScope;
 
-        if (globalCommandLine.hasOption("classpath")) {
-            ClassLoader classLoader = createClassLoader(globalCommandLine.getOptionValue("classpath"), Boolean.valueOf(globalCommandLine.getOptionValue("includeSystemClasspath", "true")));
+        if (globalCommandLine.hasOption(GlobalOptions.classpath.name())) {
+            ClassLoader classLoader = createClassLoader(globalCommandLine.getOptionValue(GlobalOptions.classpath.name()), Boolean.valueOf(globalCommandLine.getOptionValue(GlobalOptions.includeSystemClasspath.name(), "true")));
             scope = scope.child(Scope.Attr.classLoader, classLoader);
             scope = scope.child(Scope.Attr.resourceAccessor, new ClassLoaderResourceAccessor(classLoader, Scope.class.getClassLoader())); //needs to include liquibase's classloader to find xsd files etc.
         }
@@ -330,7 +355,7 @@ public class Main {
         formatter.printHelp("Global Options:", globalOptions);
         messageOutputStream.println();
         messageOutputStream.println("Available commands: ");
-        messageOutputStream.println(StringUtil.indent(StringUtil.join(rootScope.getSingleton(CommandFactory.class).getAllCommandNames(), System.lineSeparator())));
+        messageOutputStream.println(StringUtil.indent(StringUtil.join(rootScope.getSingleton(CommandFactory.class).getAllCommandNames(), rootScope.getLineSeparator())));
         if (commandName != null) {
             messageOutputStream.println();
             if (commandOptions != null && commandOptions.getOptions().size() > 0) {

@@ -7,6 +7,7 @@ import liquibase.actionlogic.ActionLogic
 import liquibase.database.ConnectionSupplier
 import liquibase.database.Database
 import liquibase.diff.output.changelog.ActionGenerator
+import liquibase.item.Item
 import liquibase.item.TestItemSupplier
 import liquibase.item.datatype.DataTypeLogic
 import liquibase.parser.xml.XmlEntityResolver
@@ -45,6 +46,7 @@ public class CodeInspectorTest extends Specification {
                 ConnectionSupplier,
                 Database,
                 DataTypeLogic,
+                Item,
                 TestItemSupplier,
                 XmlEntityResolver,
                 ParsedNodeMapping,

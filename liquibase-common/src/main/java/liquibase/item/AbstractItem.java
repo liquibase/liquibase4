@@ -1,6 +1,7 @@
 package liquibase.item;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 
 /**
  * A convenience base class for {@link Item} implementations.
@@ -45,4 +46,13 @@ public abstract class AbstractItem<ReferenceType extends ItemReference> extends 
         return obj instanceof Item
                 && this.toReference().equals(((Item) obj).toReference());
     }
+
+    /**
+     * Default implementation returns null
+     */
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return null;
+    }
+
 }

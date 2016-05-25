@@ -196,6 +196,7 @@ OfflineConnection.class
 OsgiResourceAccessor.class
 ResourceAccessor.class
 Snapshot\$1.class
+Snapshot\$2.class
 Snapshot.class
 SnapshotFactory.class
 """.trim()

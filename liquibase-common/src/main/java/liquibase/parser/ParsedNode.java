@@ -38,6 +38,11 @@ public class ParsedNode extends AbstractExtensibleObject {
     private ParsedNode originalParent;
 
     /**
+     * The type of object this parsed node was unparsed from.
+     */
+    public Class sourceType;
+
+    /**
      * The name of the file this parsed node came from.
      */
     public String fileName;
@@ -165,6 +170,13 @@ public class ParsedNode extends AbstractExtensibleObject {
      */
     public Object getOriginalValue() {
         return originalValue;
+    }
+
+    /**
+     * Return true if there is no value and no children nodes.
+     */
+    public boolean isEmpty() {
+        return value == null && children.size() == 0;
     }
 
     /**
@@ -324,6 +336,18 @@ public class ParsedNode extends AbstractExtensibleObject {
      */
     public List<ParsedNode> getChildren(String nodeName, boolean recursive) {
         return getChildren(new ParsedNodeNameFilter(nodeName), recursive);
+    }
+
+    /**
+     * Convenience method for {@link #getChildren(ParsedNodeFilter, boolean)} to find nodes by their sourceType.
+     */
+    public List<ParsedNode> getChildren(final Class sourceType, boolean recursive) {
+        return getChildren(new ParsedNodeFilter() {
+            @Override
+            public boolean matches(ParsedNode node) {
+                return node.sourceType != null && sourceType.isAssignableFrom(node.sourceType);
+            }
+        }, recursive);
     }
 
     private void getChildren(ParsedNodeFilter filter, boolean recursive, List<ParsedNode> list) {
@@ -496,7 +520,6 @@ public class ParsedNode extends AbstractExtensibleObject {
     public void renameChildren(String oldName, String newName) {
         renameChildren(new ParsedNodeNameFilter(oldName), newName);
     }
-
 
     /**
      * Interface for finding parsed nodes.

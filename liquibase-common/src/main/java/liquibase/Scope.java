@@ -33,6 +33,7 @@ public class Scope {
         changeLogHistoryService,
         lockService,
         executeMode,
+        lineSeparator,
     }
 
     private Scope parent;
@@ -218,6 +219,11 @@ public class Scope {
     public ExecuteMode getExecuteMode() {
         return this.get(Scope.Attr.executeMode, ExecuteMode.READ_WRITE);
     }
+
+    public String getLineSeparator() {
+        return get(Attr.lineSeparator, System.lineSeparator());
+    }
+
 
     /**
      * Returns {@link LiquibaseListener}s defined in this scope and/or all its parents that are of the given type.

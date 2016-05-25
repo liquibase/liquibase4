@@ -2,14 +2,17 @@ package liquibase.command.core;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
-import liquibase.command.AbstractLiquibaseCommand;
+import liquibase.command.AbstractDatabaseCommand;
 import liquibase.command.CommandResult;
-import liquibase.item.core.*;
-import liquibase.snapshot.Snapshot;
-import liquibase.snapshot.SnapshotFactory;
+import liquibase.exception.LiquibaseException;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
+import liquibase.item.core.*;
+import liquibase.parser.UnparserFactory;
+import liquibase.snapshot.Snapshot;
+import liquibase.snapshot.SnapshotFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.Set;
 /**
  * Snapshots all objects related to {@link #relatedObjects}.
  */
-public class SnapshotCommand extends AbstractLiquibaseCommand<SnapshotCommand.SnapshotCommandResult> {
+public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.SnapshotCommandResult> {
 
     public Set<ItemReference> relatedObjects = new HashSet<>();
 
@@ -39,6 +42,8 @@ public class SnapshotCommand extends AbstractLiquibaseCommand<SnapshotCommand.Sn
     @Override
     protected SnapshotCommandResult run(Scope scope) throws Exception {
 
+        scope = setupDatabase(scope);
+
         Set<Class<? extends Item>> types = new HashSet((List) Arrays.asList(Table.class, View.class, ForeignKey.class, StoredProcedure.class)); //TODO: scope.getSingleton(DatabaseObjectFactory.class).getStandardTypes();
 
         if (scope.getDatabase().supports(Sequence.class, scope)) {
@@ -46,6 +51,13 @@ public class SnapshotCommand extends AbstractLiquibaseCommand<SnapshotCommand.Sn
         }
 
         Snapshot snapshot = new Snapshot(scope);
+
+        Set<ItemReference> relatedObjects = this.relatedObjects;
+        if (relatedObjects.size() == 0) {
+            SchemaReference schema = new SchemaReference(scope.getDatabase().getConnection().getSchema());
+            relatedObjects.add(schema);
+        }
+
 
         for (ItemReference related : relatedObjects) {
             for (Class type : types) {
@@ -70,6 +82,15 @@ public class SnapshotCommand extends AbstractLiquibaseCommand<SnapshotCommand.Sn
 
         public SnapshotCommandResult(Snapshot snapshot) {
             this.snapshot = snapshot;
+        }
+
+        @Override
+        public String print(Scope scope) throws LiquibaseException {
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            scope.getSingleton(UnparserFactory.class).unparse(this.snapshot, outputStream, "out.xml", scope);
+
+            return new String(outputStream.toByteArray());
         }
     }
 }

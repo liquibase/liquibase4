@@ -68,6 +68,22 @@ public class Snapshot extends AbstractExtensibleObject {
     }
 
     /**
+     * Returns the types of objects in this snapshot.
+     */
+    public SortedSet<Class<? extends Item>> getTypes() {
+        SortedSet<Class<? extends Item>> returnSet =  new TreeSet<>(new Comparator<Class<? extends Item>>() {
+            @Override
+            public int compare(Class<? extends Item> o1, Class<? extends Item> o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        returnSet.addAll(objects.keySet());
+
+        return Collections.unmodifiableSortedSet(returnSet);
+    }
+
+    /**
      * Returns all the objects in the snapshot of the given type.
      */
     public <T extends Item> Collection<T> get(Class<T> type) {
