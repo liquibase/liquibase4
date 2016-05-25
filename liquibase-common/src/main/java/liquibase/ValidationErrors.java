@@ -262,7 +262,7 @@ public class ValidationErrors {
         }
 
         if (hasWarnings()) {
-            string = StringUtil.join(getWarningMessages(), "; ", new StringUtil.StringUtilsFormatter() {
+            string = StringUtil.join(getWarningMessages(), "; ", new StringUtil.StringUtilFormatter() {
                 @Override
                 public String toString(Object obj) {
                     return "WARNING: " + obj;

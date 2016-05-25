@@ -86,7 +86,7 @@ public class ItemReference<ContainerReferenceType extends ItemReference> extends
         if (list.size() == 0) {
             returnString = "UNNAMED";
         } else {
-            returnString = StringUtil.join(list, ".", new StringUtil.StringUtilsFormatter<String>() {
+            returnString = StringUtil.join(list, ".", new StringUtil.StringUtilFormatter<String>() {
                 @Override
                 public String toString(String obj) {
                     return StringUtil.defaultIfEmpty(obj, "UNNAMED");

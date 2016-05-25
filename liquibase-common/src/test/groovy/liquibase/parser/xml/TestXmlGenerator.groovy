@@ -1,7 +1,6 @@
 package liquibase.parser.xml
 
 import liquibase.util.StringUtil
-import org.apache.commons.lang.StringUtils
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
@@ -97,7 +96,7 @@ class TestXmlGenerator {
 
         elementStack.add(nodeName);
 
-        String type = StringUtils.trimToNull(elementDefinition.getAttribute("type"));
+        String type = StringUtil.trimToNull(elementDefinition.getAttribute("type"));
         if (nodeName.equals("empty")) {
             //nothing in there
         } else if (type != null) {

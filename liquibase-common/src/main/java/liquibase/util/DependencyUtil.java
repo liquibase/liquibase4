@@ -2,7 +2,6 @@ package liquibase.util;
 
 import liquibase.DependencyObject;
 import liquibase.exception.DependencyException;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +62,7 @@ public abstract class DependencyUtil {
         graph.computeDependencies();
 
         if (log.isDebugEnabled()) {
-            log.debug("Final dependency order: "+ StringUtils.join(returnList, ", "));
+            log.debug("Final dependency order: "+ StringUtil.join(returnList, ", ", new StringUtil.ToStringFormatter()));
         }
         return returnList;
     }

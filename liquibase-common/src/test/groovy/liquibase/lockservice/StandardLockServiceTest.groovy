@@ -12,9 +12,9 @@ import liquibase.database.MockJdbcConnection
 import liquibase.database.core.MockDatabase
 import liquibase.item.core.Table
 import liquibase.snapshot.Snapshot
+import liquibase.util.StringUtil
 import spock.lang.Specification
 import spock.lang.Unroll
-import testmd.util.StringUtils
 
 class StandardLockServiceTest extends Specification {
 
@@ -51,7 +51,7 @@ class StandardLockServiceTest extends Specification {
         lockService.init(scope)
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
 
         where:
         [caseHandling, expected] << [
@@ -107,7 +107,7 @@ Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
         lockService.init(scope)
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
 
         where:
         [caseHandling, expected] << [
@@ -143,7 +143,7 @@ Execute snapshotItems(relatedTo=[DATABASECHANGELOGLOCK], typeToSnapshot=liquibas
         scope.get(Scope.Attr.lockService, LockService).forceReleaseLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
 
         where:
         [caseHandling, expected] << [
@@ -194,7 +194,7 @@ Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
         lockService.releaseLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
 
         where:
         [caseHandling, expected] << [
@@ -238,7 +238,7 @@ Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
         def currentLock = ((StandardLockService) scope.get(Scope.Attr.lockService, LockService)).getCurrentLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expected.trim()
         currentLock == null
 
         where:
@@ -272,7 +272,7 @@ Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
         def currentLock = lockService.getCurrentLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == expectedActions.trim()
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == expectedActions.trim()
         currentLock.id == 1
         assert currentLock.isOwner == isOwner
         currentLock.lockedBy == lockedBy
@@ -322,7 +322,7 @@ Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
         lockService.acquireLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == """
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == """
 Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.QuerySqlLogic
 Execute comment(comment=Lock Liquibase) with liquibase.actionlogic.core.CommentLogic
 Execute UPDATE `DATABASECHANGELOGLOCK` SET `LOCKED`='true', `LOCKGRANTED`=DATETIME(), `LOCKEDBY`='test machine' WHERE ID=1 AND LOCKED='false' with liquibase.actionlogic.core.UpdateSqlLogic
@@ -365,7 +365,7 @@ Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.Qu
         lockService.waitForLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == """Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.QuerySqlLogic
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == """Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.QuerySqlLogic
 Execute comment(comment=Lock Liquibase) with liquibase.actionlogic.core.CommentLogic
 Execute UPDATE `DATABASECHANGELOGLOCK` SET `LOCKED`='true', `LOCKGRANTED`=DATETIME(), `LOCKEDBY`='test machine' WHERE ID=1 AND LOCKED='false' with liquibase.actionlogic.core.UpdateSqlLogic
 Execute COMMIT with liquibase.actionlogic.core.ExecuteSqlLogic
@@ -410,7 +410,7 @@ Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.Qu
         lockService.waitForLock(scope);
 
         then:
-        StringUtils.join(executor.getExecutedPlans(), "\n", false) == """
+        StringUtil.join(executor.getExecutedPlans(), "\n", false) == """
 Execute SELECT * FROM `DATABASECHANGELOGLOCK` with liquibase.actionlogic.core.QuerySqlLogic
 Execute comment(comment=Lock Liquibase) with liquibase.actionlogic.core.CommentLogic
 Execute UPDATE `DATABASECHANGELOGLOCK` SET `LOCKED`='true', `LOCKGRANTED`=DATETIME(), `LOCKEDBY`='test machine' WHERE ID=1 AND LOCKED='false' with liquibase.actionlogic.core.UpdateSqlLogic

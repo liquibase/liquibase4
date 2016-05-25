@@ -374,7 +374,7 @@ public class ActionExecutor implements SingletonObject {
 
             @Override
             public String describe(final boolean longDescription) {
-                return StringUtil.pad(StringUtil.join(steps, "\n", new StringUtil.StringUtilsFormatter<Step>() {
+                return StringUtil.pad(StringUtil.join(steps, "\n", new StringUtil.StringUtilFormatter<Step>() {
                     @Override
                     public String toString(Step step) {
                         return step.describe(longDescription);

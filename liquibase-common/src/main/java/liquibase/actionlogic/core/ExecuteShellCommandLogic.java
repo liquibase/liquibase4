@@ -11,7 +11,7 @@ import liquibase.actionlogic.NoOpResult;
 import liquibase.database.Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.util.StreamUtil;
-import org.apache.commons.lang.StringUtils;
+import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -50,7 +50,7 @@ public class ExecuteShellCommandLogic extends AbstractActionLogic<ExecuteShellCo
     public ActionResult execute(ExecuteShellCommandAction action, Scope scope) throws ActionPerformException {
             String currentOS = System.getProperty("os.name");
             if (!osFilterMatches(action, currentOS)) {
-                String message = "Not executing on os " + currentOS + " when " + StringUtils.join(action.osFilters, ", ") + " was specified for osFilters";
+                String message = "Not executing on os " + currentOS + " when " + StringUtil.join(action.osFilters, ", ") + " was specified for osFilters";
                 LoggerFactory.getLogger(getClass()).info(message);
                 return new NoOpResult(action, message);
             }
@@ -126,7 +126,7 @@ public class ExecuteShellCommandLogic extends AbstractActionLogic<ExecuteShellCo
         LoggerFactory.getLogger(getClass()).debug(stdOutOut);
 
         if (returnCode != 0) {
-            throw new ActionPerformException(StringUtils.join(commandAndArgs, " ") + " returned an code of " + returnCode+"\n"+stdErrOut);
+            throw new ActionPerformException(StringUtil.join(commandAndArgs, " ") + " returned an code of " + returnCode+"\n"+stdErrOut);
         }
 
         return stdOutOut;

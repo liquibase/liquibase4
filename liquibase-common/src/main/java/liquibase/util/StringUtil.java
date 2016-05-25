@@ -37,7 +37,7 @@ public class StringUtil {
         }
     }
 
-    public static String join(Object[] array, String delimiter, StringUtilsFormatter formatter) {
+    public static String join(Object[] array, String delimiter, StringUtilFormatter formatter) {
         if (array == null) {
             return null;
         }
@@ -53,7 +53,7 @@ public class StringUtil {
 
     }
 
-    public static String join(Collection collection, String delimiter, StringUtilsFormatter formatter) {
+    public static String join(Collection collection, String delimiter, StringUtilFormatter formatter) {
         if (collection == null) {
             return null;
         }
@@ -71,7 +71,7 @@ public class StringUtil {
         return returnString.substring(0, returnString.length() - delimiter.length());
     }
 
-    public static String join(Collection collection, String delimiter, StringUtilsFormatter formatter, boolean sorted) {
+    public static String join(Collection collection, String delimiter, StringUtilFormatter formatter, boolean sorted) {
         if (sorted) {
             TreeSet<String> sortedSet = new TreeSet<>();
             for (Object obj : collection) {
@@ -94,7 +94,7 @@ public class StringUtil {
         return join(map, delimiter, new ToStringFormatter());
     }
 
-    public static String join(Map map, String delimiter, StringUtilsFormatter formatter) {
+    public static String join(Map map, String delimiter, StringUtilFormatter formatter) {
         List<String> list = new ArrayList<>();
         for (Map.Entry entry : (Set<Map.Entry>) map.entrySet()) {
             list.add(entry.getKey().toString() + "=" + formatter.toString(entry.getValue()));
@@ -106,7 +106,7 @@ public class StringUtil {
         return join(extensibleObject, delimiter, new ToStringFormatter());
     }
 
-    public static String join(ExtensibleObject extensibleObject, String delimiter, StringUtilsFormatter formatter) {
+    public static String join(ExtensibleObject extensibleObject, String delimiter, StringUtilFormatter formatter) {
         List<String> list = new ArrayList<>();
         for (String attribute : new TreeSet<>(extensibleObject.getAttributes())) {
             String formattedValue = formatter.toString(extensibleObject.get(attribute, Object.class));
@@ -237,11 +237,11 @@ public class StringUtil {
         }
     }
 
-    public interface StringUtilsFormatter<Type> {
+    public interface StringUtilFormatter<Type> {
         String toString(Type obj);
     }
 
-    public static class ToStringFormatter implements StringUtilsFormatter {
+    public static class ToStringFormatter implements StringUtilFormatter {
         @Override
         public String toString(Object obj) {
             if (obj == null) {
@@ -251,7 +251,7 @@ public class StringUtil {
         }
     }
 
-    public static class DefaultFormatter implements StringUtilsFormatter {
+    public static class DefaultFormatter implements StringUtilFormatter {
         @Override
         public String toString(Object obj) {
             if (obj == null) {
@@ -276,7 +276,7 @@ public class StringUtil {
         }
     }
 
-    public static class DatabaseObjectNameFormatter implements StringUtilsFormatter {
+    public static class DatabaseObjectNameFormatter implements StringUtilFormatter {
 
         private Database database;
         private Class<? extends DatabaseObject> objectType;

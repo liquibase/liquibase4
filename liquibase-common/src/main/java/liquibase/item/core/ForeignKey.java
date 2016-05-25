@@ -21,7 +21,7 @@ public class ForeignKey extends AbstractRelationBasedObject<ForeignKeyReference>
     public ReferentialAction updateRule;
     public ReferentialAction deleteRule;
 
-    private static final StringUtil.StringUtilsFormatter DEFAULT_COLUMN_CHECK_FORMATTER = new StringUtil.StringUtilsFormatter<ForeignKeyColumnCheck>() {
+    private static final StringUtil.StringUtilFormatter DEFAULT_COLUMN_CHECK_FORMATTER = new StringUtil.StringUtilFormatter<ForeignKeyColumnCheck>() {
         @Override
         public String toString(ForeignKeyColumnCheck obj) {
             return obj.baseColumn + "->" + obj.referencedColumn;

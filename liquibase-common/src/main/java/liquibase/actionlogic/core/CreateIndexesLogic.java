@@ -164,7 +164,7 @@ public class CreateIndexesLogic extends AbstractActionLogic<CreateIndexesAction>
 
         clauses.append(Clauses.tableName, database.quoteObjectName(tableName, scope));
 
-        clauses.append(Clauses.columns, "(" + StringUtil.join(index.columns, ", ", new StringUtil.StringUtilsFormatter<Index.IndexedColumn>() {
+        clauses.append(Clauses.columns, "(" + StringUtil.join(index.columns, ", ", new StringUtil.StringUtilFormatter<Index.IndexedColumn>() {
             @Override
             public String toString(Index.IndexedColumn column) {
                 Boolean computed = column.computed;

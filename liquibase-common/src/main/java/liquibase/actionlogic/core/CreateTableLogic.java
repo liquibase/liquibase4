@@ -179,7 +179,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 //        }
 
 
-//        if (StringUtils.trimToNull(tablespace) != null && database.supportsTablespaces()) {
+//        if (StringUtil.trimToNull(tablespace) != null && database.supportsTablespaces()) {
 //            if (database instanceof MSSQLDatabase) {
 //                buffer.append(" ON ").append(tablespace);
 //            } else if (database instanceof DB2Database) {
@@ -238,7 +238,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
 //                    isSinglePrimaryKeyColumn &&
 //                    isPrimaryKeyColumn &&
 //                    isAutoIncrementColumn) {
-//                String pkName = StringUtils.trimToNull(statement.getPrimaryKeyConstraint().getConstraintName());
+//                String pkName = StringUtil.trimToNull(statement.getPrimaryKeyConstraint().getConstraintName());
 //                if (pkName == null) {
 //                    pkName = database.generatePrimaryKeyName(statement.getTableName());
 //                }

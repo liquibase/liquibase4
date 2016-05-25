@@ -7,7 +7,6 @@ import liquibase.parser.ParsedNode;
 import liquibase.parser.mapping.ParsedNodeMapping;
 import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
 
@@ -34,7 +33,7 @@ public class PlainObjectParsedNodeMapping implements ParsedNodeMapping {
     public Object toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         try {
             if (parsedNode.getChildren().size() > 0) {
-                throw new ParseException("Unexpected attribute(s) " + StringUtil.join(parsedNode.getChildren(), ", ", new StringUtil.StringUtilsFormatter<ParsedNode>() {
+                throw new ParseException("Unexpected attribute(s) " + StringUtil.join(parsedNode.getChildren(), ", ", new StringUtil.StringUtilFormatter<ParsedNode>() {
                     @Override
                     public String toString(ParsedNode obj) {
                         return "'"+obj.getName()+"'";

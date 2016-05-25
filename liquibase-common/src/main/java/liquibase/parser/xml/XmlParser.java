@@ -4,10 +4,7 @@ import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.AbstractParser;
 import liquibase.parser.ParsedNode;
-import liquibase.resource.InputStreamList;
-import liquibase.util.ObjectUtil;
 import liquibase.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.*;
@@ -18,7 +15,10 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Standard parser for XML files. Expects files to have a .xml extension.
@@ -252,7 +252,7 @@ public class XmlParser extends AbstractParser {
             ParsedNode node = nodeQueue.pop();
 
             String seenText = this.text.toString();
-            if (StringUtils.trimToNull(seenText) != null) {
+            if (StringUtil.trimToNull(seenText) != null) {
                 node.setValue(seenText.trim());
             }
             text = new StringBuilder();

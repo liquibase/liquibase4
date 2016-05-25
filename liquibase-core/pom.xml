@@ -179,11 +179,6 @@
 
         <dependency>
             <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-cli</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.liquibase</groupId>
             <artifactId>liquibase-h2</artifactId>
             <version>${project.version}</version>
         </dependency>

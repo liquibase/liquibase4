@@ -148,7 +148,7 @@ public class AddUniqueConstraintsLogic extends AbstractActionLogic<AddUniqueCons
                 .append("CONSTRAINT")
                 .append(AddUniqueConstraintsLogic.Clauses.constraintName, constrantName)
                 .append("UNIQUE")
-                .append(Clauses.columnNames, "(" + StringUtil.join(uniqueConstraint.columns, ", ", new StringUtil.StringUtilsFormatter<String>() {
+                .append(Clauses.columnNames, "(" + StringUtil.join(uniqueConstraint.columns, ", ", new StringUtil.StringUtilFormatter<String>() {
                     @Override
                     public String toString(String obj) {
                         return database.quoteObjectName(obj, Column.class, scope);

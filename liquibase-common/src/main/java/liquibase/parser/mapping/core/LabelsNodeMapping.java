@@ -5,7 +5,7 @@ import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.mapping.ParsedNodeMapping;
-import org.apache.commons.lang.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.lang.reflect.Type;
 
@@ -27,7 +27,7 @@ public class LabelsNodeMapping implements ParsedNodeMapping {
     @Override
     public Object toObject(ParsedNode parsedNode, Class objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         String value = parsedNode.getValue(null, String.class);
-        if (StringUtils.trimToNull(value) == null) {
+        if (StringUtil.trimToNull(value) == null) {
             return null;
         }
         return new Labels(value);

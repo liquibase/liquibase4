@@ -1,7 +1,6 @@
 package liquibase;
 
 import liquibase.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.SortedSet;
@@ -68,7 +67,7 @@ public class ObjectMetaData {
 
         @Override
         public int compareTo(Attribute o) {
-            return StringUtils.trimToEmpty(this.name).compareTo(StringUtil.trimToEmpty(o.name));
+            return StringUtil.trimToEmpty(this.name).compareTo(StringUtil.trimToEmpty(o.name));
         }
 
         @Override

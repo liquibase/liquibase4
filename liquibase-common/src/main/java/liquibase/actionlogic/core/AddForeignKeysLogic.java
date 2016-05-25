@@ -125,7 +125,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                 .append("CONSTRAINT")
                 .append(AddForeignKeysLogic.Clauses.constraintName, constrantName)
                 .append("FOREIGN KEY")
-                .append(Clauses.baseColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
+                .append(Clauses.baseColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
                         return database.quoteObjectName(obj.baseColumn, Column.class, scope);
@@ -133,7 +133,7 @@ public class AddForeignKeysLogic extends AbstractActionLogic<AddForeignKeysActio
                 }) + ")")
                 .append("REFERENCES")
                 .append(Clauses.referencedTableName, database.quoteObjectName(foreignKey.referencedTable, scope))
-                .append(Clauses.referencedColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilsFormatter<ForeignKey.ForeignKeyColumnCheck>() {
+                .append(Clauses.referencedColumnNames, "(" + StringUtil.join(foreignKey.columnChecks, ", ", new StringUtil.StringUtilFormatter<ForeignKey.ForeignKeyColumnCheck>() {
                     @Override
                     public String toString(ForeignKey.ForeignKeyColumnCheck obj) {
                         return database.quoteObjectName(obj.referencedColumn, Column.class, scope);

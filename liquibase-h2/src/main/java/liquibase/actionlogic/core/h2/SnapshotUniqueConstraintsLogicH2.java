@@ -12,7 +12,7 @@ import liquibase.database.core.h2.H2Database;
 import liquibase.exception.ActionPerformException;
 import liquibase.item.DatabaseObjectReference;
 import liquibase.item.core.UniqueConstraint;
-import org.apache.velocity.util.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class SnapshotUniqueConstraintsLogicH2 extends SnapshotUniqueConstraintsL
     protected UniqueConstraint convertToObject(Object object, DatabaseObjectReference relatedTo, SnapshotItemsAction originalAction, Scope scope) throws ActionPerformException {
         UniqueConstraint returnObject = super.convertToObject(object, relatedTo, originalAction, scope);
 
-        returnObject.columns = Arrays.asList(StringUtils.split(((RowBasedQueryResult.Row) object).get("COLUMN_LIST", String.class), ","));
+        returnObject.columns = StringUtil.splitAndTrim(((RowBasedQueryResult.Row) object).get("COLUMN_LIST", String.class), ",");
 
         return returnObject;
     }
