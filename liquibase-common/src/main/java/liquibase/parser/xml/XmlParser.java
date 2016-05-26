@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Standard parser for XML files. Expects files to have a .xml extension.
@@ -27,7 +25,6 @@ import java.util.TreeSet;
 public class XmlParser extends AbstractParser {
 
     private SAXParserFactory saxParserFactory;
-    public static final String XML_ATTRIBUTE_PROPERTY = "xmlAttribute";
 
     public XmlParser() {
         saxParserFactory = SAXParserFactory.newInstance();
@@ -101,35 +98,12 @@ public class XmlParser extends AbstractParser {
         }
     }
 
+    /**
+     * Default implementation calls {@link XmlUnparser#describeOriginal(ParsedNode)}
+     */
     @Override
     public String describeOriginal(ParsedNode parsedNode) {
-        String returnString = "";
-        ParsedNode nodeToPrint = parsedNode;
-        if (parsedNode.get(XML_ATTRIBUTE_PROPERTY, false)) {
-            nodeToPrint = parsedNode.getOriginalParent();
-        }
-
-        while (nodeToPrint != null) {
-            SortedSet<String> parentAttributes = new TreeSet<>();
-            for (ParsedNode maybeAttr : nodeToPrint.getChildren()) {
-                if (maybeAttr.get(XML_ATTRIBUTE_PROPERTY, false)) {
-                    parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.getValue() + "\"");
-                }
-            }
-
-            String nodeString = "<" + nodeToPrint.getOriginalName()
-                    + (parentAttributes.size() == 0 ? "" : " " + StringUtil.join(parentAttributes, " "))
-                    + ">";
-            if (returnString.isEmpty()) {
-                returnString += "near " + nodeString;
-            } else {
-                returnString += "\n" + StringUtil.indent("in " + nodeString);
-            }
-
-            nodeToPrint = nodeToPrint.getOriginalParent();
-        }
-
-        return returnString;
+        return new XmlUnparser().describeOriginal(parsedNode);
     }
 
     /**
@@ -237,7 +211,7 @@ public class XmlParser extends AbstractParser {
                         child.lineNumber = locator.getLineNumber();
                         child.columnNumber = locator.getColumnNumber();
                     }
-                    child.set("xmlAttribute", true);
+                    child.addMarker(ParsedNode.Marker.isAttribute);
 
                 }
             }

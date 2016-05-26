@@ -18,7 +18,7 @@ public class ChangeSetUnprocessor extends AbstractParsedNodeUnprocessor {
     @Override
     public void unprocess(ParsedNode node, Scope scope) throws ParseException {
         for (ParsedNode changeSet : node.getChildren("changeSet", false)) {
-            markChildrenAsXmlAttributes(changeSet, "id", "author");
+            markChildrenAsAttributes(changeSet, "id", "author");
 
             changeSet.removeChildren("logicalPath");
         }

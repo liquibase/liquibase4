@@ -52,4 +52,4 @@
 | e7202f2     | true     | stop                         | **output**: ChangeLog{changeLogEntries=[ChangeSet{actions=[throwException(exception=liquibase.action.core.ThrowExceptionAction$ThrowExceptionActionException: text for stop)], author=tester, id=1, runInTransaction=true}], physicalPath=com/example/test.xml}
 | bc7367f     | true     | update                       | **output**: ChangeLog{changeLogEntries=[ChangeSet{actions=[updateData(columns=[UpdatedColumn{name=a string for name, value=a string for value}], relation=a string for catalogName.a string for schemaName.a string for tableName, where=text for where)], author=tester, id=1, runInTransaction=true}], physicalPath=com/example/test.xml}
 
-# Test Version: "7bbf02" #
+# Test Version: "858d35" #

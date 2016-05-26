@@ -1,5 +1,6 @@
 package liquibase.command.core;
 
+import liquibase.ExtensibleObjectAttribute;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.command.AbstractDatabaseCommand;
@@ -24,6 +25,10 @@ import java.util.Set;
 public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.SnapshotCommandResult> {
 
     public Set<ItemReference> relatedObjects = new HashSet<>();
+
+    @ExtensibleObjectAttribute(description = "Format to output snapshot as. Defaults to 'xml'", required = true)
+    public String snapshotFormat = "xml";
+
 
     public SnapshotCommand() {
     }
@@ -73,7 +78,7 @@ public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.Sna
         return new ValidationErrors(this);
     }
 
-    public static class SnapshotCommandResult extends CommandResult {
+    public class SnapshotCommandResult extends CommandResult {
 
         public Snapshot snapshot;
 
@@ -88,7 +93,7 @@ public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.Sna
         public String print(Scope scope) throws LiquibaseException {
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            scope.getSingleton(UnparserFactory.class).unparse(this.snapshot, outputStream, "out.xml", scope);
+            scope.getSingleton(UnparserFactory.class).unparse(this.snapshot, outputStream, "out."+snapshotFormat, scope);
 
             return new String(outputStream.toByteArray());
         }

@@ -27,7 +27,7 @@ public class Table extends Relation {
             @Override
             public void unprocess(ParsedNode node, Scope scope) throws ParseException {
                 for (ParsedNode tableName : node.getChildren(Table.class, true)) {
-                    markChildrenAsXmlAttributes(tableName, "name");
+                    markChildrenAsAttributes(tableName, "name");
                 }
             }
         };

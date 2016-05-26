@@ -35,6 +35,8 @@ public class ChangeSetPreprocessor extends AbstractParsedNodePreprocessor {
             changeSet.renameChildren("label", "labels");
             changeSet.removeChildren("empty");
 
+            changeSet.renameChildren("changes", "actions");
+
             ParsedNode actions = changeSet.getChild("actions", true);
 
             for (ParsedNode possibleAction : changeSet.getChildren()) {

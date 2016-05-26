@@ -164,4 +164,25 @@ class ParserFactoryTest extends Specification {
 
     }
 
+    def "can build changelog from simple 3.x-style yaml"() {
+        when:
+        resourceAccessor.addData("com/example/path.yaml", """
+databaseChangeLog:
+    - changeSet:
+        id: 1
+        author: bob
+        changes:
+            - addColumn:
+                tableName: test_table
+                columns:
+                    column:
+                        name: test_col
+                        type: int
+""".trim())
+
+        then:
+        scope.getSingleton(ParserFactory).parse("com/example/path.yaml", ChangeLog, scope).describe() == "ChangeLog{changeLogEntries=[ChangeSet{actions=[addColumns(columns=[Column{name=test_col, relation=test_table, type=int}])], author=bob, id=1}], physicalPath=com/example/path.yaml}"
+    }
+
+
 }

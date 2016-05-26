@@ -75,7 +75,7 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
             if (problemNode != null && problemNode.lineNumber != null) {
                 parseErrorMessage += " line " + problemNode.lineNumber;
                 if (problemNode.columnNumber != null) {
-                    parseErrorMessage = parseErrorMessage + ", column " + problemNode.columnNumber;
+                    parseErrorMessage = parseErrorMessage + ", column" + problemNode.columnNumber;
                 }
             }
 
@@ -85,7 +85,7 @@ public class ParserFactory extends AbstractPluginFactory<Parser> {
             }
 
             if (near == null) {
-                message = parseErrorMessage + message;
+                message = parseErrorMessage + " " + message;
             } else {
                 message = parseErrorMessage + "\n" + StringUtil.indent(near + "\n\n" + message);
             }

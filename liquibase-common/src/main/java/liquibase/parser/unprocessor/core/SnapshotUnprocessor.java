@@ -10,7 +10,7 @@ public class SnapshotUnprocessor extends AbstractParsedNodeUnprocessor {
     public void unprocess(ParsedNode node, Scope scope) throws ParseException {
         if (node.getName().equals("snapshot")) {
             for (ParsedNode items : node.getChildren("items", false)) {
-                markChildrenAsXmlAttributes(items, "type");
+                markChildrenAsAttributes(items, "type");
             }
         }
     }

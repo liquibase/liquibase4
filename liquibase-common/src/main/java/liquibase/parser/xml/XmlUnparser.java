@@ -12,6 +12,8 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Standard {@link liquibase.parser.Unparser} for XML files. Expects files to have an .xml extension.
@@ -49,12 +51,7 @@ public class XmlUnparser extends AbstractUnparser {
         List<ParsedNode> childAttributes = new ArrayList<>();
 
         for (ParsedNode child : node.getChildren()) {
-            if (child.getName().equals(XmlParser.XML_ATTRIBUTE_PROPERTY)) {
-                continue;
-            }
-
-            ParsedNode xmlAttrNode = child.getChild(XmlParser.XML_ATTRIBUTE_PROPERTY, false);
-            if (xmlAttrNode != null && xmlAttrNode.getValue(false, Boolean.class)) {
+            if (child.hasMarker(ParsedNode.Marker.isAttribute)) {
                 childAttributes.add(child);
             } else {
                 childElements.add(child);
@@ -102,5 +99,36 @@ public class XmlUnparser extends AbstractUnparser {
             writer.writeEndElement();
         }
 
+    }
+
+    @Override
+    public String describeOriginal(ParsedNode parsedNode) {
+        String returnString = "";
+        ParsedNode nodeToPrint = parsedNode;
+        if (parsedNode.hasMarker(ParsedNode.Marker.isAttribute)) {
+            nodeToPrint = parsedNode.getOriginalParent();
+        }
+
+        while (nodeToPrint != null) {
+            SortedSet<String> parentAttributes = new TreeSet<>();
+            for (ParsedNode maybeAttr : nodeToPrint.getChildren()) {
+                if (maybeAttr.hasMarker(ParsedNode.Marker.isAttribute)) {
+                    parentAttributes.add(maybeAttr.getOriginalName() + "=\"" + maybeAttr.getValue() + "\"");
+                }
+            }
+
+            String nodeString = "<" + nodeToPrint.getOriginalName()
+                    + (parentAttributes.size() == 0 ? "" : " " + StringUtil.join(parentAttributes, " "))
+                    + ">";
+            if (returnString.isEmpty()) {
+                returnString += "near " + nodeString;
+            } else {
+                returnString += "\n" + StringUtil.indent("in " + nodeString);
+            }
+
+            nodeToPrint = nodeToPrint.getOriginalParent();
+        }
+
+        return returnString;
     }
 }

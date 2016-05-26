@@ -16,7 +16,7 @@ public class ItemReferenceUnprocessor extends AbstractParsedNodeUnprocessor {
                 refNode.removeChildren("virtual");
             }
 
-            markChildrenAsXmlAttributes(refNode, "name", "type");
+            markChildrenAsAttributes(refNode, "name", "type");
 
             String type = refNode.getChildValue("type", String.class, false);
             if (type != null && refNode.sourceType != null && refNode.sourceType.getSimpleName().replaceFirst("Reference$", "").equalsIgnoreCase(refNode.getName())) {

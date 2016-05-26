@@ -27,6 +27,18 @@ import java.util.*;
  */
 public class ParsedNode extends AbstractExtensibleObject {
 
+    /**
+     * Convenience enum for available {@link #addMarker(Marker)} options.
+     */
+    public enum Marker {
+
+        /**
+         * If set and supported by a parser/unparser, the node was/should be represented as an attribute.
+         * For example, in xml the node should be represented as name="value" instead of &lt;name&gt;value&lt;/name&gt;
+         */
+        isAttribute
+    }
+
     //these values are private so that they are managed through business logic to maintain references
     private ParsedNode parent;
     private List<ParsedNode> children = new ArrayList<>();
@@ -36,6 +48,8 @@ public class ParsedNode extends AbstractExtensibleObject {
     private String originalName;
     private Object originalValue;
     private ParsedNode originalParent;
+
+    private Set<String> markers = new HashSet<>();
 
     /**
      * The type of object this parsed node was unparsed from.
@@ -231,6 +245,55 @@ public class ParsedNode extends AbstractExtensibleObject {
     }
 
 
+    /**
+     * Convenience method for {@link #addMarker(String)} using standard markers
+     */
+    public ParsedNode addMarker(Marker marker) {
+        return addMarker(marker.name());
+    }
+
+    /**
+     * Adds a marker to this parsed node.
+     * Markers are not treated as child nodes or output, but can be used to control how a node is output and/or managed.
+     *
+     * @see {@link liquibase.parser.ParsedNode.Marker} for standard options
+     * @see {@link #addMarker(Marker)}
+     */
+    public ParsedNode addMarker(String marker) {
+        this.markers.add(marker);
+        return this;
+    }
+
+
+    /**
+     * Convenience method for {@link #removeMarker(String)} using standard markers
+     */
+    public ParsedNode removeMarker(Marker marker) {
+        return removeMarker(marker.name());
+    }
+
+    /**
+     * Removes a marker from this parsed node. If the marker is not currently set, does nothing.
+     */
+    public ParsedNode removeMarker(String marker) {
+        this.markers.remove(marker);
+        return this;
+    }
+
+
+    /**
+     * Convenience method for {@link #hasMarker(String)} using standard markers
+     */
+    public boolean hasMarker(Marker marker) {
+        return hasMarker(marker.name());
+    }
+
+    /**
+     * Return true if the given marker has been set on this node.
+     */
+    public boolean hasMarker(String marker) {
+        return this.markers.contains(marker);
+    }
 
     /**
      * Creates a new child node with the given name and adds it to this object's children.
@@ -512,6 +575,13 @@ public class ParsedNode extends AbstractExtensibleObject {
             }
         }
 
+    }
+
+    @Override
+    public Object clone() {
+        ParsedNode clone = (ParsedNode) super.clone();
+        clone.markers.addAll(this.markers);
+        return clone;
     }
 
     /**

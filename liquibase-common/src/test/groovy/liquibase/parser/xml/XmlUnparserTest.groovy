@@ -43,17 +43,9 @@ class XmlUnparserTest extends Specification {
 """],
 
                 //------
-                [[child: "child value"], {root -> ((ParsedNode) root).getChild("child", false).addChild(XmlParser.XML_ATTRIBUTE_PROPERTY).setValue(true)}, """
+                [[child: "child value"], {root -> ((ParsedNode) root).getChild("child", false).addMarker(ParsedNode.Marker.isAttribute)}, """
 <?xml version="1.1" encoding="utf-8"?>
 <root child="child value"/>
-"""],
-
-                //------
-                [[child: "child value"], {root -> ((ParsedNode) root).getChild("child", false).addChild(XmlParser.XML_ATTRIBUTE_PROPERTY).setValue(false)}, """
-<?xml version="1.1" encoding="utf-8"?>
-<root>
-    <child>child value</child>
-</root>
 """],
 
                 //------

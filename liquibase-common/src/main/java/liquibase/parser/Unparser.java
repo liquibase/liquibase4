@@ -24,4 +24,11 @@ public interface Unparser extends Plugin, ExtensibleObject, SingletonObject {
      */
     void unparse(ParsedNode node, OutputStream output, Scope scope) throws ParseException;
 
+    /**
+     * Outputs a pseudo version of the original version of the given parsedNode.
+     * Used for error messages and other times Liquibase needs to direct users to the original version of a parsed node,
+     * especially when there are no original line numbers stored.
+     */
+    String describeOriginal(ParsedNode parsedNode);
+
 }
