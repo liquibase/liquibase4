@@ -1,2 +1,3 @@
+liquibase.parser.json.JsonParser
 liquibase.parser.xml.XmlParser
 liquibase.parser.yaml.YamlParser

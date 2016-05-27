@@ -23,6 +23,7 @@ derby.log
 
 /tmp.txt
 /tmp.xml
+/tmp.json
 
 /liquibase-core/dependency-reduced-pom.xml
 /liquibase-tests/dependency-reduced-pom.xml

@@ -93,7 +93,7 @@ public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.Sna
         public String print(Scope scope) throws LiquibaseException {
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            scope.getSingleton(UnparserFactory.class).unparse(this.snapshot, outputStream, "out."+snapshotFormat, scope);
+            scope.getSingleton(UnparserFactory.class).unparse(this.snapshot, outputStream, "stdout."+snapshotFormat, scope);
 
             return new String(outputStream.toByteArray());
         }

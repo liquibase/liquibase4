@@ -82,4 +82,10 @@ public class YamlParser extends AbstractParser {
             parent.setValue(value);
         }
     }
+
+    @Override
+    public String describeOriginal(ParsedNode parsedNode) {
+        return new YamlUnparser().describeOriginal(parsedNode);
+    }
+
 }

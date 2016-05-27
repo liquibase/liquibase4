@@ -35,21 +35,14 @@ public class YamlUnparser extends AbstractUnparser {
     }
 
     protected Yaml createYaml() {
-//        if (isJson()) {
-//            DumperOptions dumperOptions = new DumperOptions();
-//            dumperOptions.setPrettyFlow(true);
-//            dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
-//            dumperOptions.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
-//            dumperOptions.setWidth(Integer.MAX_VALUE);
-//
-//            return new Yaml(getLiquibaseRepresenter(), dumperOptions);
-//        }
+        return new Yaml(createDumperOptions());
+    }
 
-
+    protected DumperOptions createDumperOptions() {
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setIndent(4);
         dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        return new Yaml(dumperOptions);
+        return dumperOptions;
     }
 
     @Override
@@ -58,7 +51,6 @@ public class YamlUnparser extends AbstractUnparser {
         outputMap.put(node.getName(), getChildren(node));
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output))) {
-
             writer.write(yaml.dumpAsMap(outputMap));
             writer.write(scope.getLineSeparator());
             writer.flush();
@@ -68,7 +60,7 @@ public class YamlUnparser extends AbstractUnparser {
 
     }
 
-    private Object getChildren(ParsedNode node) throws ParseException {
+    protected Object getChildren(ParsedNode node) throws ParseException {
         if (node.getChildren().size() == 0) {
             return node.getValue();
         } else {
@@ -101,10 +93,5 @@ public class YamlUnparser extends AbstractUnparser {
                 return returnMap;
             }
         }
-    }
-
-    @Override
-    public String describeOriginal(ParsedNode parsedNode) {
-        return new YamlParser().describeOriginal(parsedNode);
     }
 }

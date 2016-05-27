@@ -58,8 +58,7 @@ public class UnparserFactory extends AbstractPluginFactory<Unparser> {
             throw new ParseException("No outputStream set", null);
         }
         try {
-            ParsedNode rootNode = ParsedNode.createRootNode("rootPlaceHolder");
-            ParsedNode parsedObject = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(object, null, null, rootNode, scope);
+            ParsedNode parsedObject = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(object, null, null, null, scope);
 
             for (ParsedNodeUnprocessor unprocessor : scope.getSingleton(ParsedNodeUnprocessorFactory.class).getUnprocessors()) {
                 unprocessor.unprocess(parsedObject, scope);

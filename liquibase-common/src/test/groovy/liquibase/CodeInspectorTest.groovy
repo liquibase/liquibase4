@@ -10,6 +10,8 @@ import liquibase.diff.output.changelog.ActionGenerator
 import liquibase.item.Item
 import liquibase.item.TestItemSupplier
 import liquibase.item.datatype.DataTypeLogic
+import liquibase.parser.Parser
+import liquibase.parser.Unparser
 import liquibase.parser.xml.XmlEntityResolver
 import liquibase.parser.mapping.ParsedNodeMapping
 import liquibase.util.TestUtil
@@ -51,6 +53,8 @@ public class CodeInspectorTest extends Specification {
                 XmlEntityResolver,
                 ParsedNodeMapping,
                 AbstractActionTest.TestDetails,
+                Parser,
+                Unparser,
         ]
     }
 
