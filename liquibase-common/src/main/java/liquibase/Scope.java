@@ -29,6 +29,7 @@ public class Scope {
         resourceAccessor,
         classLoader,
         database,
+        referenceDatabase,
         quotingStrategy,
         changeLogHistoryService,
         lockService,

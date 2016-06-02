@@ -26,6 +26,10 @@ public class ChangeLogPreprocessor extends AbstractParsedNodePreprocessor {
     public void process(ParsedNode node, Scope scope) throws ParseException {
         node.removeChildren("schemaLocation");
 
+        if (node.getName().equals("databaseChangeLog")) {
+            node.rename("changeLog");
+        }
+
         for (ParsedNode quotingStrategy : node.getChildren(legacyQuotingStrategyNodeFilter, true)) {
             quotingStrategy.remove();
         }

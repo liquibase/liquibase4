@@ -100,9 +100,12 @@ Database\$Feature.class
 Database\$IdentifierCaseHandling.class
 Database\$QuotingStrategy.class
 Database.class
+DatabaseConnection\$ConnectionParameters.class
 DatabaseConnection.class
+DatabaseConnectionFactory.class
 DatabaseFactory.class
 JdbcConnection.class
+OfflineConnection\$OfflineConnectionParameters.class
 OfflineConnection\$OutputLiquibaseSql.class
 OfflineConnection.class
 core/GenericDatabase.class
@@ -138,9 +141,12 @@ database/Database\$Feature.class
 database/Database\$IdentifierCaseHandling.class
 database/Database\$QuotingStrategy.class
 database/Database.class
+database/DatabaseConnection\$ConnectionParameters.class
 database/DatabaseConnection.class
+database/DatabaseConnectionFactory.class
 database/DatabaseFactory.class
 database/JdbcConnection.class
+database/OfflineConnection\$OfflineConnectionParameters.class
 database/OfflineConnection\$OutputLiquibaseSql.class
 database/OfflineConnection.class
 """.trim()
@@ -182,7 +188,9 @@ Database\$Feature.class
 Database\$IdentifierCaseHandling.class
 Database\$QuotingStrategy.class
 Database.class
+DatabaseConnection\$ConnectionParameters.class
 DatabaseConnection.class
+DatabaseConnectionFactory.class
 DatabaseFactory.class
 FileSystemResourceAccessor\$1.class
 FileSystemResourceAccessor\$2.class
@@ -191,6 +199,7 @@ FileSystemResourceAccessor\$ResourceFileVisitor.class
 FileSystemResourceAccessor.class
 InputStreamList.class
 JdbcConnection.class
+OfflineConnection\$OfflineConnectionParameters.class
 OfflineConnection\$OutputLiquibaseSql.class
 OfflineConnection.class
 OsgiResourceAccessor.class

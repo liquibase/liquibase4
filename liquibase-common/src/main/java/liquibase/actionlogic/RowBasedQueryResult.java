@@ -30,7 +30,7 @@ public class RowBasedQueryResult extends QueryResult {
         }
 
         if (result instanceof ResultSet) {
-            throw new UnexpectedLiquibaseException("Cannot pass ResultSet directly into RowBasedQueryResult. Use JdbcUtils.extract() to create a disconnected collection to pass in.");
+            throw new UnexpectedLiquibaseException("Cannot pass ResultSet directly into RowBasedQueryResult. Use Database.extract() to create a disconnected collection to pass in.");
         }
 
         if (!(result instanceof Collection)) {

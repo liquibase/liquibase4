@@ -5,11 +5,16 @@ import liquibase.SingletonObject;
 import liquibase.action.core.SnapshotItemsAction;
 import liquibase.actionlogic.ActionExecutor;
 import liquibase.actionlogic.QueryResult;
+import liquibase.database.Database;
+import liquibase.database.DatabaseConnection;
 import liquibase.exception.ActionPerformException;
+import liquibase.exception.DatabaseException;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Class for creating {@link Snapshot} objects, as well as convenience methods for snapshotting individual objects.
@@ -28,6 +33,42 @@ public class SnapshotFactory implements SingletonObject {
     public boolean has(ItemReference reference, Scope scope) throws ActionPerformException {
         QueryResult result = (QueryResult) scope.getSingleton(ActionExecutor.class).execute(new SnapshotItemsAction(reference), scope);
         return result.size() > 0;
+    }
+
+
+    /**
+     * Creates a full snapshot of the given scope using the passed relatedObjects and types to control what is snapshotted.
+     * Includes populating database information fields if applicable.
+     */
+    public Snapshot snapshot(Set<ItemReference> relatedObjects, Set<Class<? extends Item>> types, Scope scope) throws ActionPerformException {
+        Snapshot snapshot = new Snapshot(scope);
+        for (ItemReference related : relatedObjects) {
+            for (Class type : types) {
+                snapshot.addAll(scope.getSingleton(SnapshotFactory.class).snapshotAll(type, related, scope));
+            }
+        }
+
+        Database database = scope.getDatabase();
+        if (database != null) {
+            DatabaseConnection connection = database.getConnection();
+
+            if (connection != null) {
+                try {
+                    snapshot.databaseProductName = connection.getDatabaseProductName();
+                    snapshot.databaseProductVersion = connection.getDatabaseProductVersion();
+                    snapshot.databaseMajorVersion = connection.getDatabaseMajorVersion();
+                    snapshot.databaseMinorVersion = connection.getDatabaseMinorVersion();
+                    snapshot.databaseUrl = connection.getURL();
+                    snapshot.databaseUsername = connection.getConnectionUserName();
+                    snapshot.databaseDefaultCatalog = connection.getCatalog();
+                    snapshot.databaseDefaultSchema = connection.getSchema();
+                } catch (DatabaseException e) {
+                    LoggerFactory.getLogger(getClass()).error("Could not read databaseInformation", e);
+                }
+            }
+        }
+        return snapshot;
+
     }
 
     /**

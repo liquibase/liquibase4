@@ -6,6 +6,8 @@ import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.actionlogic.ActionExecutor
 import liquibase.database.ConnectionSupplier
+import liquibase.database.DatabaseConnection
+import liquibase.database.DatabaseConnectionFactory
 import liquibase.database.OfflineConnection
 import liquibase.database.core.GenericDatabase
 import liquibase.resource.JUnitResourceAccessor
@@ -31,7 +33,13 @@ public class SnapshotItemsActionOfflineTest extends AbstractActionTest {
         def action = new SnapshotItemsAction(type, relatedTo)
 
         def scope = JUnitScope.instance
-        scope = scope.child(Scope.Attr.database, new GenericDatabase(new OfflineConnection("offline:generic", createSnapshot(action, null, scope), new JUnitResourceAccessor()), scope));
+
+        def connectionParameters = new DatabaseConnection.ConnectionParameters();
+        connectionParameters.url = "offline:generic";
+        connectionParameters.set(OfflineConnection.OfflineConnectionParameters.snapshot.name(), createSnapshot(action, null, scope))
+        def connection = scope.getSingleton(DatabaseConnectionFactory).connect(connectionParameters, scope)
+
+        scope = scope.child(Scope.Attr.database.name(), new GenericDatabase(connection, scope));
 
         then:
         new TreeSet<>(scope.getSingleton(ActionExecutor).query(action, scope).asList(type)*.toReference()*.toString()).join(",") == expected

@@ -92,11 +92,15 @@ public class AbstractExtensibleObject implements ExtensibleObject {
         Map<String, Field> fields = attributeFieldCache.get(this.getClass());
         if (fields == null) {
             fields = new HashMap<>();
-            for (Field field : this.getClass().getFields()) {
-                int modifiers = field.getModifiers();
-                if (Modifier.isPublic(modifiers) && !field.isSynthetic() && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
-                    fields.put(field.getName(), field);
+            Class clazz = this.getClass();
+            while (ExtensibleObject.class.isAssignableFrom(clazz)) {
+                for (Field field : clazz.getFields()) {
+                    int modifiers = field.getModifiers();
+                    if (Modifier.isPublic(modifiers) && !field.isSynthetic() && !Modifier.isFinal(modifiers) && !Modifier.isStatic(modifiers)) {
+                        fields.put(field.getName(), field);
+                    }
                 }
+                clazz = clazz.getSuperclass();
             }
             attributeFieldCache.put(this.getClass(), fields);
         }

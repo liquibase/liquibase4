@@ -5,18 +5,9 @@ import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.plugin.AbstractPluginFactory;
 import liquibase.plugin.Plugin;
-import liquibase.resource.InputStreamList;
-import liquibase.resource.ResourceAccessor;
 import liquibase.snapshot.Snapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.util.Properties;
-import java.util.ServiceLoader;
 
 /**
  * PluginFactory to create the correct Database implementation based on available extensions.
@@ -87,70 +78,11 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
     }
 
 
-    public Database connect(String url,
-                            String username,
-                            String password,
-                            String driverClass,
+    public Database connect(DatabaseConnection.ConnectionParameters connectionParameters,
                             String databaseClass,
-                            String driverPropertiesClass,
-                            String additionalDriverPropertiesPath,
                             Scope scope) throws DatabaseException {
-        DatabaseConnection connection = null;
         try {
-            if (url.startsWith("offline:")) {
-                connection = new OfflineConnection(url, scope.getResourceAccessor());
-            } else {
-
-               Properties driverProperties;
-                if (driverPropertiesClass == null) {
-                    driverProperties = new Properties();
-                } else {
-                    driverProperties = (Properties) Class.forName(driverPropertiesClass, true, scope.getClassLoader(true)).newInstance();
-                }
-
-                if (username != null) {
-                    driverProperties.put("user", username);
-                }
-                if (password != null) {
-                    driverProperties.put("password", password);
-                }
-                if (additionalDriverPropertiesPath != null) {
-                    try(InputStreamList propertiesFiles = scope.getResourceAccessor().openStreams(additionalDriverPropertiesPath)) {
-                        if (propertiesFiles == null) {
-                            throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + additionalDriverPropertiesPath + "'");
-                        } else {
-                            for (InputStream stream : propertiesFiles) {
-                                driverProperties.load(stream);
-                            }
-                        }
-                    }
-                }
-
-                Connection jdbcConnection = null;
-                try {
-                    if (driverClass == null) {
-                        for (Driver driver : ServiceLoader.load(java.sql.Driver.class, scope.getClassLoader())) {
-                            if (driver.acceptsURL(url)) {
-                                jdbcConnection = driver.connect(url, driverProperties);
-                                break;
-                            }
-                        }
-
-                        if (jdbcConnection == null) { //fall back to standard DriverManager.getConnection
-                            jdbcConnection =  DriverManager.getConnection(url, driverProperties);
-                        }
-                    } else {
-                        Driver driver = (Driver) Class.forName(driverClass, true, scope.getClassLoader(true)).newInstance();
-                        jdbcConnection = driver.connect(url, driverProperties);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException("Cannot find database driver: " + e.getMessage());
-                }
-
-                LoggerFactory.getLogger(getClass()).debug("Connection to " + url + " successful");
-
-                connection = new JdbcConnection(jdbcConnection);
-            }
+            DatabaseConnection connection = scope.getSingleton(DatabaseConnectionFactory.class).connect(connectionParameters, scope);
 
             if (databaseClass == null) {
                 return getDatabase(connection, scope);
@@ -161,6 +93,8 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
 
                 return database;
             }
+        } catch (DatabaseException e) {
+            throw e;
         } catch (Exception e) {
             throw new DatabaseException(e);
         }
@@ -177,13 +111,14 @@ public class DatabaseFactory extends AbstractPluginFactory<Database> {
     /**
      * Creates a new Database instance with an offline connection pointing to the given snapshot
      */
-    public Database fromSnapshot(Snapshot snapshot, Scope scope) {
+    public Database fromSnapshot(Snapshot snapshot, Scope scope)  {
         Database database = snapshot.getScopeCreatedUnder().getDatabase();
 
-        DatabaseConnection conn = new OfflineConnection("offline:" + database.getShortName(), snapshot, snapshot.getScopeCreatedUnder().getResourceAccessor());
-
+        DatabaseConnection.ConnectionParameters parameters = new DatabaseConnection.ConnectionParameters();
+        parameters.url = "offline:" + database.getShortName();
+        parameters.set(OfflineConnection.OfflineConnectionParameters.snapshot.name(), snapshot);
         try {
-            return getDatabase(conn, scope);
+            return connect(parameters, null, snapshot.getScopeCreatedUnder());
         } catch (DatabaseException e) {
             throw new UnexpectedLiquibaseException(e);
         }

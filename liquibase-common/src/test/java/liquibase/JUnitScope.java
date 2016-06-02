@@ -35,7 +35,7 @@ public class JUnitScope extends Scope {
     public static JUnitScope getInstance() {
         if (instance == null) {
             try {
-                instance = new JUnitScope();
+                instance = (JUnitScope) new JUnitScope().child(Scope.Attr.classLoader, JUnitScope.class.getClassLoader());
             } catch (Exception e) {
                 throw new UnexpectedLiquibaseException(e);
             }

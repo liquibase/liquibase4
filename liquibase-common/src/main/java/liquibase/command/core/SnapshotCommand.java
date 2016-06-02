@@ -4,7 +4,10 @@ import liquibase.ExtensibleObjectAttribute;
 import liquibase.Scope;
 import liquibase.ValidationErrors;
 import liquibase.command.AbstractDatabaseCommand;
+import liquibase.command.AbstractSnapshotCommand;
 import liquibase.command.CommandResult;
+import liquibase.database.Database;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
@@ -14,17 +17,12 @@ import liquibase.snapshot.Snapshot;
 import liquibase.snapshot.SnapshotFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Snapshots all objects related to {@link #relatedObjects}.
  */
-public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.SnapshotCommandResult> {
-
-    public Set<ItemReference> relatedObjects = new HashSet<>();
+public class SnapshotCommand extends AbstractSnapshotCommand<SnapshotCommand.SnapshotCommandResult> {
 
     @ExtensibleObjectAttribute(description = "Format to output snapshot as. Defaults to 'xml'", required = true)
     public String snapshotFormat = "xml";
@@ -34,9 +32,8 @@ public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.Sna
     }
 
     public SnapshotCommand(ItemReference... relatedObjects) {
-        if (relatedObjects != null) {
-            this.relatedObjects.addAll(Arrays.asList(relatedObjects));
-        }
+        super(relatedObjects);
+
     }
 
     @Override
@@ -49,26 +46,7 @@ public class SnapshotCommand extends AbstractDatabaseCommand<SnapshotCommand.Sna
 
         scope = setupDatabase(scope);
 
-        Set<Class<? extends Item>> types = new HashSet((List) Arrays.asList(Table.class, View.class, ForeignKey.class, StoredProcedure.class)); //TODO: scope.getSingleton(DatabaseObjectFactory.class).getStandardTypes();
-
-        if (scope.getDatabase().supports(Sequence.class, scope)) {
-            types.add(Sequence.class);
-        }
-
-        Snapshot snapshot = new Snapshot(scope);
-
-        Set<ItemReference> relatedObjects = this.relatedObjects;
-        if (relatedObjects.size() == 0) {
-            SchemaReference schema = new SchemaReference(scope.getDatabase().getConnection().getSchema());
-            relatedObjects.add(schema);
-        }
-
-
-        for (ItemReference related : relatedObjects) {
-            for (Class type : types) {
-                snapshot.addAll(scope.getSingleton(SnapshotFactory.class).snapshotAll(type, related, scope));
-            }
-        }
+        Snapshot snapshot = snapshot(scope);
 
         return new SnapshotCommandResult(snapshot);
     }

@@ -71,6 +71,14 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
                 if (action.arguments.size() != 3) {
                     errors.addError("getProcedures requires 3 arguments");
                 }
+            } else if (action.method.equals("getSchemas")) {
+                if (action.arguments.size() != 2) {
+                    errors.addError("getSchemas requires 2 arguments");
+                }
+            } else if (action.method.equals("getCatalogs")) {
+                if (action.arguments.size() != 0) {
+                    errors.addError("getCatalogs requires 0 arguments");
+                }
             } else {
                 errors.addError("Unknown method '" + action.method + "' for validation");
             }
@@ -118,6 +126,14 @@ public class QueryJdbcMetaDataLogic extends AbstractActionLogic<QueryJdbcMetaDat
                 }
             } else if (method.equals("getProcedures")) {
                 try (ResultSet rs = getMetaData(scope).getProcedures((String) arguments.get(0), (String) arguments.get(1), (String) arguments.get(2))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
+            } else if (method.equals("getSchemas")) {
+                try (ResultSet rs = getMetaData(scope).getSchemas((String) arguments.get(0), (String) arguments.get(1))) {
+                    return new RowBasedQueryResult(action, database.extract(rs, scope));
+                }
+            } else if (method.equals("getCatalogs")) {
+                try (ResultSet rs = getMetaData(scope).getCatalogs()) {
                     return new RowBasedQueryResult(action, database.extract(rs, scope));
                 }
             }

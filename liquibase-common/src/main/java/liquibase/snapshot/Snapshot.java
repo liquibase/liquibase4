@@ -3,6 +3,7 @@ package liquibase.snapshot;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.item.AbstractDatabaseObject;
 import liquibase.item.Item;
 import liquibase.item.ItemReference;
 import liquibase.util.CollectionUtil;
@@ -22,6 +23,18 @@ public class Snapshot extends AbstractExtensibleObject {
 
     //objects in snapshot, grouped by the type of object
     private Map<Class<? extends Item>, List<? extends Item>> objects = new HashMap<>();
+
+    public String databaseUsername;
+    public String databaseUrl;
+
+    public String databaseDefaultCatalog;
+    public String databaseDefaultSchema;
+
+    public String databaseProductName;
+    public String databaseProductVersion;
+
+    public Integer databaseMajorVersion;
+    public Integer databaseMinorVersion;
 
     /**
      * Creates an empty Snapshot.

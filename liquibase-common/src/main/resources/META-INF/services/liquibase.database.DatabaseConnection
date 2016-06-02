@@ -1,0 +1,2 @@
+liquibase.database.JdbcConnection
+liquibase.database.OfflineConnection

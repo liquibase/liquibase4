@@ -5,7 +5,6 @@ import liquibase.ObjectMetaData;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
-import liquibase.resource.ResourceAccessor;
 import liquibase.snapshot.Snapshot;
 import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,10 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("UnusedParameters")
 public class OfflineConnection extends AbstractExtensibleObject implements DatabaseConnection {
+
+    public enum OfflineConnectionParameters {
+        snapshot;
+    }
 
     //kept private so it is not as changable once the "connection" has been made
     private String url;
@@ -60,13 +63,17 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
 
     public boolean sendsStringParametersAsUnicode = true;
 
-    public OfflineConnection(String url, Snapshot snapshot, ResourceAccessor resourceAccessor) {
-        this(url, resourceAccessor);
-        this.snapshot = snapshot;
+    @Override
+    public int getPriority(ConnectionParameters parameters, Scope scope) {
+        if (parameters.url != null && parameters.url.startsWith("offline:")) {
+            return PRIORITY_DEFAULT;
+        }
+        return PRIORITY_NOT_APPLICABLE;
     }
 
-    public OfflineConnection(String url, ResourceAccessor resourceAccessor) {
-        this.url = url;
+    @Override
+    public void openConnection(ConnectionParameters connectionParameters, Scope scope) {
+        this.url = connectionParameters.url;
         Matcher matcher = Pattern.compile("offline:(\\w+)\\??(.*)").matcher(url);
         if (!matcher.matches()) {
             throw new UnexpectedLiquibaseException("Could not parse offline url " + url);
@@ -138,6 +145,10 @@ public class OfflineConnection extends AbstractExtensibleObject implements Datab
                 default:
                     this.set(paramEntry.getKey(), paramEntry.getValue());
             }
+        }
+
+        if (connectionParameters.has(OfflineConnectionParameters.snapshot.name())) {
+            this.snapshot = connectionParameters.get(OfflineConnectionParameters.snapshot.name(), Snapshot.class);
         }
     }
 

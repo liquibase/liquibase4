@@ -1,8 +1,10 @@
 package liquibase.database;
 
+import liquibase.AbstractExtensibleObject;
 import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.plugin.Plugin;
 
 import java.sql.Connection;
 
@@ -11,7 +13,11 @@ import java.sql.Connection;
  * We use this interface rather than java.sql.Connection because they do not have to be JDBC-based and may even be an {@link OfflineConnection}
  * 
  */
-public interface DatabaseConnection extends ExtensibleObject {
+public interface DatabaseConnection extends ExtensibleObject, Plugin {
+
+    int getPriority(ConnectionParameters parameters, Scope scope);
+
+    void openConnection(ConnectionParameters connectionParameters, Scope scope) throws DatabaseException;
 
     /**
      * Returns the URL for this connection.
@@ -128,4 +134,14 @@ public interface DatabaseConnection extends ExtensibleObject {
      * Examples include adding more reserved words, setting properties, etc.
      */
     void configureDatabase(Database database, Scope scope);
+
+    class ConnectionParameters extends AbstractExtensibleObject {
+        public String url;
+        public String username;
+        public String password;
+        public String driverClass;
+        public String driverPropertiesClass;
+        public String additionalDriverPropertiesPath;
+    }
+
 }

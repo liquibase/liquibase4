@@ -22,12 +22,16 @@ public class MockJdbcConnection extends JdbcConnection {
     public Snapshot snapshot;
 
     public MockJdbcConnection() {
-        super((Connection) Proxy.newProxyInstance(MockJdbcConnection.class.getClassLoader(), new Class[]{Connection.class}, new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                throw new RuntimeException("Just a proxy");
-            }
-        }));
+    }
+
+    @Override
+    public void openConnection(ConnectionParameters connectionParameters, Scope scope) throws DatabaseException {
+//        super((Connection) Proxy.newProxyInstance(MockJdbcConnection.class.getClassLoader(), new Class[]{Connection.class}, new InvocationHandler() {
+//            @Override
+//            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+//                throw new RuntimeException("Just a proxy");
+//            }
+//        }));
     }
 
     @Override

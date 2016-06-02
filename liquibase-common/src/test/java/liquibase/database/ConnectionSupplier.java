@@ -96,8 +96,12 @@ public abstract class ConnectionSupplier extends AbstractPlugin {
         if (connection == null && connectionResult == null) {
             LoggerFactory.getLogger(getClass()).info("Opening connection as " + username + " to " + this.createJdbcUrl());
             try {
-                Connection dbConn = DriverManager.getConnection(this.createJdbcUrl(), username, password);
-                connection = initConnection(new JdbcConnection(dbConn), scope);
+                DatabaseConnection.ConnectionParameters connectionParameters = new DatabaseConnection.ConnectionParameters();
+                connectionParameters.url = this.createJdbcUrl();
+                connectionParameters.username = username;
+                connectionParameters.password = password;
+
+                connection = initConnection(scope.getSingleton(DatabaseConnectionFactory.class).connect(connectionParameters, scope), scope);
 
                 if (connection == null) {
                     connectionResult = new SetupResult.CannotVerify(getClass().getName() + ".initConnection returned a null connection");

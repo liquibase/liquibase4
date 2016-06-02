@@ -43,12 +43,15 @@ liquibase.actionlogic.core.RenameViewLogic
 liquibase.actionlogic.core.SelectDataLogic
 liquibase.actionlogic.core.AlterDefaultValueLogic
 liquibase.actionlogic.core.RollbackLogic
+liquibase.actionlogic.core.SnapshotCheckConstraintsLogic
 liquibase.actionlogic.core.SnapshotColumnsLogic
 liquibase.actionlogic.core.SnapshotColumnsLogicOffline
 liquibase.actionlogic.core.SnapshotForeignKeysLogic
 liquibase.actionlogic.core.SnapshotIndexesLogic
 liquibase.actionlogic.core.SnapshotPrimaryKeysLogic
 liquibase.actionlogic.core.SnapshotPrimaryKeysLogicOffline
+liquibase.actionlogic.core.SnapshotRowDataLogic
+liquibase.actionlogic.core.SnapshotSchemasLogic
 liquibase.actionlogic.core.SnapshotSequencesLogic
 liquibase.actionlogic.core.SnapshotStoredProceduresLogic
 liquibase.actionlogic.core.SnapshotTablesLogic

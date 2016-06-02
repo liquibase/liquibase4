@@ -2,6 +2,7 @@ package liquibase.command;
 
 import liquibase.ExtensibleObjectAttribute;
 import liquibase.Scope;
+import liquibase.database.DatabaseConnection;
 import liquibase.database.DatabaseFactory;
 import liquibase.exception.LiquibaseException;
 
@@ -29,20 +30,20 @@ public abstract class AbstractDatabaseCommand<T extends CommandResult> extends A
 
     /**
      * Returns a scope with with the database attribute set.
-     *
+     * <p/>
      * If the passed scope already has a database, returns the same scope object. Otherwise, creates a new database object from the paramaters in this command.
      */
     protected Scope setupDatabase(Scope scope) throws LiquibaseException {
         if (scope.getDatabase() == null) {
-            scope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).connect(
-                    url,
-                    username,
-                    password,
-                    driver,
-                    databaseClass,
-                    null, //todo
-                    null, //todo
-                    scope));
+            DatabaseConnection.ConnectionParameters connectionParameters = new DatabaseConnection.ConnectionParameters();
+            connectionParameters.url = url;
+            connectionParameters.username = username;
+            connectionParameters.password = password;
+            connectionParameters.driverClass = driver;
+            connectionParameters.additionalDriverPropertiesPath = null; //todo
+            connectionParameters.driverPropertiesClass = null; //todo
+
+            scope = scope.child(Scope.Attr.database, scope.getSingleton(DatabaseFactory.class).connect(connectionParameters, databaseClass, scope));
         }
         return scope;
     }

@@ -3,11 +3,17 @@ package liquibase.database;
 import liquibase.AbstractExtensibleObject;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.resource.InputStreamList;
 import liquibase.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.Properties;
+import java.util.ServiceLoader;
 
 /**
  * A DatabaseConnection for JDBC databases.
@@ -19,11 +25,72 @@ public class JdbcConnection extends AbstractExtensibleObject implements Database
     private Connection connection;
     protected boolean metaDataCallsSchemasCatalogs = false;
 
-    public JdbcConnection(Connection connection) {
-        if (connection == null) {
-            throw new UnexpectedLiquibaseException("JdbcConnection cannot be passed a null connection");
+    @Override
+    public int getPriority(ConnectionParameters parameters, Scope scope) {
+        if (parameters.url != null && parameters.url.startsWith("jdbc:")) {
+            return PRIORITY_DEFAULT;
         }
-        this.connection = connection;
+        return PRIORITY_NOT_APPLICABLE;
+    }
+
+    @Override
+    public void openConnection(ConnectionParameters connectionParameters, Scope scope) throws DatabaseException {
+        try {
+            Properties driverProperties;
+            if (connectionParameters.driverPropertiesClass == null) {
+                driverProperties = new Properties();
+            } else {
+                driverProperties = (Properties) Class.forName(connectionParameters.driverPropertiesClass, true, scope.getClassLoader(true)).newInstance();
+            }
+
+            if (connectionParameters.username != null) {
+                driverProperties.put("user", connectionParameters.username);
+            }
+            if (connectionParameters.password != null) {
+                driverProperties.put("password", connectionParameters.password);
+            }
+            if (connectionParameters.additionalDriverPropertiesPath != null) {
+                try (InputStreamList propertiesFiles = scope.getResourceAccessor().openStreams(connectionParameters.additionalDriverPropertiesPath)) {
+                    if (propertiesFiles == null) {
+                        throw new UnexpectedLiquibaseException("Can't open properties from the path: '" + connectionParameters.additionalDriverPropertiesPath + "'");
+                    } else {
+                        for (InputStream stream : propertiesFiles) {
+                            driverProperties.load(stream);
+                        }
+                    }
+                }
+            }
+
+            Connection jdbcConnection = null;
+            try {
+                if (connectionParameters.driverClass == null) {
+                    for (Driver driver : ServiceLoader.load(Driver.class, scope.getClassLoader())) {
+                        if (driver.acceptsURL(connectionParameters.url)) {
+                            jdbcConnection = driver.connect(connectionParameters.url, driverProperties);
+                            break;
+                        }
+                    }
+
+                    if (jdbcConnection == null) { //fall back to standard DriverManager.getConnection
+                        jdbcConnection = DriverManager.getConnection(connectionParameters.url, driverProperties);
+                    }
+                } else {
+                    Driver driver = (Driver) Class.forName(connectionParameters.driverClass, true, scope.getClassLoader(true)).newInstance();
+                    jdbcConnection = driver.connect(connectionParameters.url, driverProperties);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot find database driver: " + e.getMessage());
+            }
+
+            LoggerFactory.getLogger(getClass()).debug("Connection to " + connectionParameters.url + " successful");
+
+
+            this.connection = jdbcConnection;
+        } catch (DatabaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 
     /**
