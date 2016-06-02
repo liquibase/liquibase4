@@ -1,4 +1,5 @@
 liquibase.parser.unprocessor.core.changelog.ChangeLogUnprocessor
 liquibase.parser.unprocessor.core.changelog.ChangeSetUnprocessor
 liquibase.parser.unprocessor.core.item.ItemReferenceUnprocessor
+liquibase.parser.unprocessor.core.item.ItemUnprocessor
 liquibase.parser.unprocessor.core.SnapshotUnprocessor

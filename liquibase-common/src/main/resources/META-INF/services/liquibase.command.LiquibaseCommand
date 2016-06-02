@@ -1,5 +1,6 @@
 liquibase.command.core.DiffCommand
 liquibase.command.core.DropAllCommand
+liquibase.command.core.GenerateChangeLogCommand
 liquibase.command.core.SnapshotCommand
 liquibase.command.core.UpdateCommand
 liquibase.command.core.UpdateSqlCommand

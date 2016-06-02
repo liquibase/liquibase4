@@ -9,12 +9,16 @@ public class ChangeLogUnprocessor extends AbstractParsedNodeUnprocessor {
 
     @Override
     public void unprocess(ParsedNode node, Scope scope) throws ParseException {
-        ParsedNode changeLogEntries = node.getChild("changeLogEntries", false);
-        if (changeLogEntries != null) {
-            changeLogEntries.moveChildren("changeSet", node);
+        if (node.getName().equals("changeLog")) {
+            node.removeChildren("physicalPath");
 
-            if (changeLogEntries.isEmpty()) {
-                changeLogEntries.remove();
+            ParsedNode changeLogEntries = node.getChild("changeLogEntries", false);
+            if (changeLogEntries != null) {
+                changeLogEntries.moveChildren("changeSet", node);
+
+                if (changeLogEntries.isEmpty()) {
+                    changeLogEntries.remove();
+                }
             }
         }
     }

@@ -596,6 +596,13 @@ public class ParsedNode extends AbstractExtensibleObject {
      */
     public interface ParsedNodeFilter {
         boolean matches(ParsedNode node);
+
+        final ParsedNodeFilter ALL = new ParsedNodeFilter() {
+            @Override
+            public boolean matches(ParsedNode node) {
+                return true;
+            }
+        };
     }
 
     private static class ParsedNodeNameFilter implements ParsedNodeFilter {
