@@ -37,11 +37,10 @@ public class JsonUnparser extends AbstractUnparser {
 
         try (OutputStreamWriter writer = new OutputStreamWriter(output)) {
             gson.toJson(node, writer);
+            writer.flush();
         } catch (IOException e) {
             throw new ParseException(e, null);
         }
 
     }
-
-
 }

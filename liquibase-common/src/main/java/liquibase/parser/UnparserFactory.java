@@ -61,7 +61,7 @@ public class UnparserFactory extends AbstractPluginFactory<Unparser> {
             ParsedNode parsedObject = scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(object, null, null, null, scope);
 
             for (ParsedNodeUnprocessor unprocessor : scope.getSingleton(ParsedNodeUnprocessorFactory.class).getUnprocessors()) {
-                unprocessor.unprocess(parsedObject, scope);
+                unprocessor.unprocess(parsedObject, outputPath, scope);
             }
 
             Unparser unparser = getUnparser(outputPath, scope);

@@ -16,16 +16,16 @@ public class ChangeSetUnprocessor extends AbstractParsedNodeUnprocessor {
     }
 
     @Override
-    public void unprocess(ParsedNode node, Scope scope) throws ParseException {
+    public void unprocess(ParsedNode node, String outputPath, Scope scope) throws ParseException {
         if (node.getName().equals("changeLog")) {
             for (ParsedNode changeSet : node.getChildren("changeSet", false)) {
-                markChildrenAsAttributes(changeSet, "id", "author");
-
                 changeSet.removeChildren("logicalPath");
 
                 ParsedNode actions = changeSet.getChild("actions", false);
-                actions.moveChildren(ParsedNode.ParsedNodeFilter.ALL, changeSet);
-                actions.remove();
+                if (actions != null) {
+                    actions.moveChildren(ParsedNode.ParsedNodeFilter.ALL, changeSet);
+                    actions.remove();
+                }
             }
         }
     }

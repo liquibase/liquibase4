@@ -24,6 +24,8 @@ public class AbstractExtensibleObject implements ExtensibleObject {
      */
     private static Map<Class, Map<String, Field>> attributeFieldCache = new HashMap<>();
 
+    private boolean readOnlyObject = false;
+
     public AbstractExtensibleObject() {
     }
 
@@ -66,6 +68,17 @@ public class AbstractExtensibleObject implements ExtensibleObject {
         return metaData;
     }
 
+
+    @Override
+    public ExtensibleObject setReadOnlyObject(boolean readOnly) {
+        this.readOnlyObject = readOnly;
+        return this;
+    }
+
+    @Override
+    public boolean isReadOnlyObject() {
+        return readOnlyObject;
+    }
 
     /**
      * Return true if the given key is defined.
@@ -220,6 +233,10 @@ public class AbstractExtensibleObject implements ExtensibleObject {
 
     @Override
     public ExtensibleObject set(String attribute, Object value) {
+        if (isReadOnlyObject()) {
+            throw new UnexpectedLiquibaseException("Object is read-only");
+        }
+
         Field field = getAttributeFields().get(attribute);
         if (field == null) {
             attributes.set(attribute, value);
@@ -236,6 +253,9 @@ public class AbstractExtensibleObject implements ExtensibleObject {
 
     public String describe() {
         String name = getClass().getSimpleName();
+        if (name.equals("")) {
+            name = getClass().getName();
+        }
         return name + "{" + StringUtil.join(this, ", ", new StringUtil.DefaultFormatter()) + "}";
     }
 
@@ -264,6 +284,7 @@ public class AbstractExtensibleObject implements ExtensibleObject {
     public Object clone() {
         try {
             AbstractExtensibleObject clone = (AbstractExtensibleObject) super.clone();
+            clone.setReadOnlyObject(false);
             for (String attr : getAttributes()) {
                 Object value = this.get(attr, Object.class);
                 if (value instanceof Collection) {
@@ -292,6 +313,7 @@ public class AbstractExtensibleObject implements ExtensibleObject {
                 clone.set(attr, value);
             }
 
+            clone.setReadOnlyObject(readOnlyObject);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new UnexpectedLiquibaseException(e);

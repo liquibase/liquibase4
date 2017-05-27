@@ -4,8 +4,16 @@ import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.parser.AbstractUnparser;
 import liquibase.parser.ParsedNode;
+import liquibase.util.StringClauses;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.BaseConstructor;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Represent;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,8 +43,13 @@ public class YamlUnparser extends AbstractUnparser {
     }
 
     protected Yaml createYaml() {
-        return new Yaml(createDumperOptions());
+        return new Yaml(createRepresenter(), createDumperOptions());
     }
+
+    protected Representer createRepresenter() {
+        return new YamlRepresenter();
+    }
+
 
     protected DumperOptions createDumperOptions() {
         DumperOptions dumperOptions = new DumperOptions();
@@ -47,7 +60,7 @@ public class YamlUnparser extends AbstractUnparser {
 
     @Override
     public void unparse(ParsedNode node, OutputStream output, Scope scope) throws ParseException {
-        Map<String, Object> outputMap = new HashMap<>();
+        LinkedHashMap<String, Object> outputMap = new LinkedHashMap<>();
         outputMap.put(node.getName(), getChildren(node));
 
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output))) {
@@ -61,36 +74,62 @@ public class YamlUnparser extends AbstractUnparser {
     }
 
     protected Object getChildren(ParsedNode node) throws ParseException {
-        if (node.getChildren().size() == 0) {
+        List<ParsedNode> children = new ArrayList<>(node.getChildren());
+        if (children.size() == 0) {
             return node.getValue();
         } else {
             if (node.getValue() != null) {
                 throw new ParseException("Cannot convert node with children and a value to YAML", node);
             }
 
-            boolean duplicateChildren = false;
-            Set<String> names = new HashSet<>();
-            for (ParsedNode child : node.getChildren()) {
-                if (!names.add(child.getName())) {
-                    duplicateChildren = true;
-                    break;
-                }
-            }
+            boolean isCollection = node.hasMarker(ParsedNode.Marker.isCollectionNode) || node.hasDuplicateChildren();
 
-            if (duplicateChildren) {
+            if (isCollection) {
                 List returnList = new ArrayList();
-                for (ParsedNode childNode : node.getChildren()) {
-                    Map<String, Object> childMap = new HashMap<>();
-                    childMap.put(childNode.getName(), getChildren(childNode));
-                    returnList.add(childMap);
+//                boolean onlyScalarValues = true;
+//                for (ParsedNode childNode : children) {
+//                    if (childNode.getChildren().size() > 0 || childNode.getValue() == null) {
+//                        onlyScalarValues = false;
+//                        break;
+//                    }
+//                }
+
+
+                for (ParsedNode childNode : children) {
+//                    if (onlyScalarValues) {
+//                        returnList.add(childNode.getValue());
+//                    } else {
+                        LinkedHashMap<String, Object> childMap = new LinkedHashMap<>();
+                        childMap.put(childNode.getName(), getChildren(childNode));
+                        returnList.add(childMap);
+//                    }
                 }
+
                 return returnList;
             } else {
-                Map returnMap = new HashMap();
-                for (ParsedNode childNode : node.getChildren()) {
+                Collections.sort(children);
+
+                LinkedHashMap returnMap = new LinkedHashMap();
+                for (ParsedNode childNode : children) {
                     returnMap.put(childNode.getName(), getChildren(childNode));
                 }
                 return returnMap;
+            }
+        }
+    }
+
+    protected static class YamlRepresenter extends Representer {
+
+        public YamlRepresenter() {
+            multiRepresenters.put(StringClauses.class, new AsStringRepresenter());
+            multiRepresenters.put(Enum.class, new AsStringRepresenter());
+        }
+
+
+        private class AsStringRepresenter implements Represent {
+            @Override
+            public Node representData(Object data) {
+                return representScalar(Tag.STR, data.toString());
             }
         }
     }

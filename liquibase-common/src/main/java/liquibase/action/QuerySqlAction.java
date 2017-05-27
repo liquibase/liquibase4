@@ -1,5 +1,7 @@
 package liquibase.action;
 
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 import liquibase.util.StringClauses;
 
 /**
@@ -16,5 +18,20 @@ public class QuerySqlAction extends AbstractSqlAction implements QueryAction {
 
     public QuerySqlAction(StringClauses sql) {
         super(sql);
+    }
+
+    @Override
+    public String getName() {
+        return "query";
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new SqlPreprocessor(getClass()) {};
+    }
+
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new SqlUnprocessor(getClass()) {};
     }
 }

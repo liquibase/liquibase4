@@ -1,6 +1,7 @@
 package liquibase.item;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 
 /**
@@ -45,6 +46,14 @@ public abstract class AbstractItem<ReferenceType extends ItemReference> extends 
     public boolean equals(Object obj) {
         return obj instanceof Item
                 && this.toReference().equals(((Item) obj).toReference());
+    }
+
+
+    /**
+     * Default implementation returns null.
+     */
+    public ParsedNodePreprocessor createPreprocessor() {
+        return null;
     }
 
     /**

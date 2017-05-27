@@ -29,12 +29,12 @@ class ValidationErrorsTest extends Specification {
         "name"                                 | new Table("name")                                                                                     | "No errors"
         "age"                                  | new Table("name")                                                                                     | "Table.age is required"
         "schema"                               | new Table("name")                                                                                     | "Table.schema is required"
-        "autoIncrementInformation"             | new Column()                                                                                          | "Column.autoIncrementInformation is required"
+        "autoIncrementDetails"             | new Column()                                                                                          | "Column.autoIncrementDetails is required"
         "foreignKeys.table"                    | new AddColumnsAction()                                                                                | "No errors"
-        "autoIncrementInformation.startWith"   | new Column()                                                                                          | "No errors"
-        "autoIncrementInformation"             | new Column().set("autoIncrementInformation", new Column.AutoIncrementInformation())                   | "No errors"
-        "autoIncrementInformation.startWith"   | new Column().set("autoIncrementInformation", new Column.AutoIncrementInformation(1, null))            | "No errors"
-        "autoIncrementInformation.incrementBy" | new Column().set("autoIncrementInformation", new Column.AutoIncrementInformation(1, null))            | "Column.autoIncrementInformation.incrementBy is required"
+        "autoIncrementDetails.startWith"   | new Column()                                                                                          | "No errors"
+        "autoIncrementDetails"             | new Column().set("autoIncrementDetails", new Column.AutoIncrementDetails())                   | "No errors"
+        "autoIncrementDetails.startWith"   | new Column().set("autoIncrementDetails", new Column.AutoIncrementDetails(1, null))            | "No errors"
+        "autoIncrementDetails.incrementBy" | new Column().set("autoIncrementDetails", new Column.AutoIncrementDetails(1, null))            | "Column.autoIncrementDetails.incrementBy is required"
         "uniqueConstraints.columns"            | new AddUniqueConstraintsAction(new UniqueConstraint())                                                | "AddUniqueConstraintsAction.uniqueConstraints.columns is required"
         "columns.type"                         | new AddColumnsAction(new Column("col1", null))                                                        | "AddColumnsAction.columns.type is required" //just one value and it's null
         "columns.type"                         | new AddColumnsAction(new Column("col1", null), new Column("col2", null, DataType.parse("int"), true)) | "AddColumnsAction.columns.type is required" //2 values, one of which is null
@@ -46,9 +46,9 @@ class ValidationErrorsTest extends Specification {
         def childErrors = new ValidationErrors(new AddAutoIncrementAction().set("column", new ColumnReference()))
 
         childErrors.checkRequiredFields("column.name")
-        rootErrors.addAll(childErrors, "autoIncrementInformation")
+        rootErrors.addAll(childErrors, "autoIncrementDetails")
 
         then:
-        rootErrors.getErrorMessages() == ["CreateTableAction.autoIncrementInformation.column.name is required"]
+        rootErrors.getErrorMessages() == ["CreateTableAction.autoIncrementDetails.column.name is required"]
     }
 }

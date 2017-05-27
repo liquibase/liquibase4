@@ -1,7 +1,15 @@
 package liquibase.item.core;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
+import liquibase.exception.ParseException;
 import liquibase.item.AbstractRelationBasedObject;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.item.AbstractItemPreprocessor;
+import liquibase.parser.unprocessor.AbstractItemUnprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
+import liquibase.parser.unprocessor.core.item.ItemReferenceUnprocessor;
 import liquibase.util.CollectionUtil;
 import liquibase.util.StringUtil;
 
@@ -80,6 +88,64 @@ public class ForeignKey extends AbstractRelationBasedObject<ForeignKeyReference>
         return createComparisonString().compareTo(((ForeignKey) other).createComparisonString());
     }
 
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractItemPreprocessor(ForeignKey.class) {
+            @Override
+            protected void processItemNode(ParsedNode itemNode, Scope scope) throws ParseException {
+                ParsedNode referencedTable = this.convertToRelationReferenceNode("referencedTableCatalogName", "referencedTableSchemaName", "referencedTableName", itemNode);
+                if (referencedTable != null) {
+                    referencedTable.rename("referencedTable");
+                }
+
+                itemNode.renameChildren("tableName", "relationName");
+                this.convertToRelationReferenceNode("catalogName", "schemaName", "relationName", itemNode);
+                itemNode.renameChildren("constraint", "foreignKeyColumnCheck");
+                this.groupChildren("columnChecks",itemNode, "foreignKeyColumnCheck");
+
+
+                for (ParsedNode deleteRule : itemNode.getChildren("deleteRule", true)) {
+                    String value = deleteRule.getValue(null, String.class);
+                    if (value != null) {
+                        value = value.replaceAll(" ", "");
+                        for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
+                            if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
+                                deleteRule.setValue(possibleValue.name());
+                            }
+                        }
+                    }
+                }
+
+                for (ParsedNode updateRule : itemNode.getChildren("updateRule", true)) {
+                    String value = updateRule.getValue(null, String.class);
+                    value = value.replaceAll(" ", "");
+                    if (value != null) {
+                        for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
+                            if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
+                                updateRule.setValue(possibleValue.name());
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new AbstractItemUnprocessor(ForeignKey.class) {
+
+            @Override
+            protected void unprocessItem(ParsedNode typeNode, Scope scope) throws ParseException {
+                ParsedNode columnChecks = typeNode.getChild("columnChecks", false);
+                if (columnChecks != null) {
+                    columnChecks.renameChildren("foreignKeyColumnCheck", "constraint");
+                }
+
+                typeNode.renameChildren("relationName", "tableName");
+            }
+        };
+    }
     /**
      * Describes a {@link ForeignKey} check between two columns.
      * Only includes the column names since the tables are part of ForeignKey.

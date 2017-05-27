@@ -1,10 +1,20 @@
 package liquibase.item.core;
 
 import liquibase.AbstractExtensibleObject;
+import liquibase.Scope;
+import liquibase.exception.ParseException;
 import liquibase.item.AbstractRelationBasedObject;
+import liquibase.parser.ParsedNode;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
+import liquibase.parser.preprocessor.core.item.AbstractItemPreprocessor;
+import liquibase.parser.unprocessor.AbstractItemUnprocessor;
+import liquibase.parser.unprocessor.AbstractParsedNodeUnprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class PrimaryKey extends AbstractRelationBasedObject<PrimaryKeyReference> {
@@ -47,6 +57,44 @@ public class PrimaryKey extends AbstractRelationBasedObject<PrimaryKeyReference>
             }
         }
         return false;
+    }
+
+    @Override
+    public ParsedNodePreprocessor createPreprocessor() {
+        return new AbstractItemPreprocessor(PrimaryKey.class) {
+            @Override
+            public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+                return CollectionUtil.union(Class.class, super.mustBeBefore(), new Column().createPreprocessor().getClass());
+            }
+
+            @Override
+            protected void processItemNode(ParsedNode itemNode, Scope scope) throws ParseException {
+                ParsedNode columns = itemNode.getChild("columns", true);
+                itemNode.moveChildren("column", columns);
+                columns.renameChildren("column", "primaryKeyColumn");
+
+                if (columns.getValue(Collections.emptyList(), List.class).size() == 0) {
+                    columns.remove();
+                }
+
+                itemNode.renameChildren("tableName", "relationName");
+                this.convertToRelationReferenceNode("catalogName", "schemaName", "relationName", itemNode);       }
+        };
+    }
+
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new AbstractItemUnprocessor(PrimaryKey.class) {
+            @Override
+            protected void unprocessItem(ParsedNode typeNode, Scope scope) throws ParseException {
+                ParsedNode columns = typeNode.getChild("columns", false);
+                if (columns != null) {
+                    columns.renameChildren("primaryKeyColumn", "column");
+                }
+
+                typeNode.renameChildren("relationName", "tableName");
+            }
+        };
     }
 
     public static class PrimaryKeyColumn extends AbstractExtensibleObject {

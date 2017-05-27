@@ -70,36 +70,36 @@ class CreateTableActionTest extends AbstractActionTest {
     def "check all table and permutations"() {
         expect:
         testAction([
-                table_asTable               : action.table == null ? null : action.table.name,
-                tableTablespace_asTable     : action.table == null ? null : action.table.tablespace,
-                tableRemarks_asTable        : action.table == null ? null : action.table.remarks,
-                tableSchema_asTable         : action.table == null ? null : action.table.schema,
+                table_asTable              : action.table == null ? null : action.table.name,
+                tableTablespace_asTable    : action.table == null ? null : action.table.tablespace,
+                tableRemarks_asTable       : action.table == null ? null : action.table.remarks,
+                tableSchema_asTable        : action.table == null ? null : action.table.schema,
 
-                column_asTable              : action.columns[0].name,
-                columnType_asTable          : action.columns[0].type,
-                columnDefaultValue_asTable  : action.columns[0].defaultValue,
-                columnRemarks_asTable       : action.columns[0].remarks,
-                columnNullable_asTable      : action.columns[0].nullable,
-                columnAutoInc_asTable       : action.columns[0].autoIncrementInformation,
+                column_asTable             : action.columns[0].name,
+                columnType_asTable         : action.columns[0].type,
+                columnDefaultValue_asTable : action.columns[0].defaultValue,
+                columnRemarks_asTable      : action.columns[0].remarks,
+                columnNullable_asTable     : action.columns[0].nullable,
+                columnAutoInc_asTable      : action.columns[0].autoIncrementDetails,
 
-                pk_asTable                  : action.primaryKey == null ? null : action.primaryKey.name,
-                pkTablespace_asTable        : action.primaryKey == null ? null : action.primaryKey.tablespace,
-                pkClustered_asTable         : action.primaryKey == null ? null : action.primaryKey.clustered,
-                pkColumns_asTable           : action.primaryKey == null ? null : action.primaryKey.columns*.describe(),
+                pk_asTable                 : action.primaryKey == null ? null : action.primaryKey.name,
+                pkTablespace_asTable       : action.primaryKey == null ? null : action.primaryKey.tablespace,
+                pkClustered_asTable        : action.primaryKey == null ? null : action.primaryKey.clustered,
+                pkColumns_asTable          : action.primaryKey == null ? null : action.primaryKey.columns*.describe(),
 
-                fk_asTable                  : action.foreignKeys*.name,
-                fkTable_asTable             : action.foreignKeys*.referencedTable,
-                fkDeferrable_asTable        : action.foreignKeys*.deferrable,
-                fkInitiallyDeferred_asTable : action.foreignKeys*.initiallyDeferred,
-                fkUpdateRule_asTable        : action.foreignKeys*.updateRule,
-                fkDeleteRule_asTable        : action.foreignKeys*.deleteRule,
-                fkColumnChecks_asTable      : action.foreignKeys*.columnChecks,
+                fk_asTable                 : action.foreignKeys*.name,
+                fkTable_asTable            : action.foreignKeys*.referencedTable,
+                fkDeferrable_asTable       : action.foreignKeys*.deferrable,
+                fkInitiallyDeferred_asTable: action.foreignKeys*.initiallyDeferred,
+                fkUpdateRule_asTable       : action.foreignKeys*.updateRule,
+                fkDeleteRule_asTable       : action.foreignKeys*.deleteRule,
+                fkColumnChecks_asTable     : action.foreignKeys*.columnChecks,
 
-                uq_asTable                  : action.uniqueConstraints*.name,
-                uqColumns_asTable           : action.uniqueConstraints*.columns,
-                uqDeferrable_asTable        : action.uniqueConstraints*.deferrable,
-                uqInitiallyDeferred_asTable : action.uniqueConstraints*.initiallyDeferred,
-                uqDisabled_asTable: action.uniqueConstraints*.disabled,
+                uq_asTable                 : action.uniqueConstraints*.name,
+                uqColumns_asTable          : action.uniqueConstraints*.columns,
+                uqDeferrable_asTable       : action.uniqueConstraints*.deferrable,
+                uqInitiallyDeferred_asTable: action.uniqueConstraints*.initiallyDeferred,
+                uqDisabled_asTable         : action.uniqueConstraints*.disabled,
                 uqTablespace_asTable       : action.uniqueConstraints*.tablespace,
         ],
                 action, conn, scope)
@@ -135,13 +135,13 @@ class CreateTableActionTest extends AbstractActionTest {
         def returnList = []
         //setup standard column permutations
         def columnPermutations = CollectionUtil.toSingletonLists(CollectionUtil.addTo(TestUtil.createAllPermutationsWithoutNulls(Column, [
-                relation                : [tableRef],
-                name                    : [testColName],
-                type                    : [new DataType(DataType.StandardType.INTEGER)],
-                defaultValue            : [null, 3],
-                remarks                 : [null, "Remarks Here"],
-                nullable                : [null, true, false],
-                autoIncrementInformation: [null, new Column.AutoIncrementInformation(), new Column.AutoIncrementInformation(2, 3)]
+                relation            : [tableRef],
+                name                : [testColName],
+                type                : [new DataType(DataType.StandardType.INTEGER)],
+                defaultValue        : [null, 3],
+                remarks             : [null, "Remarks Here"],
+                nullable            : [null, true, false],
+                autoIncrementDetails: [null, new Column.AutoIncrementDetails(), new Column.AutoIncrementDetails(2, 3)]
         ]),
                 new Column(testColName, tableRef, new DataType(DataType.StandardType.VARCHAR, 10), true), //varchar type, nullable
                 new Column(testColName, tableRef, new DataType(DataType.StandardType.VARCHAR, 10), false), //varchar type, not null

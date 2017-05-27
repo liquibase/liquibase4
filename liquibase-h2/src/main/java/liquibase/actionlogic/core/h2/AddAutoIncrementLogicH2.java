@@ -17,7 +17,7 @@ public class AddAutoIncrementLogicH2 extends AddAutoIncrementLogic {
     @Override
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkUnsupportedFields("autoIncrementInformation.incrementBy")
+                .checkUnsupportedFields("autoIncrementDetails.incrementBy")
                 .checkRequiredFields("dataType");
     }
 }

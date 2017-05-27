@@ -2,6 +2,7 @@ package liquibase.parser.json
 
 import liquibase.JUnitScope
 import liquibase.parser.ParsedNode
+import liquibase.util.StringUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -19,7 +20,7 @@ class JsonUnparserTest extends Specification {
         new JsonUnparser().unparse(node, stream, JUnitScope.instance)
 
         then:
-        new String(stream.toByteArray()).replace("\r\n", "\n").trim() == expected.replace("\r\n", "\n").trim()
+        StringUtil.standardizeLineEndings(stream.toString().trim()) == StringUtil.standardizeLineEndings(expected.trim())
 
         where:
         [children, additionalSetup, expected] << [

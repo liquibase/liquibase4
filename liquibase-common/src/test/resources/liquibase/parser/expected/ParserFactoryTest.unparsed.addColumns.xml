@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="utf-8"?>
+<changeLog xmlns="http://www.liquibase.org/xml/ns/changelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/changelog http://www.liquibase.org/xml/ns/changelog/changelog-4.0.xsd">
+    <changeSet author="test" id="1">
+        <addColumns tableName="object_name" schemaName="schema_name" catalogName="cat_name">
+            <checkConstraint disabled="true" name="abc" remarks="abc">abc</checkConstraint>
+            <checkConstraint disabled="true" name="abc" remarks="abc">abc</checkConstraint>
+            <column defaultValue="ANY OBJECT VALUE" name="abc" nullable="true" remarks="abc" type="INTEGER" virtual="true">
+                <autoIncrementDetails incrementBy="4221" startWith="4221"/>
+            </column>
+            <column defaultValue="ANY OBJECT VALUE" name="abc" nullable="true" remarks="abc" type="INTEGER" virtual="true">
+                <autoIncrementDetails incrementBy="4221" startWith="4221"/>
+            </column>
+            <foreignKey deferrable="true" deleteRule="cascade" initiallyDeferred="true" name="abc" remarks="abc" updateRule="cascade" referencedTableName="object_name" referencedTableSchemaName="schema_name" referencedTableCatalogName="cat_name">
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+            </foreignKey>
+            <foreignKey deferrable="true" deleteRule="cascade" initiallyDeferred="true" name="abc" remarks="abc" updateRule="cascade" referencedTableName="object_name" referencedTableSchemaName="schema_name" referencedTableCatalogName="cat_name">
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+            </foreignKey>
+            <primaryKey clustered="true" name="abc" remarks="abc" tablespace="abc">
+                <column direction="ASC" name="abc"/>
+                <column direction="ASC" name="abc"/>
+            </primaryKey>
+            <uniqueConstraint deferrable="true" disabled="true" initiallyDeferred="true" name="abc" remarks="abc" tablespace="abc" backingIndexName="object_name" backingIndexTableName="table_name" backingIndexSchemaName="schema_name" backingIndexCatalogName="cat_name">
+                <column>abc</column>
+                <column>abc</column>
+            </uniqueConstraint>
+            <uniqueConstraint deferrable="true" disabled="true" initiallyDeferred="true" name="abc" remarks="abc" tablespace="abc" backingIndexName="object_name" backingIndexTableName="table_name" backingIndexSchemaName="schema_name" backingIndexCatalogName="cat_name">
+                <column>abc</column>
+                <column>abc</column>
+            </uniqueConstraint>
+        </addColumns>
+    </changeSet>
+</changeLog>

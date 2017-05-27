@@ -8,8 +8,11 @@ import liquibase.item.datatype.DataType;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.parser.unprocessor.AbstractActionUnprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a table along with the specified columns, primary key, foreignKeys, and uniqueConstraints.
@@ -90,6 +93,22 @@ public class CreateTableAction extends AbstractAction {
 
                 for (ParsedNode computed : actionNode.getChildren("computed", true)) {
                     computed.rename("virtual");
+                }
+            }
+        };
+    }
+
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new AbstractActionUnprocessor(CreateTableAction.class) {
+            @Override
+            protected void unprocessAction(ParsedNode actionNode, Scope scope) throws ParseException {
+                ParsedNode columns = actionNode.getChild("columns", false);
+                columns.moveChildren("column", actionNode);
+                columns.removeIfEmpty();
+
+                for (ParsedNode column : actionNode.getChildren("column", false)) {
+                    column.removeChildren("relation");
                 }
             }
         };

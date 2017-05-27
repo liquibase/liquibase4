@@ -1,0 +1,15 @@
+<?xml version="1.1" encoding="utf-8"?>
+<changeLog xmlns="http://www.liquibase.org/xml/ns/changelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/changelog http://www.liquibase.org/xml/ns/changelog/changelog-4.0.xsd">
+    <changeSet author="test" id="1">
+        <addForeignKeys>
+            <foreignKey deferrable="true" deleteRule="cascade" initiallyDeferred="true" name="abc" remarks="abc" updateRule="cascade" referencedTableName="object_name" referencedTableSchemaName="schema_name" referencedTableCatalogName="cat_name" tableName="object_name" schemaName="schema_name" catalogName="cat_name">
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+            </foreignKey>
+            <foreignKey deferrable="true" deleteRule="cascade" initiallyDeferred="true" name="abc" remarks="abc" updateRule="cascade" referencedTableName="object_name" referencedTableSchemaName="schema_name" referencedTableCatalogName="cat_name" tableName="object_name" schemaName="schema_name" catalogName="cat_name">
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+                <constraint baseColumn="abc" referencedColumn="abc"/>
+            </foreignKey>
+        </addForeignKeys>
+    </changeSet>
+</changeLog>

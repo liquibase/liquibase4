@@ -153,7 +153,7 @@ class SnapshotItemsActionColumnsTest extends AbstractActionTest {
                 if (((AddAutoIncrementActionTest.TestDetails) new AddAutoIncrementActionTest().getTestDetails(scope)).createPrimaryKeyBeforeAutoIncrement()) {
                     executor.execute(new AddPrimaryKeysAction(new PrimaryKey(null, columnRef.relation, columnRef.name)), scope)
                 }
-                executor.execute(new AddAutoIncrementAction(columnRef, DataType.parse("int"), new Column.AutoIncrementInformation()), scope)
+                executor.execute(new AddAutoIncrementAction(columnRef, DataType.parse("int"), new Column.AutoIncrementDetails()), scope)
             }
         })
 

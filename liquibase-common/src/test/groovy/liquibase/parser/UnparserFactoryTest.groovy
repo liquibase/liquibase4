@@ -21,13 +21,13 @@ class UnparserFactoryTest extends Specification {
         [object, expected] << [
                 [new ChangeLog(), """
 <?xml version="1.1" encoding="utf-8"?>
-<changeLog/>
+<changeLog xmlns="http://www.liquibase.org/xml/ns/changelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/changelog http://www.liquibase.org/xml/ns/changelog/changelog-4.0.xsd"/>
 """],
 
                 //-------
                 [new ChangeLog().each { it.changeLogEntries.add(new ChangeSet("1", "test user", "path/to/logical.xml"))}, """
 <?xml version="1.1" encoding="utf-8"?>
-<changeLog>
+<changeLog xmlns="http://www.liquibase.org/xml/ns/changelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/changelog http://www.liquibase.org/xml/ns/changelog/changelog-4.0.xsd">
     <changeSet author="test user" id="1"/>
 </changeLog>
 """],

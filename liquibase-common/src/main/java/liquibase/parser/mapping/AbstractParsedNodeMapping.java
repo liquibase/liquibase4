@@ -6,6 +6,7 @@ import liquibase.Scope;
 import liquibase.exception.ParseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.parser.ParsedNode;
+import liquibase.util.StringUtil;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -46,6 +47,8 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                 }
 
                 ParsedNode collectionNode = node.addChild(attr);
+                collectionNode.addMarker(ParsedNode.Marker.isCollectionNode);
+
                 for (Object childObject : (Collection) childValue) {
                     if (childObject instanceof ExtensibleObject) {
                         scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childObject, objectToConvert.getClass(), null, collectionNode, scope);
@@ -57,7 +60,9 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                 if (childValue instanceof ExtensibleObject) {
                     scope.getSingleton(ParsedNodeMappingFactory.class).toParsedNode(childValue, objectToConvert.getClass(), attr, node, scope);
                 } else {
-                    node.addChild(attr).setValue(childValue);
+                    ParsedNode childNode = node.addChild(attr);
+                    childNode.setValue(childValue);
+                    childNode.addMarker(ParsedNode.Marker.isAttribute);
                 }
             }
 
@@ -78,7 +83,12 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
         for (ParsedNode child : parsedNode.getChildren()) {
             ObjectMetaData.Attribute attribute = returnObject.getObjectMetaData().getAttribute(child.getName());
             if (attribute == null) {
-                throw new ParseException("Unexpected attribute '" + child.getName() + "' for " + returnObject.getClass().getName(), child);
+                throw new ParseException("Unexpected attribute '" + child.getName() + "' for " + returnObject.getClass().getName()+". Possible attributes: ["+ StringUtil.join(returnObject.getObjectMetaData().attributes, ", ", new StringUtil.StringUtilFormatter<ObjectMetaData.Attribute>() {
+                    @Override
+                    public String toString(ObjectMetaData.Attribute obj) {
+                        return obj.name;
+                    }
+                })+"]", child);
             }
             Type attributeType = attribute.type;
             Class attributeClass;
@@ -121,6 +131,8 @@ public abstract class AbstractParsedNodeMapping<ObjectType extends ExtensibleObj
                     }
                 } else if (child.getValue() instanceof ParsedNode) {
                     collection.add(scope.getSingleton(ParsedNodeMappingFactory.class).toObject((ParsedNode) child.getValue(), collectionElementClass, returnObject.getClass(), child.getName(), scope));
+                } else if (child.getValue() instanceof Collection) {
+                    collection.addAll((Collection) child.getValue());
                 } else {
                     if (child.getValue() != null) {
                         collection.add(child.getValue(null, collectionElementClass));

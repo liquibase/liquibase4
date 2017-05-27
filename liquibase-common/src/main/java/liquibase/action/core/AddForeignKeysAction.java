@@ -3,10 +3,16 @@ package liquibase.action.core;
 import liquibase.Scope;
 import liquibase.action.AbstractAction;
 import liquibase.exception.ParseException;
+import liquibase.item.core.CheckConstraint;
 import liquibase.item.core.ForeignKey;
+import liquibase.item.core.PrimaryKey;
+import liquibase.item.core.UniqueConstraint;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
+import liquibase.parser.unprocessor.AbstractActionUnprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
+import liquibase.util.CollectionUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +41,16 @@ public class AddForeignKeysAction extends AbstractAction {
         return new AddForeignKeysPreprocessor();
     }
 
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new AbstractActionUnprocessor(AddForeignKeysAction.class) {
+            @Override
+            protected void unprocessAction(ParsedNode actionNode, Scope scope) throws ParseException {
+//                hoistListNodes(actionNode, "foreignKeys");
+            }
+        };
+    }
+
     public static class AddForeignKeysPreprocessor extends AbstractActionPreprocessor {
 
         public AddForeignKeysPreprocessor() {
@@ -47,41 +63,45 @@ public class AddForeignKeysAction extends AbstractAction {
         }
 
         @Override
+        public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+            return CollectionUtil.union(Class.class, super.mustBeBefore(),
+                    new ForeignKey().createPreprocessor().getClass()
+            );
+        }
+
+        @Override
         protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-            ParsedNode baseTable = convertToRelationReferenceNode("baseTableCatalogName", "baseTableSchemaName", "baseTableName", actionNode);
-            if (baseTable != null) {
-                fixForeignKey(actionNode, baseTable);
-                baseTable.remove();
-            }
-            ParsedNode foreignKeys = actionNode.getChild("foreignKeys", true);
-            actionNode.moveChildren("foreignKey", foreignKeys);
+            actionNode.renameChildren("baseTableName", "relationName");
+            actionNode.renameChildren("tableName", "relationName");
 
-            for (ParsedNode deleteRule : foreignKeys.getChildren("deleteRule", true)) {
-                String value = deleteRule.getValue(null, String.class);
-                if (value != null) {
-                    value = value.replaceAll(" ", "");
-                    for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
-                        if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
-                            deleteRule.setValue(possibleValue.name());
-                        }
-                    }
-                }
-            }
+            actionNode.renameChildren("baseTableSchemaName", "relationSchemaName");
+            actionNode.renameChildren("tableSchemaName", "relationSchemaName");
 
-            for (ParsedNode updateRule : foreignKeys.getChildren("updateRule", true)) {
-                String value = updateRule.getValue(null, String.class);
-                value = value.replaceAll(" ", "");
-                if (value != null) {
-                    for (ForeignKey.ReferentialAction possibleValue : ForeignKey.ReferentialAction.values()) {
-                        if (value.equalsIgnoreCase(possibleValue.name()) && !value.equals(possibleValue.name())) {
-                            updateRule.setValue(possibleValue.name());
-                        }
-                    }
-                }
+
+            actionNode.renameChildren("baseTableCatalogName", "relationCatalogName");
+            actionNode.renameChildren("tableCatalogName", "relationCatalogName");
+
+            ParsedNode relationReferenceNode = convertToRelationReferenceNode("relationCatalogName", "relationSchemaName", "relationName", actionNode);
+
+            if (relationReferenceNode != null) {
+                fixForeignKey(actionNode, relationReferenceNode);
+                actionNode.removeChildren("deferrable");
+                actionNode.removeChildren("initiallyDeferred");
+
+                relationReferenceNode.moveTo(actionNode.getChild("foreignKey", false));
             }
 
-            actionNode.removeChildren("deferrable");
-            actionNode.removeChildren("initiallyDeferred");
+            groupChildren("foreignKeys", actionNode, "foreignKey");
+
+//            ParsedNode foreignKeysNode = actionNode.getChild("foreignKeys", true);
+//            for (ParsedNode fkNode : foreignKeysNode.getChildren()) {
+//                copyAsDefault("relationName", actionNode, fkNode);
+//                copyAsDefault("baseRelationName", actionNode, fkNode);
+//            }
+//
+//            actionNode.removeChildren("baseRelationName");
+//            actionNode.removeChildren("baseRelationName");
+//            actionNode.removeChildren("initiallyDeferred");
         }
 
         public void fixForeignKey(ParsedNode baseNode, ParsedNode baseTableReferenceNode) throws ParseException {
@@ -150,6 +170,7 @@ public class AddForeignKeysAction extends AbstractAction {
                     refColumnName.rename("referencedColumn").moveTo(check);
                 }
 
+                //keep deferrable and initiallyDeferred on the original node because if this is a column node it may apply to multiple constraints
                 baseNode.copyChildren("deferrable", foreignKey);
                 baseNode.copyChildren("initiallyDeferred", foreignKey);
 

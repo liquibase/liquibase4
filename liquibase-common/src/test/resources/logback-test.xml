@@ -8,6 +8,8 @@
         </encoder>
     </appender>
 
+    <logger name="liquibase.parser" level="INFO"/>
+
     <logger name="liquibase" level="WARN"/>
     <logger name="testmd" level="WARN"/>
 

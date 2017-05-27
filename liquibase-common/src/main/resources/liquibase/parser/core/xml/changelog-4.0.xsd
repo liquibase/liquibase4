@@ -5,12 +5,12 @@
 
     <xsd:element name="changeLog">
         <xsd:complexType>
-            <xsd:sequence>
-                <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                <xsd:choice>
                     <xsd:element name="changeSet" minOccurs="0" maxOccurs="unbounded">
                         <xsd:complexType>
                             <xsd:sequence>
-                                <xsd:group ref="changeSetChildren" minOccurs="0" maxOccurs="unbounded" />
+                                <xsd:group ref="changeSetChildren" minOccurs="0" maxOccurs="unbounded"/>
                             </xsd:sequence>
                             <xsd:attribute name="id" type="xsd:string" use="required"/>
                             <xsd:attribute name="author" type="xsd:string" use="required"/>
@@ -24,49 +24,216 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="createTable">
-        <xsd:complexType>
-            <xsd:choice maxOccurs="unbounded">
-                <xsd:element name="column" minOccurs="1">
-                    <xsd:complexType>
-                        <xsd:attribute name="name" type="xsd:string" use="required"/>
-                        <xsd:attribute name="type" type="xsd:string" use="required"/>
-                        <xsd:attribute name="nullable" type="xsd:boolean"/>
+    <xsd:group name="changeSetChildren">
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="query">
+                    <xsd:complexType mixed="true">
+                        <xsd:attribute name="dbms" type="xsd:string"/>
+                        <xsd:attribute name="endDelimiter" type="xsd:string"/>
+                        <xsd:attribute name="splitStatements" type="xsd:string"/>
+                        <xsd:attribute name="stripComments" type="xsd:string"/>
                     </xsd:complexType>
                 </xsd:element>
-            </xsd:choice>
-            <xsd:attribute name="tableName" type="xsd:string" use="required"/>
-            <xsd:attribute name="schemaName" type="xsd:string"/>
-            <xsd:attribute name="catalogName" type="xsd:string"/>
-        </xsd:complexType>
-    </xsd:element>
 
-    <xsd:element name="insertData">
-        <xsd:complexType>
-            <xsd:choice maxOccurs="unbounded">
-                <xsd:element name="row" minOccurs="1">
+                <xsd:element name="updateSql">
+                    <xsd:complexType mixed="true">
+                        <xsd:attribute name="dbms" type="xsd:string"/>
+                        <xsd:attribute name="endDelimiter" type="xsd:string"/>
+                        <xsd:attribute name="splitStatements" type="xsd:string"/>
+                        <xsd:attribute name="stripComments" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="sql">
+                    <xsd:complexType mixed="true">
+                        <xsd:attribute name="dbms" type="xsd:string"/>
+                        <xsd:attribute name="endDelimiter" type="xsd:string"/>
+                        <xsd:attribute name="splitStatements" type="xsd:string"/>
+                        <xsd:attribute name="stripComments" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="addAutoIncrement">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="autoIncrementDetails" minOccurs="0" maxOccurs="1">
+                                <xsd:complexType>
+                                    <xsd:attribute name="incrementBy" type="xsd:integer"/>
+                                    <xsd:attribute name="startWith" type="xsd:integer"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="columnName" type="xsd:string" use="required"/>
+                        <xsd:attribute name="tableName" type="xsd:string"/>
+                        <xsd:attribute name="schemaName" type="xsd:string"/>
+                        <xsd:attribute name="catalogName" type="xsd:string"/>
+                        <xsd:attribute name="dataType" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="addColumns">
+                    <xsd:complexType>
+                        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                            <xsd:choice>
+                                <xsd:element name="checkConstraint" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType mixed="true">
+                                        <xsd:attribute name="disabled" type="xsd:boolean"/>
+                                        <xsd:attribute name="name" type="xsd:string"/>
+                                        <xsd:attribute name="remarks" type="xsd:string"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="column" minOccurs="1" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="autoIncrementDetails" minOccurs="0" maxOccurs="1">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="incrementBy" type="xsd:integer"/>
+                                                    <xsd:attribute name="startWith" type="xsd:integer"/>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
+                                        <xsd:attribute name="defaultValue" type="xsd:string"/>
+                                        <xsd:attribute name="name" type="xsd:string" use="required"/>
+                                        <xsd:attribute name="nullable" type="xsd:boolean"/>
+                                        <xsd:attribute name="remarks" type="xsd:string"/>
+                                        <xsd:attribute name="type" type="xsd:string"/>
+                                        <xsd:attribute name="virtual" type="xsd:boolean"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="foreignKey" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="constraint" minOccurs="1" maxOccurs="unbounded">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="baseColumn" type="xsd:string"/>
+                                                    <xsd:attribute name="referencedColumn" type="xsd:string"/>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
+                                        <xsd:attribute name="deferrable" type="xsd:boolean"/>
+                                        <xsd:attribute name="deleteRule" type="xsd:string"/>
+                                        <xsd:attribute name="initiallyDeferred" type="xsd:boolean"/>
+                                        <xsd:attribute name="name" type="xsd:string"/>
+                                        <xsd:attribute name="remarks" type="xsd:string"/>
+                                        <xsd:attribute name="updateRule" type="xsd:string"/>
+                                        <xsd:attribute name="referencedTableName" type="xsd:string"/>
+                                        <xsd:attribute name="referencedTableSchemaName" type="xsd:string"/>
+                                        <xsd:attribute name="referencedTableCatalogName" type="xsd:string"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="primaryKey" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="column" minOccurs="1" maxOccurs="unbounded">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="name" type="xsd:string"/>
+                                                    <xsd:attribute name="direction" type="xsd:string"/>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
+                                        <xsd:attribute name="clustered" type="xsd:boolean"/>
+                                        <xsd:attribute name="name" type="xsd:string"/>
+                                        <xsd:attribute name="remarks" type="xsd:string"/>
+                                        <xsd:attribute name="tablespace" type="xsd:string"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="uniqueConstraint" minOccurs="0" maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="column" minOccurs="1" maxOccurs="unbounded"/>
+                                        </xsd:sequence>
+                                        <xsd:attribute name="deferrable" type="xsd:boolean"/>
+                                        <xsd:attribute name="disabled" type="xsd:boolean"/>
+                                        <xsd:attribute name="initiallyDeferred" type="xsd:boolean"/>
+                                        <xsd:attribute name="name" type="xsd:string"/>
+                                        <xsd:attribute name="remarks" type="xsd:string"/>
+                                        <xsd:attribute name="tablespace" type="xsd:string"/>
+                                        <xsd:attribute name="backingIndexName" type="xsd:string"/>
+                                        <xsd:attribute name="backingIndexTableName" type="xsd:string"/>
+                                        <xsd:attribute name="backingIndexSchemaName" type="xsd:string"/>
+                                        <xsd:attribute name="backingIndexCatalogName" type="xsd:string"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:choice>
+                        </xsd:sequence>
+                        <xsd:attribute name="tableName" type="xsd:string"/>
+                        <xsd:attribute name="schemaName" type="xsd:string"/>
+                        <xsd:attribute name="catalogName" type="xsd:string"/>
+                        <xsd:attribute name="dataType" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="addForeignKeys">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="foreignKey" minOccurs="1" maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name="constraint" minOccurs="1" maxOccurs="unbounded">
+                                            <xsd:complexType>
+                                                <xsd:attribute name="baseColumn" type="xsd:string"/>
+                                                <xsd:attribute name="referencedColumn" type="xsd:string"/>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:sequence>
+                                    <xsd:attribute name="deferrable" type="xsd:boolean"/>
+                                    <xsd:attribute name="deleteRule" type="xsd:string"/>
+                                    <xsd:attribute name="initiallyDeferred" type="xsd:boolean"/>
+                                    <xsd:attribute name="name" type="xsd:string"/>
+                                    <xsd:attribute name="remarks" type="xsd:string"/>
+                                    <xsd:attribute name="updateRule" type="xsd:string"/>
+                                    <xsd:attribute name="tableName" type="xsd:string"/>
+                                    <xsd:attribute name="schemaName" type="xsd:string"/>
+                                    <xsd:attribute name="catalogName" type="xsd:string"/>
+                                    <xsd:attribute name="referencedTableName" type="xsd:string"/>
+                                    <xsd:attribute name="referencedTableSchemaName" type="xsd:string"/>
+                                    <xsd:attribute name="referencedTableCatalogName" type="xsd:string"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="createTable">
                     <xsd:complexType>
                         <xsd:choice maxOccurs="unbounded">
                             <xsd:element name="column" minOccurs="1">
                                 <xsd:complexType>
                                     <xsd:attribute name="name" type="xsd:string" use="required"/>
-                                    <xsd:attribute name="value" type="xsd:string" use="required"/>
+                                    <xsd:attribute name="type" type="xsd:string" use="required"/>
+                                    <xsd:attribute name="nullable" type="xsd:boolean"/>
                                 </xsd:complexType>
                             </xsd:element>
                         </xsd:choice>
+                        <xsd:attribute name="tableName" type="xsd:string" use="required"/>
+                        <xsd:attribute name="schemaName" type="xsd:string"/>
+                        <xsd:attribute name="catalogName" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+
+                <xsd:element name="insertData">
+                    <xsd:complexType>
+                        <xsd:choice maxOccurs="unbounded">
+                            <xsd:element name="row" minOccurs="1">
+                                <xsd:complexType>
+                                    <xsd:choice maxOccurs="unbounded">
+                                        <xsd:element name="column" minOccurs="1">
+                                            <xsd:complexType>
+                                                <xsd:attribute name="name" type="xsd:string" use="required"/>
+                                                <xsd:attribute name="value" type="xsd:string" use="required"/>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:choice>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:choice>
+                        <xsd:attribute name="tableName" type="xsd:string"/>
+                        <xsd:attribute name="schemaName" type="xsd:string"/>
+                        <xsd:attribute name="catalogName" type="xsd:string"/>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:choice>
-            <xsd:attribute name="tableName" type="xsd:string"/>
-            <xsd:attribute name="schemaName" type="xsd:string"/>
-            <xsd:attribute name="catalogName" type="xsd:string"/>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:group name="changeSetChildren">
-        <xsd:choice>
-            <xsd:element ref="createTable"/>
-            <xsd:element ref="insertData"/>
-        </xsd:choice>
+        </xsd:sequence>
     </xsd:group>
 </xsd:schema>

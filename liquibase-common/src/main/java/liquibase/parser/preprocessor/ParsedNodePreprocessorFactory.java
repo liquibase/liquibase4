@@ -3,6 +3,7 @@ package liquibase.parser.preprocessor;
 import liquibase.Scope;
 import liquibase.action.Action;
 import liquibase.exception.DependencyException;
+import liquibase.item.Item;
 import liquibase.plugin.AbstractPluginFactory;
 import liquibase.util.DependencyUtil;
 
@@ -43,6 +44,13 @@ public class ParsedNodePreprocessorFactory extends AbstractPluginFactory<ParsedN
 
         for (Action action: ServiceLoader.load(Action.class, getFactoryScope().getClassLoader(true))) {
             ParsedNodePreprocessor preprocessor = action.createPreprocessor();
+            if (preprocessor != null) {
+                returnList.add(preprocessor);
+            }
+        }
+
+        for (Item item: ServiceLoader.load(Item.class, getFactoryScope().getClassLoader(true))) {
+            ParsedNodePreprocessor preprocessor = item.createPreprocessor();
             if (preprocessor != null) {
                 returnList.add(preprocessor);
             }

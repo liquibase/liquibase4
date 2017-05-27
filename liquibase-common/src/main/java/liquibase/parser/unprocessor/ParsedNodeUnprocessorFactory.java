@@ -18,6 +18,8 @@ import java.util.ServiceLoader;
  */
 public class ParsedNodeUnprocessorFactory extends AbstractPluginFactory<ParsedNodeUnprocessor> {
 
+    private List<ParsedNodeUnprocessor> unprocessors = null;
+
     protected ParsedNodeUnprocessorFactory(Scope factoryScope) {
         super(factoryScope);
     }
@@ -39,7 +41,11 @@ public class ParsedNodeUnprocessorFactory extends AbstractPluginFactory<ParsedNo
      * Return the list of {@link ParsedNodeUnprocessor} implementations to run, in the correct sorted order.
      */
     public List<ParsedNodeUnprocessor> getUnprocessors() throws DependencyException {
-        return DependencyUtil.sort(findAllInstances());
+        if (this.unprocessors == null) {
+            Collection<ParsedNodeUnprocessor> allInstances = findAllInstances();
+            this.unprocessors = DependencyUtil.sort(allInstances);
+        }
+        return this.unprocessors;
     }
 
     @Override

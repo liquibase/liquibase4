@@ -87,6 +87,33 @@ rootNode
         e.message == "com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path \$";
     }
 
+    def "can parse a file with an array of objects"() {
+        when:
+        def scope = createScope("com/example/test.json", """
+{
+  "rootNode": [
+      {
+        "Aattr1": "AA",
+        "Aattr2": "AB"
+      },
+      {
+        "Battr1": "BA",
+        "Battr2": "BB"
+      }
+    ]
+}
+""")
+        def parsedNode = new JsonParser().parse("com/example/test.json", scope)
+
+        then:
+        parsedNode.prettyPrint() == """
+rootNode
+    attr1: A
+    attr2: B
+    physicalPath: com/example/test.json
+""".trim()
+    }
+
     def createScope(String path, String data) {
         def mockAccessor = new MockResourceAccessor()
         mockAccessor.addData(path, data)

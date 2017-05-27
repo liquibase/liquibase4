@@ -8,7 +8,7 @@ class AddColumnsLogicH2Test extends AbstractActionLogicTest {
     String getExpectedValidationErrors() {
         return """
 AddColumnsAction.columns is required
-AddColumnsAction.columns.autoIncrementInformation is not supported
+AddColumnsAction.columns.autoIncrementDetails is not supported
 AddColumnsAction.columns.name is required
 AddColumnsAction.columns.relation is required
 AddColumnsAction.columns.type is required

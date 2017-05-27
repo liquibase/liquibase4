@@ -8,7 +8,7 @@ import liquibase.parser.unprocessor.AbstractParsedNodeUnprocessor;
 public class ChangeLogUnprocessor extends AbstractParsedNodeUnprocessor {
 
     @Override
-    public void unprocess(ParsedNode node, Scope scope) throws ParseException {
+    public void unprocess(ParsedNode node, String outputPath, Scope scope) throws ParseException {
         if (node.getName().equals("changeLog")) {
             node.removeChildren("physicalPath");
 

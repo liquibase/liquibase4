@@ -228,7 +228,7 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         StringClauses columnClause = new StringClauses().append(database.quoteObjectName(columnName, Column.class, scope));
         columnClause.append(column.type.toString());
 
-        Column.AutoIncrementInformation autoIncrementInformation = column.autoIncrementInformation;
+        Column.AutoIncrementDetails autoIncrementDetails = column.autoIncrementDetails;
 
 
 //        boolean isPrimaryKeyColumn = ObjectUtil.defaultIfEmpty(column.isPrimaryKey, false);
@@ -252,19 +252,19 @@ public class CreateTableLogic extends AbstractSqlBuilderLogic<CreateTableAction>
         Object defaultValue = column.defaultValue;
 
         // auto-increment columns, there should be no default value
-        if (defaultValue != null && autoIncrementInformation == null) {
+        if (defaultValue != null && autoIncrementDetails == null) {
             String defaultValueString = scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(defaultValue, column.type, scope);
             columnClause.append(ColumnClauses.defaultValue, "DEFAULT " + defaultValueString);
         }
 
-        if (autoIncrementInformation != null) {
+        if (autoIncrementDetails != null) {
             // TODO: check if database supports auto increment on non primary key column
             if (database.supports(Database.Feature.AUTO_INCREMENT, scope)) {
-                BigInteger startWith = autoIncrementInformation.startWith;
-                BigInteger incrementBy = autoIncrementInformation.incrementBy;
+                BigInteger startWith = autoIncrementDetails.startWith;
+                BigInteger incrementBy = autoIncrementDetails.incrementBy;
                 ActionLogic addAutoIncrementLogic = scope.getSingleton(ActionLogicFactory.class).getActionLogic(new AddAutoIncrementAction(), scope);
 
-                StringClauses autoIncrementClause = ((AddAutoIncrementLogic) addAutoIncrementLogic).generateAutoIncrementClause(new Column.AutoIncrementInformation(startWith, incrementBy));
+                StringClauses autoIncrementClause = ((AddAutoIncrementLogic) addAutoIncrementLogic).generateAutoIncrementClause(new Column.AutoIncrementDetails(startWith, incrementBy));
 
                 columnClause.append(ColumnClauses.autoIncrement, autoIncrementClause);
 //                if (!"".equals(autoIncrementClause)) {

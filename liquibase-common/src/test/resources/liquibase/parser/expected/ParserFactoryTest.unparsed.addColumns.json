@@ -1,0 +1,147 @@
+{
+  "changeLog": {
+    "changeSet": {
+      "author": "test",
+      "id": "1",
+      "addColumns": {
+        "catalogName": "cat_name",
+        "schemaName": "schema_name",
+        "tableName": "object_name",
+        "checkConstraints": [
+          {
+            "body": "abc",
+            "disabled": true,
+            "name": "abc",
+            "remarks": "abc"
+          },
+          {
+            "body": "abc",
+            "disabled": true,
+            "name": "abc",
+            "remarks": "abc"
+          }
+        ],
+        "columns": [
+          {
+            "defaultValue": "ANY OBJECT VALUE",
+            "name": "abc",
+            "nullable": true,
+            "remarks": "abc",
+            "type": "INTEGER",
+            "virtual": true,
+            "autoIncrementDetails": {
+              "incrementBy": 4221,
+              "startWith": 4221
+            }
+          },
+          {
+            "defaultValue": "ANY OBJECT VALUE",
+            "name": "abc",
+            "nullable": true,
+            "remarks": "abc",
+            "type": "INTEGER",
+            "virtual": true,
+            "autoIncrementDetails": {
+              "incrementBy": 4221,
+              "startWith": 4221
+            }
+          }
+        ],
+        "foreignKeys": [
+          {
+            "deferrable": true,
+            "deleteRule": "cascade",
+            "initiallyDeferred": true,
+            "name": "abc",
+            "referencedTableCatalogName": "cat_name",
+            "referencedTableName": "object_name",
+            "referencedTableSchemaName": "schema_name",
+            "remarks": "abc",
+            "updateRule": "cascade",
+            "columnChecks": [
+              {
+                "baseColumn": "abc",
+                "referencedColumn": "abc"
+              },
+              {
+                "baseColumn": "abc",
+                "referencedColumn": "abc"
+              }
+            ]
+          },
+          {
+            "deferrable": true,
+            "deleteRule": "cascade",
+            "initiallyDeferred": true,
+            "name": "abc",
+            "referencedTableCatalogName": "cat_name",
+            "referencedTableName": "object_name",
+            "referencedTableSchemaName": "schema_name",
+            "remarks": "abc",
+            "updateRule": "cascade",
+            "columnChecks": [
+              {
+                "baseColumn": "abc",
+                "referencedColumn": "abc"
+              },
+              {
+                "baseColumn": "abc",
+                "referencedColumn": "abc"
+              }
+            ]
+          }
+        ],
+        "primaryKey": {
+          "clustered": true,
+          "name": "abc",
+          "remarks": "abc",
+          "tablespace": "abc",
+          "columns": [
+            {
+              "direction": "ASC",
+              "name": "abc"
+            },
+            {
+              "direction": "ASC",
+              "name": "abc"
+            }
+          ]
+        },
+        "uniqueConstraints": [
+          {
+            "backingIndexCatalogName": "cat_name",
+            "backingIndexName": "object_name",
+            "backingIndexSchemaName": "schema_name",
+            "backingIndexTableName": "table_name",
+            "deferrable": true,
+            "disabled": true,
+            "initiallyDeferred": true,
+            "name": "abc",
+            "remarks": "abc",
+            "tablespace": "abc",
+            "columns": [
+              "abc",
+              "abc"
+            ]
+          },
+          {
+            "backingIndexCatalogName": "cat_name",
+            "backingIndexName": "object_name",
+            "backingIndexSchemaName": "schema_name",
+            "backingIndexTableName": "table_name",
+            "deferrable": true,
+            "disabled": true,
+            "initiallyDeferred": true,
+            "name": "abc",
+            "remarks": "abc",
+            "tablespace": "abc",
+            "columns": [
+              "abc",
+              "abc"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

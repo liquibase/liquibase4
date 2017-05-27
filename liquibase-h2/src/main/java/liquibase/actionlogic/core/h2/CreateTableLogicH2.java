@@ -29,11 +29,11 @@ public class CreateTableLogicH2 extends CreateTableLogic {
 
         errors.removeUnsupportedField("primaryKey");
         errors.removeUnsupportedField("primaryKey.name");
-        errors.removeUnsupportedField("columns.autoIncrementInformation");
+        errors.removeUnsupportedField("columns.autoIncrementDetails");
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns) {
-                if (column.autoIncrementInformation != null) {
+                if (column.autoIncrementDetails != null) {
                     if (action.primaryKey != null) {
                         boolean foundKeyCol = false;
                         for (PrimaryKey.PrimaryKeyColumn pkCol : action.primaryKey.columns) {

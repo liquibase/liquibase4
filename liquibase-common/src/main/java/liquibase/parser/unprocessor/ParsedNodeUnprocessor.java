@@ -18,5 +18,5 @@ public interface ParsedNodeUnprocessor extends Plugin, DependencyObject<ParsedNo
      * Note: this method is only called once during the unparsing process and is called on the root parsed node,
      * so normally this method must find child and grandchild nodes that need to be changed
      */
-    void unprocess(ParsedNode node, Scope scope) throws ParseException;
+    void unprocess(ParsedNode node, String outputPath, Scope scope) throws ParseException;
 }

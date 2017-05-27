@@ -25,12 +25,20 @@ import java.util.*;
  * @see Parser
  * @see liquibase.parser.mapping.ParsedNodeMapping
  */
-public class ParsedNode extends AbstractExtensibleObject {
+public class ParsedNode extends AbstractExtensibleObject implements Comparable<ParsedNode> {
 
     /**
      * Convenience enum for available {@link #addMarker(Marker)} options.
      */
     public enum Marker {
+
+        /**
+         * If set and supported by a parser/unparser, the node was/should be represented as a nested text value.
+         * For example, in xml the node should be represented as &lt;parentNode&gt;value&lt;/parentNode&gt; instead of &lt;name&gt;value&lt;/name&gt;
+         */
+        isText,
+
+        isCollectionNode,
 
         /**
          * If set and supported by a parser/unparser, the node was/should be represented as an attribute.
@@ -198,8 +206,8 @@ public class ParsedNode extends AbstractExtensibleObject {
      */
     public String describe() {
         return (getClass().getSimpleName()
-                + "{" + name + (value == null ? "" : ("=" + value))
-                + (children == null || children.size() == 0 ? "" : ", children=" + new StringUtil.DefaultFormatter().toString(children)))
+                + "{" + name+ (value == null ? "" : ("=\"" + value+"\""))
+                + (children == null || children.size() == 0 ? "" : " " + new StringUtil.DefaultFormatter().toString(children)))
                 + "}";
     }
 
@@ -470,6 +478,22 @@ public class ParsedNode extends AbstractExtensibleObject {
     }
 
     /**
+     * Removes this node from it's parent only if it has no value and has no children.
+     * Returns true if node was removed, false if it was not.
+     */
+    public boolean removeIfEmpty() throws ParseException {
+        if (value == null && children.isEmpty()) {
+            this.remove();
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+
+
+    /**
      * Returns the list of child nodes, unmodifiable.
      */
     public List<ParsedNode> getChildren() {
@@ -540,6 +564,7 @@ public class ParsedNode extends AbstractExtensibleObject {
         for (ParsedNode child : new ArrayList<>(this.children)) {
             child.copyTo(copy);
         }
+        copy.markers.addAll(this.markers);
 
         return copy;
     }
@@ -597,7 +622,7 @@ public class ParsedNode extends AbstractExtensibleObject {
     public interface ParsedNodeFilter {
         boolean matches(ParsedNode node);
 
-        final ParsedNodeFilter ALL = new ParsedNodeFilter() {
+        ParsedNodeFilter ALL = new ParsedNodeFilter() {
             @Override
             public boolean matches(ParsedNode node) {
                 return true;
@@ -617,4 +642,34 @@ public class ParsedNode extends AbstractExtensibleObject {
             return Objects.equals(node.name, nodeName);
         }
     }
+
+    @Override
+    public int compareTo(ParsedNode o) {
+        if (this.getChildren().size() == 0 && o.getChildren().size() > 0) {
+            return -1;
+        } else if (this.getChildren().size() > 0 && o.getChildren().size() == 0) {
+            return 1;
+        }
+
+        int result = this.getName().compareTo(o.getName());
+        if (result == 0) {
+            result = this.describe().compareTo(o.describe());
+        }
+        return result;
+    }
+
+    /**
+     * Return true if this ParsedNode has children with duplicate names.
+     * @return
+     */
+    public boolean hasDuplicateChildren() {
+        Set<String> childNames = new HashSet<>();
+        for (ParsedNode child : this.getChildren()) {
+            if (!childNames.add(child.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

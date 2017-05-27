@@ -7,7 +7,7 @@ class AddAutoIncrementLogicH2Test extends AbstractActionLogicTest {
     @Override
     String getExpectedValidationErrors() {
         return """
-AddAutoIncrementAction.autoIncrementInformation.incrementBy is not supported
+AddAutoIncrementAction.autoIncrementDetails.incrementBy is not supported
 AddAutoIncrementAction.column is required
 AddAutoIncrementAction.column.container is required
 AddAutoIncrementAction.dataType is required

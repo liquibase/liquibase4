@@ -118,7 +118,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
         if (!errors.hasErrors()) {
             int autoIncColumns = 0;
             for (Column column : action.columns) {
-                if (column.autoIncrementInformation != null) {
+                if (column.autoIncrementDetails != null) {
                     autoIncColumns++;
                     if (column.type.standardType != null && !(column.type.standardType.valueType.equals(Integer.class) || column.type.standardType.valueType.equals(BigInteger.class))) {
                         errors.addUnsupportedError("a non-integer auto-increment column");
@@ -175,7 +175,7 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
             }
 
             for (int i = 0; i < snapshotColumns.size(); i++) {
-                List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementInformation", "nullable", "table"));
+                List<String> excludeFields = new ArrayList<>(Arrays.asList("type", "autoIncrementDetails", "nullable", "table"));
 
                 Column actionColumn = action.columns.get(i);
                 Column snapshotColumn = snapshotColumns.get(i);
@@ -259,10 +259,10 @@ public class AddColumnsLogic extends AbstractActionLogic<AddColumnsAction> {
                 .append(Clauses.dataType, scope.getSingleton(DataTypeLogicFactory.class).getDataTypeLogic(column.type, scope).toSql(columnType, scope))
                 .append(getDefaultValueClause(column, action, scope));
 
-        if (column.autoIncrementInformation != null) {
+        if (column.autoIncrementDetails != null) {
             ActionLogic addAutoIncrementLogic = scope.getSingleton(ActionLogicFactory.class).getActionLogic(new AddAutoIncrementAction(), scope);
             if (addAutoIncrementLogic != null && addAutoIncrementLogic instanceof AddAutoIncrementLogic) {
-                clauses.append(Clauses.autoIncrement, ((AddAutoIncrementLogic) addAutoIncrementLogic).generateAutoIncrementClause(column.autoIncrementInformation));
+                clauses.append(Clauses.autoIncrement, ((AddAutoIncrementLogic) addAutoIncrementLogic).generateAutoIncrementClause(column.autoIncrementDetails));
             } else {
                 throw new UnexpectedLiquibaseException("Cannot use AddAutoIncrementLogic class " + addAutoIncrementLogic + " to build auto increment clauses");
             }

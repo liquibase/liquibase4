@@ -1,6 +1,7 @@
 package liquibase.item;
 
 import liquibase.ExtensibleObject;
+import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 
 /**
@@ -21,6 +22,14 @@ public interface Item<ReferenceType extends ItemReference> extends Comparable, E
      * Creates a reference to this item. The reference can be used to uniquely identify this object in snapshots etc.
      */
     ReferenceType toReference();
+
+    /**
+     * Creates a custom {@link ParsedNodePreprocessor} instance to setup in the {@link liquibase.parser.preprocessor.ParsedNodePreprocessorFactory}.
+     * Because many items need to do custom preprocessing, we use this method instead of needing to add these classes to the META-INF/services configuration.
+     * Can return null if no preprocessors are needed.
+     */
+    ParsedNodePreprocessor createPreprocessor();
+
 
     /**
      * Creates a custom {@link ParsedNodeUnprocessor} instance to setup in the {@link liquibase.parser.unprocessor.ParsedNodeUnprocessorFactory}.

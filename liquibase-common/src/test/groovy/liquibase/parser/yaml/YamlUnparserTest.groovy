@@ -3,6 +3,7 @@ package liquibase.parser.yaml
 import liquibase.JUnitScope
 import liquibase.parser.ParsedNode
 import liquibase.parser.Parser
+import liquibase.util.StringUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -21,7 +22,7 @@ class YamlUnparserTest extends Specification {
         new YamlUnparser().unparse(node, stream, JUnitScope.instance)
 
         then:
-        new String(stream.toByteArray()).replace("\r\n", "\n").trim() == expected.replace("\r\n", "\n").trim()
+        StringUtil.standardizeLineEndings(stream.toString().trim() )== StringUtil.standardizeLineEndings(expected.trim())
 
         where:
         [children, additionalSetup, expected] << [

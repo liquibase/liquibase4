@@ -31,7 +31,9 @@ public class ActionFactory extends AbstractPluginFactory<Action> {
      * Returns the best {@link Action} for the given actionName.
      */
     public Action getAction(String actionName, Scope scope) {
-        return (Action) getPlugin(scope, actionName).clone();
+        Action clone = (Action) getPlugin(scope, actionName).clone();
+        clone.setReadOnlyObject(false);
+        return clone;
     }
 
     /**

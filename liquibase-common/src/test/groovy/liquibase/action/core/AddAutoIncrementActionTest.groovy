@@ -1,12 +1,10 @@
 package liquibase.action.core
 
-import groovyjarjarantlr.preprocessor.Preprocessor
 import liquibase.JUnitScope
 import liquibase.Scope
 import liquibase.action.AbstractActionTest
 import liquibase.action.Action
 import liquibase.database.ConnectionSupplier
-import liquibase.parser.ParsedNode
 import liquibase.snapshot.Snapshot
 
 import liquibase.item.core.Column
@@ -51,17 +49,17 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
         testAction([
                 column_asTable     : action.column.toString(),
                 dataType_asTable   : action.dataType,
-                infoObject_asTable : action.autoIncrementInformation != null,
-                startWith_asTable  : action.autoIncrementInformation == null ? null : action.autoIncrementInformation.startWith,
-                incrementBy_asTable: action.autoIncrementInformation == null ? null : action.autoIncrementInformation.incrementBy
+                infoObject_asTable : action.autoIncrementDetails != null,
+                startWith_asTable  : action.autoIncrementDetails == null ? null : action.autoIncrementDetails.startWith,
+                incrementBy_asTable: action.autoIncrementDetails == null ? null : action.autoIncrementDetails.incrementBy
         ], action, conn, scope, { plan, result ->
-            if (action.autoIncrementInformation != null && action.autoIncrementInformation.incrementBy != null) {
+            if (action.autoIncrementDetails != null && action.autoIncrementDetails.incrementBy != null) {
                 //need to check because checkStatus does not get incrementBy metadata
-                assert plan.toString().contains(action.autoIncrementInformation.incrementBy.toString()): "IncrementBy value not used"
+                assert plan.toString().contains(action.autoIncrementDetails.incrementBy.toString()): "IncrementBy value not used"
             }
-            if (action.autoIncrementInformation != null && action.autoIncrementInformation.startWith != null) {
+            if (action.autoIncrementDetails != null && action.autoIncrementDetails.startWith != null) {
                 //need to check because checkStatus does not get startWith metadata
-                assert plan.toString().contains(action.autoIncrementInformation.startWith.toString()): "StartWith value not used"
+                assert plan.toString().contains(action.autoIncrementDetails.startWith.toString()): "StartWith value not used"
             }
 
         })
@@ -78,14 +76,76 @@ class AddAutoIncrementActionTest extends AbstractActionTest {
     }
 
     @Override
+    protected String getExpectedUnparsedFormat(String format) {
+        switch (format) {
+            case "xml":
+                return """
+<?xml version="1.1" encoding="utf-8"?>
+<changeLog xmlns="http://www.liquibase.org/xml/ns/changelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/changelog http://www.liquibase.org/xml/ns/changelog/changelog-4.0.xsd">
+    <changeSet author="test" id="1">
+        <addAutoIncrement type="INTEGER">
+            <autoIncrementDetails incrementBy="4221" startWith="4221"/>
+            <column name="object_name" tableName="table_name" schemaName="schema_name" catalogName="cat_name"/>
+        </addAutoIncrement>
+    </changeSet>
+</changeLog>
+"""
+
+            case "yaml":
+                return """
+changeLog:
+    changeSet:
+        id: '1'
+        author: test
+        addAutoIncrement:
+            column:
+                catalogName: cat_name
+                schemaName: schema_name
+                tableName: table_name
+                name: object_name
+            type: INTEGER
+            autoIncrementDetails:
+                startWith: 4221
+                incrementBy: 4221
+"""
+
+            case "json":
+                return """
+{
+  "changeLog": {
+    "changeSet": {
+      "author": "test",
+      "id": "1",
+      "addAutoIncrement": {
+        "autoIncrementDetails": {
+          "incrementBy": 4221,
+          "startWith": 4221
+        },
+        "column": {
+          "name": "object_name",
+          "tableName": "table_name",
+          "schemaName": "schema_name",
+          "catalogName": "cat_name"
+        },
+        "type": "INTEGER"
+      }
+    }
+  }
+}
+"""
+        }
+        return "";
+    }
+
+    @Override
     List<Action> createAllActionPermutations(ConnectionSupplier connectionSupplier, Scope scope) {
         def tableName = standardCaseItemName("table_name", Table, scope)
         def columnName = standardCaseItemName("column_name", Table, scope)
 
         TestUtil.createAllPermutations(AddAutoIncrementAction, [
-                column                  : [null, new ColumnReference(columnName, null), new ColumnReference(tableName, columnName)],
-                dataType                : [null, new DataType(DataType.StandardType.INTEGER)],
-                autoIncrementInformation: CollectionUtil.addNull(TestUtil.createAllPermutations(Column.AutoIncrementInformation, [
+                column              : [null, new ColumnReference(columnName, null), new ColumnReference(tableName, columnName)],
+                dataType            : [null, new DataType(DataType.StandardType.INTEGER)],
+                autoIncrementDetails: CollectionUtil.addNull(TestUtil.createAllPermutations(Column.AutoIncrementDetails, [
                         startWith  : [null, 1, 2, 10],
                         incrementBy: [null, 1, 5, 20]
                 ]))

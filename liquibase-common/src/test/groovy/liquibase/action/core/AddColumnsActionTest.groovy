@@ -47,8 +47,8 @@ class AddColumnsActionTest extends AbstractActionTest {
 
         then:
         testAction([
-                schema_asTable : schemaName,
-                table_asTable  : tableName,
+                schema_asTable     : schemaName,
+                table_asTable      : tableName,
                 columnNames_asTable: columnNames
         ], action, conn, scope)
 
@@ -81,7 +81,7 @@ class AddColumnsActionTest extends AbstractActionTest {
                 primaryKey_asTable              : action.primaryKey,
                 nullable_asTable                : action.columns*.nullable,
                 foreignKeys_asTable             : action.foreignKeys*.toString(),
-                autoIncrementInformation_asTable: action.columns*.autoIncrementInformation,
+                autoIncrementDetails_asTable: action.columns*.autoIncrementDetails,
         ], action, conn, scope)
 
         where:
@@ -113,13 +113,13 @@ class AddColumnsActionTest extends AbstractActionTest {
         def returnList = []
 
         def columnPermutations = CollectionUtil.addTo(CollectionUtil.toSingletonLists(TestUtil.createAllPermutationsWithoutNulls(Column, [
-                name                    : [testColName],
-                relation                : [tableRef],
-                type                    : [new DataType(DataType.StandardType.INTEGER)],
-                defaultValue            : [null, 3],
-                remarks                 : [null, "Remarks Here"],
-                nullable                : [null, true, false],
-                autoIncrementInformation: [null, new Column.AutoIncrementInformation(), new Column.AutoIncrementInformation(2, 3)]
+                name                : [testColName],
+                relation            : [tableRef],
+                type                : [new DataType(DataType.StandardType.INTEGER)],
+                defaultValue        : [null, 3],
+                remarks             : [null, "Remarks Here"],
+                nullable            : [null, true, false],
+                autoIncrementDetails: [null, new Column.AutoIncrementDetails(), new Column.AutoIncrementDetails(2, 3)]
         ]))).each({
             it.add(new Column(col1Name, tableRef, new DataType(DataType.StandardType.INTEGER), true))
             it.add(new Column(col2Name, tableRef, new DataType(DataType.StandardType.INTEGER), true))

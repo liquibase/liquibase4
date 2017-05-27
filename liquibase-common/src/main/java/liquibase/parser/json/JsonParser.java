@@ -59,6 +59,6 @@ public class JsonParser extends AbstractParser {
 
     @Override
     public String describeOriginal(ParsedNode parsedNode) {
-        return new JsonParser().describeOriginal(parsedNode);
+        return new JsonUnparser().describeOriginal(parsedNode);
     }
 }

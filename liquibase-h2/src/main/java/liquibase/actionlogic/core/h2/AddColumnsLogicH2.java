@@ -21,7 +21,7 @@ public class AddColumnsLogicH2 extends AddColumnsLogic {
     @Override
     public ValidationErrors validate(AddColumnsAction action, Scope scope) {
         return super.validate(action, scope)
-                .checkUnsupportedFields("primaryKey", "columns.autoIncrementInformation");
+                .checkUnsupportedFields("primaryKey", "columns.autoIncrementDetails");
     }
 
     @Override

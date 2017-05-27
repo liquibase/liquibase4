@@ -1,0 +1,19 @@
+{
+  "changeLog": {
+    "changeSet": {
+      "author": "test",
+      "id": "1",
+      "addAutoIncrement": {
+        "catalogName": "cat_name",
+        "columnName": "object_name",
+        "dataType": "INTEGER",
+        "schemaName": "schema_name",
+        "tableName": "table_name",
+        "autoIncrementDetails": {
+          "incrementBy": 4221,
+          "startWith": 4221
+        }
+      }
+    }
+  }
+}

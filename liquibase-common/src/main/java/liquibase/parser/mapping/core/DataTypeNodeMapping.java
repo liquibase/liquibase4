@@ -25,4 +25,15 @@ public class DataTypeNodeMapping extends AbstractParsedNodeMapping<DataType> {
     public DataType toObject(ParsedNode parsedNode, Class<DataType> objectType, Class containerType, String containerAttribute, Scope scope) throws ParseException {
         return DataType.parse((String) parsedNode.getValue());
     }
+
+    @Override
+    public ParsedNode toParsedNode(DataType objectToConvert, Class containerType, String containerAttribute, ParsedNode parentNode, Scope scope) throws ParseException {
+        if (containerAttribute == null) {
+            containerAttribute = "type";
+        }
+        ParsedNode typeNode = parentNode.addChild(containerAttribute);
+        typeNode.addMarker(ParsedNode.Marker.isAttribute);
+        typeNode.setValue(objectToConvert.toString());
+        return typeNode;
+    }
 }

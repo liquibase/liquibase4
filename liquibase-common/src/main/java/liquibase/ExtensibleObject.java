@@ -65,7 +65,14 @@ public interface ExtensibleObject extends Cloneable {
     String describe();
 
     /**
-     * Expose {@link Cloneable#clone()} as public
+     * Expose {@link Cloneable#clone()} as public. Cloned object should preserve {@link #isReadOnlyObject()} status.
      */
     Object clone();
+
+    /**
+     * If object is set to read only, it cannot have attributes changed.
+     */
+    ExtensibleObject setReadOnlyObject(boolean readOnly);
+
+    boolean isReadOnlyObject();
 }

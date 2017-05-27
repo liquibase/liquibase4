@@ -1,0 +1,10 @@
+changeLog:
+    changeSet:
+        id: '1'
+        author: test
+        query:
+            sql: x y z
+            endDelimiter: abc
+            splitStatements: true
+            stripComments: true
+            dbms: abc, abc

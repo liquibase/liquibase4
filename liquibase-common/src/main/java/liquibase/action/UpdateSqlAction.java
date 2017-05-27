@@ -1,5 +1,6 @@
 package liquibase.action;
 
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
 import liquibase.util.StringClauses;
 
 /**

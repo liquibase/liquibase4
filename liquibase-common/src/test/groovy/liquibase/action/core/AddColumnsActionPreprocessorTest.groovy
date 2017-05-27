@@ -105,7 +105,7 @@ changeLog
             columns
                 column
                     name: col_name
-                    autoIncrementInformation
+                    autoIncrementDetails
                         startWith: 51
                         incrementBy: 81
                         """

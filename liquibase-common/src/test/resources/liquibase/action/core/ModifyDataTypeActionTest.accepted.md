@@ -227,4 +227,4 @@
 | 20d60b7     | Generic  | LBSCHEMA2.lowertable.crazy!@#\$%^&*()_+{}[]'"column                    | BIGINT      | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "crazy!@#\$%^&*()_+{}[]'""column" BIGINT
 | a9f6d9f     | Generic  | LBSCHEMA2.lowertable.lowercolumn                                       | BIGINT      | **plan**: ALTER TABLE "LBSCHEMA2"."lowertable" ALTER COLUMN "lowercolumn" BIGINT
 
-# Test Version: "c5a11f" #
+# Test Version: "b1c7b2" #

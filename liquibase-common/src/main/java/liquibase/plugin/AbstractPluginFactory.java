@@ -1,5 +1,6 @@
 package liquibase.plugin;
 
+import liquibase.ExtensibleObject;
 import liquibase.Scope;
 import liquibase.SingletonObject;
 import liquibase.action.Action;
@@ -80,6 +81,9 @@ public abstract class AbstractPluginFactory<T extends Plugin> implements PluginF
             this.allInstances = new ArrayList<>();
 
             for (T t : ServiceLoader.load(getPluginClass(), factoryScope.getClassLoader(true))) {
+                if (t instanceof ExtensibleObject) {
+                    ((ExtensibleObject) t).setReadOnlyObject(true);
+                }
                 this.allInstances.add(t);
             }
         }

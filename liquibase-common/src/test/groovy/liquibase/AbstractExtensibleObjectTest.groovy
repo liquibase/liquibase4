@@ -24,18 +24,18 @@ class AbstractExtensibleObjectTest extends Specification {
         fieldObject.set("value1", "One")
         fieldObject.set("value2", 2)
         fieldObject.set("startWith", 12)
-        fieldObject.autoIncrementInformation = new Column.AutoIncrementInformation(null, new BigInteger(32))
+        fieldObject.autoIncrementDetails = new Column.AutoIncrementDetails(null, new BigInteger(32))
         fieldObject.column = new ColumnReference("x", "y")
 
         then:
         that nonFieldObject.getAttributes(), containsInAnyOrder(["value1", "value2", "value3"] as String[])
-        that fieldObject.getAttributes(), containsInAnyOrder(["value1", "value2", "startWith", "autoIncrementInformation", "column"] as String[])
+        that fieldObject.getAttributes(), containsInAnyOrder(["value1", "value2", "startWith", "autoIncrementDetails", "column"] as String[])
     }
 
     def "getObjectMetaData attributes are created for standard attributes"() {
         expect:
-        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[])
-        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementInformation"] as String[]) //caching works
+        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementDetails"] as String[])
+        that new AddAutoIncrementAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["dataType", "column", "autoIncrementDetails"] as String[]) //caching works
 
         that new DropTablesAction().getObjectMetaData().attributes*.name, containsInAnyOrder(["tables", "cascadeConstraints"] as String[])
 
@@ -64,23 +64,23 @@ class AbstractExtensibleObjectTest extends Specification {
         def obj = new AddAutoIncrementAction();
         obj.set("value1", "One")
         obj.set("value2", 2)
-        obj.autoIncrementInformation = new Column.AutoIncrementInformation(null, new BigInteger(32))
-        obj.autoIncrementInformation.set("startWith", 12)
+        obj.autoIncrementDetails = new Column.AutoIncrementDetails(null, new BigInteger(32))
+        obj.autoIncrementDetails.set("startWith", 12)
 
         then:
         obj.get("value1", String) == "One"
         obj.get("value2", String) == "2"
         obj.get("value2", Integer) == 2
 
-        obj.autoIncrementInformation.get("startWith", Integer) == 12
-        obj.autoIncrementInformation.get("startWith", String) == "12"
-        obj.autoIncrementInformation.startWith == new BigInteger("12")
-        assert obj.autoIncrementInformation.has("startWith")
+        obj.autoIncrementDetails.get("startWith", Integer) == 12
+        obj.autoIncrementDetails.get("startWith", String) == "12"
+        obj.autoIncrementDetails.startWith == new BigInteger("12")
+        assert obj.autoIncrementDetails.has("startWith")
 
-        obj.autoIncrementInformation.get("incrementBy", Integer) == 32
-        obj.autoIncrementInformation.get("incrementBy", String) == "32"
-        obj.autoIncrementInformation.incrementBy == new BigInteger("32")
-        assert obj.autoIncrementInformation.has("incrementBy")
+        obj.autoIncrementDetails.get("incrementBy", Integer) == 32
+        obj.autoIncrementDetails.get("incrementBy", String) == "32"
+        obj.autoIncrementDetails.incrementBy == new BigInteger("32")
+        assert obj.autoIncrementDetails.has("incrementBy")
 
         obj.dataType == null;
         obj.get("dataType", String) == null

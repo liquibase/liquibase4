@@ -2,9 +2,7 @@ package liquibase.actionlogic.core.mysql;
 
 import liquibase.Scope;
 import liquibase.ValidationErrors;
-import liquibase.action.Action;
 import liquibase.action.core.AddAutoIncrementAction;
-import liquibase.action.core.AlterColumnAction;
 import liquibase.action.core.AlterTableAction;
 import liquibase.actionlogic.ActionResult;
 import liquibase.actionlogic.DelegateResult;
@@ -21,7 +19,7 @@ public class AddAutoIncrementLogicMysql extends AddAutoIncrementLogic {
     public ValidationErrors validate(AddAutoIncrementAction action, Scope scope) {
         return super.validate(action, scope)
                 .checkRequiredFields("dataType")
-                .checkUnsupportedFields("autoIncrementInformation.incrementBy");
+                .checkUnsupportedFields("autoIncrementDetails.incrementBy");
     }
 
     @Override
@@ -32,14 +30,14 @@ public class AddAutoIncrementLogicMysql extends AddAutoIncrementLogic {
     @Override
     public ActionResult execute(AddAutoIncrementAction action, Scope scope) throws ActionPerformException {
         DelegateResult delegate = (DelegateResult) super.execute(action, scope);
-        if (action.autoIncrementInformation != null && action.autoIncrementInformation.startWith != null) {
-            delegate.addActions(new AlterTableAction(action.column.container, new StringClauses().append("AUTO_INCREMENT="+action.autoIncrementInformation.startWith)));
+        if (action.autoIncrementDetails != null && action.autoIncrementDetails.startWith != null) {
+            delegate.addActions(new AlterTableAction(action.column.container, new StringClauses().append("AUTO_INCREMENT="+action.autoIncrementDetails.startWith)));
         }
         return delegate;
     }
 
     @Override
-    public StringClauses generateAutoIncrementClause(Column.AutoIncrementInformation autoIncrementInformation) {
+    public StringClauses generateAutoIncrementClause(Column.AutoIncrementDetails autoIncrementDetails) {
         return new StringClauses().append("AUTO_INCREMENT");
     }
 }

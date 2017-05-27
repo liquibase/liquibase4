@@ -2,6 +2,7 @@ package liquibase.parser.xml
 
 import liquibase.JUnitScope
 import liquibase.parser.ParsedNode
+import liquibase.util.StringUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -20,7 +21,7 @@ class XmlUnparserTest extends Specification {
         new XmlUnparser().unparse(node, stream, JUnitScope.instance)
 
         then:
-        new String(stream.toByteArray()).replace("\r\n", "\n") == expected.replace("\r\n", "\n").trim()
+        StringUtil.standardizeLineEndings(stream.toString().trim()) == StringUtil.standardizeLineEndings(expected.trim())
 
         where:
         [children, additionalSetup, expected] << [
@@ -97,6 +98,13 @@ class XmlUnparserTest extends Specification {
     </child>
 </root>
 """],
+
+                //------
+                [[child: "child value"], {root -> ((ParsedNode) root).getChild("child", false).addMarker(ParsedNode.Marker.isText)}, """
+<?xml version="1.1" encoding="utf-8"?>
+<root>child value</root>
+"""],
+
         ]
     }
 }

@@ -7,9 +7,14 @@ import liquibase.item.core.*;
 import liquibase.parser.ParsedNode;
 import liquibase.parser.preprocessor.ParsedNodePreprocessor;
 import liquibase.parser.preprocessor.core.changelog.AbstractActionPreprocessor;
-import liquibase.util.ObjectUtil;
+import liquibase.parser.unprocessor.AbstractActionUnprocessor;
+import liquibase.parser.unprocessor.ParsedNodeUnprocessor;
+import liquibase.parser.unprocessor.core.item.ItemReferenceUnprocessor;
+import liquibase.util.CollectionUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Adds columns to a database. {@link liquibase.actionlogic.ActionLogic} implementations that handle this should handle the case when there are columns added to multiple tables.
@@ -38,10 +43,94 @@ public class AddColumnsAction extends AbstractAction {
         return new AddColumnsPreprocessor();
     }
 
+    @Override
+    public ParsedNodeUnprocessor createUnprocessor() {
+        return new AbstractActionUnprocessor(AddColumnsAction.class) {
+            @Override
+            public Class<? extends ParsedNodeUnprocessor>[] mustBeAfter() {
+                return CollectionUtil.union(Class.class, super.mustBeAfter(), ItemReferenceUnprocessor.class);
+            }
+
+            @Override
+            protected void unprocessAction(ParsedNode actionNode, Scope scope) throws ParseException {
+//                this.hoistListNodes(actionNode, "checkConstraints", "columns", "foreignKeys", "uniqueConstraints");
+                for (ParsedNode relationName : actionNode.getChildren("relationName", true)) {
+                    relationName.rename("tableName");
+                }
+
+                String actionTableName = actionNode.getChildValue("tableName", String.class, false);
+                String actionSchemaName = actionNode.getChildValue("schemaName", String.class, false);
+                String actionCatalogName = actionNode.getChildValue("catalogName", String.class, false);
+
+                ParsedNode checkConstraintsNode = actionNode.getChild("checkConstraints", false);
+                ParsedNode columnsNode = actionNode.getChild("columns", false);
+                ParsedNode foreignKeysNode = actionNode.getChild("foreignKeys", false);
+                ParsedNode uniqueConstraintsNode = actionNode.getChild("uniqueConstraints", false);
+                ParsedNode primaryKeyNode = actionNode.getChild("primaryKey", false);
+
+                if (actionTableName == null && actionSchemaName == null && actionCatalogName == null) {
+                    List<ParsedNode> columns = columnsNode.getChildren("column", false);
+                    if (columns.size() > 0) {
+                        ParsedNode column = columns.get(0);
+                        column.copyChildren("tableName", actionNode);
+                        column.copyChildren("schemaName", actionNode);
+                        column.copyChildren("catalogName", actionNode);
+
+                        actionTableName = actionNode.getChildValue("tableName", String.class, false);
+                        actionSchemaName = actionNode.getChildValue("schemaName", String.class, false);
+                        actionCatalogName = actionNode.getChildValue("catalogName", String.class, false);
+                    }
+                }
+
+                if (primaryKeyNode != null) {
+                    removeTableAttributesIfSameAsDefault(actionCatalogName, actionSchemaName, actionTableName, primaryKeyNode);
+                }
+
+                for (ParsedNode collectionNode : new ParsedNode[] {checkConstraintsNode, columnsNode, foreignKeysNode, uniqueConstraintsNode} ) {
+                    if (collectionNode == null) {
+                        continue;
+                    }
+                    for (ParsedNode child : collectionNode.getChildren()) {
+                        removeTableAttributesIfSameAsDefault(actionCatalogName, actionSchemaName, actionTableName, child);
+                    }
+                }
+
+            }
+
+            protected void removeTableAttributesIfSameAsDefault(String actionCatalogName, String actionSchemaName, String actionTableName, ParsedNode child) throws ParseException {
+                for (ParsedNode tableName : child.getChildren("tableName", true)) {
+                    if (tableName.getValue().equals(actionTableName)) {
+                        tableName.remove();
+                    }
+                }
+                for (ParsedNode schemaName : child.getChildren("schemaName", true)) {
+                    if (schemaName.getValue().equals(actionSchemaName)) {
+                        schemaName.remove();
+                    }
+                }
+                for (ParsedNode catalogName : child.getChildren("catalogName", true)) {
+                    if (catalogName.getValue().equals(actionCatalogName)) {
+                        catalogName.remove();
+                    }
+                }
+            }
+        };
+    }
+
     public static class AddColumnsPreprocessor extends AbstractActionPreprocessor {
 
         public AddColumnsPreprocessor() {
             super(AddColumnsAction.class);
+        }
+
+        @Override
+        public Class<? extends ParsedNodePreprocessor>[] mustBeBefore() {
+            return CollectionUtil.union(Class.class, super.mustBeBefore(),
+                    new UniqueConstraint().createPreprocessor().getClass(),
+                    new PrimaryKey().createPreprocessor().getClass(),
+                    new ForeignKey().createPreprocessor().getClass(),
+                    new CheckConstraint().createPreprocessor().getClass()
+            );
         }
 
         @Override
@@ -58,17 +147,39 @@ public class AddColumnsAction extends AbstractAction {
          */
         @Override
         protected void processActionNode(ParsedNode actionNode, Scope scope) throws ParseException {
-            ParsedNode columns = actionNode.getChild("columns", true);
-            actionNode.moveChildren("column", columns);
+            groupChildren("checkConstraints", actionNode, "checkConstraint");
+            groupChildren("columns", actionNode, "column");
+            groupChildren("foreignKeys", actionNode, "foreignKey");
+            groupChildren("uniqueConstraints", actionNode, "uniqueConstraint");
 
-            for (ParsedNode column : new ArrayList<>(columns.getChildren("column", false))) {
-                actionNode.copyChildren("tableName", column);
-                actionNode.copyChildren("schemaName", column);
-                actionNode.copyChildren("catalogName", column);
 
-                convertToRelationReferenceNode("catalogName", "schemaName", "tableName", column);
+            for (ParsedNode groupNode : new ArrayList<>(actionNode.getChildren(new ParsedNode.ParsedNodeFilter() {
+                @Override
+                public boolean matches(ParsedNode node) {
+                    return node.getName().equals("checkConstraints")
+                            || node.getName().equals("columns")
+                            || node.getName().equals("foreignKeys")
+                            || node.getName().equals("uniqueConstraints");
+                }
+            }, false))) {
+                for (ParsedNode objectNode : groupNode.getChildren()) {
+                    copyAsDefault("tableName", actionNode, objectNode);
+                    copyAsDefault("schemaName", actionNode, objectNode);
+                    copyAsDefault("catalogName", actionNode, objectNode);
 
-                fixColumn(column, column.getChild("relation", false), actionNode);
+//                    convertToRelationReferenceNode("catalogName", "schemaName", "tableName", column);
+
+                    if (objectNode.getName().equals("column")) {
+                        fixColumn(objectNode, objectNode.getChild("relation", false), actionNode);
+                    }
+                }
+            }
+
+            ParsedNode primaryKeyNode = actionNode.getChild("primaryKey", false);
+            if (primaryKeyNode != null) {
+                copyAsDefault("tableName", actionNode, primaryKeyNode);
+                copyAsDefault("schemaName", actionNode, primaryKeyNode);
+                copyAsDefault("catalogName", actionNode, primaryKeyNode);
             }
 
             actionNode.removeChildren("catalogName");
@@ -77,10 +188,7 @@ public class AddColumnsAction extends AbstractAction {
         }
 
         public void fixColumn(ParsedNode column, ParsedNode relation, ParsedNode mainNode) throws ParseException {
-            convertValueOptions("defaultValue", column);
-            this.fixAutoIncrement(column);
             this.fixConstraints(column, relation, mainNode);
-            column.renameChildren("computed", "virtual");
         }
 
 
@@ -187,36 +295,6 @@ public class AddColumnsAction extends AbstractAction {
                     }
                 }
                 constraints.remove();
-            }
-        }
-
-        public void fixAutoIncrement(ParsedNode column) throws ParseException {
-            ParsedNode autoIncrementNode = column.getChild("autoIncrement", false);
-            if (autoIncrementNode != null) {
-                if (autoIncrementNode.getValue(false, Boolean.class)) {
-                    autoIncrementNode.rename("autoIncrementInformation");
-                    autoIncrementNode.setValue(null);
-                } else {
-                    autoIncrementNode.remove();
-                }
-            }
-            autoIncrementNode = column.getChild("autoIncrementInformation", false);
-            ParsedNode startWith = column.getChild("startWith", false);
-            if (startWith != null) {
-                if (autoIncrementNode == null) {
-                    throw new ParseException("Cannot specify 'startWith' without autoIncrement defined", startWith);
-                } else {
-                    startWith.moveTo(autoIncrementNode);
-                }
-            }
-
-            ParsedNode incrementBy = column.getChild("incrementBy", false);
-            if (incrementBy != null) {
-                if (autoIncrementNode == null) {
-                    throw new ParseException("Cannot specify 'incrementBy' without autoIncrement defined", incrementBy);
-                } else {
-                    incrementBy.moveTo(autoIncrementNode);
-                }
             }
         }
     }

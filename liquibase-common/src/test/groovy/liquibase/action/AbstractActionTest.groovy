@@ -1,9 +1,14 @@
 package liquibase.action
 
+import liquibase.ExtensibleObject
 import liquibase.JUnitScope
+import liquibase.ObjectMetaData
+import liquibase.ObjectMetaData.Attribute
 import liquibase.Scope
 import liquibase.action.core.CommitAction
 import liquibase.actionlogic.ActionExecutor
+import liquibase.changelog.ChangeLog
+import liquibase.changelog.ChangeSet
 import liquibase.command.core.DropAllCommand
 import liquibase.database.ConnectionSupplier
 import liquibase.database.ConnectionSupplierFactory
@@ -11,9 +16,17 @@ import liquibase.database.Database
 import liquibase.database.core.GenericDatabase
 import liquibase.diff.output.changelog.ActionGeneratorFactory
 import liquibase.exception.ActionPerformException
+import liquibase.item.AbstractRelationBasedObject
+import liquibase.item.datatype.DataType
+import liquibase.parser.ParserFactory
+import liquibase.parser.Unparser
+import liquibase.parser.UnparserFactory
 import liquibase.plugin.AbstractPlugin
 import liquibase.plugin.AbstractPluginFactory
 import liquibase.plugin.Plugin
+import liquibase.resource.ClassLoaderResourceAccessor
+import liquibase.resource.CompositeResourceAccessor
+import liquibase.resource.MockResourceAccessor
 import liquibase.snapshot.Snapshot
 import liquibase.item.Item
 
@@ -22,16 +35,21 @@ import liquibase.item.TestItemSupplierFactory
 import liquibase.item.core.*
 
 import liquibase.util.CollectionUtil
+import liquibase.util.StringClauses
 import liquibase.util.StringUtil
 import org.junit.Assert
 import org.junit.Assume
 import org.slf4j.LoggerFactory
 import org.spockframework.runtime.SpecificationContext
 import spock.lang.Specification
+import spock.lang.Unroll
 import testmd.Permutation
 import testmd.TestMD
 import testmd.logic.SetupResult
 
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.lang.reflect.TypeVariable
 import java.text.NumberFormat
 
 /**
@@ -259,6 +277,12 @@ abstract class AbstractActionTest extends Specification {
         return scope.getSingleton(AbstractActionTest.TestDetailsFactory).getTestDetails(this, scope)
     }
 
+
+
+    protected String getExpectedUnparsedFormat(String format) {
+        return "Override " + getClass().simpleName + ".getExpectedUnparsedFormat(String)"
+    }
+
     /**
      * A specialized
      */
@@ -322,18 +346,36 @@ abstract class AbstractActionTest extends Specification {
             return getPlugin(scope, test);
         }
 
+        public T getTestDetails(Action action, Scope scope) {
+            return getPlugin(scope, action);
+        }
+
         @Override
         protected int getPriority(AbstractActionTest.TestDetails obj, Scope scope, Object... args) {
-            AbstractActionTest test = (AbstractActionTest) args[0];
-            Class testName = test.getClass();
-            Class testDetails = obj.getClass();
+            if (args[0] instanceof Action) {
+                Action action = (Action) args[0];
+                Class actionName = action.getClass();
+                Class testDetails = obj.getClass();
 
-            if ((testName.getName() + '$TestDetails').equals(testDetails.getName())) {
-                return Plugin.PRIORITY_DEFAULT;
-            } else if ((testName.getSimpleName() + "Details" + scope.getDatabase().getShortName()).equalsIgnoreCase(testDetails.getSimpleName())) {
-                return Plugin.PRIORITY_SPECIALIZED;
+                if ((actionName.getName() + 'Test$TestDetails').equals(testDetails.getName())) {
+                    return Plugin.PRIORITY_DEFAULT;
+                } else if ((actionName.getSimpleName() + "TestDetails" + scope.getDatabase().getShortName()).equalsIgnoreCase(testDetails.getSimpleName())) {
+                    return Plugin.PRIORITY_SPECIALIZED;
+                } else {
+                    return Plugin.PRIORITY_NOT_APPLICABLE;
+                }
             } else {
-                return Plugin.PRIORITY_NOT_APPLICABLE;
+                AbstractActionTest test = (AbstractActionTest) args[0];
+                Class testName = test.getClass();
+                Class testDetails = obj.getClass();
+
+                if ((testName.getName() + '$TestDetails').equals(testDetails.getName())) {
+                    return Plugin.PRIORITY_DEFAULT;
+                } else if ((testName.getSimpleName() + "Details" + scope.getDatabase().getShortName()).equalsIgnoreCase(testDetails.getSimpleName())) {
+                    return Plugin.PRIORITY_SPECIALIZED;
+                } else {
+                    return Plugin.PRIORITY_NOT_APPLICABLE;
+                }
             }
         }
 

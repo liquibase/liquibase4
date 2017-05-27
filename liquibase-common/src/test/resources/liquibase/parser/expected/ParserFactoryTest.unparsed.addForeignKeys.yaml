@@ -1,0 +1,46 @@
+changeLog:
+    changeSet:
+        author: test
+        id: '1'
+        addForeignKeys:
+            foreignKeys:
+            -   foreignKey:
+                    catalogName: cat_name
+                    deferrable: true
+                    deleteRule: cascade
+                    initiallyDeferred: true
+                    name: abc
+                    referencedTableCatalogName: cat_name
+                    referencedTableName: object_name
+                    referencedTableSchemaName: schema_name
+                    remarks: abc
+                    schemaName: schema_name
+                    tableName: object_name
+                    updateRule: cascade
+                    columnChecks:
+                    -   constraint:
+                            baseColumn: abc
+                            referencedColumn: abc
+                    -   constraint:
+                            baseColumn: abc
+                            referencedColumn: abc
+            -   foreignKey:
+                    catalogName: cat_name
+                    deferrable: true
+                    deleteRule: cascade
+                    initiallyDeferred: true
+                    name: abc
+                    referencedTableCatalogName: cat_name
+                    referencedTableName: object_name
+                    referencedTableSchemaName: schema_name
+                    remarks: abc
+                    schemaName: schema_name
+                    tableName: object_name
+                    updateRule: cascade
+                    columnChecks:
+                    -   constraint:
+                            baseColumn: abc
+                            referencedColumn: abc
+                    -   constraint:
+                            baseColumn: abc
+                            referencedColumn: abc

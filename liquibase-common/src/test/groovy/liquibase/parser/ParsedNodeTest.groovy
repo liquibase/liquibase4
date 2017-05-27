@@ -32,7 +32,7 @@ class ParsedNodeTest extends Specification {
         }
 
         then:
-        root.toString() == "ParsedNode{root, children=[ParsedNode{child=child value}]}"
+        root.toString() == 'ParsedNode{root [ParsedNode{child="child value"}]}'
         root.children.collect {
             assert it.parent == root
         }
@@ -40,12 +40,12 @@ class ParsedNodeTest extends Specification {
         ParsedNode.createRootNode("root").each({
             it.addChild("child1").setValue("child 1 value")
             it.addChild("child2").setValue("child 2 value")
-        }).toString() == "ParsedNode{root, children=[ParsedNode{child1=child 1 value}, ParsedNode{child2=child 2 value}]}"
+        }).toString() == 'ParsedNode{root [ParsedNode{child1="child 1 value"}, ParsedNode{child2="child 2 value"}]}'
 
         ParsedNode.createRootNode("root").each({
             it.addChild("duplicateChild").setValue("child 1 value")
             it.addChild("duplicateChild").setValue("child 2 value")
-        }).toString() == "ParsedNode{root, children=[ParsedNode{duplicateChild=child 1 value}, ParsedNode{duplicateChild=child 2 value}]}"
+        }).toString() == 'ParsedNode{root [ParsedNode{duplicateChild="child 1 value"}, ParsedNode{duplicateChild="child 2 value"}]}'
     }
 
     def "removeChildren by name"() {
@@ -53,7 +53,7 @@ class ParsedNodeTest extends Specification {
         root.removeChildren("child2")
 
         then:
-        root.toString() == "ParsedNode{root, children=[ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}]}"
+        root.toString() == 'ParsedNode{root [ParsedNode{child1="child 1 value" [ParsedNode{child1A="child 1A value"}, ParsedNode{child1B="child 1B value"}]}]}'
     }
 
     def "getChild"() {
@@ -128,12 +128,12 @@ class ParsedNodeTest extends Specification {
 
         then:
         assert child1.parent.is(child2)
-        assert root.toString() == "ParsedNode{root, children=[ParsedNode{child2=child 2 value, children=[ParsedNode{child2A=child 2A value}, ParsedNode{child2B=child 2B value}, ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}, ParsedNode{child1=another child1}, ParsedNode{child1=yet another child1}]}, ParsedNode{child2=another child1}, ParsedNode{child1A=a child 1a on root}]}"
+        assert root.toString() == 'ParsedNode{root [ParsedNode{child2="child 2 value" [ParsedNode{child2A="child 2A value"}, ParsedNode{child2B="child 2B value"}, ParsedNode{child1="child 1 value" [ParsedNode{child1A="child 1A value"}, ParsedNode{child1B="child 1B value"}]}, ParsedNode{child1="another child1"}, ParsedNode{child1="yet another child1"}]}, ParsedNode{child2="another child1"}, ParsedNode{child1A="a child 1a on root"}]}'
 
         when:
         root.moveChildren("invalid", child2)
         then:
-        assert root.toString() == "ParsedNode{root, children=[ParsedNode{child2=child 2 value, children=[ParsedNode{child2A=child 2A value}, ParsedNode{child2B=child 2B value}, ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}, ParsedNode{child1=another child1}, ParsedNode{child1=yet another child1}]}, ParsedNode{child2=another child1}, ParsedNode{child1A=a child 1a on root}]}"
+        assert root.toString() == 'ParsedNode{root [ParsedNode{child2="child 2 value" [ParsedNode{child2A="child 2A value"}, ParsedNode{child2B="child 2B value"}, ParsedNode{child1="child 1 value" [ParsedNode{child1A="child 1A value"}, ParsedNode{child1B="child 1B value"}]}, ParsedNode{child1="another child1"}, ParsedNode{child1="yet another child1"}]}, ParsedNode{child2="another child1"}, ParsedNode{child1A="a child 1a on root"}]}'
     }
 
     def "moveTo"() {
@@ -142,7 +142,7 @@ class ParsedNodeTest extends Specification {
 
         then:
         assert child1.parent.is(child2)
-        assert root.toString() == "ParsedNode{root, children=[ParsedNode{child2=child 2 value, children=[ParsedNode{child2A=child 2A value}, ParsedNode{child2B=child 2B value}, ParsedNode{child1=child 1 value, children=[ParsedNode{child1A=child 1A value}, ParsedNode{child1B=child 1B value}]}]}]}"
+        assert root.toString() == 'ParsedNode{root [ParsedNode{child2="child 2 value" [ParsedNode{child2A="child 2A value"}, ParsedNode{child2B="child 2B value"}, ParsedNode{child1="child 1 value" [ParsedNode{child1A="child 1A value"}, ParsedNode{child1B="child 1B value"}]}]}]}'
     }
 
     def "print"() {

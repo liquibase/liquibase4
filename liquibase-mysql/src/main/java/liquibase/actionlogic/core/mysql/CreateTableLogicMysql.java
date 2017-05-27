@@ -31,7 +31,7 @@ public class CreateTableLogicMysql extends CreateTableLogic {
 
         if (!errors.hasErrors()) {
             for (Column column : action.columns) {
-                if (column.autoIncrementInformation != null) {
+                if (column.autoIncrementDetails != null) {
                     if (action.primaryKey == null) {
                         errors.addError("Auto-increment columns must have a primary key");
                     } else {

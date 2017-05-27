@@ -143,14 +143,14 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
                 String isAutoincrement = row.get("IS_AUTOINCREMENT", String.class);
                 isAutoincrement = StringUtil.trimToNull(isAutoincrement);
                 if (isAutoincrement == null) {
-                    column.autoIncrementInformation = null;
+                    column.autoIncrementDetails = null;
                 } else if (isAutoincrement.equals("YES")) {
-                    column.autoIncrementInformation = new Column.AutoIncrementInformation();
+                    column.autoIncrementDetails = new Column.AutoIncrementDetails();
                 } else if (isAutoincrement.equals("NO")) {
-                    column.autoIncrementInformation = null;
+                    column.autoIncrementDetails = null;
                 } else if (isAutoincrement.equals("")) {
                     LoggerFactory.getLogger(getClass()).info("Unknown auto increment state for column " + column.toString() + ". Assuming not auto increment");
-                    column.autoIncrementInformation = null;
+                    column.autoIncrementDetails = null;
                 } else {
                     throw new UnexpectedLiquibaseException("Unknown is_autoincrement value: '" + isAutoincrement + "'");
                 }
@@ -178,9 +178,9 @@ public class SnapshotColumnsLogic extends AbstractSnapshotDatabaseObjectsLogic<C
 //                        statement = underlyingConnection.createStatement();
 //                        columnSelectRS = statement.executeQuery(selectStatement);
 //                        if (columnSelectRS.getMetaData().isAutoIncrement(1)) {
-//                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+//                            column.setautoIncrementDetails(new Column.autoIncrementDetails());
 //                        } else {
-//                            column.setAutoIncrementInformation(null);
+//                            column.setautoIncrementDetails(null);
 //                        }
 //                    } finally {
 //                        try {

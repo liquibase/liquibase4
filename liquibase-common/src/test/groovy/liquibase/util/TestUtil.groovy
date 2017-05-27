@@ -1,8 +1,18 @@
 package liquibase.util
 
 import liquibase.ExtensibleObject
+import liquibase.ObjectMetaData
+import liquibase.item.AbstractRelationBasedObject
+import liquibase.item.ItemReference
+import liquibase.item.core.CatalogReference
+import liquibase.item.core.RelationReference
+import liquibase.item.core.SchemaReference
+import liquibase.item.core.Table
+import liquibase.item.datatype.DataType
 
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.TypeVariable
 
 /**
  * Test-centric utility methods

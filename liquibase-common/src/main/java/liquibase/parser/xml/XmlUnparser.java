@@ -50,9 +50,16 @@ public class XmlUnparser extends AbstractUnparser {
         List<ParsedNode> childElements = new ArrayList<>();
         List<ParsedNode> childAttributes = new ArrayList<>();
 
+        Object textValue = null;
         for (ParsedNode child : node.getChildren()) {
             if (child.hasMarker(ParsedNode.Marker.isAttribute)) {
                 childAttributes.add(child);
+            } else if (child.hasMarker(ParsedNode.Marker.isText)) {
+                if (textValue == null) {
+                    textValue = child.getValue();
+                } else {
+                    throw new ParseException("Multiple nodes marked as text", node);
+                }
             } else {
                 childElements.add(child);
             }
@@ -61,6 +68,12 @@ public class XmlUnparser extends AbstractUnparser {
         writer.writeCharacters(scope.getLineSeparator());
 
         Object nodeValue = node.getValue();
+        if (textValue != null) {
+            if (nodeValue != null) {
+                throw new ParseException("A node was marked as text, but there was also a node value", node);
+            }
+            nodeValue = textValue;
+        }
         if (childElements.size() == 0 && nodeValue == null) {
             writer.writeCharacters(StringUtil.pad("", depth * 4));
             writer.writeEmptyElement(node.getName());
@@ -74,7 +87,13 @@ public class XmlUnparser extends AbstractUnparser {
         }
 
         for (ParsedNode child : childElements) {
-            writeNode(child, writer, depth + 1, scope);
+            if (child.hasMarker(ParsedNode.Marker.isCollectionNode)) {
+                for (ParsedNode collectionChild : child.getChildren()) {
+                    writeNode(collectionChild, writer, depth + 1, scope);
+                }
+            } else {
+                writeNode(child, writer, depth + 1, scope);
+            }
         }
 
         boolean multiLine = false;
